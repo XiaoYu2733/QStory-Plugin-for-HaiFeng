@@ -6,7 +6,7 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-* **以下是已有Java脚本 +**  
+* **以下是已有Java脚本**  
     * Java代码美化
     * QSutoDaily
     * code
@@ -39,4 +39,4 @@
     * 随机图片
     * 随机文案
 
-### 如果没有你用到的脚本或有更好的建议 请加入Telegram交流群反馈
+### 如果没有你用到的脚本或有更好的建议 请加入Telegram交流群
