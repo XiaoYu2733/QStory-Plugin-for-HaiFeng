@@ -6,7 +6,7 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-### Developer：海枫 临江踏雨不返
+### Developer：海枫 临江踏雨不返(@suzhelan)
 
 ## 可以的话请在右上角为此项目点一个 <kbd>:star:STAR</kbd> 支持一下
 
