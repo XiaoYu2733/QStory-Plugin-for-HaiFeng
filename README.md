@@ -13,8 +13,7 @@
 ## 可以的话请在右上角为此项目点一个 <kbd>:star:STAR</kbd> 支持一下
 
 * **以下是已有Java脚本**  
-    * Java代码美化
-    - 美化代码 脚本悬浮窗使用
+    * Java代码美化 - 美化代码 脚本悬浮窗使用
     * QSutoDaily
     * code
     * kuma
