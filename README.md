@@ -8,7 +8,7 @@
 
 ### Developer：海枫 临江踏雨不返
 
-## 可以的话请在右上角为此项目点一个<kbd>:star:STAR</kbd> 支持一下
+## 可以的话请在右上角为此项目点一个 <kbd>:star:STAR</kbd> 支持一下
 
 * **以下是已有Java脚本**  
     * Java代码美化
