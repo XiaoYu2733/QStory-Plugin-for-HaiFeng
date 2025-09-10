@@ -6,7 +6,7 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-### Developer：海枫 临江踏雨不返(@suzhelan)
+# Developer：海枫 临江踏雨不返(@suzhelan)
 
 ## 脚本运行环境 QStory 下载地址：https://qstory.sacz.top
 
