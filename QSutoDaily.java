@@ -464,7 +464,7 @@ public void configureLikeFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择点赞好友");
             builder.setCancelable(true);
             
@@ -474,6 +474,7 @@ public void configureLikeFriends(String g, String u, int t){
             
             final EditText searchBox = new EditText(activity);
             searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
             
@@ -600,7 +601,7 @@ public void configureFireFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择续火好友");
             builder.setCancelable(true);
             
@@ -610,6 +611,7 @@ public void configureFireFriends(String g, String u, int t){
             
             final EditText searchBox = new EditText(activity);
             searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
             
@@ -731,7 +733,7 @@ public void configureFireGroups(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择续火群组");
             builder.setCancelable(true);
             
@@ -741,6 +743,7 @@ public void configureFireGroups(String g, String u, int t){
             
             final EditText searchBox = new EditText(activity);
             searchBox.setHint("搜索群号或群名称");
+            searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
             
@@ -840,6 +843,7 @@ public void configureFriendFireWords(String g, String u, int t){
                 
                 TextView titleView = new TextView(activity);
                 titleView.setText("配置好友续火词");
+                titleView.setTextColor(Color.BLACK);
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
                 titleView.setGravity(Gravity.CENTER);
@@ -848,11 +852,13 @@ public void configureFriendFireWords(String g, String u, int t){
                 final EditText input = new EditText(activity);
                 input.setText(wordsList.toString());
                 input.setHint("输入好友续火词，用逗号分隔");
+                input.setTextColor(Color.BLACK);
                 input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 input.setHintTextColor(Color.parseColor("#888888"));
                 
                 TextView tipView = new TextView(activity);
                 tipView.setText("注意：输入多个续火词时，用英文逗号分隔");
+                tipView.setTextColor(Color.BLACK);
                 tipView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 tipView.setPadding(0, 20, 0, 0);
                 
@@ -863,7 +869,7 @@ public void configureFriendFireWords(String g, String u, int t){
                 layout.addView(input);
                 layout.addView(tipView);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setView(layout);
                 builder.setCancelable(true);
                 
@@ -898,6 +904,11 @@ public void configureFriendFireWords(String g, String u, int t){
                 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                
+                Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setTextColor(Color.WHITE);
+                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+                negativeButton.setTextColor(Color.parseColor("#666666"));
             } catch (Exception e) {
                 toast("配置错误: " + e.getMessage());
             }
@@ -923,6 +934,7 @@ public void configureGroupFireWords(String g, String u, int t){
                 
                 TextView titleView = new TextView(activity);
                 titleView.setText("配置群组续火词");
+                titleView.setTextColor(Color.BLACK);
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
                 titleView.setGravity(Gravity.CENTER);
@@ -931,11 +943,13 @@ public void configureGroupFireWords(String g, String u, int t){
                 final EditText input = new EditText(activity);
                 input.setText(wordsList.toString());
                 input.setHint("输入群组续火词，用逗号分隔");
+                input.setTextColor(Color.BLACK);
                 input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 input.setHintTextColor(Color.parseColor("#888888"));
                 
                 TextView tipView = new TextView(activity);
                 tipView.setText("注意：输入多个续火词时，用英文逗号分隔");
+                tipView.setTextColor(Color.BLACK);
                 tipView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 tipView.setPadding(0, 20, 0, 0);
                 
@@ -946,7 +960,7 @@ public void configureGroupFireWords(String g, String u, int t){
                 layout.addView(input);
                 layout.addView(tipView);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setView(layout);
                 builder.setCancelable(true);
                 
@@ -981,6 +995,11 @@ public void configureGroupFireWords(String g, String u, int t){
                 
                 AlertDialog dialog = builder.create();
                 dialog.show();
+                
+                Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                positiveButton.setTextColor(Color.WHITE);
+                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+                negativeButton.setTextColor(Color.parseColor("#666666"));
             } catch (Exception e) {
                 toast("配置错误: " + e.getMessage());
             }
@@ -994,7 +1013,7 @@ public void configureLikeTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("设置点赞时间");
             builder.setCancelable(true);
             
@@ -1033,7 +1052,7 @@ public void configureFriendFireTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("设置好友续火时间");
             builder.setCancelable(true);
             
@@ -1072,7 +1091,7 @@ public void configureGroupFireTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("设置群组续火时间");
             builder.setCancelable(true);
             
@@ -1111,16 +1130,14 @@ public void showUpdateLog(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
             builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [新增] 弹窗支持全选 现在不需要一个一个点了\n" +
-            "- [新增] 弹窗可以搜索好友 群组，使用了QQ内部方法 感谢卑微萌新\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞弹窗 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n" +
-            "- [修复] 在深色模式中 弹窗渲染显示异常的问题\n" +
             "- [更改] 现在点赞好友 好友续火 群组续火默认时间为00:00 可能需要自己重新配置时间\n\n" +
             "反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
@@ -1129,5 +1146,3 @@ public void showUpdateLog(String g, String u, int t) {
         }
     });
 }
-
-// 海枫 行空天天开心>_<
