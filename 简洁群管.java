@@ -109,7 +109,7 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setTitle("设置艾特禁言时间");
                 
                 LinearLayout layout = new LinearLayout(activity);
@@ -164,7 +164,7 @@ public void showUpdateLog(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("简洁群管更新日志");
             builder.setMessage("QStory精选脚本系列\n\n" +
                     "以下是简洁群管的部分更新日志 14.0以前的更新内容已丢失 因为以前的版本是临江在维护 并非海枫 找不到 并且部分更新内容我自己也不记得了\n\n" +
@@ -282,6 +282,12 @@ public void showUpdateLog(String g, String u, int t) {
                     "————————\n" +
                     "简洁群管_46.0_更新日志\n" +
                     "- [修复] 弹窗在暗色模式中 渲染显示异常的问题\n" +
+                    "————————\n" +
+                    "简洁群管_47.0_更新日志\n" +
+                    "- [移除] Android 主题 (Theme.Material.Light.Dialog.Alert) 因为在旧版本 QQ sdk 不同导致弹窗显示风格较老\n" +
+                    "- [修复] 全选弹窗消失的问题\n" +
+                    "- [更改] 继续使用 THEME_DEVICE_DEFAULT_LIGHT); 主题\n" +
+                    "- [其他] 顺便也修了一些存在的问题\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -337,7 +343,7 @@ public void showGroupManageDialog() {
                     ScrollView scrollView = new ScrollView(activity);
                     scrollView.addView(layout);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                     builder.setTitle("群管功能说明")
                         .setView(scrollView)
                         .setNegativeButton("关闭", null)
@@ -363,7 +369,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setTitle("代管管理");
                 
                 final File 代管文件 = 获取代管文件();
@@ -443,7 +449,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setTitle("黑名单管理");
                 
                 final File 黑名单文件 = 获取黑名单文件(groupUin);
@@ -616,29 +622,6 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
         String cookie="p_uin=o0"+myQQ+";uin=o0"+myQQ+";skey="+skey+";p_skey="+pskey;
         String put="gc="+qun+"&flag="+type+"&bkn="+GetBkn(skey);
         JSONObject json = new JSONObject(httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_honour_flag",cookie,put));
-        int ec=json.getInt("ec");
-        String em=json.getString("em");
-        if(ec==0) return "设置成功";
-        else return "设置失败，原因:\n"+em;
-    }
-    catch(Exception e){
-        return "设置失败，原因:\n"+e;
-    } 
-}
-
-public String SetTroopShowLevel(String qun,String myQQ,String skey,String pskey,int type){
-    return SetTroopShowInfo(qun,myQQ,skey,pskey,"&levelnewflag="+type);
-}
-
-public String SetTroopShowTitle(String qun,String myQQ,String skey,String pskey,int type){
-    return SetTroopShowInfo(qun,myQQ,skey,pskey,"&levelflag="+type);
-}
-
-public String SetTroopShowInfo(String qun,String myQQ,String skey,String pskey,String type){
-    try{
-        String cookie="p_uin=o0"+myQQ+";uin=o0"+myQQ+";skey="+skey+";p_skey="+pskey;
-        String put="gc="+qun+type+"&bkn="+GetBkn(skey);
-        JSONObject json = new JSONObject(httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_group_setting",cookie,put));
         int ec=json.getInt("ec");
         String em=json.getString("em");
         if(ec==0) return "设置成功";
