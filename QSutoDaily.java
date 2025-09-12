@@ -5,7 +5,6 @@
 
 // QStory精选脚本系列 请勿二改上传 会拉黑上传权限(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
 
-// 部分接口 卑微萌新
 
 
 
@@ -337,20 +336,20 @@ void sendToAllFriends(){
 
 void sendToAllGroups(){
     new Thread(new Runnable(){
-    public void run(){
-        for(int i = 0; i < fireGroups.size(); i++){
-            String group = (String)fireGroups.get(i);
-            try{
-                int index = (int)(Math.random() * groupFireWords.size());
-                String word = (String)groupFireWords.get(index);
-                sendMsg(group, "", word);
-                Thread.sleep(5000);
-            }catch(Exception e){
-                toast(group + "续火失败:" + e.getMessage());
+        public void run(){
+            for(int i = 0; i < fireGroups.size(); i++){
+                String group = (String)fireGroups.get(i);
+                try{
+                    int index = (int)(Math.random() * groupFireWords.size());
+                    String word = (String)groupFireWords.get(index);
+                    sendMsg(group, "", word);
+                    Thread.sleep(5000);
+                }catch(Exception e){
+                    toast(group + "续火失败:" + e.getMessage());
+                }
             }
         }
-    }
-}).start();
+    }).start();
 }
 
 addItem("立即点赞好友","likeNow");
@@ -399,8 +398,6 @@ public void fireFriendsNow(String g, String u, int t){
     sendToAllFriends();
     toast("已立即续火" + fireFriends.size() + "位好友");
 }
-
-sendLike("2133115301",20);
 
 public void fireGroupsNow(String g, String u, int t){
     long currentTime = System.currentTimeMillis();
@@ -468,68 +465,68 @@ public void configureLikeFriends(String g, String u, int t){
             builder.setTitle("选择点赞好友");
             builder.setCancelable(true);
             
-            LinearLayout dialogLayout = new LinearLayout(activity);
-            dialogLayout.setOrientation(LinearLayout.VERTICAL);
-            dialogLayout.setPadding(20, 20, 20, 20);
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(20, 20, 20, 20);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setHint("搜索好友名称或QQ号");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
-            dialogLayout.addView(searchBox);
+            layout.addView(searchBox);
             
             final ListView listView = new ListView(activity);
-            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            layout.addView(listView);
             
-            builder.setView(dialogLayout);
+            builder.setView(layout);
             
-            final ArrayList filteredNames = new ArrayList(friendNames);
-            final ArrayList filteredUins = new ArrayList(friendUins);
-            final boolean[] filteredChecked = checkedItems.clone();
+            final String[] displayItems = (String[]) friendNames.toArray(new String[0]);
+            final ArrayList filteredItems = new ArrayList();
+            for (int i = 0; i < displayItems.length; i++) {
+                filteredItems.add(displayItems[i]);
+            }
             
-            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredItems);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             
-            for (int i = 0; i < filteredChecked.length; i++) {
-                listView.setItemChecked(i, filteredChecked[i]);
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
             }
             
             searchBox.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {
-                    String query = s.toString().toLowerCase();
-                    filteredNames.clear();
-                    filteredUins.clear();
-                    
-                    for (int i = 0; i < friendNames.size(); i++) {
-                        String name = (String) friendNames.get(i);
-                        String uin = (String) friendUins.get(i);
-                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
-                            filteredNames.add(name);
-                            filteredUins.add(uin);
-                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    filteredItems.clear();
+                    for (int i = 0; i < displayItems.length; i++) {
+                        if (displayItems[i].toLowerCase().contains(searchText)) {
+                            filteredItems.add(displayItems[i]);
                         }
                     }
-                    
                     adapter.notifyDataSetChanged();
                     
-                    for (int i = 0; i < filteredChecked.length; i++) {
-                        if (i < filteredNames.size()) {
-                            listView.setItemChecked(i, filteredChecked[i]);
+                    for (int i = 0; i < filteredItems.size(); i++) {
+                        String item = (String) filteredItems.get(i);
+                        int originalIndex = friendNames.indexOf(item);
+                        if (originalIndex >= 0) {
+                            listView.setItemChecked(i, checkedItems[originalIndex]);
                         }
                     }
                 }
-                
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
             });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     likeFriends.clear();
-                    for (int i = 0; i < filteredUins.size(); i++) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         if (listView.isItemChecked(i)) {
-                            likeFriends.add(filteredUins.get(i));
+                            String selectedItem = (String) filteredItems.get(i);
+                            int originalIndex = friendNames.indexOf(selectedItem);
+                            if (originalIndex >= 0) {
+                                likeFriends.add(friendUins.get(originalIndex));
+                            }
                         }
                     }
                     saveLikeFriends();
@@ -538,20 +535,17 @@ public void configureLikeFriends(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            builder.setNeutralButton("全选", null);
             
-            final AlertDialog dialog = builder.create();
-            dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         listView.setItemChecked(i, true);
-                        filteredChecked[i] = true;
                     }
                 }
             });
+            
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -605,68 +599,68 @@ public void configureFireFriends(String g, String u, int t){
             builder.setTitle("选择续火好友");
             builder.setCancelable(true);
             
-            LinearLayout dialogLayout = new LinearLayout(activity);
-            dialogLayout.setOrientation(LinearLayout.VERTICAL);
-            dialogLayout.setPadding(20, 20, 20, 20);
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(20, 20, 20, 20);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setHint("搜索好友名称或QQ号");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
-            dialogLayout.addView(searchBox);
+            layout.addView(searchBox);
             
             final ListView listView = new ListView(activity);
-            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            layout.addView(listView);
             
-            builder.setView(dialogLayout);
+            builder.setView(layout);
             
-            final ArrayList filteredNames = new ArrayList(friendNames);
-            final ArrayList filteredUins = new ArrayList(friendUins);
-            final boolean[] filteredChecked = checkedItems.clone();
+            final String[] displayItems = (String[]) friendNames.toArray(new String[0]);
+            final ArrayList filteredItems = new ArrayList();
+            for (int i = 0; i < displayItems.length; i++) {
+                filteredItems.add(displayItems[i]);
+            }
             
-            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredItems);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             
-            for (int i = 0; i < filteredChecked.length; i++) {
-                listView.setItemChecked(i, filteredChecked[i]);
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
             }
             
             searchBox.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {
-                    String query = s.toString().toLowerCase();
-                    filteredNames.clear();
-                    filteredUins.clear();
-                    
-                    for (int i = 0; i < friendNames.size(); i++) {
-                        String name = (String) friendNames.get(i);
-                        String uin = (String) friendUins.get(i);
-                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
-                            filteredNames.add(name);
-                            filteredUins.add(uin);
-                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    filteredItems.clear();
+                    for (int i = 0; i < displayItems.length; i++) {
+                        if (displayItems[i].toLowerCase().contains(searchText)) {
+                            filteredItems.add(displayItems[i]);
                         }
                     }
-                    
                     adapter.notifyDataSetChanged();
                     
-                    for (int i = 0; i < filteredChecked.length; i++) {
-                        if (i < filteredNames.size()) {
-                            listView.setItemChecked(i, filteredChecked[i]);
+                    for (int i = 0; i < filteredItems.size(); i++) {
+                        String item = (String) filteredItems.get(i);
+                        int originalIndex = friendNames.indexOf(item);
+                        if (originalIndex >= 0) {
+                            listView.setItemChecked(i, checkedItems[originalIndex]);
                         }
                     }
                 }
-                
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
             });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireFriends.clear();
-                    for (int i = 0; i < filteredUins.size(); i++) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         if (listView.isItemChecked(i)) {
-                            fireFriends.add(filteredUins.get(i));
+                            String selectedItem = (String) filteredItems.get(i);
+                            int originalIndex = friendNames.indexOf(selectedItem);
+                            if (originalIndex >= 0) {
+                                fireFriends.add(friendUins.get(originalIndex));
+                            }
                         }
                     }
                     saveFireFriends();
@@ -675,20 +669,17 @@ public void configureFireFriends(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            builder.setNeutralButton("全选", null);
             
-            final AlertDialog dialog = builder.create();
-            dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         listView.setItemChecked(i, true);
-                        filteredChecked[i] = true;
                     }
                 }
             });
+            
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -737,68 +728,68 @@ public void configureFireGroups(String g, String u, int t){
             builder.setTitle("选择续火群组");
             builder.setCancelable(true);
             
-            LinearLayout dialogLayout = new LinearLayout(activity);
-            dialogLayout.setOrientation(LinearLayout.VERTICAL);
-            dialogLayout.setPadding(20, 20, 20, 20);
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(20, 20, 20, 20);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索群号或群名称");
+            searchBox.setHint("搜索群名称或群号");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
-            dialogLayout.addView(searchBox);
+            layout.addView(searchBox);
             
             final ListView listView = new ListView(activity);
-            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            layout.addView(listView);
             
-            builder.setView(dialogLayout);
+            builder.setView(layout);
             
-            final ArrayList filteredNames = new ArrayList(groupNames);
-            final ArrayList filteredUins = new ArrayList(groupUins);
-            final boolean[] filteredChecked = checkedItems.clone();
+            final String[] displayItems = (String[]) groupNames.toArray(new String[0]);
+            final ArrayList filteredItems = new ArrayList();
+            for (int i = 0; i < displayItems.length; i++) {
+                filteredItems.add(displayItems[i]);
+            }
             
-            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredItems);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             
-            for (int i = 0; i < filteredChecked.length; i++) {
-                listView.setItemChecked(i, filteredChecked[i]);
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
             }
             
             searchBox.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {
-                    String query = s.toString().toLowerCase();
-                    filteredNames.clear();
-                    filteredUins.clear();
-                    
-                    for (int i = 0; i < groupNames.size(); i++) {
-                        String name = (String) groupNames.get(i);
-                        String uin = (String) groupUins.get(i);
-                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
-                            filteredNames.add(name);
-                            filteredUins.add(uin);
-                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    filteredItems.clear();
+                    for (int i = 0; i < displayItems.length; i++) {
+                        if (displayItems[i].toLowerCase().contains(searchText)) {
+                            filteredItems.add(displayItems[i]);
                         }
                     }
-                    
                     adapter.notifyDataSetChanged();
                     
-                    for (int i = 0; i < filteredChecked.length; i++) {
-                        if (i < filteredNames.size()) {
-                            listView.setItemChecked(i, filteredChecked[i]);
+                    for (int i = 0; i < filteredItems.size(); i++) {
+                        String item = (String) filteredItems.get(i);
+                        int originalIndex = groupNames.indexOf(item);
+                        if (originalIndex >= 0) {
+                            listView.setItemChecked(i, checkedItems[originalIndex]);
                         }
                     }
                 }
-                
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
             });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireGroups.clear();
-                    for (int i = 0; i < filteredUins.size(); i++) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         if (listView.isItemChecked(i)) {
-                            fireGroups.add(filteredUins.get(i));
+                            String selectedItem = (String) filteredItems.get(i);
+                            int originalIndex = groupNames.indexOf(selectedItem);
+                            if (originalIndex >= 0) {
+                                fireGroups.add(groupUins.get(originalIndex));
+                            }
                         }
                     }
                     saveFireGroups();
@@ -807,20 +798,17 @@ public void configureFireGroups(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            builder.setNeutralButton("全选", null);
             
-            final AlertDialog dialog = builder.create();
-            dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < filteredItems.size(); i++) {
                         listView.setItemChecked(i, true);
-                        filteredChecked[i] = true;
                     }
                 }
             });
+            
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -854,7 +842,7 @@ public void configureFriendFireWords(String g, String u, int t){
                 input.setHint("输入好友续火词，用逗号分隔");
                 input.setTextColor(Color.BLACK);
                 input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                input.setHintTextColor(Color.parseColor("#888888"));
+                input.setHintTextColor(Color.GRAY);
                 
                 TextView tipView = new TextView(activity);
                 tipView.setText("注意：输入多个续火词时，用英文逗号分隔");
@@ -908,7 +896,7 @@ public void configureFriendFireWords(String g, String u, int t){
                 Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                 positiveButton.setTextColor(Color.WHITE);
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                negativeButton.setTextColor(Color.parseColor("#666666"));
+                negativeButton.setTextColor(Color.GRAY);
             } catch (Exception e) {
                 toast("配置错误: " + e.getMessage());
             }
@@ -945,7 +933,7 @@ public void configureGroupFireWords(String g, String u, int t){
                 input.setHint("输入群组续火词，用逗号分隔");
                 input.setTextColor(Color.BLACK);
                 input.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                input.setHintTextColor(Color.parseColor("#888888"));
+                input.setHintTextColor(Color.GRAY);
                 
                 TextView tipView = new TextView(activity);
                 tipView.setText("注意：输入多个续火词时，用英文逗号分隔");
@@ -999,7 +987,7 @@ public void configureGroupFireWords(String g, String u, int t){
                 Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                 positiveButton.setTextColor(Color.WHITE);
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                negativeButton.setTextColor(Color.parseColor("#666666"));
+                negativeButton.setTextColor(Color.GRAY);
             } catch (Exception e) {
                 toast("配置错误: " + e.getMessage());
             }
@@ -1146,3 +1134,105 @@ public void showUpdateLog(String g, String u, int t) {
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
+
+// 海枫 行空 天天开心
