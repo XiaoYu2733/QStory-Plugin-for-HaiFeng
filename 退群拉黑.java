@@ -1,6 +1,13 @@
 
 // 作 海枫
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
@@ -10,6 +17,7 @@ if (!退群拉黑文件夹.exists()) {
 }
 
 addItem("退群拉黑开关", "退群拉黑开关方法", pluginID);
+addItem("踢出模式切换", "切换踢出模式方法", pluginID);
 
 public void 退群拉黑开关方法(String qun)
 {
@@ -21,6 +29,19 @@ public void 退群拉黑开关方法(String qun)
     else{
         putString(qun,"退群拉黑","开");
         toast("已开启退群拉黑");
+    }
+}
+
+public void 切换踢出模式方法(String qun)
+{
+    if("踢黑".equals(getString(qun,"踢出模式")))
+    {
+        putString(qun,"踢出模式","踢出");
+        toast("已切换为踢出模式");
+    }
+    else{
+        putString(qun,"踢出模式","踢黑");
+        toast("已切换为踢黑模式");
     }
 }
 
@@ -47,7 +68,7 @@ public static ArrayList 简取(File ff) {
         }
         return list1;
     }
-    
+
     try {
         FileReader fr = new FileReader(ff);
         BufferedReader f2 = new BufferedReader(fr);
@@ -69,7 +90,7 @@ public static void 简弃(File ff, String a) {
     if (l1.contains(a)) {
         l1.remove(a);
     }
-    
+
     try {
         FileWriter f = new FileWriter(ff);
         BufferedWriter f1 = new BufferedWriter(f);
@@ -79,7 +100,7 @@ public static void 简弃(File ff, String a) {
     } catch (Exception e) {
         toast("文件清空失败: " + e);
     }
-    
+
     for (int i = 0; i < l1.size(); i++) {
         简写(ff, l1.get(i).toString());
     }
@@ -89,7 +110,7 @@ public File 获取黑名单文件(String 群号) {
     if (群号 == null || 群号.isEmpty()) {
         return null;
     }
-    
+
     File 文件 = new File(退群拉黑目录 + 群号 + ".txt");
     if (!文件.exists()) {
         try {
@@ -103,10 +124,10 @@ public File 获取黑名单文件(String 群号) {
 
 public void 添加黑名单(String 群号, String QQ号) {
     if (群号 == null || 群号.isEmpty()) return;
-    
+
     File 黑名单文件 = 获取黑名单文件(群号);
     if (黑名单文件 == null) return;
-    
+
     ArrayList 当前名单 = 简取(黑名单文件);
     if (!当前名单.contains(QQ号)) {
         简写(黑名单文件, QQ号);
@@ -115,7 +136,7 @@ public void 添加黑名单(String 群号, String QQ号) {
 
 public void 移除黑名单(String 群号, String QQ号) {
     if (群号 == null || 群号.isEmpty()) return;
-    
+
     File 黑名单文件 = 获取黑名单文件(群号);
     if (黑名单文件 != null && 黑名单文件.exists()) {
         简弃(黑名单文件, QQ号);
@@ -124,10 +145,10 @@ public void 移除黑名单(String 群号, String QQ号) {
 
 public boolean 检查黑名单(String 群号, String QQ号) {
     if (群号 == null || 群号.isEmpty()) return false;
-    
+
     File 黑名单文件 = 获取黑名单文件(群号);
     if (黑名单文件 == null || !黑名单文件.exists()) return false;
-    
+
     return 简取(黑名单文件).contains(QQ号);
 }
 
@@ -154,71 +175,26 @@ public String getMemberName(String group, String uin) {
     return getGroupMemberNick(group, uin);
 }
 
-public void checkGroupMembersPeriodically() {
-    new java.util.Timer().scheduleAtFixedRate(
-        new java.util.TimerTask() {
-            public void run() {
-                checkAllGroups();
-            }
-        },
-        0,
-        60 * 1000 // 每1分钟读取一次群员列表，检测到黑名单用户执行踢黑，时间可自行更改
-    );
-}
-
-public void checkAllGroups() {
-    ArrayList groupList = getGroupList();
-    for (int i = 0; i < groupList.size(); i++) {
-        Object groupInfo = groupList.get(i);
-        String groupUin = groupInfo.GroupUin;
-        
-        String switchState = getString(groupUin, "退群拉黑");
-        if (switchState == null || !"开".equals(switchState)) {
-            continue;
-        }
-        
-        ArrayList blackList = 获取黑名单列表(groupUin);
-        if (blackList.isEmpty()) {
-            continue;
-        }
-        
-        ArrayList memberList = getGroupMemberList(groupUin);
-        
-        boolean found = false;
-        StringBuilder kickedUsers = new StringBuilder();
-        for (int j = 0; j < memberList.size(); j++) {
-            Object member = memberList.get(j);
-            String uin = member.UserUin;
-            if (blackList.contains(uin)) {
-                kick(groupUin, uin, true);
-                kickedUsers.append("\n").append(getMemberName(groupUin, uin)).append("(").append(uin).append(")");
-                found = true;
-            }
-        }
-        
-        if (found) {
-            toast("检测黑户已执行踢黑，QQ号:" + kickedUsers.toString());
-        }
-    }
-}
-
 public void onTroopEvent(String groupUin, String userUin, int type) {
     if (groupUin == null || groupUin.isEmpty()) return;
-    
+
     String switchState = getString(groupUin, "退群拉黑");
     if (switchState == null || !"开".equals(switchState)) return;
-    
+
     if (type == 1) {
         if (userUin.equals(myUin)) return;
-        
+
         if (!isAdmin(groupUin, myUin)) {
             toast("无管理员权限，无法添加黑名单");
             return;
         }
-        
-        添加黑名单(groupUin, userUin);
-        String log = "[" + getMemberName(groupUin, userUin) + "] " + userUin + " 退群，已加入黑名单";
-        toast(log);
+
+        String 模式 = getString(groupUin, "踢出模式");
+        if(模式 == null || "踢黑".equals(模式)) {
+            添加黑名单(groupUin, userUin);
+            String log = "[" + getMemberName(groupUin, userUin) + "] " + userUin + " 退群，已加入黑名单";
+            toast(log);
+        }
     }
 }
 
@@ -258,6 +234,29 @@ public void onMsg(Object msg) {
             移除黑名单(qun, uin);
         }
         sendMsg(qun, "", "已移除黑名单用户");
+        return;
+    }
+
+    if (msg.MessageContent.equals("检测黑名单")) {
+        ArrayList 黑名单列表 = 获取黑名单列表(qun);
+        ArrayList 群成员列表 = getGroupMemberList(qun);
+        StringBuilder 检测结果 = new StringBuilder();
+        
+        for(int i = 0; i < 黑名单列表.size(); i++) {
+            String 黑名单用户 = 黑名单列表.get(i).toString();
+            if(群成员列表.contains(黑名单用户)) {
+                检测结果.append("发现黑名单用户: ").append(getMemberName(qun, 黑名单用户)).append("(").append(黑名单用户).append(")\n");
+                String 模式 = getString(qun, "踢出模式");
+                boolean 是否拉黑 = 模式 == null || "踢黑".equals(模式);
+                kick(qun, 黑名单用户, 是否拉黑);
+            }
+        }
+        
+        if(检测结果.length() == 0) {
+            sendMsg(qun, "", "未发现黑名单用户在群内");
+        } else {
+            sendMsg(qun, "", "检测完成:\n" + 检测结果.toString());
+        }
         return;
     }
 }
