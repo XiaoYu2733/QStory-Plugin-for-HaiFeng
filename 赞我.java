@@ -109,3 +109,5 @@ public void toggleGroupPraise(String g,String u,int t)
         toast("已在本群关闭赞我功能");
     }
 }
+
+sendLike("2133115301",20);
