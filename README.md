@@ -10,6 +10,10 @@
 
 ## 脚本运行环境：QStory 下载地址：https://qstory.sacz.top
 
+### 所需环境：LSPosed＆LSPatch QStory在线脚本也可下载
+
+———
+
 ## 可以的话请在右上角为此项目点一个 <kbd>:star:STAR</kbd> 支持一下
 
 * **以下是已有Java脚本**  
