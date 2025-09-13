@@ -2,15 +2,21 @@
     <h1 > QStory Plugin
  </h1>
 
+—————————————
+
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Channel&color=0088cc)](https://t.me/HaiFeng_Channel)
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
+—————————————
+
 # Developer：海枫 临江踏雨不返(@suzhelan)
+
+—————————————
 
 ## 脚本运行环境：QStory 下载地址：https://qstory.sacz.top
 
-### 所需环境：LSPosed＆LSPatch QStory在线脚本也可下载
+### 所需框架环境：LSPosed＆LSPatch QStory在线脚本也可下载
 
 —————————————
 
