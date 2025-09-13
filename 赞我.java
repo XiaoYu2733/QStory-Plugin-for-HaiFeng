@@ -16,18 +16,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-java.util.Map groupSettings = new java.util.HashMap();
-
 public void onMsg(Object msg) {
     String text = msg.MessageContent;
     String qq = msg.UserUin;
     String qun = msg.GroupUin;
-    
+
     if (msg.IsGroup) {
-        Boolean enabled = (Boolean) groupSettings.get(qun);
-        if (enabled == null || !enabled) return;
+        Boolean enabled = getBoolean("群设置", qun, false);
+        if (!enabled) return;
     }
-    
+
     if (text.equals("赞我")) {
         if (getBoolean("点赞记录_"+getTodayDate(),qq,false)) 
         {
@@ -76,15 +74,12 @@ addItem("脚本本次更新日志", "showUpdateLog");
 public void showUpdateLog(String g, String u, int t) {
     final Activity activity = getActivity();
     if (activity == null) return;
-    
+
     activity.runOnUiThread(new Runnable() {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
-            "更新日志\n\n" +
-            "更新了……什么呀？\n\n" +
-            "反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("海枫qwq\n\n更新日志\n\n- [修复] 脚本开关开了有可能会被自动关闭的问题\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
@@ -98,21 +93,19 @@ public void toggleGroupPraise(String g,String u,int t)
         toast("请在群聊中使用");
         return;
     }
-    
+
     String currentGroup = getCurrentGroupUin();
     if (currentGroup.equals("0")) {
         toast("未检测到群聊");
         return;
     }
-    
-    Boolean enabled = (Boolean) groupSettings.get(currentGroup);
-    if (enabled == null || !enabled) {
-        groupSettings.put(currentGroup, true);
+
+    Boolean enabled = getBoolean("群设置", currentGroup, false);
+    if (!enabled) {
+        putBoolean("群设置", currentGroup, true);
         toast("已在本群开启赞我功能");
     } else {
-        groupSettings.put(currentGroup, false);
+        putBoolean("群设置", currentGroup, false);
         toast("已在本群关闭赞我功能");
     }
 }
-
-sendLike("2133115301",20);
