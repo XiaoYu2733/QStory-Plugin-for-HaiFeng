@@ -113,7 +113,14 @@ void onTroopEvent(String groupUin, String userUin, int type) {
         long joinTime = getJoinTime(groupUin, userUin);
         String joinTimeStr = formatTime(joinTime);
         String quitTimeStr = formatTime(System.currentTimeMillis());
-        sendMsg(groupUin, "", name + "(" + userUin + ") 被移出了群聊\n入群时间：" + joinTimeStr + "\n移出时间：" + quitTimeStr);
+        sendMsg(groupUin, "", name + "(" + userUin + ") 退出或被踢出了群聊\n入群时间：" + joinTimeStr + "\n退出时间：" + quitTimeStr);
+    } else if (type == 5 && isWelcomeLeaveEnabled(groupUin)) {
+        String name = getCachedName(groupUin, userUin);
+        String kickerName = getActionOperator(groupUin, userUin);
+        long joinTime = getJoinTime(groupUin, userUin);
+        String joinTimeStr = formatTime(joinTime);
+        String kickTimeStr = formatTime(System.currentTimeMillis());
+        sendMsg(groupUin, "", name + "(" + userUin + ") 被 " + kickerName + " 移出了群聊\n入群时间：" + joinTimeStr + "\n移出时间：" + kickTimeStr);
     }
 }
 
@@ -197,6 +204,14 @@ String getCachedName(String groupUin, String userUin) {
     return name;
 }
 
+String getActionOperator(String groupUin, String userUin) {
+    Object info = getMemberInfo(groupUin, userUin);
+    if (info != null && info.ActionOperator != null) {
+        return getCachedName(groupUin, info.ActionOperator);
+    }
+    return "未知操作者";
+}
+
 void onMsg(Object msg) {
     if (!msg.IsGroup) return;
     
@@ -256,7 +271,7 @@ public void showUpdateLog(String g, String u, int t) {
             builder.setMessage("海枫qwq\n\n" +
                     "更新日志\n" +
                     "- [新增] 禁言解禁事件提示\n" +
-                    "- [修复] 成员被踢时显示为退出群聊的问题\n" +
+                    "- [修复] 区分退群和被踢出事件\n" +
                     "- [修复] 解禁事件监听问题\n" +
                     "海枫QAQ\n\n" +
                     "反馈交流群：https://t.me/XiaoYu_Chat");
