@@ -102,6 +102,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -334,20 +336,20 @@ void sendToAllFriends(){
 
 void sendToAllGroups(){
     new Thread(new Runnable(){
-        public void run(){
-            for(int i = 0; i < fireGroups.size(); i++){
-                String group = (String)fireGroups.get(i);
-                try{
-                    int index = (int)(Math.random() * groupFireWords.size());
-                    String word = (String)groupFireWords.get(index);
-                    sendMsg(group, "", word);
-                    Thread.sleep(5000);
-                }catch(Exception e){
-                    toast(group + "续火失败:" + e.getMessage());
-                }
+    public void run(){
+        for(int i = 0; i < fireGroups.size(); i++){
+            String group = (String)fireGroups.get(i);
+            try{
+                int index = (int)(Math.random() * groupFireWords.size());
+                String word = (String)groupFireWords.get(index);
+                sendMsg(group, "", word);
+                Thread.sleep(5000);
+            }catch(Exception e){
+                toast(group + "续火失败:" + e.getMessage());
             }
         }
-    }).start();
+    }
+}).start();
 }
 
 addItem("立即点赞好友","likeNow");
@@ -461,26 +463,72 @@ public void configureLikeFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择点赞好友");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                friendNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(20, 20, 20, 20);
+            
+            final EditText searchBox = new EditText(activity);
+            searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setTextColor(Color.BLACK);
+            searchBox.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchBox);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            
+            builder.setView(dialogLayout);
+            
+            final ArrayList filteredNames = new ArrayList(friendNames);
+            final ArrayList filteredUins = new ArrayList(friendUins);
+            final boolean[] filteredChecked = checkedItems.clone();
+            
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < filteredChecked.length; i++) {
+                listView.setItemChecked(i, filteredChecked[i]);
+            }
+            
+            searchBox.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {
+                    String query = s.toString().toLowerCase();
+                    filteredNames.clear();
+                    filteredUins.clear();
+                    
+                    for (int i = 0; i < friendNames.size(); i++) {
+                        String name = (String) friendNames.get(i);
+                        String uin = (String) friendUins.get(i);
+                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
+                            filteredNames.add(name);
+                            filteredUins.add(uin);
+                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                        }
+                    }
+                    
+                    adapter.notifyDataSetChanged();
+                    
+                    for (int i = 0; i < filteredChecked.length; i++) {
+                        if (i < filteredNames.size()) {
+                            listView.setItemChecked(i, filteredChecked[i]);
+                        }
                     }
                 }
-            );
+                
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     likeFriends.clear();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        if (checkedItems[i]) {
-                            likeFriends.add(friendUins.get(i));
+                    for (int i = 0; i < filteredUins.size(); i++) {
+                        if (listView.isItemChecked(i)) {
+                            likeFriends.add(filteredUins.get(i));
                         }
                     }
                     saveLikeFriends();
@@ -489,7 +537,6 @@ public void configureLikeFriends(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            
             builder.setNeutralButton("全选", null);
             
             final AlertDialog dialog = builder.create();
@@ -498,10 +545,9 @@ public void configureLikeFriends(String g, String u, int t){
             Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
             selectAllButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
+                    for (int i = 0; i < listView.getCount(); i++) {
                         listView.setItemChecked(i, true);
+                        filteredChecked[i] = true;
                     }
                 }
             });
@@ -554,26 +600,72 @@ public void configureFireFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择续火好友");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                friendNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(20, 20, 20, 20);
+            
+            final EditText searchBox = new EditText(activity);
+            searchBox.setHint("搜索好友QQ号、昵称或备注");
+            searchBox.setTextColor(Color.BLACK);
+            searchBox.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchBox);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            
+            builder.setView(dialogLayout);
+            
+            final ArrayList filteredNames = new ArrayList(friendNames);
+            final ArrayList filteredUins = new ArrayList(friendUins);
+            final boolean[] filteredChecked = checkedItems.clone();
+            
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < filteredChecked.length; i++) {
+                listView.setItemChecked(i, filteredChecked[i]);
+            }
+            
+            searchBox.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {
+                    String query = s.toString().toLowerCase();
+                    filteredNames.clear();
+                    filteredUins.clear();
+                    
+                    for (int i = 0; i < friendNames.size(); i++) {
+                        String name = (String) friendNames.get(i);
+                        String uin = (String) friendUins.get(i);
+                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
+                            filteredNames.add(name);
+                            filteredUins.add(uin);
+                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                        }
+                    }
+                    
+                    adapter.notifyDataSetChanged();
+                    
+                    for (int i = 0; i < filteredChecked.length; i++) {
+                        if (i < filteredNames.size()) {
+                            listView.setItemChecked(i, filteredChecked[i]);
+                        }
                     }
                 }
-            );
+                
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireFriends.clear();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        if (checkedItems[i]) {
-                            fireFriends.add(friendUins.get(i));
+                    for (int i = 0; i < filteredUins.size(); i++) {
+                        if (listView.isItemChecked(i)) {
+                            fireFriends.add(filteredUins.get(i));
                         }
                     }
                     saveFireFriends();
@@ -582,7 +674,6 @@ public void configureFireFriends(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            
             builder.setNeutralButton("全选", null);
             
             final AlertDialog dialog = builder.create();
@@ -591,10 +682,9 @@ public void configureFireFriends(String g, String u, int t){
             Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
             selectAllButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
+                    for (int i = 0; i < listView.getCount(); i++) {
                         listView.setItemChecked(i, true);
+                        filteredChecked[i] = true;
                     }
                 }
             });
@@ -642,26 +732,72 @@ public void configureFireGroups(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("选择续火群组");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                groupNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(20, 20, 20, 20);
+            
+            final EditText searchBox = new EditText(activity);
+            searchBox.setHint("搜索群号或群名称");
+            searchBox.setTextColor(Color.BLACK);
+            searchBox.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchBox);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            
+            builder.setView(dialogLayout);
+            
+            final ArrayList filteredNames = new ArrayList(groupNames);
+            final ArrayList filteredUins = new ArrayList(groupUins);
+            final boolean[] filteredChecked = checkedItems.clone();
+            
+            final android.widget.ArrayAdapter adapter = new android.widget.ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < filteredChecked.length; i++) {
+                listView.setItemChecked(i, filteredChecked[i]);
+            }
+            
+            searchBox.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {
+                    String query = s.toString().toLowerCase();
+                    filteredNames.clear();
+                    filteredUins.clear();
+                    
+                    for (int i = 0; i < groupNames.size(); i++) {
+                        String name = (String) groupNames.get(i);
+                        String uin = (String) groupUins.get(i);
+                        if (name.toLowerCase().contains(query) || uin.contains(query)) {
+                            filteredNames.add(name);
+                            filteredUins.add(uin);
+                            filteredChecked[filteredNames.size()-1] = checkedItems[i];
+                        }
+                    }
+                    
+                    adapter.notifyDataSetChanged();
+                    
+                    for (int i = 0; i < filteredChecked.length; i++) {
+                        if (i < filteredNames.size()) {
+                            listView.setItemChecked(i, filteredChecked[i]);
+                        }
                     }
                 }
-            );
+                
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            });
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireGroups.clear();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        if (checkedItems[i]) {
-                            fireGroups.add(groupUins.get(i));
+                    for (int i = 0; i < filteredUins.size(); i++) {
+                        if (listView.isItemChecked(i)) {
+                            fireGroups.add(filteredUins.get(i));
                         }
                     }
                     saveFireGroups();
@@ -670,7 +806,6 @@ public void configureFireGroups(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            
             builder.setNeutralButton("全选", null);
             
             final AlertDialog dialog = builder.create();
@@ -679,10 +814,9 @@ public void configureFireGroups(String g, String u, int t){
             Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
             selectAllButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
+                    for (int i = 0; i < listView.getCount(); i++) {
                         listView.setItemChecked(i, true);
+                        filteredChecked[i] = true;
                     }
                 }
             });
@@ -1000,10 +1134,12 @@ public void showUpdateLog(String g, String u, int t) {
             builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [新增] 弹窗支持全选 现在不需要一个一个点了\n" +
+            "- [新增] 支持搜索功能\n" +
+            "- [移除] Android主题(Theme.Material.Light.Dialog.Alert) 因为在旧版本QQ sdk不同导致无法显示弹窗\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞弹窗 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n" +
-            "- [移除] 搜索功能 这将会导致弹窗在深色模式无法显示\n" +
+            "- [更改] 继续使用THEME_DEVICE_DEFAULT_LIGHT);主题\n" +
             "- [更改] 现在点赞好友 好友续火 群组续火默认时间为00:00 可能需要自己重新配置时间\n\n" +
             "反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
@@ -1012,6 +1148,7 @@ public void showUpdateLog(String g, String u, int t) {
         }
     });
 }
+
 
 
 
