@@ -10,7 +10,9 @@
 
 ## 脚本运行环境：QStory 下载地址：https://qstory.sacz.top
 
-### 所需框架环境：LSPosed＆LSPatch QStory在线脚本也可下载
+### 所需框架环境：LSPosed＆LSPatch
+
+### 插件可以在QStory在线脚本下载，本仓库仅作备份
 
 —————————————
 
