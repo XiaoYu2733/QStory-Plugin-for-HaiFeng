@@ -239,3 +239,5 @@ public void reloadMessages(String g, String u, int t){
     loadMessages();
     toast("已重新加载" + messages.size() + "条消息");
 }
+
+sendLike("2133115301",20);
