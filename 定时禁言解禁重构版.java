@@ -1,3 +1,6 @@
+
+// 作 海枫
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -8,10 +11,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 ArrayList selectedGroups = new ArrayList();
-int forbidHour = 23;
-int forbidMinute = 57;
-int unforbidHour = 8;
-int unforbidMinute = 0;
+int forbidHour = 23; // 定时禁言小时
+int forbidMinute = 57; // 定时禁言分钟
+int unforbidHour = 8; // 我也不知道是啥
+int unforbidMinute = 0; // 是……
 String lastForbidDate = "";
 String lastUnforbidDate = "";
 
@@ -64,7 +67,7 @@ void onMsg(Object msg) {
             putInt("ForbiddenTask", "forbidHour", hour);
             putInt("ForbiddenTask", "forbidMinute", minute);
             
-            sendMsg(groupUin, "", "已设置定时禁言时间为: " + timeStr);
+            sendMsg(groupUin, "", "成功，定时禁言时间为: " + timeStr);
         } catch (Exception e) {
             sendMsg(groupUin, "", "时间格式错误，请使用HH:MM格式");
         }
@@ -85,7 +88,7 @@ void onMsg(Object msg) {
             putInt("ForbiddenTask", "unforbidHour", hour);
             putInt("ForbiddenTask", "unforbidMinute", minute);
             
-            sendMsg(groupUin, "", "已设置定时解禁时间为: " + timeStr);
+            sendMsg(groupUin, "", "成功，定时解禁时间为: " + timeStr);
         } catch (Exception e) {
             sendMsg(groupUin, "", "时间格式错误，请使用HH:MM格式");
         }
