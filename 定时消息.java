@@ -111,6 +111,15 @@ void onMsg(Object msg) {
     } else if (text.startsWith("设置定时消息")) {
         customMessage = text.replace("设置定时消息", "").trim();
         putString("TimedMessage", "customMessage", customMessage);
+        try {
+            File messageFile = new File(appPath + "/messages.txt");
+            FileWriter writer = new FileWriter(messageFile, true);
+            writer.write(customMessage + "\n");
+            writer.close();
+            loadMessages();
+        } catch (Exception e) {
+            toast("写入消息文件错误: " + e.getMessage());
+        }
         sendMsg(msg.GroupUin, "", "设置成功，定时消息为: " + customMessage);
     }
 }
@@ -135,7 +144,10 @@ new Thread(new Runnable(){
         int currentMinute = now.get(Calendar.MINUTE);
         String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
 
-        if(currentHour == sendHour && currentMinute == sendMinute && !today.equals(lastSendDate)){
+        int currentTotalMinutes = currentHour * 60 + currentMinute;
+        int sendTotalMinutes = sendHour * 60 + sendMinute;
+
+        if (currentTotalMinutes >= sendTotalMinutes && !today.equals(lastSendDate)) {
             sendTimedMessages();
             lastSendDate = today;
             putString("TimedMessage", "lastSendDate", today);
