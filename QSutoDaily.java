@@ -102,6 +102,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -112,6 +114,7 @@ import android.widget.ListView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.TextView;
+import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -397,8 +400,6 @@ public void fireFriendsNow(String g, String u, int t){
     toast("已立即续火" + fireFriends.size() + "位好友");
 }
 
-sendLike("2133115301",20);
-
 public void fireGroupsNow(String g, String u, int t){
     long currentTime = System.currentTimeMillis();
     if(currentTime - lastGroupFireClickTime < 60000){
@@ -426,8 +427,8 @@ public void configureLikeFriends(String g, String u, int t){
         return;
     }
     
-    final ArrayList friendNames = new ArrayList();
-    final ArrayList friendUins = new ArrayList();
+    final ArrayList<String> friendNames = new ArrayList<String>();
+    final ArrayList<String> friendUins = new ArrayList<String>();
     for (int i = 0; i < allFriends.size(); i++) {
         Object friend = allFriends.get(i);
         String name = "";
@@ -461,19 +462,67 @@ public void configureLikeFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择点赞好友");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                friendNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            
+            final EditText searchEditText = new EditText(activity);
+            searchEditText.setHint("搜索好友名字或QQ号");
+            searchEditText.setTextColor(Color.BLACK);
+            searchEditText.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchEditText);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView);
+            
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, friendNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
+            }
+            
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    ArrayList<String> filteredNames = new ArrayList<String>();
+                    final ArrayList<Integer> originalIndices = new ArrayList<Integer>();
+                    
+                    for (int i = 0; i < friendNames.size(); i++) {
+                        String name = friendNames.get(i).toLowerCase();
+                        String uin = friendUins.get(i).toLowerCase();
+                        if (name.contains(searchText) || uin.contains(searchText)) {
+                            filteredNames.add(friendNames.get(i));
+                            originalIndices.add(i);
+                        }
                     }
+                    
+                    final ArrayAdapter<String> filteredAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+                    listView.setAdapter(filteredAdapter);
+                    
+                    for (int i = 0; i < filteredNames.size(); i++) {
+                        int originalIndex = originalIndices.get(i);
+                        listView.setItemChecked(i, checkedItems[originalIndex]);
+                    }
+                    
+                    listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+                        public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            int originalIndex = originalIndices.get(position);
+                            checkedItems[originalIndex] = !checkedItems[originalIndex];
+                        }
+                    });
                 }
-            );
+            });
+            
+            builder.setView(dialogLayout);
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
@@ -490,21 +539,17 @@ public void configureLikeFriends(String g, String u, int t){
             
             builder.setNegativeButton("取消", null);
             
-            builder.setNeutralButton("全选", null);
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < checkedItems.length; i++) {
+                        checkedItems[i] = true;
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            });
             
             final AlertDialog dialog = builder.create();
             dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
         }
     });
 }
@@ -519,8 +564,8 @@ public void configureFireFriends(String g, String u, int t){
         return;
     }
     
-    final ArrayList friendNames = new ArrayList();
-    final ArrayList friendUins = new ArrayList();
+    final ArrayList<String> friendNames = new ArrayList<String>();
+    final ArrayList<String> friendUins = new ArrayList<String>();
     for (int i = 0; i < allFriends.size(); i++) {
         Object friend = allFriends.get(i);
         String name = "";
@@ -554,19 +599,67 @@ public void configureFireFriends(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择续火好友");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                friendNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            
+            final EditText searchEditText = new EditText(activity);
+            searchEditText.setHint("搜索好友名字或QQ号");
+            searchEditText.setTextColor(Color.BLACK);
+            searchEditText.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchEditText);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView);
+            
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, friendNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
+            }
+            
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    ArrayList<String> filteredNames = new ArrayList<String>();
+                    final ArrayList<Integer> originalIndices = new ArrayList<Integer>();
+                    
+                    for (int i = 0; i < friendNames.size(); i++) {
+                        String name = friendNames.get(i).toLowerCase();
+                        String uin = friendUins.get(i).toLowerCase();
+                        if (name.contains(searchText) || uin.contains(searchText)) {
+                            filteredNames.add(friendNames.get(i));
+                            originalIndices.add(i);
+                        }
                     }
+                    
+                    final ArrayAdapter<String> filteredAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+                    listView.setAdapter(filteredAdapter);
+                    
+                    for (int i = 0; i < filteredNames.size(); i++) {
+                        int originalIndex = originalIndices.get(i);
+                        listView.setItemChecked(i, checkedItems[originalIndex]);
+                    }
+                    
+                    listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+                        public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            int originalIndex = originalIndices.get(position);
+                            checkedItems[originalIndex] = !checkedItems[originalIndex];
+                        }
+                    });
                 }
-            );
+            });
+            
+            builder.setView(dialogLayout);
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
@@ -583,21 +676,17 @@ public void configureFireFriends(String g, String u, int t){
             
             builder.setNegativeButton("取消", null);
             
-            builder.setNeutralButton("全选", null);
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < checkedItems.length; i++) {
+                        checkedItems[i] = true;
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            });
             
             final AlertDialog dialog = builder.create();
             dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
         }
     });
 }
@@ -612,8 +701,8 @@ public void configureFireGroups(String g, String u, int t){
         return;
     }
     
-    final ArrayList groupNames = new ArrayList();
-    final ArrayList groupUins = new ArrayList();
+    final ArrayList<String> groupNames = new ArrayList<String>();
+    final ArrayList<String> groupUins = new ArrayList<String>();
     for (int i = 0; i < allGroups.size(); i++) {
         Object group = allGroups.get(i);
         String name = "";
@@ -642,19 +731,67 @@ public void configureFireGroups(String g, String u, int t){
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择续火群组");
             builder.setCancelable(true);
             
-            builder.setMultiChoiceItems(
-                groupNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            
+            final EditText searchEditText = new EditText(activity);
+            searchEditText.setHint("搜索群名或群号");
+            searchEditText.setTextColor(Color.BLACK);
+            searchEditText.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchEditText);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView);
+            
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, groupNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < checkedItems.length; i++) {
+                listView.setItemChecked(i, checkedItems[i]);
+            }
+            
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase();
+                    ArrayList<String> filteredNames = new ArrayList<String>();
+                    final ArrayList<Integer> originalIndices = new ArrayList<Integer>();
+                    
+                    for (int i = 0; i < groupNames.size(); i++) {
+                        String name = groupNames.get(i).toLowerCase();
+                        String uin = groupUins.get(i).toLowerCase();
+                        if (name.contains(searchText) || uin.contains(searchText)) {
+                            filteredNames.add(groupNames.get(i));
+                            originalIndices.add(i);
+                        }
                     }
+                    
+                    final ArrayAdapter<String> filteredAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, filteredNames);
+                    listView.setAdapter(filteredAdapter);
+                    
+                    for (int i = 0; i < filteredNames.size(); i++) {
+                        int originalIndex = originalIndices.get(i);
+                        listView.setItemChecked(i, checkedItems[originalIndex]);
+                    }
+                    
+                    listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+                        public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            int originalIndex = originalIndices.get(position);
+                            checkedItems[originalIndex] = !checkedItems[originalIndex];
+                        }
+                    });
                 }
-            );
+            });
+            
+            builder.setView(dialogLayout);
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
@@ -670,25 +807,22 @@ public void configureFireGroups(String g, String u, int t){
             });
             
             builder.setNegativeButton("取消", null);
-            
-            builder.setNeutralButton("全选", null);
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    for (int i = 0; i < checkedItems.length; i++) {
+                        checkedItems[i] = true;
+                    }
+                    adapter.notifyDataSetChanged();
+                }
+            });
             
             final AlertDialog dialog = builder.create();
             dialog.show();
-            
-            Button selectAllButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    ListView listView = dialog.getListView();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        checkedItems[i] = true;
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
         }
     });
 }
+
+sendLike("2133115301",20);
 
 public void configureFriendFireWords(String g, String u, int t){
     final Activity activity = getActivity();
@@ -734,7 +868,9 @@ public void configureFriendFireWords(String g, String u, int t){
                 layout.addView(input);
                 layout.addView(tipView);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+                int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
                 builder.setView(layout);
                 builder.setCancelable(true);
                 
@@ -825,7 +961,9 @@ public void configureGroupFireWords(String g, String u, int t){
                 layout.addView(input);
                 layout.addView(tipView);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+                int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
                 builder.setView(layout);
                 builder.setCancelable(true);
                 
@@ -878,7 +1016,9 @@ public void configureLikeTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("设置点赞时间");
             builder.setCancelable(true);
             
@@ -917,7 +1057,9 @@ public void configureFriendFireTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("设置好友续火时间");
             builder.setCancelable(true);
             
@@ -956,7 +1098,9 @@ public void configureGroupFireTime(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("设置群组续火时间");
             builder.setCancelable(true);
             
@@ -995,15 +1139,19 @@ public void showUpdateLog(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("脚本更新日志");
             builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [新增] 弹窗支持全选 现在不需要一个一个点了\n" +
+            "- [新增] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色弹窗)和AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色弹窗)两者同时存在 我们跟随系统的主题 如果用户系统切换为亮色模式 我们的主题就会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT 如果我们切换为深色模式 那么它就会自动变回AlertDialog.THEME_DEVICE_DEFAULT_DARK\n" +
+            "- [新增] 脚本弹窗支持搜索好友QQ、好友名字、群组名、群组号\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞弹窗 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n" +
-            "- [移除] 搜索功能 这将会导致弹窗在深色模式无法显示\n" +
+            "- [提示] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色弹窗)导致字体变白看不清(其实不瞎也能看得清)仍然存在 弹窗特性 无法修复 用户自适应 如果建议请切换为深色模式 脚本会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色弹窗)\n" +
             "- [更改] 现在点赞好友 好友续火 群组续火默认时间为00:00 可能需要自己重新配置时间\n\n" +
             "反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
@@ -1012,6 +1160,7 @@ public void showUpdateLog(String g, String u, int t) {
         }
     });
 }
+
 
 
 
