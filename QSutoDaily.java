@@ -1091,7 +1091,7 @@ public void showUpdateLog(String g, String u, int t) {
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海獭qwq\n\n" +
+            builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [修复] 群组无法保存的问题\n" +
             "- [新增] 窗口支持全选 现在不需要一个一个点了\n" +
