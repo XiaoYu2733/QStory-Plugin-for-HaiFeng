@@ -111,7 +111,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.TextView;
 import android.widget.ArrayAdapter;
@@ -124,20 +123,17 @@ import java.io.FileReader;
 
 ArrayList likeFriends = new ArrayList();
 String lastLikeDate = "";
-int likeHour = 0;
-int likeMinute = 0;
+String likeTime = "00:00";
 
 ArrayList fireFriends = new ArrayList();
 ArrayList friendFireWords = new ArrayList();
 String lastFriendFireDate = "";
-int friendFireHour = 0;
-int friendFireMinute = 0;
+String friendFireTime = "08:00";
 
 ArrayList fireGroups = new ArrayList();
 ArrayList groupFireWords = new ArrayList();
 String lastGroupFireDate = "";
-int groupFireHour = 0;
-int groupFireMinute = 0;
+String groupFireTime = "08:00";
 
 long lastLikeClickTime = 0;
 long lastFriendFireClickTime = 0;
@@ -182,158 +178,6 @@ void writeWordsToFile(String path, ArrayList words) {
         toast("写入文件失败: " + e.getMessage());
     }
 }
-
-void initConfig() {
-    String savedLikeFriends = getString("DailyLike", "selectedFriends", "");
-    if (!savedLikeFriends.isEmpty()) {
-        String[] friends = savedLikeFriends.split(",");
-        for (int i = 0; i < friends.length; i++) {
-            if (!friends[i].isEmpty()) likeFriends.add(friends[i]);
-        }
-    }
-    
-    String savedFireFriends = getString("KeepFire", "friends", "");
-    if (!savedFireFriends.isEmpty()) {
-        String[] friends = savedFireFriends.split(",");
-        for (int i = 0; i < friends.length; i++) {
-            if (!friends[i].isEmpty()) fireFriends.add(friends[i]);
-        }
-    }
-    
-    ArrayList friendWordsFromFile = readWordsFromFile(friendFireWordsPath);
-    if (!friendWordsFromFile.isEmpty()) {
-        friendFireWords = friendWordsFromFile;
-    } else {
-        String savedFriendFireWords = getString("KeepFire", "fireWords", "");
-        if (!savedFriendFireWords.isEmpty()) {
-            String[] words = savedFriendFireWords.split(",");
-            for (int i = 0; i < words.length; i++) {
-                friendFireWords.add(words[i].trim());
-            }
-            writeWordsToFile(friendFireWordsPath, friendFireWords);
-            putString("KeepFire", "fireWords", "");
-        } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你(៸៸᳐⦁⩊⦁៸៸᳐ )੭");
-            writeWordsToFile(friendFireWordsPath, friendFireWords);
-        }
-    }
-    
-    String savedFireGroups = getString("GroupFire", "selectedGroups", "");
-    if (!savedFireGroups.isEmpty()) {
-        String[] groups = savedFireGroups.split(",");
-        for (int i = 0; i < groups.length; i++) {
-            if (!groups[i].isEmpty()) fireGroups.add(groups[i]);
-        }
-    }
-    
-    ArrayList groupWordsFromFile = readWordsFromFile(groupFireWordsPath);
-    if (!groupWordsFromFile.isEmpty()) {
-        groupFireWords = groupWordsFromFile;
-    } else {
-        String savedGroupFireWords = getString("GroupFire", "fireWords", "");
-        if (!savedGroupFireWords.isEmpty()) {
-            String[] words = savedGroupFireWords.split(",");
-            for (int i = 0; i < words.length; i++) {
-                groupFireWords.add(words[i].trim());
-            }
-            writeWordsToFile(groupFireWordsPath, groupFireWords);
-            putString("GroupFire", "fireWords", "");
-        } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你(៸៸᳐⦁⩊⦁៸៸᳐ )੭");
-            writeWordsToFile(groupFireWordsPath, groupFireWords);
-        }
-    }
-    
-    likeHour = getInt("TimeConfig", "likeHour", 0);
-    likeMinute = getInt("TimeConfig", "likeMinute", 0);
-    friendFireHour = getInt("TimeConfig", "friendFireHour", 8);
-    friendFireMinute = getInt("TimeConfig", "friendFireMinute", 0);
-    groupFireHour = getInt("TimeConfig", "groupFireHour", 8);
-    groupFireMinute = getInt("TimeConfig", "groupFireMinute", 0);
-    
-    lastLikeDate = getString("DailyLike", "lastLikeDate", "");
-    lastFriendFireDate = getString("KeepFire", "lastSendDate", "");
-    lastGroupFireDate = getString("GroupFire", "lastSendDate", "");
-}
-
-void saveLikeFriends() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < likeFriends.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)likeFriends.get(i));
-    }
-    putString("DailyLike", "selectedFriends", sb.toString());
-}
-
-void saveFireFriends() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < fireFriends.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)fireFriends.get(i));
-    }
-    putString("KeepFire", "friends", sb.toString());
-}
-
-void saveFireGroups() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < fireGroups.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)fireGroups.get(i));
-    }
-    putString("GroupFire", "selectedGroups", sb.toString());
-}
-
-void saveTimeConfig() {
-    putInt("TimeConfig", "likeHour", likeHour);
-    putInt("TimeConfig", "likeMinute", likeMinute);
-    putInt("TimeConfig", "friendFireHour", friendFireHour);
-    putInt("TimeConfig", "friendFireMinute", friendFireMinute);
-    putInt("TimeConfig", "groupFireHour", groupFireHour);
-    putInt("TimeConfig", "groupFireMinute", groupFireMinute);
-}
-
-initConfig();
-
-new Thread(new Runnable(){
-    public void run(){
-        while(!Thread.currentThread().isInterrupted()){
-            try{
-                Calendar now = Calendar.getInstance();
-                checkAndExecute(now);
-                Thread.sleep(60000);
-            }catch(Exception e){
-                toast("定时错误:" + e.getMessage());
-            }
-        }
-    }
-    
-    void checkAndExecute(Calendar now){
-        int currentHour = now.get(Calendar.HOUR_OF_DAY);
-        int currentMinute = now.get(Calendar.MINUTE);
-        String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
-        
-        if(currentHour == likeHour && currentMinute == likeMinute && !today.equals(lastLikeDate)){
-            executeSendLikes();
-            lastLikeDate = today;
-            putString("DailyLike", "lastLikeDate", today);
-            toast("已执行好友点赞");
-        }
-        
-        if(currentHour == friendFireHour && currentMinute == friendFireMinute && !today.equals(lastFriendFireDate)){
-            sendToAllFriends();
-            lastFriendFireDate = today;
-            putString("KeepFire", "lastSendDate", today);
-            toast("已续火" + fireFriends.size() + "位好友");
-        }
-        
-        if(currentHour == groupFireHour && currentMinute == groupFireMinute && !today.equals(lastGroupFireDate)){
-            sendToAllGroups();
-            lastGroupFireDate = today;
-            putString("GroupFire", "lastSendDate", today);
-            toast("已续火" + fireGroups.size() + "个群组");
-        }
-    }
-}).start();
 
 void executeSendLikes(){
     new Thread(new Runnable(){
@@ -386,6 +230,226 @@ void sendToAllGroups(){
         }
     }).start();
 }
+
+void checkMissedTasks() {
+    Calendar now = Calendar.getInstance();
+    String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
+    int currentHour = now.get(Calendar.HOUR_OF_DAY);
+    int currentMinute = now.get(Calendar.MINUTE);
+    
+    int[] likeTimeParts = parseTime(likeTime);
+    int likeHour = likeTimeParts[0];
+    int likeMinute = likeTimeParts[1];
+    
+    int[] friendFireTimeParts = parseTime(friendFireTime);
+    int friendFireHour = friendFireTimeParts[0];
+    int friendFireMinute = friendFireTimeParts[1];
+    
+    int[] groupFireTimeParts = parseTime(groupFireTime);
+    int groupFireHour = groupFireTimeParts[0];
+    int groupFireMinute = groupFireTimeParts[1];
+    
+    if (!today.equals(lastLikeDate) && isTimePassed(currentHour, currentMinute, likeHour, likeMinute)) {
+        executeSendLikes();
+        lastLikeDate = today;
+        putString("DailyLike", "lastLikeDate", today);
+        toast("检测到错过点赞任务，已立即执行");
+    }
+    
+    if (!today.equals(lastFriendFireDate) && isTimePassed(currentHour, currentMinute, friendFireHour, friendFireMinute)) {
+        sendToAllFriends();
+        lastFriendFireDate = today;
+        putString("KeepFire", "lastSendDate", today);
+        toast("检测到错过好友续火任务，已立即执行");
+    }
+    
+    if (!today.equals(lastGroupFireDate) && isTimePassed(currentHour, currentMinute, groupFireHour, groupFireMinute)) {
+        sendToAllGroups();
+        lastGroupFireDate = today;
+        putString("GroupFire", "lastSendDate", today);
+        toast("检测到错过群组续火任务，已立即执行");
+    }
+}
+
+boolean isTimePassed(int currentHour, int currentMinute, int targetHour, int targetMinute) {
+    if (currentHour > targetHour) return true;
+    if (currentHour == targetHour && currentMinute >= targetMinute) return true;
+    return false;
+}
+
+int[] parseTime(String timeStr) {
+    int[] result = new int[]{0, 0};
+    try {
+        String[] parts = timeStr.split(":");
+        if (parts.length == 2) {
+            result[0] = Integer.parseInt(parts[0]);
+            result[1] = Integer.parseInt(parts[1]);
+        }
+    } catch (Exception e) {
+        toast("时间格式错误: " + timeStr);
+    }
+    return result;
+}
+
+void initConfig() {
+    String savedLikeFriends = getString("DailyLike", "selectedFriends", "");
+    if (!savedLikeFriends.isEmpty()) {
+        String[] friends = savedLikeFriends.split(",");
+        for (int i = 0; i < friends.length; i++) {
+            if (!friends[i].isEmpty()) likeFriends.add(friends[i]);
+        }
+    }
+    
+    String savedFireFriends = getString("KeepFire", "friends", "");
+    if (!savedFireFriends.isEmpty()) {
+        String[] friends = savedFireFriends.split(",");
+        for (int i = 0; i < friends.length; i++) {
+            if (!friends[i].isEmpty()) fireFriends.add(friends[i]);
+        }
+    }
+    
+    ArrayList friendWordsFromFile = readWordsFromFile(friendFireWordsPath);
+    if (!friendWordsFromFile.isEmpty()) {
+        friendFireWords = friendWordsFromFile;
+    } else {
+        String savedFriendFireWords = getString("KeepFire", "fireWords", "");
+        if (!savedFriendFireWords.isEmpty()) {
+            String[] words = savedFriendFireWords.split(",");
+            for (int i = 0; i < words.length; i++) {
+                friendFireWords.add(words[i].trim());
+            }
+            writeWordsToFile(friendFireWordsPath, friendFireWords);
+            putString("KeepFire", "fireWords", "");
+        } else {
+            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(ʚ̴̶̷́ .̠ ʚ̴̶̷̥̀  )⁾⁾");
+            writeWordsToFile(friendFireWordsPath, friendFireWords);
+        }
+    }
+    
+    String savedFireGroups = getString("GroupFire", "selectedGroups", "");
+    if (!savedFireGroups.isEmpty()) {
+        String[] groups = savedFireGroups.split(",");
+        for (int i = 0; i < groups.length; i++) {
+            if (!groups[i].isEmpty()) fireGroups.add(groups[i]);
+        }
+    }
+    
+    ArrayList groupWordsFromFile = readWordsFromFile(groupFireWordsPath);
+    if (!groupWordsFromFile.isEmpty()) {
+        groupFireWords = groupWordsFromFile;
+    } else {
+        String savedGroupFireWords = getString("GroupFire", "fireWords", "");
+        if (!savedGroupFireWords.isEmpty()) {
+            String[] words = savedGroupFireWords.split(",");
+            for (int i = 0; i < words.length; i++) {
+                groupFireWords.add(words[i].trim());
+            }
+            writeWordsToFile(groupFireWordsPath, groupFireWords);
+            putString("GroupFire", "fireWords", "");
+        } else {
+            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(ʚ̴̶̷́ .̠ ʚ̴̶̷̥̀  )⁾⁾");
+            writeWordsToFile(groupFireWordsPath, groupFireWords);
+        }
+    }
+    
+    likeTime = getString("TimeConfig", "likeTime", "00:00");
+    friendFireTime = getString("TimeConfig", "friendFireTime", "08:00");
+    groupFireTime = getString("TimeConfig", "groupFireTime", "08:00");
+    
+    lastLikeDate = getString("DailyLike", "lastLikeDate", "");
+    lastFriendFireDate = getString("KeepFire", "lastSendDate", "");
+    lastGroupFireDate = getString("GroupFire", "lastSendDate", "");
+    
+    checkMissedTasks();
+}
+
+void saveLikeFriends() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < likeFriends.size(); i++) {
+        if (i > 0) sb.append(",");
+        sb.append((String)likeFriends.get(i));
+    }
+    putString("DailyLike", "selectedFriends", sb.toString());
+}
+
+void saveFireFriends() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fireFriends.size(); i++) {
+        if (i > 0) sb.append(",");
+        sb.append((String)fireFriends.get(i));
+    }
+    putString("KeepFire", "friends", sb.toString());
+}
+
+void saveFireGroups() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fireGroups.size(); i++) {
+        if (i > 0) sb.append(",");
+        sb.append((String)fireGroups.get(i));
+    }
+    putString("GroupFire", "selectedGroups", sb.toString());
+}
+
+void saveTimeConfig() {
+    putString("TimeConfig", "likeTime", likeTime);
+    putString("TimeConfig", "friendFireTime", friendFireTime);
+    putString("TimeConfig", "groupFireTime", groupFireTime);
+}
+
+initConfig();
+
+new Thread(new Runnable(){
+    public void run(){
+        while(!Thread.currentThread().isInterrupted()){
+            try{
+                Calendar now = Calendar.getInstance();
+                checkAndExecute(now);
+                Thread.sleep(60000);
+            }catch(Exception e){
+                toast("定时错误:" + e.getMessage());
+            }
+        }
+    }
+    
+    void checkAndExecute(Calendar now){
+        int currentHour = now.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = now.get(Calendar.MINUTE);
+        String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
+        
+        int[] likeTimeParts = parseTime(likeTime);
+        int likeHour = likeTimeParts[0];
+        int likeMinute = likeTimeParts[1];
+        
+        int[] friendFireTimeParts = parseTime(friendFireTime);
+        int friendFireHour = friendFireTimeParts[0];
+        int friendFireMinute = friendFireTimeParts[1];
+        
+        int[] groupFireTimeParts = parseTime(groupFireTime);
+        int groupFireHour = groupFireTimeParts[0];
+        int groupFireMinute = groupFireTimeParts[1];
+        
+        if(currentHour == likeHour && currentMinute == likeMinute && !today.equals(lastLikeDate)){
+            executeSendLikes();
+            lastLikeDate = today;
+            putString("DailyLike", "lastLikeDate", today);
+            toast("已执行好友点赞");
+        }
+        
+        if(currentHour == friendFireHour && currentMinute == friendFireMinute && !today.equals(lastFriendFireDate)){
+            sendToAllFriends();
+            lastFriendFireDate = today;
+            putString("KeepFire", "lastSendDate", today);
+            toast("已续火" + fireFriends.size() + "位好友");
+        }
+        
+        if(currentHour == groupFireHour && currentMinute == groupFireMinute && !today.equals(lastGroupFireDate)){
+            sendToAllGroups();
+            lastGroupFireDate = today;
+            putString("GroupFire", "lastSendDate", today);
+            toast("已续火" + fireGroups.size() + "个群组");
+        }
+    }
+}).start();
 
 addItem("立即点赞好友","likeNow");
 addItem("立即续火好友","fireFriendsNow");
@@ -776,8 +840,6 @@ public void configureFireGroups(String g, String u, int t){
     });
 }
 
-sendLike("2133115301",20);
-
 public void configureFriendFireWords(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null) {
@@ -967,29 +1029,32 @@ public void configureLikeTime(String g, String u, int t) {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("设置点赞时间");
+            builder.setTitle("设置点赞时间 (HH:mm)");
             builder.setCancelable(true);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(30, 30, 30, 30);
             
-            final TimePicker timePicker = new TimePicker(activity);
-            timePicker.setIs24HourView(true);
-            timePicker.setHour(likeHour);
-            timePicker.setMinute(likeMinute);
+            final EditText timeInput = new EditText(activity);
+            timeInput.setText(likeTime);
+            timeInput.setHint("例如: 08:00");
+            timeInput.setTextColor(Color.BLACK);
+            timeInput.setHintTextColor(Color.GRAY);
+            layout.addView(timeInput);
             
-            layout.addView(timePicker);
             builder.setView(layout);
             
             builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    likeHour = timePicker.getHour();
-                    likeMinute = timePicker.getMinute();
-                    saveTimeConfig();
-                    String hourStr = (likeHour < 10 ? "0" + likeHour : String.valueOf(likeHour));
-                    String minuteStr = (likeMinute < 10 ? "0" + likeMinute : String.valueOf(likeMinute));
-                    toast("已设置点赞时间: " + hourStr + ":" + minuteStr);
+                    String newTime = timeInput.getText().toString().trim();
+                    if (isValidTime(newTime)) {
+                        likeTime = newTime;
+                        saveTimeConfig();
+                        toast("已设置点赞时间: " + likeTime);
+                    } else {
+                        toast("时间格式错误，请使用 HH:mm 格式");
+                    }
                 }
             });
             
@@ -1008,29 +1073,32 @@ public void configureFriendFireTime(String g, String u, int t) {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("设置好友续火时间");
+            builder.setTitle("设置好友续火时间 (HH:mm)");
             builder.setCancelable(true);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(30, 30, 30, 30);
             
-            final TimePicker timePicker = new TimePicker(activity);
-            timePicker.setIs24HourView(true);
-            timePicker.setHour(friendFireHour);
-            timePicker.setMinute(friendFireMinute);
+            final EditText timeInput = new EditText(activity);
+            timeInput.setText(friendFireTime);
+            timeInput.setHint("例如: 08:00");
+            timeInput.setTextColor(Color.BLACK);
+            timeInput.setHintTextColor(Color.GRAY);
+            layout.addView(timeInput);
             
-            layout.addView(timePicker);
             builder.setView(layout);
             
             builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    friendFireHour = timePicker.getHour();
-                    friendFireMinute = timePicker.getMinute();
-                    saveTimeConfig();
-                    String hourStr = (friendFireHour < 10 ? "0" + friendFireHour : String.valueOf(friendFireHour));
-                    String minuteStr = (friendFireMinute < 10 ? "0" + friendFireMinute : String.valueOf(friendFireMinute));
-                    toast("已设置好友续火时间: " + hourStr + ":" + minuteStr);
+                    String newTime = timeInput.getText().toString().trim();
+                    if (isValidTime(newTime)) {
+                        friendFireTime = newTime;
+                        saveTimeConfig();
+                        toast("已设置好友续火时间: " + friendFireTime);
+                    } else {
+                        toast("时间格式错误，请使用 HH:mm 格式");
+                    }
                 }
             });
             
@@ -1049,29 +1117,32 @@ public void configureGroupFireTime(String g, String u, int t) {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("设置群组续火时间");
+            builder.setTitle("设置群组续火时间 (HH:mm)");
             builder.setCancelable(true);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(30, 30, 30, 30);
             
-            final TimePicker timePicker = new TimePicker(activity);
-            timePicker.setIs24HourView(true);
-            timePicker.setHour(groupFireHour);
-            timePicker.setMinute(groupFireMinute);
+            final EditText timeInput = new EditText(activity);
+            timeInput.setText(groupFireTime);
+            timeInput.setHint("例如: 08:00");
+            timeInput.setTextColor(Color.BLACK);
+            timeInput.setHintTextColor(Color.GRAY);
+            layout.addView(timeInput);
             
-            layout.addView(timePicker);
             builder.setView(layout);
             
             builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    groupFireHour = timePicker.getHour();
-                    groupFireMinute = timePicker.getMinute();
-                    saveTimeConfig();
-                    String hourStr = (groupFireHour < 10 ? "0" + groupFireHour : String.valueOf(groupFireHour));
-                    String minuteStr = (groupFireMinute < 10 ? "0" + groupFireMinute : String.valueOf(groupFireMinute));
-                    toast("已设置群组续火时间: " + hourStr + ":" + minuteStr);
+                    String newTime = timeInput.getText().toString().trim();
+                    if (isValidTime(newTime)) {
+                        groupFireTime = newTime;
+                        saveTimeConfig();
+                        toast("已设置群组续火时间: " + groupFireTime);
+                    } else {
+                        toast("时间格式错误，请使用 HH:mm 格式");
+                    }
                 }
             });
             
@@ -1079,6 +1150,20 @@ public void configureGroupFireTime(String g, String u, int t) {
             builder.show();
         }
     });
+}
+
+boolean isValidTime(String time) {
+    try {
+        String[] parts = time.split(":");
+        if (parts.length != 2) return false;
+        
+        int hour = Integer.parseInt(parts[0]);
+        int minute = Integer.parseInt(parts[1]);
+        
+        return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59;
+    } catch (Exception e) {
+        return false;
+    }
 }
 
 public void showUpdateLog(String g, String u, int t) {
@@ -1094,9 +1179,13 @@ public void showUpdateLog(String g, String u, int t) {
             builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [修复] 群组无法保存的问题\n" +
+            "- [修复] 各种稳定性问题\n" +
             "- [新增] 窗口支持全选 现在不需要一个一个点了\n" +
             "- [新增] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)和AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)两者同时存在 我们跟随系统的主题 如果用户系统切换为亮色模式 我们的主题就会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT 如果我们切换为深色模式 那么它就会自动变回AlertDialog.THEME_DEVICE_DEFAULT_DARK\n" +
             "- [新增] 脚本窗口支持搜索好友QQ、好友名字、群名、群号\n" +
+            "- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n" +
+            "- [优化] 时间配置改为文本输入方式\n" +
+            "- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞窗口 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n" +
