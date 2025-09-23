@@ -1,103 +1,3 @@
-
-// 作 海枫(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
-
-// 你会遇到比我更好的人 因为你从未觉得我好
-
-// QStory精选脚本系列 请勿二改上传 会拉黑上传权限(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
-
-// 部分接口 卑微萌新
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 所有代码不建议动 容易坏哦qwq
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -120,18 +20,20 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Collections;
+import java.util.List;
 
-ArrayList likeFriends = new ArrayList();
+ArrayList likeFriends = Collections.synchronizedList(new ArrayList());
 String lastLikeDate = "";
 String likeTime = "00:00";
 
-ArrayList fireFriends = new ArrayList();
-ArrayList friendFireWords = new ArrayList();
+ArrayList fireFriends = Collections.synchronizedList(new ArrayList());
+ArrayList friendFireWords = Collections.synchronizedList(new ArrayList());
 String lastFriendFireDate = "";
 String friendFireTime = "08:00";
 
-ArrayList fireGroups = new ArrayList();
-ArrayList groupFireWords = new ArrayList();
+ArrayList fireGroups = Collections.synchronizedList(new ArrayList());
+ArrayList groupFireWords = Collections.synchronizedList(new ArrayList());
 String lastGroupFireDate = "";
 String groupFireTime = "08:00";
 
@@ -143,7 +45,7 @@ String friendFireWordsPath = appPath + "/续火词/好友续火词.txt";
 String groupFireWordsPath = appPath + "/续火词/群组续火词.txt";
 
 ArrayList readWordsFromFile(String path) {
-    ArrayList words = new ArrayList();
+    ArrayList words = Collections.synchronizedList(new ArrayList());
     try {
         File file = new File(path);
         if (file.exists()) {
@@ -169,8 +71,10 @@ void writeWordsToFile(String path, ArrayList words) {
             dir.mkdirs();
         }
         FileWriter writer = new FileWriter(path);
-        for (int i = 0; i < words.size(); i++) {
-            writer.write((String)words.get(i) + "\n");
+        synchronized(words) {
+            for (int i = 0; i < words.size(); i++) {
+                writer.write((String)words.get(i) + "\n");
+            }
         }
         writer.close();
     } catch (Exception e) {
@@ -180,12 +84,14 @@ void writeWordsToFile(String path, ArrayList words) {
 void executeSendLikes(){
     new Thread(new Runnable(){
     public void run(){
-        for(int i=0; i < likeFriends.size(); i++){
-            String friend = (String)likeFriends.get(i);
-            try{
-                sendLike(friend, 20);
-                Thread.sleep(3000);
-            }catch(Exception e){
+        synchronized(likeFriends) {
+            for(int i=0; i < likeFriends.size(); i++){
+                String friend = (String)likeFriends.get(i);
+                try{
+                    sendLike(friend, 20);
+                    Thread.sleep(3000);
+                }catch(Exception e){
+                }
             }
         }
     }
@@ -195,14 +101,20 @@ void executeSendLikes(){
 void sendToAllFriends(){
     new Thread(new Runnable(){
         public void run(){
-            for(int i = 0; i < fireFriends.size(); i++){
-                String friend = (String)fireFriends.get(i);
-                try{
-                    int index = (int)(Math.random() * friendFireWords.size());
-                    String word = (String)friendFireWords.get(index);
-                    sendMsg("", friend, word);
-                    Thread.sleep(5000);
-                }catch(Exception e){
+            synchronized(fireFriends) {
+                for(int i = 0; i < fireFriends.size(); i++){
+                    String friend = (String)fireFriends.get(i);
+                    try{
+                        String word;
+                        synchronized(friendFireWords) {
+                            if (friendFireWords.isEmpty()) continue;
+                            int index = (int)(Math.random() * friendFireWords.size());
+                            word = (String)friendFireWords.get(index);
+                        }
+                        sendMsg("", friend, word);
+                        Thread.sleep(5000);
+                    }catch(Exception e){
+                    }
                 }
             }
         }
@@ -212,14 +124,20 @@ void sendToAllFriends(){
 void sendToAllGroups(){
     new Thread(new Runnable(){
         public void run(){
-            for(int i = 0; i < fireGroups.size(); i++){
-                String group = (String)fireGroups.get(i);
-                try{
-                    int index = (int)(Math.random() * groupFireWords.size());
-                    String word = (String)groupFireWords.get(index);
-                    sendMsg(group, "", word);
-                    Thread.sleep(5000);
-                }catch(Exception e){
+            synchronized(fireGroups) {
+                for(int i = 0; i < fireGroups.size(); i++){
+                    String group = (String)fireGroups.get(i);
+                    try{
+                        String word;
+                        synchronized(groupFireWords) {
+                            if (groupFireWords.isEmpty()) continue;
+                            int index = (int)(Math.random() * groupFireWords.size());
+                            word = (String)groupFireWords.get(index);
+                        }
+                        sendMsg(group, "", word);
+                        Thread.sleep(5000);
+                    }catch(Exception e){
+                    }
                 }
             }
         }
@@ -287,60 +205,80 @@ void initConfig() {
     String savedLikeFriends = getString("DailyLike", "selectedFriends", "");
     if (!savedLikeFriends.isEmpty()) {
         String[] friends = savedLikeFriends.split(",");
-        for (int i = 0; i < friends.length; i++) {
-            if (!friends[i].isEmpty()) likeFriends.add(friends[i]);
+        synchronized(likeFriends) {
+            for (int i = 0; i < friends.length; i++) {
+                if (!friends[i].isEmpty()) likeFriends.add(friends[i]);
+            }
         }
     }
     
     String savedFireFriends = getString("KeepFire", "friends", "");
     if (!savedFireFriends.isEmpty()) {
         String[] friends = savedFireFriends.split(",");
-        for (int i = 0; i < friends.length; i++) {
-            if (!friends[i].isEmpty()) fireFriends.add(friends[i]);
+        synchronized(fireFriends) {
+            for (int i = 0; i < friends.length; i++) {
+                if (!friends[i].isEmpty()) fireFriends.add(friends[i]);
+            }
         }
     }
     
     ArrayList friendWordsFromFile = readWordsFromFile(friendFireWordsPath);
     if (!friendWordsFromFile.isEmpty()) {
-        friendFireWords = friendWordsFromFile;
+        synchronized(friendFireWords) {
+            friendFireWords.clear();
+            friendFireWords.addAll(friendWordsFromFile);
+        }
     } else {
         String savedFriendFireWords = getString("KeepFire", "fireWords", "");
         if (!savedFriendFireWords.isEmpty()) {
             String[] words = savedFriendFireWords.split(",");
-            for (int i = 0; i < words.length; i++) {
-                friendFireWords.add(words[i].trim());
+            synchronized(friendFireWords) {
+                for (int i = 0; i < words.length; i++) {
+                    friendFireWords.add(words[i].trim());
+                }
             }
             writeWordsToFile(friendFireWordsPath, friendFireWords);
             putString("KeepFire", "fireWords", "");
         } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
-            writeWordsToFile(friendFireWordsPath, friendFireWords);
+            synchronized(friendFireWords) {
+                friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
+                writeWordsToFile(friendFireWordsPath, friendFireWords);
+            }
         }
     }
     
     String savedFireGroups = getString("GroupFire", "selectedGroups", "");
     if (!savedFireGroups.isEmpty()) {
         String[] groups = savedFireGroups.split(",");
-        for (int i = 0; i < groups.length; i++) {
-            if (!groups[i].isEmpty()) fireGroups.add(groups[i]);
+        synchronized(fireGroups) {
+            for (int i = 0; i < groups.length; i++) {
+                if (!groups[i].isEmpty()) fireGroups.add(groups[i]);
+            }
         }
     }
     
     ArrayList groupWordsFromFile = readWordsFromFile(groupFireWordsPath);
     if (!groupWordsFromFile.isEmpty()) {
-        groupFireWords = groupWordsFromFile;
+        synchronized(groupFireWords) {
+            groupFireWords.clear();
+            groupFireWords.addAll(groupWordsFromFile);
+        }
     } else {
         String savedGroupFireWords = getString("GroupFire", "fireWords", "");
         if (!savedGroupFireWords.isEmpty()) {
             String[] words = savedGroupFireWords.split(",");
-            for (int i = 0; i < words.length; i++) {
-                groupFireWords.add(words[i].trim());
+            synchronized(groupFireWords) {
+                for (int i = 0; i < words.length; i++) {
+                    groupFireWords.add(words[i].trim());
+                }
             }
             writeWordsToFile(groupFireWordsPath, groupFireWords);
             putString("GroupFire", "fireWords", "");
         } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
-            writeWordsToFile(groupFireWordsPath, groupFireWords);
+            synchronized(groupFireWords) {
+                groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
+                writeWordsToFile(groupFireWordsPath, groupFireWords);
+            }
         }
     }
     
@@ -357,27 +295,33 @@ void initConfig() {
 
 void saveLikeFriends() {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < likeFriends.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)likeFriends.get(i));
+    synchronized(likeFriends) {
+        for (int i = 0; i < likeFriends.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append((String)likeFriends.get(i));
+        }
     }
     putString("DailyLike", "selectedFriends", sb.toString());
 }
 
 void saveFireFriends() {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < fireFriends.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)fireFriends.get(i));
+    synchronized(fireFriends) {
+        for (int i = 0; i < fireFriends.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append((String)fireFriends.get(i));
+        }
     }
     putString("KeepFire", "friends", sb.toString());
 }
 
 void saveFireGroups() {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < fireGroups.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)fireGroups.get(i));
+    synchronized(fireGroups) {
+        for (int i = 0; i < fireGroups.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append((String)fireGroups.get(i));
+        }
     }
     putString("GroupFire", "selectedGroups", sb.toString());
 }
@@ -468,9 +412,11 @@ public void likeNow(String g, String u, int t){
     }
     
     lastLikeClickTime = currentTime;
-    if (likeFriends.isEmpty()) {
-        toast("请先配置要点赞的好友");
-        return;
+    synchronized(likeFriends) {
+        if (likeFriends.isEmpty()) {
+            toast("请先配置要点赞的好友");
+            return;
+        }
     }
     executeSendLikes();
     toast("正在为" + likeFriends.size() + "位好友点赞");
@@ -485,9 +431,11 @@ public void fireFriendsNow(String g, String u, int t){
     }
     
     lastFriendFireClickTime = currentTime;
-    if (fireFriends.isEmpty()) {
-        toast("请先配置要续火的好友");
-        return;
+    synchronized(fireFriends) {
+        if (fireFriends.isEmpty()) {
+            toast("请先配置要续火的好友");
+            return;
+        }
     }
     sendToAllFriends();
     toast("已立即续火" + fireFriends.size() + "位好友");
@@ -502,9 +450,11 @@ public void fireGroupsNow(String g, String u, int t){
     }
     
     lastGroupFireClickTime = currentTime;
-    if (fireGroups.isEmpty()) {
-        toast("请先配置要续火的群组");
-        return;
+    synchronized(fireGroups) {
+        if (fireGroups.isEmpty()) {
+            toast("请先配置要续火的群组");
+            return;
+        }
     }
     sendToAllGroups();
     toast("已立即续火" + fireGroups.size() + "个群组");
@@ -551,8 +501,10 @@ public void configureLikeFriends(String g, String u, int t){
     final ArrayList displayedFriendUins = new ArrayList(originalFriendUins);
     
     final boolean[] originalCheckedItems = new boolean[originalFriendUins.size()];
-    for (int i = 0; i < originalFriendUins.size(); i++) {
-        originalCheckedItems[i] = likeFriends.contains(originalFriendUins.get(i));
+    synchronized(likeFriends) {
+        for (int i = 0; i < originalFriendUins.size(); i++) {
+            originalCheckedItems[i] = likeFriends.contains(originalFriendUins.get(i));
+        }
     }
     
     activity.runOnUiThread(new Runnable() {
@@ -644,10 +596,12 @@ public void configureLikeFriends(String g, String u, int t){
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    likeFriends.clear();
-                    for (int i = 0; i < displayedFriendUins.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            likeFriends.add(displayedFriendUins.get(i));
+                    synchronized(likeFriends) {
+                        likeFriends.clear();
+                        for (int i = 0; i < displayedFriendUins.size(); i++) {
+                            if (listView.isItemChecked(i)) {
+                                likeFriends.add(displayedFriendUins.get(i));
+                            }
                         }
                     }
                     saveLikeFriends();
@@ -791,10 +745,12 @@ public void configureFireFriends(String g, String u, int t){
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    fireFriends.clear();
-                    for (int i = 0; i < displayedFriendUins.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            fireFriends.add(displayedFriendUins.get(i));
+                    synchronized(fireFriends) {
+                        fireFriends.clear();
+                        for (int i = 0; i < displayedFriendUins.size(); i++) {
+                            if (listView.isItemChecked(i)) {
+                                fireFriends.add(displayedFriendUins.get(i));
+                            }
                         }
                     }
                     saveFireFriends();
@@ -934,10 +890,12 @@ public void configureFireGroups(String g, String u, int t){
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    fireGroups.clear();
-                    for (int i = 0; i < displayedGroupUins.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            fireGroups.add(displayedGroupUins.get(i));
+                    synchronized(fireGroups) {
+                        fireGroups.clear();
+                        for (int i = 0; i < displayedGroupUins.size(); i++) {
+                            if (listView.isItemChecked(i)) {
+                                fireGroups.add(displayedGroupUins.get(i));
+                            }
                         }
                     }
                     saveFireGroups();
@@ -963,9 +921,11 @@ public void configureFriendFireWords(String g, String u, int t){
         public void run() {
             try {
                 StringBuilder wordsList = new StringBuilder();
-                for (int i = 0; i < friendFireWords.size(); i++) {
-                    if (wordsList.length() > 0) wordsList.append("\n");
-                    wordsList.append((String)friendFireWords.get(i));
+                synchronized(friendFireWords) {
+                    for (int i = 0; i < friendFireWords.size(); i++) {
+                        if (wordsList.length() > 0) wordsList.append("\n");
+                        wordsList.append((String)friendFireWords.get(i));
+                    }
                 }
                 
                 TextView titleView = new TextView(activity);
@@ -1012,12 +972,14 @@ public void configureFriendFireWords(String g, String u, int t){
                             return;
                         }
                         
-                        friendFireWords.clear();
-                        String[] wordsArray = words.split("\n");
-                        for (int i = 0; i < wordsArray.length; i++) {
-                            String trimmed = wordsArray[i].trim();
-                            if (!trimmed.isEmpty()) {
-                                friendFireWords.add(trimmed);
+                        synchronized(friendFireWords) {
+                            friendFireWords.clear();
+                            String[] wordsArray = words.split("\n");
+                            for (int i = 0; i < wordsArray.length; i++) {
+                                String trimmed = wordsArray[i].trim();
+                                if (!trimmed.isEmpty()) {
+                                    friendFireWords.add(trimmed);
+                                }
                             }
                         }
                         
@@ -1052,9 +1014,11 @@ public void configureGroupFireWords(String g, String u, int t){
         public void run() {
             try {
                 StringBuilder wordsList = new StringBuilder();
-                for (int i = 0; i < groupFireWords.size(); i++) {
-                    if (wordsList.length() > 0) wordsList.append("\n");
-                    wordsList.append((String)groupFireWords.get(i));
+                synchronized(groupFireWords) {
+                    for (int i = 0; i < groupFireWords.size(); i++) {
+                        if (wordsList.length() > 0) wordsList.append("\n");
+                        wordsList.append((String)groupFireWords.get(i));
+                    }
                 }
                 
                 TextView titleView = new TextView(activity);
@@ -1101,12 +1065,14 @@ public void configureGroupFireWords(String g, String u, int t){
                             return;
                         }
                         
-                        groupFireWords.clear();
-                        String[] wordsArray = words.split("\n");
-                        for (int i = 0; i < wordsArray.length; i++) {
-                            String trimmed = wordsArray[i].trim();
-                            if (!trimmed.isEmpty()) {
-                                groupFireWords.add(trimmed);
+                        synchronized(groupFireWords) {
+                            groupFireWords.clear();
+                            String[] wordsArray = words.split("\n");
+                            for (int i = 0; i < wordsArray.length; i++) {
+                                String trimmed = wordsArray[i].trim();
+                                if (!trimmed.isEmpty()) {
+                                    groupFireWords.add(trimmed);
+                                }
                             }
                         }
                         
@@ -1286,135 +1252,10 @@ public void showUpdateLog(String g, String u, int t) {
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
-            "更新日志\n\n" +
-            "- [修复] 群组无法保存的问题\n" +
-            "- [修复] 各种稳定性问题\n" +
-            "- [修复] 全选弹窗点击会显示以及可能会闪退的问题\n" +
-            "- [修复] 搜索群号 QQ号无法识别的问题\n" +
-            "- [新增] 窗口支持全选 现在不需要一个一个点了\n" +
-            "- [新增] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)和AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)两者同时存在 我们跟随系统的主题 如果用户系统切换为亮色模式 我们的主题就会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT 如果我们切换为深色模式 那么它就会自动变回AlertDialog.THEME_DEVICE_DEFAULT_DARK\n" +
-            "- [新增] 脚本窗口支持搜索好友QQ、好友名、群名、群号\n" +
-            "- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n" +
-            "- [优化] 时间配置改为文本输入方式\n" +
-            "- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n" +
-            "- [优化] 定时消息逻辑以及脚本执行任务逻辑\n" +
-            "- [优化] 代码逻辑\n" +
-            "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞窗口 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
-            "- [其他] 脚本运行环境为QStory1.9.7+(WAuxiliary引擎)，脚本包含了大量泛型 旧版引擎不支持可能无法加载\n" +
-            "- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n" +
-            "- [提示] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)导致字体变白看不清(其实不亮也能看得见)仍然存在 窗口特性 无法修复 用户自适应 如果建议请切换为深色模式 脚本会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)\n" +
-            "- [更改] 现在续火词更换存储方式\n" +
-            "- [更改] 现在点赞好友、好友续火、群组续火默认时间为00:00 可能需要自己重新配置时间\n\n" +
-            "反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("海獭qwq\n\n更新日志\n\n- [修复] 线程安全导致的ConcurrentModificationException\n- [优化] 所有ArrayList改为线程安全的Collections.synchronizedList\n- [优化] 添加同步块确保多线程安全\n- [修复] 各种稳定性问题\n- [修复] 全选弹窗点击以及可能会闪退的问题\n- [修复] 搜索群号 QQ号无法识别的问题\n- [新增] 窗口支持全选 现在不需要一个一个点了\n- [新增] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)和AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)两者同时存在 我们跟随系统的主题 如果用户系统切换为亮色模式 我们的主题就会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT 如果我们切换为深色模式 那么它就会自动变回AlertDialog.THEME_DEVICE_DEFAULT_DARK\n- [新增] 脚本窗口支持搜索好友QQ、好友名、群名、群号\n- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n- [优化] 时间配置改为文本输入方式\n- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n- [优化] 定时线程和执行逻辑\n- [优化] 代码逻辑\n- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞窗口 否则无法获取好友列表可能导致脚本无法加载或使用\n- [其他] 脚本运行环境为QStory1.9.7+(WAuxiliary引擎)，脚本包含了大量泛型 旧版引擎不支持可能无法加载\n- [移除] 脚本每次加载时会toast提示 我现在觉得烦人 已移除该代码\n- [提示] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)导致字体变白看不清(其实不亮也能看得见)仍然存在 窗口特性 无法修复 用户自适应 如果建议请切换为深色模式 脚本会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)\n- [更改] 现在续火词更换存储方式\n- [更改] 现在点赞好友、好友续火、群组续火默认时间为00:00 可能需要自己重新配置时间\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
         }
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 人总要和握不住的东西说再见的 有些人 有些事 到此为止就是最好的结局
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
-
-// 海枫 行空 天天开心
