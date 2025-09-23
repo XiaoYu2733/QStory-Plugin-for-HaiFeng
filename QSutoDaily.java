@@ -236,45 +236,43 @@ void checkMissedTasks() {
     String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
     int currentHour = now.get(Calendar.HOUR_OF_DAY);
     int currentMinute = now.get(Calendar.MINUTE);
+    int currentTotalMinutes = currentHour * 60 + currentMinute;
     
     int[] likeTimeParts = parseTime(likeTime);
     int likeHour = likeTimeParts[0];
     int likeMinute = likeTimeParts[1];
+    int likeTotalMinutes = likeHour * 60 + likeMinute;
     
     int[] friendFireTimeParts = parseTime(friendFireTime);
     int friendFireHour = friendFireTimeParts[0];
     int friendFireMinute = friendFireTimeParts[1];
+    int friendFireTotalMinutes = friendFireHour * 60 + friendFireMinute;
     
     int[] groupFireTimeParts = parseTime(groupFireTime);
     int groupFireHour = groupFireTimeParts[0];
     int groupFireMinute = groupFireTimeParts[1];
+    int groupFireTotalMinutes = groupFireHour * 60 + groupFireMinute;
     
-    if (!today.equals(lastLikeDate) && isTimePassed(currentHour, currentMinute, likeHour, likeMinute)) {
+    if (!today.equals(lastLikeDate) && currentTotalMinutes >= likeTotalMinutes) {
         executeSendLikes();
         lastLikeDate = today;
         putString("DailyLike", "lastLikeDate", today);
         toast("检测到错过点赞任务，已立即执行");
     }
     
-    if (!today.equals(lastFriendFireDate) && isTimePassed(currentHour, currentMinute, friendFireHour, friendFireMinute)) {
+    if (!today.equals(lastFriendFireDate) && currentTotalMinutes >= friendFireTotalMinutes) {
         sendToAllFriends();
         lastFriendFireDate = today;
         putString("KeepFire", "lastSendDate", today);
         toast("检测到错过好友续火任务，已立即执行");
     }
     
-    if (!today.equals(lastGroupFireDate) && isTimePassed(currentHour, currentMinute, groupFireHour, groupFireMinute)) {
+    if (!today.equals(lastGroupFireDate) && currentTotalMinutes >= groupFireTotalMinutes) {
         sendToAllGroups();
         lastGroupFireDate = today;
         putString("GroupFire", "lastSendDate", today);
-        toast("检测到错过群组续火任务，已立即执行");
+        toast("检测到错过群续火任务，已立即执行");
     }
-}
-
-boolean isTimePassed(int currentHour, int currentMinute, int targetHour, int targetMinute) {
-    if (currentHour > targetHour) return true;
-    if (currentHour == targetHour && currentMinute >= targetMinute) return true;
-    return false;
 }
 
 int[] parseTime(String timeStr) {
@@ -321,7 +319,7 @@ void initConfig() {
             writeWordsToFile(friendFireWordsPath, friendFireWords);
             putString("KeepFire", "fireWords", "");
         } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●ㅅ● )");
+            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●……● )");
             writeWordsToFile(friendFireWordsPath, friendFireWords);
         }
     }
@@ -347,7 +345,7 @@ void initConfig() {
             writeWordsToFile(groupFireWordsPath, groupFireWords);
             putString("GroupFire", "fireWords", "");
         } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●ㅅ● )");
+            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●……● )");
             writeWordsToFile(groupFireWordsPath, groupFireWords);
         }
     }
@@ -414,34 +412,38 @@ new Thread(new Runnable(){
         int currentHour = now.get(Calendar.HOUR_OF_DAY);
         int currentMinute = now.get(Calendar.MINUTE);
         String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
+        int currentTotalMinutes = currentHour * 60 + currentMinute;
         
         int[] likeTimeParts = parseTime(likeTime);
         int likeHour = likeTimeParts[0];
         int likeMinute = likeTimeParts[1];
+        int likeTotalMinutes = likeHour * 60 + likeMinute;
         
         int[] friendFireTimeParts = parseTime(friendFireTime);
         int friendFireHour = friendFireTimeParts[0];
         int friendFireMinute = friendFireTimeParts[1];
+        int friendFireTotalMinutes = friendFireHour * 60 + friendFireMinute;
         
         int[] groupFireTimeParts = parseTime(groupFireTime);
         int groupFireHour = groupFireTimeParts[0];
         int groupFireMinute = groupFireTimeParts[1];
+        int groupFireTotalMinutes = groupFireHour * 60 + groupFireMinute;
         
-        if (!today.equals(lastLikeDate) && isTimePassed(currentHour, currentMinute, likeHour, likeMinute)) {
+        if (!today.equals(lastLikeDate) && currentTotalMinutes >= likeTotalMinutes) {
             executeSendLikes();
             lastLikeDate = today;
             putString("DailyLike", "lastLikeDate", today);
             toast("已执行好友点赞");
         }
         
-        if (!today.equals(lastFriendFireDate) && isTimePassed(currentHour, currentMinute, friendFireHour, friendFireMinute)) {
+        if (!today.equals(lastFriendFireDate) && currentTotalMinutes >= friendFireTotalMinutes) {
             sendToAllFriends();
             lastFriendFireDate = today;
             putString("KeepFire", "lastSendDate", today);
             toast("已续火" + fireFriends.size() + "位好友");
         }
         
-        if (!today.equals(lastGroupFireDate) && isTimePassed(currentHour, currentMinute, groupFireHour, groupFireMinute)) {
+        if (!today.equals(lastGroupFireDate) && currentTotalMinutes >= groupFireTotalMinutes) {
             sendToAllGroups();
             lastGroupFireDate = today;
             putString("GroupFire", "lastSendDate", today);
@@ -1297,7 +1299,7 @@ public void showUpdateLog(String g, String u, int t) {
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海獭qwq\n\n" +
+            builder.setMessage("海枫qwq\n\n" +
             "更新日志\n\n" +
             "- [修复] 群组无法保存的问题\n" +
             "- [修复] 各种稳定性问题\n" +
@@ -1309,6 +1311,7 @@ public void showUpdateLog(String g, String u, int t) {
             "- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n" +
             "- [优化] 时间配置改为文本输入方式\n" +
             "- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n" +
+            "- [优化] 定时线程和执行逻辑\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞窗口 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [其他] 脚本运行环境为QStory1.9.7+(WAuxiliary引擎)，脚本包含了大量泛型 旧版引擎不支持可能无法加载\n" +
