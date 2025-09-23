@@ -158,7 +158,6 @@ ArrayList readWordsFromFile(String path) {
             reader.close();
         }
     } catch (Exception e) {
-        toast("读取文件失败: " + e.getMessage());
     }
     return words;
 }
@@ -175,7 +174,6 @@ void writeWordsToFile(String path, ArrayList words) {
         }
         writer.close();
     } catch (Exception e) {
-        toast("写入文件失败: " + e.getMessage());
     }
 }
 
@@ -188,7 +186,6 @@ void executeSendLikes(){
                 sendLike(friend, 20);
                 Thread.sleep(3000);
             }catch(Exception e){
-                toast(friend + "点赞失败:" + e.getMessage());
             }
         }
     }
@@ -206,7 +203,6 @@ void sendToAllFriends(){
                     sendMsg("", friend, word);
                     Thread.sleep(5000);
                 }catch(Exception e){
-                    toast(friend + "续火失败:" + e.getMessage());
                 }
             }
         }
@@ -224,7 +220,6 @@ void sendToAllGroups(){
                     sendMsg(group, "", word);
                     Thread.sleep(5000);
                 }catch(Exception e){
-                    toast(group + "续火失败:" + e.getMessage());
                 }
             }
         }
@@ -284,7 +279,6 @@ int[] parseTime(String timeStr) {
             result[1] = Integer.parseInt(parts[1]);
         }
     } catch (Exception e) {
-        toast("时间格式错误: " + timeStr);
     }
     return result;
 }
@@ -319,7 +313,7 @@ void initConfig() {
             writeWordsToFile(friendFireWordsPath, friendFireWords);
             putString("KeepFire", "fireWords", "");
         } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●……● )");
+            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
             writeWordsToFile(friendFireWordsPath, friendFireWords);
         }
     }
@@ -345,7 +339,7 @@ void initConfig() {
             writeWordsToFile(groupFireWordsPath, groupFireWords);
             putString("GroupFire", "fireWords", "");
         } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●……● )");
+            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(◦˙▾˙◦ )");
             writeWordsToFile(groupFireWordsPath, groupFireWords);
         }
     }
@@ -546,7 +540,6 @@ public void configureLikeFriends(String g, String u, int t){
             name = (String)nameField.get(friend);
             uin = (String)uinField.get(friend);
         } catch (Exception e) {
-            toast("获取好友信息错误: " + e.getMessage());
         }
         
         String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
@@ -699,7 +692,6 @@ public void configureFireFriends(String g, String u, int t){
             name = (String)nameField.get(friend);
             uin = (String)uinField.get(friend);
         } catch (Exception e) {
-            toast("获取好友信息错误: " + e.getMessage());
         }
         
         String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
@@ -843,7 +835,6 @@ public void configureFireGroups(String g, String u, int t){
             name = (String)nameField.get(group);
             uin = (String)uinField.get(group);
         } catch (Exception e) {
-            toast("获取群组信息错误: " + e.getMessage());
         }
         
         String displayName = name + " (" + uin + ")";
@@ -1045,7 +1036,6 @@ public void configureFriendFireWords(String g, String u, int t){
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } catch (Exception e) {
-                toast("配置错误: " + e.getMessage());
             }
         }
     });
@@ -1135,7 +1125,6 @@ public void configureGroupFireWords(String g, String u, int t){
                 AlertDialog dialog = builder.create();
                 dialog.show();
             } catch (Exception e) {
-                toast("配置错误: " + e.getMessage());
             }
         }
     });
@@ -1287,8 +1276,6 @@ boolean isValidTime(String time) {
     }
 }
 
-sendLike("2133115301",20);
-
 public void showUpdateLog(String g, String u, int t) {
     final Activity activity = getActivity();
     if (activity == null) return;
@@ -1311,7 +1298,7 @@ public void showUpdateLog(String g, String u, int t) {
             "- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n" +
             "- [优化] 时间配置改为文本输入方式\n" +
             "- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n" +
-            "- [优化] 定时线程和执行逻辑\n" +
+            "- [优化] 定时消息逻辑以及脚本执行任务逻辑\n" +
             "- [优化] 代码逻辑\n" +
             "- [其他] 请更新QStory至1.9.3+才可以使用好友续火、点赞窗口 否则无法获取好友列表可能导致脚本无法加载或使用\n" +
             "- [其他] 脚本运行环境为QStory1.9.7+(WAuxiliary引擎)，脚本包含了大量泛型 旧版引擎不支持可能无法加载\n" +
