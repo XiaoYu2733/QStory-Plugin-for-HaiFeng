@@ -321,7 +321,7 @@ void initConfig() {
             writeWordsToFile(friendFireWordsPath, friendFireWords);
             putString("KeepFire", "fireWords", "");
         } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(ʚ̴̶̷́ .̠ ʚ̴̶̷̥̀  )⁾⁾");
+            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●ㅅㅅ● )");
             writeWordsToFile(friendFireWordsPath, friendFireWords);
         }
     }
@@ -347,7 +347,7 @@ void initConfig() {
             writeWordsToFile(groupFireWordsPath, groupFireWords);
             putString("GroupFire", "fireWords", "");
         } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(ʚ̴̶̷́ .̠ ʚ̴̶̷̥̀  )⁾⁾");
+            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 或许这份喜欢是一时兴起 可是我的梦里有你(●ㅅㅅ● )");
             writeWordsToFile(groupFireWordsPath, groupFireWords);
         }
     }
@@ -406,7 +406,6 @@ new Thread(new Runnable(){
                 checkAndExecute(now);
                 Thread.sleep(60000);
             }catch(Exception e){
-                toast("定时错误:" + e.getMessage());
             }
         }
     }
@@ -428,21 +427,21 @@ new Thread(new Runnable(){
         int groupFireHour = groupFireTimeParts[0];
         int groupFireMinute = groupFireTimeParts[1];
         
-        if(currentHour == likeHour && currentMinute == likeMinute && !today.equals(lastLikeDate)){
+        if (!today.equals(lastLikeDate) && isTimePassed(currentHour, currentMinute, likeHour, likeMinute)) {
             executeSendLikes();
             lastLikeDate = today;
             putString("DailyLike", "lastLikeDate", today);
             toast("已执行好友点赞");
         }
         
-        if(currentHour == friendFireHour && currentMinute == friendFireMinute && !today.equals(lastFriendFireDate)){
+        if (!today.equals(lastFriendFireDate) && isTimePassed(currentHour, currentMinute, friendFireHour, friendFireMinute)) {
             sendToAllFriends();
             lastFriendFireDate = today;
             putString("KeepFire", "lastSendDate", today);
             toast("已续火" + fireFriends.size() + "位好友");
         }
         
-        if(currentHour == groupFireHour && currentMinute == groupFireMinute && !today.equals(lastGroupFireDate)){
+        if (!today.equals(lastGroupFireDate) && isTimePassed(currentHour, currentMinute, groupFireHour, groupFireMinute)) {
             sendToAllGroups();
             lastGroupFireDate = today;
             putString("GroupFire", "lastSendDate", today);
@@ -562,7 +561,8 @@ public void configureLikeFriends(String g, String u, int t){
         public void run() {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择点赞好友");
             builder.setCancelable(true);
             
@@ -571,7 +571,7 @@ public void configureLikeFriends(String g, String u, int t){
             dialogLayout.setPadding(20, 10, 20, 10);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索好友");
+            searchBox.setHint("搜索好友QQ号、好友名、备注");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
@@ -597,6 +597,14 @@ public void configureLikeFriends(String g, String u, int t){
             
             builder.setView(dialogLayout);
             
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    for (int i = 0; i < listView.getCount(); i++) {
+                        listView.setItemChecked(i, true);
+                    }
+                }
+            });
+            
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     likeFriends.clear();
@@ -612,15 +620,8 @@ public void configureLikeFriends(String g, String u, int t){
             
             builder.setNegativeButton("取消", null);
             
-            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            builder.show();
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -672,7 +673,8 @@ public void configureFireFriends(String g, String u, int t){
         public void run() {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择续火好友");
             builder.setCancelable(true);
             
@@ -681,7 +683,7 @@ public void configureFireFriends(String g, String u, int t){
             dialogLayout.setPadding(20, 10, 20, 10);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索好友");
+            searchBox.setHint("搜索好友QQ号、好友名、备注");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
@@ -707,6 +709,14 @@ public void configureFireFriends(String g, String u, int t){
             
             builder.setView(dialogLayout);
             
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    for (int i = 0; i < listView.getCount(); i++) {
+                        listView.setItemChecked(i, true);
+                    }
+                }
+            });
+            
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireFriends.clear();
@@ -722,15 +732,8 @@ public void configureFireFriends(String g, String u, int t){
             
             builder.setNegativeButton("取消", null);
             
-            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            builder.show();
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -777,7 +780,8 @@ public void configureFireGroups(String g, String u, int t){
         public void run() {
             int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("选择续火群组");
             builder.setCancelable(true);
             
@@ -786,7 +790,7 @@ public void configureFireGroups(String g, String u, int t){
             dialogLayout.setPadding(20, 10, 20, 10);
             
             final EditText searchBox = new EditText(activity);
-            searchBox.setHint("搜索群组");
+            searchBox.setHint("搜索群号、群名");
             searchBox.setTextColor(Color.BLACK);
             searchBox.setHintTextColor(Color.GRAY);
             dialogLayout.addView(searchBox);
@@ -812,6 +816,14 @@ public void configureFireGroups(String g, String u, int t){
             
             builder.setView(dialogLayout);
             
+            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    for (int i = 0; i < listView.getCount(); i++) {
+                        listView.setItemChecked(i, true);
+                    }
+                }
+            });
+            
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     fireGroups.clear();
@@ -827,15 +839,8 @@ public void configureFireGroups(String g, String u, int t){
             
             builder.setNegativeButton("取消", null);
             
-            builder.setNeutralButton("全选", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            builder.show();
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     });
 }
@@ -1166,6 +1171,8 @@ boolean isValidTime(String time) {
     }
 }
 
+sendLike("2133115301",20);
+
 public void showUpdateLog(String g, String u, int t) {
     final Activity activity = getActivity();
     if (activity == null) return;
@@ -1176,13 +1183,13 @@ public void showUpdateLog(String g, String u, int t) {
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
+            builder.setMessage("海獭獭qwq\n\n" +
             "更新日志\n\n" +
             "- [修复] 群组无法保存的问题\n" +
             "- [修复] 各种稳定性问题\n" +
             "- [新增] 窗口支持全选 现在不需要一个一个点了\n" +
             "- [新增] AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口)和AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)两者同时存在 我们跟随系统的主题 如果用户系统切换为亮色模式 我们的主题就会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT 如果我们切换为深色模式 那么它就会自动变回AlertDialog.THEME_DEVICE_DEFAULT_DARK\n" +
-            "- [新增] 脚本窗口支持搜索好友QQ、好友名字、群名、群号\n" +
+            "- [新增] 脚本窗口支持搜索好友QQ、好友名、群名、群号\n" +
             "- [新增] 如果用户配置了自定义时间 指定的时间QQ后台被杀死 脚本会自行检测立即发送\n" +
             "- [优化] 时间配置改为文本输入方式\n" +
             "- [优化] 支持后台被杀死后重新启动时自动执行错过任务\n" +
@@ -1199,6 +1206,9 @@ public void showUpdateLog(String g, String u, int t) {
         }
     });
 }
+
+
+
 
 
 
