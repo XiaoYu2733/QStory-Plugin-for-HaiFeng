@@ -6,8 +6,6 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-# Developer：海枫 临江踏雨不返(@suzhelan)
-
 ## 脚本运行环境：QStory 下载地址：https://qstory.sacz.top
 
 ### 所需框架环境：LSPosed＆LSPatch
@@ -20,7 +18,7 @@
 
 ## 可以的话请在右上角为此项目点一个 <kbd>:star:STAR</kbd> 支持一下
 
-* **以下是已有Java脚本**  
+* **以下是已有Java脚本，排名不分前后**  
     * Java代码美化 - 美化代码 脚本悬浮窗使用
     * QSutoDaily - 自动续火群组、自动续火好友、自动点赞好友
     * code - 模拟运行各种语言
