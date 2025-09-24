@@ -304,7 +304,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [其他] 顺便也修了一些存在的问题\n" +
                     "————————\n" +
                     "简洁群管_48.0_更新日志\n" +
-                    "- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n\n" +
+                    "- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n" +
+                    "————————\n" +
+                    "简洁群管_49.0_更新日志\n" +
+                    "- [修复] 隐藏 显示 标识 头衔等功能在历代版本失效的问题\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -438,7 +441,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                                 } catch (Exception e) {}
                             }
                         }
-                        toast("已删除选中代管");
+                            toast("已删除选中代管");
                     }
                 });
                 
@@ -644,11 +647,16 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
     try{
         String cookie="p_uin=o0"+myQQ+";uin=o0"+myQQ+";skey="+skey+";p_skey="+pskey;
         String put="gc="+qun+"&flag="+type+"&bkn="+GetBkn(skey);
-        JSONObject json = new JSONObject(httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_honour_flag",cookie,put));
-        int ec=json.getInt("ec");
-        String em=json.getString("em");
-        if(ec==0) return "设置成功";
-        else return "设置失败，原因:"+em;
+        String response = httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_honour_flag",cookie,put);
+        try {
+            JSONObject json = new JSONObject(response);
+            int ec=json.getInt("ec");
+            String em=json.getString("em");
+            if(ec==0) return "设置成功";
+            else return "设置失败，原因:"+em;
+        } catch (Exception e) {
+            return "设置失败，返回非JSON数据:"+response;
+        }
     }
     catch(Exception e){
         return "设置失败，原因:"+e;
@@ -656,29 +664,27 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
 }
 
 public String SetTroopShowLevel(String qun,String myQQ,String skey,String pskey,int type){
-    try{
-        String cookie="p_uin=o0"+myQQ+";uin=o0"+myQQ+";skey="+skey+";p_skey="+pskey;
-        String put="gc="+qun+"&flag="+type+"&bkn="+GetBkn(skey);
-        JSONObject json = new JSONObject(httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_level_flag",cookie,put));
-        int ec=json.getInt("ec");
-        String em=json.getString("em");
-        if(ec==0) return "设置成功";
-        else return "设置失败，原因:"+em;
-    }
-    catch(Exception e){
-        return "设置失败，原因:"+e;
-    } 
+    return SetTroopShowInfo(qun,myQQ,skey,pskey,"levelnewflag",type);
 }
 
 public String SetTroopShowTitle(String qun,String myQQ,String skey,String pskey,int type){
+    return SetTroopShowInfo(qun,myQQ,skey,pskey,"levelflag",type);
+}
+
+public String SetTroopShowInfo(String qun,String myQQ,String skey,String pskey,String flagType,int type){
     try{
         String cookie="p_uin=o0"+myQQ+";uin=o0"+myQQ+";skey="+skey+";p_skey="+pskey;
-        String put="gc="+qun+"&flag="+type+"&bkn="+GetBkn(skey);
-        JSONObject json = new JSONObject(httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_title_flag",cookie,put));
-        int ec=json.getInt("ec");
-        String em=json.getString("em");
-        if(ec==0) return "设置成功";
-        else return "设置失败，原因:"+em;
+        String put="gc="+qun+"&"+flagType+"="+type+"&bkn="+GetBkn(skey);
+        String response = httppost("https://qinfo.clt.qq.com/cgi-bin/qun_info/set_group_setting",cookie,put);
+        try {
+            JSONObject json = new JSONObject(response);
+            int ec=json.getInt("ec");
+            String em=json.getString("em");
+            if(ec==0) return "设置成功";
+            else return "设置失败，原因:"+em;
+        } catch (Exception e) {
+            return "设置失败，返回非JSON数据:"+response;
+        }
     }
     catch(Exception e){
         return "设置失败，原因:"+e;
@@ -784,9 +790,9 @@ public Integer CN_zh_int(String chinese) {
 }
 
 public boolean atMe(Object msg){
-    if (msg.AtList == null || msg.AtList.size() == 0)
+    if (msg.mAtList == null || msg.mAtList.size() == 0)
         return false;
-    for (String to_at : msg.AtList)
+    for (String to_at : msg.mAtList)
         if (to_at.equals(myUin))
             return true;
     return false;
@@ -1180,18 +1186,12 @@ public String isGN(String groupUin, String key) {
 
 隐藏就是最后1改成0
 
-注意：这里不是注释 也不是什么没用的代码 请勿删除
-
 */
 
 public void onMsg(Object msg){
     String 故=msg.MessageContent;
     String qq=msg.UserUin;
     String groupUin = msg.GroupUin;
-    
-    public boolean 简读用户(File ff) throws IOException {
-        return 简取(ff).contains(qq);
-    }
     
     if(msg.MessageContent.startsWith("我要头衔")&&"开".equals(getString(groupUin,"自助头衔"))){
         String a=msg.MessageContent.substring(4);
@@ -1206,7 +1206,11 @@ public void onMsg(Object msg){
     
     boolean isAdminUser = false;
     try {
-        isAdminUser = 简读用户(获取代管文件());
+        File 代管文件 = 获取代管文件();
+        if (代管文件.exists()) {
+            ArrayList 代管列表 = 简取(代管文件);
+            isAdminUser = 代管列表.contains(qq);
+        }
     } catch (Exception e) {}
     
     if(msg.UserUin.equals(myUin)||isAdminUser){
