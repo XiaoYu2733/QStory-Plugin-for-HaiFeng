@@ -30,6 +30,7 @@ import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import android.content.Context;
 import android.widget.Toast;
+import android.content.res.Configuration;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -102,6 +103,19 @@ try {
     addItem("查看更新日志","showUpdateLog");
 }
 
+public int getCurrentTheme() {
+    try {
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+        } else {
+            return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        }
+    } catch (Exception e) {
+        return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    }
+}
+
 public void 设置艾特禁言时间方法(String groupUin, String uin, int chatType) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -109,7 +123,7 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("设置艾特禁言时间");
                 
                 LinearLayout layout = new LinearLayout(activity);
@@ -164,7 +178,7 @@ public void showUpdateLog(String g, String u, int t) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
             builder.setTitle("简洁群管更新日志");
             builder.setMessage("QStory精选脚本系列\n\n" +
                     "以下是简洁群管的部分更新日志 14.0以前的更新内容已丢失 因为以前的版本是临江在维护 并非海枫 找不到 并且部分更新内容我自己也不记得了\n\n" +
@@ -287,7 +301,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [移除] Android 主题 (Theme.Material.Light.Dialog.Alert) 因为在旧版本 QQ sdk 不同导致弹窗显示风格较老\n" +
                     "- [修复] 全选弹窗消失的问题\n" +
                     "- [更改] 继续使用 THEME_DEVICE_DEFAULT_LIGHT); 主题\n" +
-                    "- [其他] 顺便也修了一些存在的问题\n\n" +
+                    "- [其他] 顺便也修了一些存在的问题\n" +
+                    "————————\n" +
+                    "简洁群管_48.0_更新日志\n" +
+                    "- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -343,7 +360,7 @@ public void showGroupManageDialog() {
                     ScrollView scrollView = new ScrollView(activity);
                     scrollView.addView(layout);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                     builder.setTitle("群管功能说明")
                         .setView(scrollView)
                         .setNegativeButton("关闭", null)
@@ -369,7 +386,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("代管管理");
                 
                 final File 代管文件 = 获取代管文件();
@@ -449,7 +466,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("黑名单管理");
                 
                 final File 黑名单文件 = 获取黑名单文件(groupUin);
@@ -1674,5 +1691,3 @@ public void onMsg(Object msg){
         }                          
     }
 }
-
-// 我恨这个世界 但更恨你不喜欢我却还要说爱我
