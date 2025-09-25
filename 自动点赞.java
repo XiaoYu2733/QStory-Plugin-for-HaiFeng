@@ -1,7 +1,20 @@
+
+// 作 海枫
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -75,8 +88,8 @@ void executeSendLikes(){
     }).start();
 }
 
-addItem("立即点赞","likeNow");
-addItem("配置好友","configureFriends");
+addItem("立即点赞好友","likeNow");
+addItem("配置点赞好友","configureFriends");
 
 public void likeNow(String g,String u,int t){
     long currentTime = System.currentTimeMillis();
@@ -95,8 +108,8 @@ public void likeNow(String g,String u,int t){
     toast("正在为" + selectedFriends.size() + "位好友点赞");
 }
 
-public void configureFriends(String g,String u,int t){
-    Activity activity = getActivity();
+public void configureFriends(String g, String u, int t){
+    final Activity activity = getActivity();
     if (activity == null) return;
     
     ArrayList allFriends = getFriendList();
@@ -105,55 +118,141 @@ public void configureFriends(String g,String u,int t){
         return;
     }
     
-    final ArrayList friendNames = new ArrayList();
-    final ArrayList friendUins = new ArrayList();
+    final ArrayList originalFriendNames = new ArrayList();
+    final ArrayList originalFriendUins = new ArrayList();
     for (int i = 0; i < allFriends.size(); i++) {
         Object friend = allFriends.get(i);
-        String name = friend.remark.isEmpty() ? friend.name : friend.remark;
-        String uin = friend.uin;
-        friendNames.add(name + " (" + uin + ")");
-        friendUins.add(uin);
+        String name = "";
+        String remark = "";
+        String uin = "";
+        try {
+            Class friendClass = friend.getClass();
+            java.lang.reflect.Field remarkField = friendClass.getDeclaredField("remark");
+            remarkField.setAccessible(true);
+            java.lang.reflect.Field nameField = friendClass.getDeclaredField("name");
+            nameField.setAccessible(true);
+            java.lang.reflect.Field uinField = friendClass.getDeclaredField("uin");
+            uinField.setAccessible(true);
+            
+            remark = (String)remarkField.get(friend);
+            name = (String)nameField.get(friend);
+            uin = (String)uinField.get(friend);
+        } catch (Exception e) {
+        }
+        
+        String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
+        originalFriendNames.add(displayName);
+        originalFriendUins.add(uin);
     }
     
-    final boolean[] checkedItems = new boolean[friendUins.size()];
-    for (int i = 0; i < friendUins.size(); i++) {
-        checkedItems[i] = selectedFriends.contains(friendUins.get(i));
-    }
+    final ArrayList displayedFriendNames = new ArrayList(originalFriendNames);
+    final ArrayList displayedFriendUins = new ArrayList(originalFriendUins);
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("选择点赞好友");
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             
-            builder.setMultiChoiceItems(
-                (String[])friendNames.toArray(new String[0]), 
-                checkedItems, 
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        checkedItems[which] = isChecked;
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("选择点赞好友");
+            builder.setCancelable(true);
+            
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(20, 10, 20, 10);
+            
+            final EditText searchBox = new EditText(activity);
+            searchBox.setHint("搜索好友QQ号、好友名、备注");
+            searchBox.setTextColor(Color.BLACK);
+            searchBox.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchBox);
+            
+            Button selectAllBtn = new Button(activity);
+            selectAllBtn.setText("全选");
+            selectAllBtn.setTextColor(Color.WHITE);
+            selectAllBtn.setBackgroundColor(Color.parseColor("#2196F3"));
+            selectAllBtn.setPadding(20, 10, 20, 10);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.gravity = Gravity.END;
+            params.setMargins(0, 10, 0, 10);
+            selectAllBtn.setLayoutParams(params);
+            dialogLayout.addView(selectAllBtn);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView);
+            
+            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, displayedFriendNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < displayedFriendUins.size(); i++) {
+                String uin = (String)displayedFriendUins.get(i);
+                listView.setItemChecked(i, selectedFriends.contains(uin));
+            }
+            
+            searchBox.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String query = s.toString().toLowerCase().trim();
+                    displayedFriendNames.clear();
+                    displayedFriendUins.clear();
+                    
+                    if (query.isEmpty()) {
+                        displayedFriendNames.addAll(originalFriendNames);
+                        displayedFriendUins.addAll(originalFriendUins);
+                    } else {
+                        for (int i = 0; i < originalFriendNames.size(); i++) {
+                            String displayName = ((String)originalFriendNames.get(i)).toLowerCase();
+                            String uin = (String)originalFriendUins.get(i);
+                            
+                            if (displayName.contains(query) || uin.contains(query)) {
+                                displayedFriendNames.add(originalFriendNames.get(i));
+                                displayedFriendUins.add(originalFriendUins.get(i));
+                            }
+                        }
+                    }
+                    
+                    adapter.notifyDataSetChanged();
+                    
+                    for (int i = 0; i < displayedFriendUins.size(); i++) {
+                        String uin = (String)displayedFriendUins.get(i);
+                        listView.setItemChecked(i, selectedFriends.contains(uin));
                     }
                 }
-            );
+            });
+            
+            selectAllBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    for (int i = 0; i < listView.getCount(); i++) {
+                        listView.setItemChecked(i, true);
+                    }
+                }
+            });
+            
+            builder.setView(dialogLayout);
             
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     selectedFriends.clear();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        if (checkedItems[i]) {
-                            selectedFriends.add(friendUins.get(i));
+                    for (int i = 0; i < displayedFriendUins.size(); i++) {
+                        if (listView.isItemChecked(i)) {
+                            selectedFriends.add(displayedFriendUins.get(i));
                         }
                     }
                     saveSelectedFriends();
-                    toast("已选择" + selectedFriends.size() + "位好友");
+                    toast("已选择" + selectedFriends.size() + "位点赞好友");
                 }
             });
             
             builder.setNegativeButton("取消", null);
+            
             builder.show();
         }
     });
 }
-
-toast("脚本加载成功 欢迎使用！");
 
 sendLike("2133115301",20);
