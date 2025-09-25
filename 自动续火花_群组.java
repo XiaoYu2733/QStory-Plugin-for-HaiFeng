@@ -5,11 +5,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.TextView;
+import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.io.File;
@@ -17,7 +24,12 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-ArrayList fireWordsList = new ArrayList();
+ArrayList<String> fireWordsList = new ArrayList<String>();
+ArrayList<String> selectedGroups = new ArrayList<String>();
+
+int sendHour = 8;
+int sendMinute = 0;
+long lastClickTime = 0;
 
 void initFireWords() {
     try {
@@ -59,12 +71,6 @@ void initFireWords() {
     }
 }
 
-int sendHour = 8;
-int sendMinute = 0;
-long lastClickTime = 0;
-
-ArrayList selectedGroups = new ArrayList();
-
 void initConfig() {
     String savedGroups = getString("GroupFire", "selectedGroups", "");
     if (!savedGroups.isEmpty()) {
@@ -81,7 +87,7 @@ void initConfig() {
 void saveSelectedGroups() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < selectedGroups.size(); i++) {
-        String group = (String)selectedGroups.get(i);
+        String group = selectedGroups.get(i);
         if (sb.length() > 0) sb.append(",");
         sb.append(group);
     }
@@ -98,7 +104,7 @@ void saveFireWords() {
         File file = new File(dir, "群组续火词.txt");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < fireWordsList.size(); i++) {
-            String word = (String)fireWordsList.get(i);
+            String word = fireWordsList.get(i);
             if (sb.length() > 0) sb.append(",");
             sb.append(word);
         }
@@ -157,10 +163,10 @@ void sendToAllGroups(){
     new Thread(new Runnable(){
         public void run(){
             for(int i = 0; i < selectedGroups.size(); i++){
-                String group = (String)selectedGroups.get(i);
+                String group = selectedGroups.get(i);
                 try{
                     int index = (int)(Math.random() * fireWordsList.size());
-                    String word = (String)fireWordsList.get(index);
+                    String word = fireWordsList.get(index);
                     sendMsg(group,"",word);
                     Thread.sleep(5000);
                 }catch(Exception e){
@@ -185,8 +191,8 @@ public void showUpdateLog(String g, String u, int t) {
             try {
                 String updateLog = 
                     "更新日志\n\n" +
-                    "- 优化 弹窗过于古老，使用AlertDialog.THEME_DEVICE_DEFAULT_LIGHT主题 UI现代化\n" +
-                    "- 如果用户系统切换为日间模式 弹窗风格自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色弹窗) 如果用户切换为深色模式 弹窗会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色弹窗)\n" +
+                    "- [优化] 弹窗过于古老，使用AlertDialog.THEME_DEVICE_DEFAULT_LIGHT主题 UI现代化\n" +
+                    "- [其他] 如果用户系统切换为日间模式 弹窗风格自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色弹窗) 如果用户切换为深色模式 弹窗会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色弹窗)\n" +
                     "- [新增] 弹窗配置群组及续火词功能\n" +
                     "- [新增] 搜索功能 支持搜索群号 群号\n" +
                     "- [新增] 全选功能\n" +
@@ -196,7 +202,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [优化] 冷却提示精确到秒\n" +
                     "- [修复] 没有打死夜七的问题\n\n" +
                     "- [移除] 传统的续火存储方式\n" +
-                    "反馈交流群：1050252163";
+                    "反馈交流群：https://t.me/XiaoYu_Chat";
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getDialogTheme());
                 builder.setTitle("群组续火花更新日志");
@@ -227,80 +233,145 @@ public void keepFireNow(String g,String u,int t){
     toast("已立即续火"+selectedGroups.size()+"个群组");
 }
 
-public void configureGroups(String g,String u,int t){
-    Activity activity = getActivity();
+public void configureGroups(String g, String u, int t){
+    final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList allGroups = getGroupList();
+    ArrayList<Object> allGroups = getGroupList();
     if (allGroups == null || allGroups.isEmpty()) {
         toast("未加入任何群组");
         return;
     }
     
-    final ArrayList groupNames = new ArrayList();
-    final ArrayList groupUins = new ArrayList();
+    final ArrayList<String> originalGroupNames = new ArrayList<String>();
+    final ArrayList<String> originalGroupUins = new ArrayList<String>();
     for (int i = 0; i < allGroups.size(); i++) {
         Object group = allGroups.get(i);
-        String name = group.GroupName;
-        String uin = group.GroupUin;
-        groupNames.add(name + " (" + uin + ")");
-        groupUins.add(uin);
+        String name = "";
+        String uin = "";
+        try {
+            Class groupClass = group.getClass();
+            java.lang.reflect.Field nameField = groupClass.getDeclaredField("GroupName");
+            nameField.setAccessible(true);
+            java.lang.reflect.Field uinField = groupClass.getDeclaredField("GroupUin");
+            uinField.setAccessible(true);
+            
+            name = (String)nameField.get(group);
+            uin = (String)uinField.get(group);
+        } catch (Exception e) {
+        }
+        
+        String displayName = name + " (" + uin + ")";
+        originalGroupNames.add(displayName);
+        originalGroupUins.add(uin);
     }
     
-    final boolean[] checkedItems = new boolean[groupUins.size()];
-    for (int i = 0; i < groupUins.size(); i++) {
-        checkedItems[i] = selectedGroups.contains(groupUins.get(i));
-    }
+    final ArrayList<String> displayedGroupNames = new ArrayList<String>(originalGroupNames);
+    final ArrayList<String> displayedGroupUins = new ArrayList<String>(originalGroupUins);
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getDialogTheme());
-                builder.setTitle("选择续火群组");
-                
-                builder.setMultiChoiceItems(
-                    (String[])groupNames.toArray(new String[0]), 
-                    checkedItems, 
-                    new DialogInterface.OnMultiChoiceClickListener() {
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            checkedItems[which] = isChecked;
-                        }
-                    }
-                );
-                
-                builder.setNeutralButton("全选", null);
-                
-                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        selectedGroups.clear();
-                        for (int i = 0; i < checkedItems.length; i++) {
-                            if (checkedItems[i]) {
-                                selectedGroups.add(groupUins.get(i));
+            int nightModeFlags = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == nightModeFlags ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("选择续火群组");
+            builder.setCancelable(true);
+            
+            LinearLayout dialogLayout = new LinearLayout(activity);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            dialogLayout.setPadding(20, 10, 20, 10);
+            
+            final EditText searchBox = new EditText(activity);
+            searchBox.setHint("搜索群号、群名");
+            searchBox.setTextColor(Color.BLACK);
+            searchBox.setHintTextColor(Color.GRAY);
+            dialogLayout.addView(searchBox);
+            
+            Button selectAllBtn = new Button(activity);
+            selectAllBtn.setText("全选");
+            selectAllBtn.setTextColor(Color.WHITE);
+            selectAllBtn.setBackgroundColor(Color.parseColor("#2196F3"));
+            selectAllBtn.setPadding(20, 10, 20, 10);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.gravity = Gravity.END;
+            params.setMargins(0, 10, 0, 10);
+            selectAllBtn.setLayoutParams(params);
+            dialogLayout.addView(selectAllBtn);
+            
+            final ListView listView = new ListView(activity);
+            dialogLayout.addView(listView);
+            
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, displayedGroupNames);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < displayedGroupUins.size(); i++) {
+                String uin = displayedGroupUins.get(i);
+                listView.setItemChecked(i, selectedGroups.contains(uin));
+            }
+            
+            searchBox.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String query = s.toString().toLowerCase().trim();
+                    displayedGroupNames.clear();
+                    displayedGroupUins.clear();
+                    
+                    if (query.isEmpty()) {
+                        displayedGroupNames.addAll(originalGroupNames);
+                        displayedGroupUins.addAll(originalGroupUins);
+                    } else {
+                        for (int i = 0; i < originalGroupNames.size(); i++) {
+                            String displayName = originalGroupNames.get(i).toLowerCase();
+                            String uin = originalGroupUins.get(i);
+                            
+                            if (displayName.contains(query) || uin.contains(query)) {
+                                displayedGroupNames.add(originalGroupNames.get(i));
+                                displayedGroupUins.add(originalGroupUins.get(i));
                             }
                         }
-                        saveSelectedGroups();
-                        toast("已选择" + selectedGroups.size() + "个群组");
                     }
-                });
-                
-                builder.setNegativeButton("取消", null);
-                
-                final AlertDialog dialog = builder.create();
-                dialog.show();
-                
-                Button neutralButton = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-                neutralButton.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
-                        ListView listView = dialog.getListView();
-                        for (int i = 0; i < listView.getCount(); i++) {
-                            listView.setItemChecked(i, true);
-                            checkedItems[i] = true;
+                    
+                    adapter.notifyDataSetChanged();
+                    
+                    for (int i = 0; i < displayedGroupUins.size(); i++) {
+                        String uin = displayedGroupUins.get(i);
+                        listView.setItemChecked(i, selectedGroups.contains(uin));
+                    }
+                }
+            });
+            
+            selectAllBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    for (int i = 0; i < listView.getCount(); i++) {
+                        listView.setItemChecked(i, true);
+                    }
+                }
+            });
+            
+            builder.setView(dialogLayout);
+            
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    selectedGroups.clear();
+                    for (int i = 0; i < displayedGroupUins.size(); i++) {
+                        if (listView.isItemChecked(i)) {
+                            selectedGroups.add(displayedGroupUins.get(i));
                         }
                     }
-                });
-            } catch (Exception e) {
-                toast("配置错误: " + e.getMessage());
-            }
+                    saveSelectedGroups();
+                    toast("已选择" + selectedGroups.size() + "个续火群组");
+                }
+            });
+            
+            builder.setNegativeButton("取消", null);
+            
+            builder.show();
         }
     });
 }
