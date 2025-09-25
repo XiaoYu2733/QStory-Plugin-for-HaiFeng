@@ -307,7 +307,13 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n" +
                     "————————\n" +
                     "简洁群管_49.0_更新日志\n" +
-                    "- [修复] 隐藏 显示 标识 头衔等功能在历代版本失效的问题\n\n" +
+                    "- [修复] 隐藏 显示 标识 头衔等功能在历代版本失效的问题\n" +
+                    "————————\n" +
+                    "简洁群管_50.0_更新日志\n" +
+                    "- [移除] 撤回功能代码 之前没有发现没有删干净，现在已经删除\n" +
+                    "————————\n" +
+                    "简洁群管_51.0_更新日志\n" +
+                    "- [修复] 部分存在的问题\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1727,15 +1733,6 @@ public void onMsg(Object msg){
             }
             sendReply(groupUin,msg,"代管列表已清空");
         }
-        if (msg.MessageType == 6 && (msg.MessageContent.equals("撤回") || msg.MessageContent.equals("撤"))) {
-            if (qq.equals(myUin) || 是代管(groupUin, qq)) {
-                if (msg != null) revokeMsg(msg);
-                if (msg.RecordMsg != null) revokeMsg(msg.RecordMsg);
-            } else {
-                sendMsg(groupUin, "", "你没有权限执行此操作");
-            }
-            return;
-        }
         if(msg.MessageContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&msg.mAtList.size()>=1){
             int banTime = get_time(msg);
             if(banTime > 2592000){
@@ -1777,3 +1774,5 @@ public void onMsg(Object msg){
         }                          
     }
 }
+
+// 接下来的故事慢慢听我说……
