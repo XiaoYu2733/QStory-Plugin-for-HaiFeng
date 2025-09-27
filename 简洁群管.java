@@ -31,6 +31,8 @@ import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import android.content.Context;
 import android.widget.Toast;
 import android.content.res.Configuration;
+import java.util.HashMap;
+import java.util.Map;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -94,7 +96,7 @@ try {
 } catch (Throwable e) {
     addItem("开启/关闭艾特禁言","开关艾特禁言方法");
     addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-    addItem("开启/关闭自助头衔", "开关自助头衔方法方法");
+    addItem("开启/关闭自助头衔", "开关自助头衔方法");
     addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
     addItem("查看群管功能", "群管功能弹窗");
     addItem("代管管理功能", "代管管理弹窗");
@@ -313,7 +315,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [移除] 撤回功能代码 之前没有发现没有删干净，现在已经删除\n" +
                     "————————\n" +
                     "简洁群管_51.0_更新日志\n" +
-                    "- [修复] 部分存在的问题\n\n" +
+                    "- [修复] 部分存在的问题\n" +
+                    "————————\n" +
+                    "简洁群管_52.0_更新日志\n" +
+                    "- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -586,7 +591,6 @@ File 退群拉黑文件夹 = new File(退群拉黑目录);
 
 if (!退群拉黑文件夹.exists()) {
     退群拉黑文件夹.mkdirs();
-    toast("已尝试创建退群拉黑文件");
 }
 
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
@@ -1774,5 +1778,3 @@ public void onMsg(Object msg){
         }                          
     }
 }
-
-// 接下来的故事慢慢听我说……
