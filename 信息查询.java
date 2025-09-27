@@ -65,8 +65,6 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Button;
 import android.widget.LinearLayout;
-private ScrollView mScrollView;
-private ScrollView mScrollView2;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.FileOutputStream;
@@ -74,7 +72,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.File;
-import java.io.MultipartFile;
 import android.graphics.drawable.*;
 import android.view.Gravity;
 import android.widget.ScrollView;
@@ -100,22 +97,16 @@ import java.text.DecimalFormat;
 import android.os.Handler;
 import android.os.Looper;
 
-String configName = "HaiFeng425";
-
-addItem("开启/关闭本群查询信息", "toggleFriendQuery");
 addMenuItem("查询信息", "queryFriendFromMenu");
 
 void onMsg(Object msg) {
+    if (!msg.IsSend) return;
+    
     String text = msg.MessageContent;
     String qq = msg.UserUin;
     String group = msg.GroupUin;
     
-    boolean isOpen = true;
-    if (msg.IsGroup) {
-        isOpen = getBoolean(configName, group, false);
-    }
-    
-    if (isOpen && text.startsWith("查询QQ ")) {
+    if (text.startsWith("查询QQ ")) {
         String targetUin = text.substring(4).trim();
         if (targetUin.matches("[0-9]+")) {
             queryFriendInfo(msg, targetUin);
@@ -124,29 +115,13 @@ void onMsg(Object msg) {
         }
     }
     
-    if (isOpen && text.equals("查询自己")) {
+    if (text.equals("查询自己")) {
         queryFriendInfo(msg, myUin);
     }
     
-    if (isOpen && text.startsWith("查询@") && msg.mAtList.size() > 0) {
+    if (text.startsWith("查询@") && msg.mAtList.size() > 0) {
         String targetUin = msg.mAtList.get(0);
         queryFriendInfo(msg, targetUin);
-    }
-}
-
-public void toggleFriendQuery(String groupUin, String uin, int chatType) {
-    if (chatType != 2) {
-        toast("请在群聊中使用此功能");
-        return;
-    }
-    
-    boolean current = getBoolean(configName, groupUin, false);
-    putBoolean(configName, groupUin, !current);
-    
-    if (!current) {
-        toast("已开启" + groupUin + "群的查询功能");
-    } else {
-        toast("已关闭" + groupUin + "群的查询功能");
     }
 }
 
