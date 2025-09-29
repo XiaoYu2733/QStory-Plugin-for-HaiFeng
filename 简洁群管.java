@@ -86,27 +86,15 @@ public String 禁言组文本(String groupUin) {
     return sb.toString();
 }
 
-try {
-    addItem("开启/关闭艾特禁言","开关艾特禁言方法");
-    addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-    addItem("开启/关闭自助头衔", "开关自助头衔方法");
-    addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-    addItem("查看群管功能", "群管功能弹窗");
-    addItem("代管管理功能", "代管管理弹窗");
-    addItem("群黑名单管理", "黑名单管理弹窗");
-    addItem("检测群黑名单", "检测黑名单方法");
-    addItem("查看更新日志","showUpdateLog");
-} catch (Throwable e) {
-    addItem("开启/关闭艾特禁言","开关艾特禁言方法");
-    addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-    addItem("开启/关闭自助头衔", "开关自助头衔方法");
-    addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-    addItem("查看群管功能", "群管功能弹窗");
-    addItem("代管管理功能", "代管管理弹窗");
-    addItem("群黑名单管理", "黑名单管理弹窗");
-    addItem("检测群黑名单", "检测黑名单方法");
-    addItem("查看更新日志","showUpdateLog");
-}
+addItem("开启/关闭艾特禁言","开关艾特禁言方法");
+addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
+addItem("开启/关闭自助头衔", "开关自助头衔方法");
+addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
+addItem("查看群管功能", "群管功能弹窗");
+addItem("代管管理功能", "代管管理弹窗");
+addItem("群黑名单管理", "黑名单管理弹窗");
+addItem("检测群黑名单", "检测黑名单方法");
+addItem("查看更新日志","showUpdateLog");
 
 public int getCurrentTheme() {
     try {
@@ -121,58 +109,69 @@ public int getCurrentTheme() {
     }
 }
 
+public int getTextColorForTheme() {
+    try {
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
+    } catch (Exception e) {
+        return Color.BLACK;
+    }
+}
+
 public void 设置艾特禁言时间方法(String groupUin, String uin, int chatType) {
     Activity activity = getActivity();
     if (activity == null) return;
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("设置艾特禁言时间");
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 30, 30, 30);
-                
-                TextView hint = new TextView(activity);
-                hint.setText("当前艾特禁言时间: " + 艾特禁言时间 + "秒 (" + (艾特禁言时间/86400) + "天)");
-                layout.addView(hint);
-                
-                EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("请输入禁言时间(秒)");
-                inputEditText.setText(String.valueOf(艾特禁言时间));
-                inputEditText.setHintTextColor(Color.GRAY);
-                inputEditText.setBackgroundResource(android.R.drawable.edit_text);
-                layout.addView(inputEditText);
-                
-                builder.setView(layout);
-                
-                builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            try {
-                                int newTime = Integer.parseInt(input);
-                                if (newTime > 0) {
-                                    艾特禁言时间 = newTime;
-                                    putInt("艾特禁言时间配置", "时间", newTime);
-                                    toast("已设置艾特禁言时间为: " + newTime + "秒");
-                                } else {
-                                    toast("请输入大于0的数字");
-                                }
-                            } catch (NumberFormatException e) {
-                                toast("请输入有效的数字");
-                            }
+    activity.runOnUiThread(() -> {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+            builder.setTitle("设置艾特禁言时间");
+            
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(30, 30, 30, 30);
+            
+            TextView hint = new TextView(activity);
+            hint.setText("当前艾特禁言时间: " + 艾特禁言时间 + "秒 (" + (艾特禁言时间/86400) + "天)");
+            hint.setTextColor(getTextColorForTheme());
+            layout.addView(hint);
+            
+            EditText inputEditText = new EditText(activity);
+            inputEditText.setHint("请输入禁言时间(秒)");
+            inputEditText.setText(String.valueOf(艾特禁言时间));
+            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setTextColor(getTextColorForTheme());
+            inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+            layout.addView(inputEditText);
+            
+            builder.setView(layout);
+            
+            builder.setPositiveButton("确定", (dialog, which) -> {
+                String input = inputEditText.getText().toString().trim();
+                if (!input.isEmpty()) {
+                    try {
+                        int newTime = Integer.parseInt(input);
+                        if (newTime > 0) {
+                            艾特禁言时间 = newTime;
+                            putInt("艾特禁言时间配置", "时间", newTime);
+                            toast("已设置艾特禁言时间为: " + newTime + "秒");
+                        } else {
+                            toast("请输入大于0的数字");
                         }
+                    } catch (NumberFormatException e) {
+                        toast("请输入有效的数字");
                     }
-                });
-                
-                builder.setNegativeButton("取消", null);
-                builder.show();
-            } catch (Exception e) {
-                toast("设置艾特禁言时间弹窗错误: " + e.toString());
-            }
+                }
+            });
+            
+            builder.setNegativeButton("取消", null);
+            builder.show();
+        } catch (Exception e) {
+            toast("设置艾特禁言时间弹窗错误: " + e.toString());
         }
     });
 }
@@ -181,155 +180,23 @@ public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
     if (activity == null) return;
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-            builder.setTitle("简洁群管更新日志");
-            builder.setMessage("QStory精选脚本系列\n\n" +
-                    "以下是简洁群管的部分更新日志 14.0以前的更新内容已丢失 因为以前的版本是临江在维护 并非海枫 找不到 并且部分更新内容我自己也不记得了\n\n" +
-                    "简洁群管_14.0_更新日志\n" +
-                    "- [新增] 退群拉黑\n" +
-                    "————————\n" +
-                    "简洁群管_15.0_更新日志\n" +
-                    "- [新增] 脚本悬浮窗可打开自助头衔\n" +
-                    "————————\n" +
-                    "简洁群管_16.0_更新日志\n" +
-                    "- [修复] 艾特禁言不生效的问题\n" +
-                    "————————\n" +
-                    "简洁群管_17.0_更新日志\n" +
-                    "- [修复] 脚本悬浮窗所有指令Toast提示失败的问题\n" +
-                    "————————\n" +
-                    "简洁群管_18.0_更新日志\n" +
-                    "- [修复] 撤回功能\n" +
-                    "————————\n" +
-                    "简洁群管_19.0_更新日志\n" +
-                    "- [移除] 彩蛋开关\n" +
-                    "- [移除] 彩蛋开关相关代码\n" +
-                    "- [移除] 爱腾讯爱生活\n" +
-                    "————————\n" +
-                    "简洁群管_20.0_更新日志\n" +
-                    "- [其他] 尝试修复QQ9.1.0以下版本 没有使用隐藏标识也不显示的问题\n" +
-                    "————————\n" +
-                    "简洁群管_21.0_更新日志\n" +
-                    "- [修复] 空指针异常的问题\n" +
-                    "————————\n" +
-                    "简洁群管_22.0_更新日志\n" +
-                    "- [修复] 退群拉黑用户无法正确写入的问题\n" +
-                    "————————\n" +
-                    "简洁群管_23.0_更新日志\n" +
-                    "- [优化] 群管功能显示逻辑\n" +
-                    "————————\n" +
-                    "简洁群管_24..0_更新日志\n" +
-                    "- [添加] 查看黑名单指令 只有自己和代管才可以触发\n" +
-                    "————————\n" +
-                    "简洁群管_25.0_更新日志\n" +
-                    "- [优化] 退群拉黑逻辑 现在更方便\n" +
-                    "————————\n" +
-                    "简洁群管_26.0_更新日志\n" +
-                    "- [修复] 代管可能会被清空\n" +
-                    "————————\n" +
-                    "简洁群管_27.0_更新日志\n" +
-                    "- [优化] 代管逻辑，现在 只有在发送添加代管指令的时候才会创建代管文件 防止更新简洁群管代管凭空消失\n" +
-                    "————————\n" +
-                    "简洁群管_28.0_更新日志\n" +
-                    "- [优化] 再次优化代管存储逻辑 以防更新简洁群管的时候 代管被清空\n" +
-                    "————————\n" +
-                    "简洁群管_29.0_更新日志\n" +
-                    "- [新增] 回复消息撤回 以及给踢人指令加了撤回\n" +
-                    "————————\n" +
-                    "简洁群管_30.0_更新日志\n" +
-                    "_ [新增] 代管保护功能 代管不会被禁言、踢黑等\n" +
-                    "————————\n" +
-                    "简洁群管_31.0_更新日志\n" +
-                    "- [新增] 弹窗显示群管功能 更方便的知道指令如何使用\n" +
-                    "————————\n" +
-                    "简洁群管_32.0_更新日志\n" +
-                    "- [拓展] 继续移除撤回消息代码\n" +
-                    "————————\n" +
-                    "简洁群管=33.0_更新日志\n" +
-                    "- [修复] 查看禁言列表指令失效\n" +
-                    "————————\n" +
-                    "简洁群管_34.0_更新日志\n" +
-                    "- [删除] 废弃的部分功能 可能导致脚本卡顿\n" +
-                    "————————\n" +
-                    "简洁群管_35.0_更新日志\n" +
-                    "- [新增] 不知道新增啥了\n" +
-                    "————————\n" +
-                    "简洁群管_36.0_更新日志\n" +
-                    "- [更改] 脚本悬浮窗弹窗主题 更美观\n" +
-                    "- [修复] 打不死夜七的问题\n" +
-                    "————————\n" +
-                    "简洁群管_37.0_更新日志\n" +
-                    "- [新增] 脚本悬浮窗代管管理 可以通过弹窗来添加移除代管\n" +
-                    "- [修复] 打不死夜七的问题\n" +
-                    "- [修复] 用户提出的问题\n" +
-                    "- [修复] 提出问题的用户\n" +
-                    "- [拓展] 更新版本号\n" +
-                    "- [优化] 代码逻辑\n" +
-                    "————————\n" +
-                    "简洁群管_38.0_更新日志\n" +
-                    "- [适配] QStory_1.9.0+的脚本写法\n" +
-                    "————————\n" +
-                    "简洁群管_39.0更新日志\n" +
-                    "- [移除] 踢人指令撤回\n" +
-                    "- [新增] 部分指令显示权限使用人\n" +
-                    "- [新增] 脚本悬浮窗代管管理 可以通过弹窗来添加移除代管\n" +
-                    "- [新增] 脚本悬浮窗查看更新日志 如果你看到这个弹窗，那么就是此更新的内容之一\n" +
-                    "————————\n" +
-                    "简洁群管_40.0_更新日志\n" +
-                    "- [优化] 部分代码\n" +
-                    "————————\n" +
-                    "简洁群管_41.0_更新日志\n" +
-                    "- [修复] 退群拉黑相关指令失效的问题\n" +
-                    "————————\n" +
-                    "简洁群管_42.0_更新日志\n" +
-                    "- [拓展] 被九月做局 更新了版本号\n" +
-                    "————————\n" +
-                    "简洁群管_43.0_更新日志\n" +
-                    "- [新增] 脚本悬浮窗可以操作艾特禁言时间了\n" +
-                    "- [其他] 现在艾特禁言任务不需要在main.java里面修改了 现在更换了艾特禁言的储存方式 艾特禁言时间需要重新配置 默认2562000秒\n" +
-                    "- [其他] 简洁群管目前就没有什么需要添加的东西了 如果有建议的话加入海枫的群聊反馈哦(៸៸᳐⦁⩊⦁៸៸᳐ )੭ \n" +
-                    "————————\n" +
-                    "简洁群管_44.0_更新日志\n" +
-                    "- [移除] 退群拉黑开启后 提示无管理员权限无法踢出\n" +
-                    "- [修复] 可能由于后台问题 导致有管理员权限 简洁群管识别到退群拉黑用户进群提示无管理员权限无法踢出的问题\n" +
-                    "- [其他] 现在不管有没有管理员权限 都可以写入黑名单以及每次入群时都会尝试执行踢黑退群拉黑用户\n" +
-                    "————————\n" +
-                    "简洁群管_45.0_更新日志\n" +
-                    "- [新增] 脚本弹窗可以立即检测黑名单用户是否在群内 如果在群内则踢黑 没有考虑使用定时线程来检测黑名单 这样会极其耗电 脚本目前只会监听入群事件来识别黑名单用户\n" +
-                    "- [其他] 优化了代码逻辑以及保留了简洁群管老旧版本的版权信息\n" +
-                    "————————\n" +
-                    "简洁群管_46.0_更新日志\n" +
-                    "- [修复] 弹窗在暗色模式中 渲染显示异常的问题\n" +
-                    "————————\n" +
-                    "简洁群管_47.0_更新日志\n" +
-                    "- [移除] Android 主题 (Theme.Material.Light.Dialog.Alert) 因为在旧版本 QQ sdk 不同导致弹窗显示风格较老\n" +
-                    "- [修复] 全选弹窗消失的问题\n" +
-                    "- [更改] 继续使用 THEME_DEVICE_DEFAULT_LIGHT); 主题\n" +
-                    "- [其他] 顺便也修了一些存在的问题\n" +
-                    "————————\n" +
-                    "简洁群管_48.0_更新日志\n" +
-                    "- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n" +
-                    "————————\n" +
-                    "简洁群管_49.0_更新日志\n" +
-                    "- [修复] 隐藏 显示 标识 头衔等功能在历代版本失效的问题\n" +
-                    "————————\n" +
-                    "简洁群管_50.0_更新日志\n" +
-                    "- [移除] 撤回功能代码 之前没有发现没有删干净，现在已经删除\n" +
-                    "————————\n" +
-                    "简洁群管_51.0_更新日志\n" +
-                    "- [修复] 部分存在的问题\n" +
-                    "————————\n" +
-                    "简洁群管_52.0_更新日志\n" +
-                    "- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n" +
-                    "————————\n" +
-                    "简洁群管_53.0_更新日志\n" +
-                    "- [新增] addMenuItem菜单踢/踢黑，管理群聊更方便\n" +
-                    "- [优化] 大量代码\n\n" +
-                    "临江、海枫 岁岁平安 >_<");
-            builder.setPositiveButton("确定", null);
-            builder.show();
-        }
+    activity.runOnUiThread(() -> {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+        builder.setTitle("简洁群管更新日志");
+        
+        TextView textView = new TextView(activity);
+        textView.setText("QStory精选脚本系列\n\n以下是简洁群管的部分更新日志 14.0以前的更新内容已丢失 因为以前的版本是临江在维护 并非海枫 找不到 并且部分更新内容我自己也不记得了\n\n简洁群管_14.0_更新日志\n- [新增] 退群拉黑\n————————\n简洁群管_15.0_更新日志\n- [新增] 脚本悬浮窗可打开自助头衔\n————————\n简洁群管_16.0_更新日志\n- [修复] 艾特禁言不生效的问题\n————————\n简洁群管_17.0_更新日志\n- [修复] 脚本悬浮窗所有指令Toast提示失败的问题\n————————\n简洁群管_18.0_更新日志\n- [修复] 撤回功能\n————————\n简洁群管_19.0_更新日志\n- [移除] 彩蛋开关\n- [移除] 彩蛋开关相关代码\n- [移除] 爱腾讯爱生活\n————————\n简洁群管_20.0_更新日志\n- [其他] 尝试修复QQ9.1.0以下版本 没有使用隐藏标识也不显示的问题\n————————\n简洁群管_21.0_更新日志\n- [修复] 空指针异常的问题\n————————\n简洁群管_22.0_更新日志\n- [修复] 退群拉黑用户无法正确写入的问题\n————————\n简洁群管_23.0_更新日志\n- [优化] 群管功能显示逻辑\n————————\n简洁群管_24..0_更新日志\n- [添加] 查看黑名单指令 只有自己和代管才可以触发\n————————\n简洁群管_25.0_更新日志\n- [优化] 退群拉黑逻辑 现在更方便\n————————\n简洁群管_26.0_更新日志\n- [修复] 代管可能会被清空\n————————\n简洁群管_27.0_更新日志\n- [优化] 代管逻辑，现在 只有在发送添加代管指令的时候才会创建代管文件 防止更新简洁群管代管凭空消失\n————————\n简洁群管_28.0_更新日志\n- [优化] 再次优化代管存储逻辑 以防更新简洁群管的时候 代管被清空\n————————\n简洁群管_29.0_更新日志\n- [新增] 回复消息撤回 以及给踢人指令加了撤回\n————————\n简洁群管_30.0_更新日志\n_ [新增] 代管保护功能 代管不会被禁言、踢黑等\n————————\n简洁群管_31.0_更新日志\n- [新增] 弹窗显示群管功能 更方便的知道指令如何使用\n————————\n简洁群管_32.0_更新日志\n- [拓展] 继续移除撤回消息代码\n————————\n简洁群管=33.0_更新日志\n- [修复] 查看禁言列表指令失效\n————————\n简洁群管_34.0_更新日志\n- [删除] 废弃的部分功能 可能导致脚本卡顿\n————————\n简洁群管_35.0_更新日志\n- [新增] 不知道新增啥了\n————————\n简洁群管_36.0_更新日志\n- [更改] 脚本悬浮窗弹窗主题 更美观\n- [修复] 打不死夜七的问题\n————————\n简洁群管_37.0_更新日志\n- [新增] 脚本悬浮窗代管管理 可以通过弹窗来添加移除代管\n- [修复] 打不死夜七的问题\n- [修复] 用户提出的问题\n- [修复] 提出问题的用户\n- [拓展] 更新版本号\n- [优化] 代码逻辑\n————————\n简洁群管_38.0_更新日志\n- [适配] QStory_1.9.0+的脚本写法\n————————\n简洁群管_39.0更新日志\n- [移除] 踢人指令撤回\n- [新增] 部分指令显示权限使用人\n- [新增] 脚本悬浮窗代管管理 可以通过弹窗来添加移除代管\n- [新增] 脚本悬浮窗查看更新日志 如果你看到这个弹窗，那么就是此更新的内容之一\n————————\n简洁群管_40.0_更新日志\n- [优化] 部分代码\n————————\n简洁群管_41.0_更新日志\n- [修复] 退群拉黑相关指令失效的问题\n————————\n简洁群管_42.0_更新日志\n- [拓展] 被九月做局 更新了版本号\n————————\n简洁群管_43.0_更新日志\n- [新增] 脚本悬浮窗可以操作艾特禁言时间了\n- [其他] 现在艾特禁言任务不需要在main.java里面修改了 现在更换了艾特禁言的储存方式 艾特禁言时间需要重新配置 默认2562000秒\n- [其他] 简洁群管目前就没有什么需要添加的东西了 如果有建议的话加入海枫的群聊反馈哦(៸៸᳐⦁⩊⦁៸៸᳐ )੭ \n————————\n简洁群管_44.0_更新日志\n- [移除] 退群拉黑开启后 提示无管理员权限无法踢出\n- [修复] 可能由于后台问题 导致有管理员权限 简洁群管识别到退群拉黑用户进群提示无管理员权限无法踢出的问题\n- [其他] 现在不管有没有管理员权限 都可以写入黑名单以及每次入群时都会尝试执行踢黑退群拉黑用户\n————————\n简洁群管_45.0_更新日志\n- [新增] 脚本弹窗可以立即检测黑名单用户是否在群内 如果在群内则踢黑 没有考虑使用定时线程来检测黑名单 这样会极其耗电 脚本目前只会监听入群事件来识别黑名单用户\n- [其他] 优化了代码逻辑以及保留了简洁群管老旧版本的版权信息\n————————\n简洁群管_46.0_更新日志\n- [修复] 弹窗在暗色模式中 渲染显示异常的问题\n————————\n简洁群管_47.0_更新日志\n- [移除] Android 主题 (Theme.Material.Light.Dialog.Alert) 因为在旧版本 QQ sdk 不同导致弹窗显示风格较老\n- [修复] 全选弹窗消失的问题\n- [更改] 继续使用 THEME_DEVICE_DEFAULT_LIGHT); 主题\n- [其他] 顺便也修了一些存在的问题\n————————\n简洁群管_48.0_更新日志\n- [新增] 如果用户系统使用浅色模式 弹窗自动切换为AlertDialog.THEME_DEVICE_DEFAULT_LIGHT(亮色窗口) 如果用户切换为深色模式 会自动切换为AlertDialog.THEME_DEVICE_DEFAULT_DARK(深色窗口)，此版本更新是为了保护好用户和开发者的眼睛 避免在深夜中查看弹窗时被太亮的弹窗闪到\n————————\n简洁群管_49.0_更新日志\n- [修复] 隐藏 显示 标识 头衔等功能在历代版本失效的问题\n————————\n简洁群管_50.0_更新日志\n- [移除] 撤回功能代码 之前没有发现没有删干净，现在已经删除\n————————\n简洁群管_51.0_更新日志\n- [修复] 部分存在的问题\n————————\n简洁群管_52.0_更新日志\n- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n————————\n简洁群管_53.0_更新日志\n- [新增] addMenuItem菜单踢/踢黑，管理群聊更方便\n- [优化] 大量代码\n\n临江、海枫 岁岁平安 >_<");
+        textView.setTextColor(getTextColorForTheme());
+        textView.setTextSize(14);
+        textView.setPadding(50, 30, 50, 30);
+        textView.setTextIsSelectable(true);
+
+        ScrollView scrollView = new ScrollView(activity);
+        scrollView.addView(textView);
+
+        builder.setView(scrollView);
+        builder.setPositiveButton("确定", null);
+        builder.show();
     });
 }
 
@@ -365,30 +232,29 @@ public void showGroupManageDialog() {
         Activity activity = getActivity();
         if (activity == null) return;
         
-        activity.runOnUiThread(new Runnable() {
-            public void run() {
-                try {
-                    TextView textView = new TextView(activity);
-                    textView.setText(dialogContent);
-                    textView.setTextSize(16);
-                    textView.setTextIsSelectable(true);
+        activity.runOnUiThread(() -> {
+            try {
+                TextView textView = new TextView(activity);
+                textView.setText(dialogContent);
+                textView.setTextSize(16);
+                textView.setTextColor(getTextColorForTheme());
+                textView.setTextIsSelectable(true);
 
-                    LinearLayout layout = new LinearLayout(activity);
-                    layout.setPadding(50, 30, 50, 30);
-                    layout.setOrientation(LinearLayout.VERTICAL);
-                    layout.addView(textView);
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setPadding(50, 30, 50, 30);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.addView(textView);
 
-                    ScrollView scrollView = new ScrollView(activity);
-                    scrollView.addView(layout);
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                    builder.setTitle("群管功能说明")
-                        .setView(scrollView)
-                        .setNegativeButton("关闭", null)
-                        .show();
-                } catch (Exception e) {
-                    log("弹窗错误: " + e.toString());
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                builder.setTitle("群管功能说明")
+                    .setView(scrollView)
+                    .setNegativeButton("关闭", null)
+                    .show();
+            } catch (Exception e) {
+                log("弹窗错误: " + e.toString());
             }
         });
     } catch (Exception e) {
@@ -404,78 +270,71 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     Activity activity = getActivity();
     if (activity == null) return;
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("代管管理");
-                
-                final File 代管文件 = 获取代管文件();
-                final ArrayList 代管列表 = 简取(代管文件);
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 30, 30, 30);
-                
-                EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号，多个用逗号分隔");
-                inputEditText.setHintTextColor(Color.GRAY);
-                inputEditText.setBackgroundResource(android.R.drawable.edit_text);
-                layout.addView(inputEditText);
-                
-                ListView listView = new ListView(activity);
-                ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 代管列表);
-                listView.setAdapter(adapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                listView.setDividerHeight(1);
-                layout.addView(listView);
-                
-                builder.setView(layout);
-                
-                builder.setPositiveButton("添加代管", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
-                            for (String qq : qqs) {
-                                if (!代管列表.contains(qq)) {
-                                    try {
-                                        简写(代管文件, qq);
-                                    } catch (Exception e) {}
-                                }
-                            }
-                            toast("已添加代管");
+    activity.runOnUiThread(() -> {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+            builder.setTitle("代管管理");
+            
+            final File 代管文件 = 获取代管文件();
+            final ArrayList 代管列表 = 简取(代管文件);
+            
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(30, 30, 30, 30);
+            
+            EditText inputEditText = new EditText(activity);
+            inputEditText.setHint("输入QQ号，多个用逗号分隔");
+            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setTextColor(getTextColorForTheme());
+            inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+            layout.addView(inputEditText);
+            
+            ListView listView = new ListView(activity);
+            ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 代管列表);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            listView.setDividerHeight(1);
+            layout.addView(listView);
+            
+            builder.setView(layout);
+            
+            builder.setPositiveButton("添加代管", (dialog, which) -> {
+                String input = inputEditText.getText().toString().trim();
+                if (!input.isEmpty()) {
+                    String[] qqs = input.split("[,\\s]+");
+                    for (String qq : qqs) {
+                        if (!代管列表.contains(qq)) {
+                            try {
+                                简写(代管文件, qq);
+                            } catch (Exception e) {}
                         }
                     }
-                });
-                
-                builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        for (int i = 0; i < listView.getCount(); i++) {
-                            if (listView.isItemChecked(i)) {
-                                String qq = (String)代管列表.get(i);
-                                try {
-                                    简弃(代管文件, qq);
-                                } catch (Exception e) {}
-                            }
-                        }
-                            toast("已删除选中代管");
-                    }
-                });
-                
-                builder.setNeutralButton("清空代管", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
+                    toast("已添加代管");
+                }
+            });
+            
+            builder.setNegativeButton("删除选中", (dialog, which) -> {
+                for (int i = 0; i < listView.getCount(); i++) {
+                    if (listView.isItemChecked(i)) {
+                        String qq = (String)代管列表.get(i);
                         try {
-                            全弃(代管文件);
+                            简弃(代管文件, qq);
                         } catch (Exception e) {}
-                        toast("已清空代管");
                     }
-                });
-                
-                builder.show();
-            } catch (Exception e) {
-                toast("代管管理弹窗错误: " + e.toString());
-            }
+                }
+                    toast("已删除选中代管");
+            });
+            
+            builder.setNeutralButton("清空代管", (dialog, which) -> {
+                try {
+                    全弃(代管文件);
+                } catch (Exception e) {}
+                toast("已清空代管");
+            });
+            
+            builder.show();
+        } catch (Exception e) {
+            toast("代管管理弹窗错误: " + e.toString());
         }
     });
 }
@@ -484,78 +343,71 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     Activity activity = getActivity();
     if (activity == null) return;
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("黑名单管理");
-                
-                final File 黑名单文件 = 获取黑名单文件(groupUin);
-                final ArrayList 黑名单列表 = 简取(黑名单文件);
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 30, 30, 30);
-                
-                EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号，多个用逗号分隔");
-                inputEditText.setHintTextColor(Color.GRAY);
-                inputEditText.setBackgroundResource(android.R.drawable.edit_text);
-                layout.addView(inputEditText);
-                
-                ListView listView = new ListView(activity);
-                ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 黑名单列表);
-                listView.setAdapter(adapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                listView.setDividerHeight(1);
-                layout.addView(listView);
-                
-                builder.setView(layout);
-                
-                builder.setPositiveButton("添加黑名单", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
-                            for (String qq : qqs) {
-                                if (!黑名单列表.contains(qq)) {
-                                    try {
-                                        简写(黑名单文件, qq);
-                                    } catch (Exception e) {}
-                                }
-                            }
-                            toast("已添加黑名单");
+    activity.runOnUiThread(() -> {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+            builder.setTitle("黑名单管理");
+            
+            final File 黑名单文件 = 获取黑名单文件(groupUin);
+            final ArrayList 黑名单列表 = 简取(黑名单文件);
+            
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(30, 30, 30, 30);
+            
+            EditText inputEditText = new EditText(activity);
+            inputEditText.setHint("输入QQ号，多个用逗号分隔");
+            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setTextColor(getTextColorForTheme());
+            inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+            layout.addView(inputEditText);
+            
+            ListView listView = new ListView(activity);
+            ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 黑名单列表);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            listView.setDividerHeight(1);
+            layout.addView(listView);
+            
+            builder.setView(layout);
+            
+            builder.setPositiveButton("添加黑名单", (dialog, which) -> {
+                String input = inputEditText.getText().toString().trim();
+                if (!input.isEmpty()) {
+                    String[] qqs = input.split("[,\\s]+");
+                    for (String qq : qqs) {
+                        if (!黑名单列表.contains(qq)) {
+                            try {
+                                简写(黑名单文件, qq);
+                            } catch (Exception e) {}
                         }
                     }
-                });
-                
-                builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        for (int i = 0; i < listView.getCount(); i++) {
-                            if (listView.isItemChecked(i)) {
-                                String qq = (String)黑名单列表.get(i);
-                                try {
-                                    简弃(黑名单文件, qq);
-                                } catch (Exception e) {}
-                            }
-                        }
-                        toast("已删除选中黑名单");
-                    }
-                });
-                
-                builder.setNeutralButton("清空黑名单", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
+                    toast("已添加黑名单");
+                }
+            });
+            
+            builder.setNegativeButton("删除选中", (dialog, which) -> {
+                for (int i = 0; i < listView.getCount(); i++) {
+                    if (listView.isItemChecked(i)) {
+                        String qq = (String)黑名单列表.get(i);
                         try {
-                            全弃(黑名单文件);
+                            简弃(黑名单文件, qq);
                         } catch (Exception e) {}
-                        toast("已清空黑名单");
                     }
-                });
-                
-                builder.show();
-            } catch (Exception e) {
-                toast("黑名单管理弹窗错误: " + e.toString());
-            }
+                }
+                toast("已删除选中黑名单");
+            });
+            
+            builder.setNeutralButton("清空黑名单", (dialog, which) -> {
+                try {
+                    全弃(黑名单文件);
+                } catch (Exception e) {}
+                toast("已清空黑名单");
+            });
+            
+            builder.show();
+        } catch (Exception e) {
+            toast("黑名单管理弹窗错误: " + e.toString());
         }
     });
 }
@@ -1097,54 +949,48 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
         toast("只能在群聊中使用此功能");
         return;
     }
-    new Thread(new Runnable() {
-        public void run() {
-            try {
-                ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
-                if (黑名单列表.isEmpty()) {
-                    toast("本群黑名单为空");
-                    return;
-                }
-                ArrayList 成员列表 = getGroupMemberList(groupUin);
-                if (成员列表 == null || 成员列表.isEmpty()) {
-                    toast("获取成员列表失败");
-                    return;
-                }
-                boolean 有权限 = false;
-                for (int i = 0; i < 成员列表.size(); i++) {
-                    Object 成员 = 成员列表.get(i);
-                    if (成员.UserUin.equals(myUin)) {
-                        有权限 = 成员.IsOwner || 成员.IsAdmin;
-                        break;
-                    }
-                }
-                if (!有权限) {
-                    toast("没有管理员权限，无法踢人");
-                    return;
-                }
-                StringBuilder 踢出列表 = new StringBuilder();
-                for (int i = 0; i < 成员列表.size(); i++) {
-                    Object 成员 = 成员列表.get(i);
-                    String 成员QQ = 成员.UserUin;
-                    if (黑名单列表.contains(成员QQ)) {
-                        kick(groupUin, 成员QQ, true);
-                        踢出列表.append(getMemberName(groupUin, 成员QQ)).append("(").append(成员QQ).append(")\n");
-                        Thread.sleep(500);
-                    }
-                }
-                if (踢出列表.length() > 0) {
-                    final String 结果 = "已踢出以下黑名单成员：\n" + 踢出列表.toString();
-                    getActivity().runOnUiThread(new Runnable() {
-                        public void run() {
-                            toast(结果);
-                        }
-                    });
-                } else {
-                    toast("没有发现黑名单成员");
-                }
-            } catch (Throwable e) {
-                toast("检测黑名单时出错: " + e.getMessage());
+    new Thread(() -> {
+        try {
+            ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
+            if (黑名单列表.isEmpty()) {
+                toast("本群黑名单为空");
+                return;
             }
+            ArrayList 成员列表 = getGroupMemberList(groupUin);
+            if (成员列表 == null || 成员列表.isEmpty()) {
+                toast("获取成员列表失败");
+                return;
+            }
+            boolean 有权限 = false;
+            for (int i = 0; i < 成员列表.size(); i++) {
+                Object 成员 = 成员列表.get(i);
+                if (成员.UserUin.equals(myUin)) {
+                    有权限 = 成员.IsOwner || 成员.IsAdmin;
+                    break;
+                }
+            }
+            if (!有权限) {
+                toast("没有管理员权限，无法踢人");
+                return;
+            }
+            StringBuilder 踢出列表 = new StringBuilder();
+            for (int i = 0; i < 成员列表.size(); i++) {
+                Object 成员 = 成员列表.get(i);
+                String 成员QQ = 成员.UserUin;
+                if (黑名单列表.contains(成员QQ)) {
+                    kick(groupUin, 成员QQ, true);
+                    踢出列表.append(getMemberName(groupUin, 成员QQ)).append("(").append(成员QQ).append(")\n");
+                    Thread.sleep(500);
+                }
+            }
+            if (踢出列表.length() > 0) {
+                final String 结果 = "已踢出以下黑名单成员：\n" + 踢出列表.toString();
+                getActivity().runOnUiThread(() -> toast(结果));
+            } else {
+                toast("没有发现黑名单成员");
+            }
+        } catch (Throwable e) {
+            toast("检测黑名单时出错: " + e.getMessage());
         }
     }).start();
 }
@@ -1786,22 +1632,6 @@ public void onMsg(Object msg){
     }
 }
 
-public void unifiedForbidden(String groupUin, String userUin, int time) {
-    try {
-        forbidden(groupUin, userUin, time);
-    } catch (Throwable e) {
-        shutUp(groupUin, userUin, time);
-    }
-}
-
-public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
-    try {
-        kick(groupUin, userUin, isBlack);
-    } catch (Throwable e) {
-        kickGroup(groupUin, userUin, isBlack);
-    }
-}
-
 addMenuItem("踢", "kickMenuItem");
 addMenuItem("踢黑", "kickBlackMenuItem");
 
@@ -1843,4 +1673,4 @@ public void kickBlackMenuItem(Object msg) {
     toast("踢黑成功");
 }
 
-// 以后的路要慢慢走 还长着...
+// 接下来的故事慢慢听我诉说
