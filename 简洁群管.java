@@ -324,6 +324,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n" +
                     "————————\n" +
                     "简洁群管_53.0_更新日志\n" +
+                    "- [新增] addMenuItem菜单踢/踢黑，管理群聊更方便\n" +
                     "- [优化] 大量代码\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
@@ -1783,6 +1784,63 @@ public void onMsg(Object msg){
             }
         }                          
     }
+}
+
+public void unifiedForbidden(String groupUin, String userUin, int time) {
+    try {
+        forbidden(groupUin, userUin, time);
+    } catch (Throwable e) {
+        shutUp(groupUin, userUin, time);
+    }
+}
+
+public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
+    try {
+        kick(groupUin, userUin, isBlack);
+    } catch (Throwable e) {
+        kickGroup(groupUin, userUin, isBlack);
+    }
+}
+
+addMenuItem("踢", "kickMenuItem");
+addMenuItem("踢黑", "kickBlackMenuItem");
+
+public void kickMenuItem(Object msg) {
+    if (!msg.IsGroup) {
+        toast("只能在群聊中使用");
+        return;
+    }
+    
+    String groupUin = msg.GroupUin;
+    String targetUin = msg.UserUin;
+    String operatorUin = myUin;
+    
+    if (!isAdmin(groupUin, operatorUin)) {
+        toast("需要管理员权限");
+        return;
+    }
+    
+    unifiedKick(groupUin, targetUin, false);
+    toast("踢出成功");
+}
+
+public void kickBlackMenuItem(Object msg) {
+    if (!msg.IsGroup) {
+        toast("只能在群聊中使用");
+        return;
+    }
+    
+    String groupUin = msg.GroupUin;
+    String targetUin = msg.UserUin;
+    String operatorUin = myUin;
+    
+    if (!isAdmin(groupUin, operatorUin)) {
+        toast("需要管理员权限");
+        return;
+    }
+    
+    unifiedKick(groupUin, targetUin, true);
+    toast("踢黑成功");
 }
 
 // 以后的路要慢慢走 还长着...
