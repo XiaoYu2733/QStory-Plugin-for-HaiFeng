@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.view.View;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.io.*;
 import java.net.*;
 import org.json.JSONObject;
@@ -33,6 +35,7 @@ import android.widget.Toast;
 import android.content.res.Configuration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -318,7 +321,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 部分存在的问题\n" +
                     "————————\n" +
                     "简洁群管_52.0_更新日志\n" +
-                    "- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n\n" +
+                    "- [修复] bsh.BlockNameSpace.getInstance方法空指针异常\n" +
+                    "————————\n" +
+                    "简洁群管_53.0_更新日志\n" +
+                    "- [优化] 大量代码\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -742,7 +748,7 @@ public void SetTroopAdmin(Object qun,Object qq,int type){
     }
 }
 
-private final Map Arab2Chinese = new HashMap();
+private final Map Arab2Chinese = Collections.synchronizedMap(new HashMap());
 {
     Arab2Chinese.put('零', 0);
     Arab2Chinese.put('一', 1);
@@ -757,7 +763,7 @@ private final Map Arab2Chinese = new HashMap();
     Arab2Chinese.put('十', 10);
 }
 
-private final Map UnitMap = new HashMap();
+private final Map UnitMap = Collections.synchronizedMap(new HashMap());
 {
     UnitMap.put('十', 10);
     UnitMap.put('百', 100);
@@ -817,7 +823,7 @@ BufferedWriter f1=null;
 FileReader  fr  =  null;
 BufferedReader f2=null;
 
-public void 简写(File ff, String a) throws IOException {
+public synchronized void 简写(File ff, String a) throws IOException {
     f=new FileWriter(ff,true);
     f1=new BufferedWriter(f);
     f1.append(a);
@@ -826,7 +832,7 @@ public void 简写(File ff, String a) throws IOException {
     f.close();
 }
 
-public ArrayList 简取(File ff) throws IOException {
+public synchronized ArrayList 简取(File ff) throws IOException {
     if(!ff.exists()){
         return new ArrayList(); 
     }
@@ -854,7 +860,7 @@ public boolean jiandu(String a,ArrayList l1){
     return x;
 }
 
-public void 全弃(File ff) throws IOException {
+public synchronized void 全弃(File ff) throws IOException {
     f=new FileWriter(ff);
     f1=new BufferedWriter(f);
     f1.write("");
@@ -866,7 +872,7 @@ public int 度(String a){
     return a.length();
 }
 
-public void 简弃(File ff,String a) throws IOException {
+public synchronized void 简弃(File ff,String a) throws IOException {
     ArrayList l1= new ArrayList();
     l1.addAll(简取(ff));
     if(l1.contains(a)){
@@ -1288,15 +1294,15 @@ public void onMsg(Object msg){
             return;
         }
         if (msg.MessageContent.equals("查看黑名单")) {
-            ArrayList 名单 = 获取黑名单列表(groupUin);
-            if (名单.isEmpty()) {
+            ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
+            if (黑名单列表.isEmpty()) {
                 sendMsg(groupUin, "", "本群黑名单为空");
             } else {
-                String 名单文本 = "本群黑名单:\n";
-                for (int i = 0; i < 名单.size(); i++) {
-                    名单文本 += (i + 1) + ". " + 名(名单.get(i).toString()) + "(" + 名单.get(i) + ")\n";
+                String 黑名单文本 = "本群黑名单:\n";
+                for (int i = 0; i < 黑名单列表.size(); i++) {
+                    黑名单文本 += (i + 1) + ". " + 名(黑名单列表.get(i).toString()) + "(" + 黑名单列表.get(i) + ")\n";
                 }
-                sendMsg(groupUin, "", 名单文本);
+                sendMsg(groupUin, "", 黑名单文本);
             }
             return;
         }
@@ -1778,3 +1784,5 @@ public void onMsg(Object msg){
         }                          
     }
 }
+
+// 以后的路要慢慢走 还长着...
