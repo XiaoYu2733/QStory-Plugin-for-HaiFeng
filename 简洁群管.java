@@ -76,36 +76,22 @@ public ArrayList 禁言组(String groupUin) {
     return uinList;
 }
 
-public String 禁言组文本(String qun) {
-    ArrayList list = unifiedGetForbiddenList(qun);
-    if (list == null || list.size() == 0) {
-        return "当前没有人被禁言";
-    }
-    
-    String groupName = "未知群组";
-    try {
-        Object groupInfo = getGroupInfo(qun);
-        if (groupInfo != null) {
-            groupName = groupInfo.GroupName;
-        }
-    } catch (Exception e) {}
-    
-    StringBuilder sb = new StringBuilder();
-    sb.append(groupName).append("(").append(qun).append(")的禁言列表如下\n\n");
-    
-    int i = 1;
-    for (Object item : list) {
-        String uin = item.UserUin;
-        sb.append(i).append(".").append(名(uin)).append("(").append(uin).append(")\n");
-        i++;
-    }
-    
-    sb.append("\n输入 解禁+序号快速解禁\n")
-      .append("输入 踢/踢黑+序号 可快速踢出\n")
-      .append("输入全禁可禁言30天\n")
-      .append("输入#踢禁言 可踢出上述所有人");
-    
-    return sb.toString();
+public String 禁言组文本(String qun)
+{
+Object st=getForbiddenList(qun);
+ArrayList t = new ArrayList();
+int i=1;
+for(Object b:st)
+{
+t.add(i+"."+b.UserName+"("+b.UserUin+")");
+i++;
+}
+String r=t.toString();
+String s=r.replace(" ","");
+String g=s.replace(",","\n");
+String k=g.replace("[","");
+String y=k.replace("]","");
+return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
 try {
@@ -361,7 +347,9 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [优化] 禁言列表\n" +
                     "————————\n" +
                     "简洁群管_57.0_更新日志\n" +
-                    "- [优化] 禁言组文本\n\n" +
+                    "————————\n" +
+                    "简洁群管_58.0_更新日志\n" +
+                    "- [优化] 代码逻辑\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
