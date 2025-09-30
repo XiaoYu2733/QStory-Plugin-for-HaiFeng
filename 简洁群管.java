@@ -96,11 +96,11 @@ public String 禁言组文本(String qun) {
     int i = 1;
     for (Object item : list) {
         String uin = item.UserUin;
-        sb.append(i).append(".").append(名(uin)).append("(").append(uin).append(")\n\n");
+        sb.append(i).append(".").append(名(uin)).append("(").append(uin).append(")\n");
         i++;
     }
     
-    sb.append("输入 解禁+序号快速解禁\n")
+    sb.append("\n输入 解禁+序号快速解禁\n")
       .append("输入 踢/踢黑+序号 可快速踢出\n")
       .append("输入全禁可禁言30天\n")
       .append("输入#踢禁言 可踢出上述所有人");
@@ -358,7 +358,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [优化] 弹窗显示效果 更炫丽\n" +
                     "————————\n" +
                     "简洁群管_56.0_更新日志\n" +
-                    "- [优化] 禁言列表\n\n" +
+                    "- [优化] 禁言列表\n" +
+                    "————————\n" +
+                    "简洁群管_57.0_更新日志\n" +
+                    "- [优化] 禁言组文本\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
