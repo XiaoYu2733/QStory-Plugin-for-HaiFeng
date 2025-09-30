@@ -53,13 +53,22 @@ public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
     }
 }
 
+public ArrayList safeCopyList(ArrayList original) {
+    if (original == null) {
+        return new ArrayList();
+    }
+    synchronized (original) {
+        return new ArrayList(original);
+    }
+}
+
 public ArrayList unifiedGetForbiddenList(String groupUin) {
     try {
         ArrayList result = getForbiddenList(groupUin);
-        return result != null ? new ArrayList(result) : new ArrayList();
+        return safeCopyList(result);
     } catch (Throwable e) {
         ArrayList result = getProhibitList(groupUin);
-        return result != null ? new ArrayList(result) : new ArrayList();
+        return safeCopyList(result);
     }
 }
 
@@ -68,30 +77,43 @@ public ArrayList 禁言组(String groupUin) {
     if (list == null || list.size() == 0) {
         return new ArrayList();
     }
+    
     ArrayList uinList = new ArrayList();
-    ArrayList listCopy = new ArrayList(list);
+    ArrayList listCopy = safeCopyList(list);
     for (Object item : listCopy) {
-        uinList.add(item.UserUin);
+        if (item != null) {
+            try {
+                uinList.add(item.UserUin);
+            } catch (Exception e) {
+            }
+        }
     }
     return uinList;
 }
 
-public String 禁言组文本(String qun)
-{
-Object st=getForbiddenList(qun);
-ArrayList t = new ArrayList();
-int i=1;
-for(Object b:st)
-{
-t.add(i+"."+b.UserName+"("+b.UserUin+")");
-i++;
-}
-String r=t.toString();
-String s=r.replace(" ","");
-String g=s.replace(",","\n");
-String k=g.replace("[","");
-String y=k.replace("]","");
-return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
+public String 禁言组文本(String qun) {
+    Object st = getForbiddenList(qun);
+    ArrayList t = new ArrayList();
+    int i = 1;
+    
+    if (st instanceof ArrayList) {
+        ArrayList stList = (ArrayList) st;
+        ArrayList listCopy = safeCopyList(stList);
+        for (Object b : listCopy) {
+            try {
+                t.add(i + "." + b.UserName + "(" + b.UserUin + ")");
+                i++;
+            } catch (Exception e) {
+            }
+        }
+    }
+    
+    String r = t.toString();
+    String s = r.replace(" ", "");
+    String g = s.replace(",", "\n");
+    String k = g.replace("[", "");
+    String y = k.replace("]", "");
+    return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
 try {
@@ -349,7 +371,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_57.0_更新日志\n" +
                     "————————\n" +
                     "简洁群管_58.0_更新日志\n" +
-                    "- [优化] 代码逻辑\n\n" +
+                    "- [优化] 代码逻辑\n" +
+                    "————————\n" +
+                    "简洁群管_59.0_更新日志\n" +
+                    "- [修复] 又又又修复禁言列表的问题以及更改禁言列表文本\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -475,7 +500,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 
                 builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
                     public void onClick(android.content.DialogInterface dialog, int which) {
-                        ArrayList 代管列表副本 = new ArrayList(代管列表);
+                        ArrayList 代管列表副本 = safeCopyList(代管列表);
                         for (int i = 0; i < listView.getCount(); i++) {
                             if (listView.isItemChecked(i)) {
                                 String qq = (String)代管列表副本.get(i);
@@ -556,7 +581,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 
                 builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
                     public void onClick(android.content.DialogInterface dialog, int which) {
-                        ArrayList 黑名单列表副本 = new ArrayList(黑名单列表);
+                        ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
                         for (int i = 0; i < listView.getCount(); i++) {
                             if (listView.isItemChecked(i)) {
                                 String qq = (String)黑名单列表副本.get(i);
@@ -931,7 +956,7 @@ public String 名(String uin){
 
 public String 组名(ArrayList a){
     ArrayList list = new ArrayList();
-    ArrayList aCopy = new ArrayList(a);
+    ArrayList aCopy = safeCopyList(a);
     for(Object uin : aCopy) {
         list.add(名(uin.toString())+"("+uin.toString()+")");
     }
@@ -940,7 +965,7 @@ public String 组名(ArrayList a){
 
 public boolean isAdmin(String GroupUin, String UserUin) {
     ArrayList groupList = getGroupList();
-    ArrayList groupListCopy = new ArrayList(groupList);
+    ArrayList groupListCopy = safeCopyList(groupList);
     for (Object groupInfo : groupListCopy) {
         if (groupInfo.GroupUin.equals(GroupUin)) {
             return groupInfo.GroupOwner.equals(UserUin) || 
@@ -1139,7 +1164,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     return;
                 }
                 boolean 有权限 = false;
-                ArrayList 成员列表副本 = new ArrayList(成员列表);
+                ArrayList 成员列表副本 = safeCopyList(成员列表);
                 for (int i = 0; i < 成员列表副本.size(); i++) {
                     Object 成员 = 成员列表副本.get(i);
                     if (成员.UserUin.equals(myUin)) {
@@ -1329,7 +1354,7 @@ public void onMsg(Object msg){
                 sendMsg(groupUin, "", "本群黑名单为空");
             } else {
                 String 黑名单文本 = "本群黑名单:\n";
-                ArrayList 黑名单列表副本 = new ArrayList(黑名单列表);
+                ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
                 for (int i = 0; i < 黑名单列表副本.size(); i++) {
                     黑名单文本 += (i + 1) + ". " + 名(黑名单列表副本.get(i).toString()) + "(" + 黑名单列表副本.get(i) + ")\n";
                 }
@@ -1338,7 +1363,7 @@ public void onMsg(Object msg){
             return;
         }
         if (msg.MessageContent.startsWith("移除黑名单@") && msg.mAtList.size() > 0) {
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for (String uin : atListCopy) {
                 移除黑名单(groupUin, uin);
             }
@@ -1352,7 +1377,7 @@ public void onMsg(Object msg){
                     sendMsg(groupUin,"","请控制在30天以内");
                     return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = new ArrayList(msg.mAtList);
+                    ArrayList atListCopy = safeCopyList(msg.mAtList);
                     for(String u:atListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
@@ -1369,7 +1394,7 @@ public void onMsg(Object msg){
                 if(banTime > 2592000){
                     sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = new ArrayList(msg.mAtList);
+                    ArrayList atListCopy = safeCopyList(msg.mAtList);
                     for(String u:atListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
@@ -1378,7 +1403,7 @@ public void onMsg(Object msg){
                 }
             }
             if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,2592000);
@@ -1388,7 +1413,7 @@ public void onMsg(Object msg){
                 int  time2= msg.MessageContent.lastIndexOf(" ");
                 String time1 = msg.MessageContent.substring(time2 + 1); 
                 int time=Integer.parseInt(time1);  
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){  
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,time*60);       
@@ -1403,7 +1428,7 @@ public void onMsg(Object msg){
                     sendMsg(groupUin,"","请控制在30天以内");
                     return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = new ArrayList(msg.mAtList);
+                    ArrayList atListCopy = safeCopyList(msg.mAtList);
                     for(String u:atListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
@@ -1420,7 +1445,7 @@ public void onMsg(Object msg){
                 if(banTime > 2592000){
                     sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = new ArrayList(msg.mAtList);
+                    ArrayList atListCopy = safeCopyList(msg.mAtList);
                     for(String u:atListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
@@ -1429,7 +1454,7 @@ public void onMsg(Object msg){
                 }
             }  
             if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,86400);
@@ -1439,7 +1464,7 @@ public void onMsg(Object msg){
                 int time2 = msg.MessageContent.lastIndexOf(" ");
                 String time1 = msg.MessageContent.substring(time2 + 1); 
                 int time=Integer.parseInt(time1);  
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){  
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,time);       
@@ -1448,7 +1473,7 @@ public void onMsg(Object msg){
             }   
         }
         if(msg.MessageContent.startsWith("解")&&msg.mAtList.size()>=1){    	
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for(String 千:atListCopy){  
                 unifiedForbidden(groupUin,千,0);
             } 
@@ -1570,7 +1595,7 @@ public void onMsg(Object msg){
             sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
         }
         if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&msg.mAtList.size()>=1){
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for(String u:atListCopy){
                 if (检查代管保护(groupUin, u, "踢出")) continue;
                 if (!有权限操作(groupUin, qq, u)) continue;
@@ -1580,7 +1605,7 @@ public void onMsg(Object msg){
             return;
         }
         if(msg.MessageContent.startsWith("踢黑")&&msg.mAtList.size()>=1){
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for(String 千:atListCopy){
                 if (检查代管保护(groupUin, 千, "踢黑")) continue;
                 if (!有权限操作(groupUin, qq, 千)) continue;
@@ -1597,7 +1622,7 @@ public void onMsg(Object msg){
         if(msg.MessageContent.startsWith("头衔@")){    	
             int str = msg.MessageContent.lastIndexOf(" ")+1;
             String text = msg.MessageContent.substring(str);   
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for(String u:atListCopy){
                 setTitle(groupUin,u,text);
             }
@@ -1654,7 +1679,7 @@ public void onMsg(Object msg){
                 sendMsg(groupUin,"", "当前没有人被禁言");
             else{
                 String kickListStr = "";
-                ArrayList listCopy = new ArrayList((ArrayList)list);
+                ArrayList listCopy = safeCopyList((ArrayList)list);
                 for(Object ForbiddenList : listCopy){   
                     String u = ForbiddenList.UserUin;
                     if (检查代管保护(groupUin, u, "踢出")) continue;
@@ -1671,7 +1696,7 @@ public void onMsg(Object msg){
             if(list==null||((ArrayList)list).size()==0) 
                 sendMsg(groupUin,"", "当前没有人被禁言");
             else{
-                ArrayList listCopy = new ArrayList((ArrayList)list);
+                ArrayList listCopy = safeCopyList((ArrayList)list);
                 for(Object ForbiddenList : listCopy){
                     String u = ForbiddenList.UserUin+"";
                     if (检查代管保护(groupUin, u, "禁言")) continue;
@@ -1687,7 +1712,7 @@ public void onMsg(Object msg){
             if(list==null||((ArrayList)list).size() == 0) 
                 sendMsg(groupUin,"", "当前没有人被禁言");
             else{
-                ArrayList listCopy = new ArrayList((ArrayList)list);
+                ArrayList listCopy = safeCopyList((ArrayList)list);
                 for(Object ForbiddenList : listCopy){
                     unifiedForbidden(groupUin, ForbiddenList.UserUin+"", 0);
                 }
@@ -1701,7 +1726,7 @@ public void onMsg(Object msg){
                     sendReply(groupUin,msg,"你艾特的人呢？");
                     return;
                 }
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){
                     File 代管文件 = 获取代管文件();
                     if(!代管文件.exists()){
@@ -1729,7 +1754,7 @@ public void onMsg(Object msg){
                     sendReply(groupUin,msg,"你艾特的人呢？");
                     return;
                 }
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String 千:atListCopy){
                     File 代管文件 = 获取代管文件();
                     if(!代管文件.exists()) continue;
@@ -1799,7 +1824,7 @@ public void onMsg(Object msg){
                 sendReply(groupUin,msg,"时间太长无法禁言");
                 return;
             }else if(banTime > 0){
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,banTime);
@@ -1816,7 +1841,7 @@ public void onMsg(Object msg){
             if(banTime > 2592000){
                 sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
             }else if(banTime > 0){
-                ArrayList atListCopy = new ArrayList(msg.mAtList);
+                ArrayList atListCopy = safeCopyList(msg.mAtList);
                 for(String u:atListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,banTime);
@@ -1828,7 +1853,7 @@ public void onMsg(Object msg){
             int str = msg.MessageContent.lastIndexOf(" ");
             String text =msg.MessageContent.substring(str + 1);
             int time=CN_zh_int(text);
-            ArrayList atListCopy = new ArrayList(msg.mAtList);
+            ArrayList atListCopy = safeCopyList(msg.mAtList);
             for(String u:atListCopy){
                 if (检查代管保护(groupUin, u, "禁言")) continue;
                 unifiedForbidden(groupUin,u,time*60);
