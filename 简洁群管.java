@@ -1,5 +1,4 @@
 
-
 // 作 临江踏雨不返 海枫
 // 发送 群管功能 以查看功能
 // 部分接口 卑微萌新
@@ -77,17 +76,35 @@ public ArrayList 禁言组(String groupUin) {
     return uinList;
 }
 
-public String 禁言组文本(String groupUin) {
-    ArrayList list = 禁言组(groupUin);
-    if (list.size() == 0) {
+public String 禁言组文本(String qun) {
+    ArrayList list = unifiedGetForbiddenList(qun);
+    if (list == null || list.size() == 0) {
         return "当前没有人被禁言";
     }
-    StringBuilder sb = new StringBuilder("禁言列表:\n");
-    ArrayList listCopy = new ArrayList(list);
-    for (int i = 0; i < listCopy.size(); i++) {
-        String uin = (String) listCopy.get(i);
-        sb.append(i + 1).append(". ").append(名(uin)).append("(").append(uin).append(")\n");
+    
+    String groupName = "未知群组";
+    try {
+        Object groupInfo = getGroupInfo(qun);
+        if (groupInfo != null) {
+            groupName = groupInfo.GroupName;
+        }
+    } catch (Exception e) {}
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append(groupName).append("(").append(qun).append(")的禁言列表如下\n\n");
+    
+    int i = 1;
+    for (Object item : list) {
+        String uin = item.UserUin;
+        sb.append(i).append(".").append(名(uin)).append("(").append(uin).append(")\n\n");
+        i++;
     }
+    
+    sb.append("输入 解禁+序号快速解禁\n")
+      .append("输入 踢/踢黑+序号 可快速踢出\n")
+      .append("输入全禁可禁言30天\n")
+      .append("输入#踢禁言 可踢出上述所有人");
+    
     return sb.toString();
 }
 
@@ -338,7 +355,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "————————\n" +
                     "简洁群管_55.0_更新日志\n" +
                     "- [修复] unifiedGetForbiddenList(groupUin) 返回的 ArrayList 可能在遍历过程中被其他线程修改\n" +
-                    "- [优化] 弹窗显示效果 更炫丽\n\n" +
+                    "- [优化] 弹窗显示效果 更炫丽\n" +
+                    "————————\n" +
+                    "简洁群管_56.0_更新日志\n" +
+                    "- [优化] 禁言列表\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
