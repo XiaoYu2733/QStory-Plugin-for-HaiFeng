@@ -4,7 +4,7 @@
 // 部分接口 卑微萌新
 // 部分写法源码 秩河 尹志平 群鹅 天啦噜
 
-// 我知道你受欢迎 身边有很多人 但我希望你可以记住我
+// 你说你讨厌被骗 可你骗我的时候也没有心软
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -325,7 +325,11 @@ public void showUpdateLog(String g, String u, int t) {
                     "————————\n" +
                     "简洁群管_53.0_更新日志\n" +
                     "- [新增] addMenuItem菜单踢/踢黑，管理群聊更方便\n" +
-                    "- [优化] 大量代码\n\n" +
+                    "- [优化] 大量代码\n" +
+                    "————————\n" +
+                    "简洁群管_53.0_更新日志\n" +
+                    "- [新增] addMenuItem菜单踢/踢黑新增二次确认选项 避免误触导致滥权\n" +
+                    "- [优化] 使用了部分lambda表达式以简化代码\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1805,42 +1809,96 @@ public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
 addMenuItem("踢", "kickMenuItem");
 addMenuItem("踢黑", "kickBlackMenuItem");
 
-public void kickMenuItem(Object msg) {
+public void kickMenuItem(final Object msg) {
     if (!msg.IsGroup) {
         toast("只能在群聊中使用");
         return;
     }
     
-    String groupUin = msg.GroupUin;
-    String targetUin = msg.UserUin;
-    String operatorUin = myUin;
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    final String operatorUin = myUin;
     
     if (!isAdmin(groupUin, operatorUin)) {
         toast("需要管理员权限");
         return;
     }
     
-    unifiedKick(groupUin, targetUin, false);
-    toast("踢出成功");
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                builder.setTitle("确认踢出");
+                builder.setMessage("确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
+                
+                builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        unifiedKick(groupUin, targetUin, false);
+                        toast("踢出成功");
+                    }
+                });
+                
+                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        toast("已取消");
+                    }
+                });
+                
+                builder.show();
+            } catch (Exception e) {
+                toast("显示对话框失败: " + e.toString());
+            }
+        }
+    });
 }
 
-public void kickBlackMenuItem(Object msg) {
+public void kickBlackMenuItem(final Object msg) {
     if (!msg.IsGroup) {
         toast("只能在群聊中使用");
         return;
     }
     
-    String groupUin = msg.GroupUin;
-    String targetUin = msg.UserUin;
-    String operatorUin = myUin;
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    final String operatorUin = myUin;
     
     if (!isAdmin(groupUin, operatorUin)) {
         toast("需要管理员权限");
         return;
     }
     
-    unifiedKick(groupUin, targetUin, true);
-    toast("踢黑成功");
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                builder.setTitle("确认踢黑");
+                builder.setMessage("确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？");
+                
+                builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        unifiedKick(groupUin, targetUin, true);
+                        toast("踢黑成功");
+                    }
+                });
+                
+                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        toast("已取消");
+                    }
+                });
+                
+                builder.show();
+            } catch (Exception e) {
+                toast("显示对话框失败: " + e.toString());
+            }
+        }
+    });
 }
 
-// 以后的路要慢慢走 还长着...
+// 接下来的故事慢慢听我说……
