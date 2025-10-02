@@ -1276,6 +1276,19 @@ public String isGN(String groupUin, String key) {
     else return "❌";
 }
 
+/*
+该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
+*/
+/*接口说明 
+
+显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群员头衔 SetTroopShowTitle(qun,myUin,getSkey(),getey("clt.qq.com"),1);
+
+隐藏就是最后1改成0
+
+*/
+
 public void onMsg(Object msg){
     String 故=msg.MessageContent;
     String qq=msg.UserUin;
