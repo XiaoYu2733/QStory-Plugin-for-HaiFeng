@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
-import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +34,7 @@ import android.widget.Toast;
 import android.content.res.Configuration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -57,8 +56,12 @@ public ArrayList safeCopyList(ArrayList original) {
     if (original == null) {
         return new ArrayList();
     }
-    synchronized (original) {
-        return new ArrayList(original);
+    try {
+        synchronized (original) {
+            return new ArrayList(original);
+        }
+    } catch (Exception e) {
+        return new ArrayList();
     }
 }
 
@@ -127,15 +130,13 @@ try {
     addItem("检测群黑名单", "检测黑名单方法");
     addItem("查看更新日志","showUpdateLog");
 } catch (Throwable e) {
-    addItem("开启/关闭艾特禁言","开关艾特禁言方法");
-    addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-    addItem("开启/关闭自助头衔", "开关自助头衔方法");
-    addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-    addItem("查看群管功能", "群管功能弹窗");
-    addItem("代管管理功能", "代管管理弹窗");
-    addItem("群黑名单管理", "黑名单管理弹窗");
-    addItem("检测群黑名单", "检测黑名单方法");
-    addItem("查看更新日志","showUpdateLog");
+}
+
+try {
+    addMenuItem("踢", "kickMenuItem");
+    addMenuItem("踢黑", "kickBlackMenuItem");
+    addMenuItem("禁言", "forbiddenMenuItem");
+} catch (Exception e) {
 }
 
 public int getCurrentTheme() {
@@ -201,7 +202,6 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 builder.setNegativeButton("取消", null);
                 builder.show();
             } catch (Exception e) {
-                toast("设置艾特禁言时间弹窗错误: " + e.toString());
             }
         }
     });
@@ -369,13 +369,18 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [优化] 禁言列表\n" +
                     "————————\n" +
                     "简洁群管_57.0_更新日志\n" +
-                    "- [修复] 打不死hd的问题\n” +
+                    "- [修复] 打不死hd的问题\n" +
                     "————————\n" +
                     "简洁群管_58.0_更新日志\n" +
                     "- [优化] 代码逻辑\n" +
                     "————————\n" +
                     "简洁群管_59.0_更新日志\n" +
-                    "- [修复] 又又又修复禁言列表的问题以及更改禁言列表文本\n\n" +
+                    "- [修复] 又又又修复禁言列表的问题以及更改禁言列表文本\n" +
+                    "————————\n" +
+                    "简洁群管_60.0_更新日志\n" +
+                    "- [新增] addMenuItem弹窗禁言，单位秒\n" +
+                    "- [优化] 脚本大部分代码\n" +
+                    "- [修复] 部分存在的问题，并打死了hd\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -437,12 +442,10 @@ public void showGroupManageDialog() {
                         .setNegativeButton("关闭", null)
                         .show();
                 } catch (Exception e) {
-                    log("弹窗错误: " + e.toString());
                 }
             }
         });
     } catch (Exception e) {
-        log("显示弹窗失败: " + e.toString());
     }
 }
 
@@ -525,7 +528,6 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 
                 builder.show();
             } catch (Exception e) {
-                toast("代管管理弹窗错误: " + e.toString());
             }
         }
     });
@@ -606,7 +608,6 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 
                 builder.show();
             } catch (Exception e) {
-                toast("黑名单管理弹窗错误: " + e.toString());
             }
         }
     });
@@ -704,7 +705,6 @@ public String httppost(String urlPath, String cookie,String data){
                 isr.close();
             }
         } catch (IOException e) {
-            toast("错误:"+e);
         }
     }
     if(buffer.length()==0)return buffer.toString();
@@ -797,7 +797,6 @@ public void SetTroopAdmin(Object qun,Object qq,int type){
         initMethod.invoke(tr, app, null);
         serviceMethod.invoke(tr, intent);
     } catch (Exception e) {
-        toast("设置管理员错误: " + e);
     }
 }
 
@@ -861,7 +860,8 @@ public Integer CN_zh_int(String chinese) {
 public boolean atMe(Object msg){
     if (msg.mAtList == null || msg.mAtList.size() == 0)
         return false;
-    for (String to_at : msg.mAtList)
+    ArrayList atListCopy = safeCopyList(msg.mAtList);
+    for (String to_at : atListCopy)
         if (to_at.equals(myUin))
             return true;
     return false;
@@ -871,73 +871,97 @@ public String 论(String u,String a,String b){
     return u.replace(a,b);
 }
 
-FileWriter f=null;
-BufferedWriter f1=null;
-FileReader  fr  =  null;
-BufferedReader f2=null;
-
-public synchronized void 简写(File ff, String a) throws IOException {
-    f=new FileWriter(ff,true);
-    f1=new BufferedWriter(f);
-    f1.append(a);
-    f1.newLine();
-    f1.close();
-    f.close();
+public synchronized void 简写(File ff, String a) {
+    FileWriter f = null;
+    BufferedWriter f1 = null;
+    try {
+        f = new FileWriter(ff, true);
+        f1 = new BufferedWriter(f);
+        f1.append(a);
+        f1.newLine();
+    } catch (Exception e) {
+    } finally {
+        try {
+            if (f1 != null) f1.close();
+            if (f != null) f.close();
+        } catch (Exception e) {}
+    }
 }
 
-public synchronized ArrayList 简取(File ff) throws IOException {
+public synchronized ArrayList 简取(File ff) {
     if(!ff.exists()){
         return new ArrayList(); 
     }
-    fr  =  new  FileReader(ff);  
-    f2=new BufferedReader(fr);
+    FileReader fr = null;
+    BufferedReader f2 = null;
     ArrayList list1 = new ArrayList();
-    String a;
-    while ((a = f2.readLine()) != null) {
-        if (!a.trim().isEmpty()) {
-            list1.add(a.trim());
+    try {
+        fr = new FileReader(ff);  
+        f2 = new BufferedReader(fr);
+        String a;
+        while ((a = f2.readLine()) != null) {
+            if (!a.trim().isEmpty()) {
+                list1.add(a.trim());
+            }
         }
+    } catch (Exception e) {
+    } finally {
+        try {
+            if (fr != null) fr.close();
+            if (f2 != null) f2.close();
+        } catch (Exception e) {}
     }
-    fr.close();
-    f2.close();
     return list1;
 }
 
 public boolean jiandu(String a,ArrayList l1){
     boolean x=false;
-    for(int i=0;i<l1.size();i++){
-        if(a.equals(l1.get(i).toString())){
+    ArrayList l1Copy = safeCopyList(l1);
+    for(int i=0;i<l1Copy.size();i++){
+        if(a.equals(l1Copy.get(i).toString())){
             x=true; break;
         }
     }
     return x;
 }
 
-public synchronized void 全弃(File ff) throws IOException {
-    f=new FileWriter(ff);
-    f1=new BufferedWriter(f);
-    f1.write("");
-    f1.close();
-    f.close();
+public synchronized void 全弃(File ff) {
+    FileWriter f = null;
+    BufferedWriter f1 = null;
+    try {
+        f = new FileWriter(ff);
+        f1 = new BufferedWriter(f);
+        f1.write("");
+    } catch (Exception e) {
+    } finally {
+        try {
+            if (f1 != null) f1.close();
+            if (f != null) f.close();
+        } catch (Exception e) {}
+    }
 }
 
 public int 度(String a){
     return a.length();
 }
 
-public synchronized void 简弃(File ff,String a) throws IOException {
+public synchronized void 简弃(File ff,String a) {
     ArrayList l1= new ArrayList();
-    l1.addAll(简取(ff));
-    if(l1.contains(a)){
-        l1.remove(a);
-    }
-    f=new FileWriter(ff);
-    f1=new BufferedWriter(f);
-    f1.write("");
-    f1.close();
-    f.close();
-    for(int i=0;i<l1.size();i++){
-        简写(ff,l1.get(i).toString());
+    try {
+        l1.addAll(简取(ff));
+        if(l1.contains(a)){
+            l1.remove(a);
+        }
+        FileWriter f = new FileWriter(ff);
+        BufferedWriter f1 = new BufferedWriter(f);
+        f1.write("");
+        f1.close();
+        f.close();
+        
+        for(int i=0;i<l1.size();i++){
+            简写(ff,l1.get(i).toString());
+        }
+    } catch (Exception e) {
     }
 }
 
@@ -1102,10 +1126,11 @@ public boolean 检查黑名单(String 群号, String QQ号) {
     if (群号 == null || 群号.isEmpty()) {
         return false;
     }
-    File 黑名单文件 = 获取黑名单文件(群号);
-    if (黑名单文件 == null || !黑名单文件.exists()) return false;
     try {
-        return 简取(黑名单文件).contains(QQ号);
+        File 黑名单文件 = 获取黑名单文件(群号);
+        if (黑名单文件 == null || !黑名单文件.exists()) return false;
+        ArrayList 名单 = 简取(黑名单文件);
+        return 名单.contains(QQ号);
     } catch (Exception e) {
         return false;
     }
@@ -1205,12 +1230,13 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
 }
 
 public boolean 是代管(String groupUin, String userUin) {
-    File 代管文件 = 获取代管文件();
-    if (!代管文件.exists()) {
-        return false;
-    }
     try {
-        return jiandu(userUin, 简取(代管文件));
+        File 代管文件 = 获取代管文件();
+        if (!代管文件.exists()) {
+            return false;
+        }
+        ArrayList 代管列表 = 简取(代管文件);
+        return 代管列表.contains(userUin);
     } catch (Exception e) {
         return false;
     }
@@ -1264,6 +1290,8 @@ public void onMsg(Object msg){
     String 故=msg.MessageContent;
     String qq=msg.UserUin;
     String groupUin = msg.GroupUin;
+    
+    ArrayList mAtListCopy = safeCopyList(msg.mAtList);
     
     if(msg.MessageContent.startsWith("我要头衔")&&"开".equals(getString(groupUin,"自助头衔"))){
         String a=msg.MessageContent.substring(4);
@@ -1363,23 +1391,21 @@ public void onMsg(Object msg){
             }
             return;
         }
-        if (msg.MessageContent.startsWith("移除黑名单@") && msg.mAtList.size() > 0) {
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for (String uin : atListCopy) {
+        if (msg.MessageContent.startsWith("移除黑名单@") && mAtListCopy.size() > 0) {
+            for (String uin : mAtListCopy) {
                 移除黑名单(groupUin, uin);
             }
             sendMsg(groupUin, "", "已删黑该用户");
             return;
         }
-        if(!msg.MessageContent.startsWith("禁言")&&msg.MessageContent.startsWith("禁")&&msg.mAtList.size()>=1){   			
+        if(!msg.MessageContent.startsWith("禁言")&&msg.MessageContent.startsWith("禁")&&mAtListCopy.size()>=1){   			
             if(msg.MessageContent.matches("禁 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
                 int banTime = get_time(msg);
                 if(banTime > 2592000){
                     sendMsg(groupUin,"","请控制在30天以内");
                     return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = safeCopyList(msg.mAtList);
-                    for(String u:atListCopy){
+                    for(String u:mAtListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
                     }
@@ -1395,8 +1421,7 @@ public void onMsg(Object msg){
                 if(banTime > 2592000){
                     sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = safeCopyList(msg.mAtList);
-                    for(String u:atListCopy){
+                    for(String u:mAtListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
                     }
@@ -1404,8 +1429,7 @@ public void onMsg(Object msg){
                 }
             }
             if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){
+                for(String u:mAtListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,2592000);
                 }
@@ -1414,23 +1438,21 @@ public void onMsg(Object msg){
                 int  time2= msg.MessageContent.lastIndexOf(" ");
                 String time1 = msg.MessageContent.substring(time2 + 1); 
                 int time=Integer.parseInt(time1);  
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){  
+                for(String u:mAtListCopy){  
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,time*60);       
                 } 
                 return; 
             }
         }    
-        if(msg.MessageContent.startsWith("禁言")&&msg.mAtList.size()>=1){ 
+        if(msg.MessageContent.startsWith("禁言")&&mAtListCopy.size()>=1){ 
             if(msg.MessageContent.matches("禁言 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
                 int banTime = get_time(msg);
                 if(banTime > 2592000){
                     sendMsg(groupUin,"","请控制在30天以内");
                     return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = safeCopyList(msg.mAtList);
-                    for(String u:atListCopy){
+                    for(String u:mAtListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
                     }
@@ -1446,8 +1468,7 @@ public void onMsg(Object msg){
                 if(banTime > 2592000){
                     sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
                 }else if(banTime > 0){
-                    ArrayList atListCopy = safeCopyList(msg.mAtList);
-                    for(String u:atListCopy){
+                    for(String u:mAtListCopy){
                         if (检查代管保护(groupUin, u, "禁言")) continue;
                         unifiedForbidden(groupUin,u,banTime);
                     }
@@ -1455,8 +1476,7 @@ public void onMsg(Object msg){
                 }
             }  
             if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){
+                for(String u:mAtListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,86400);
                 }
@@ -1465,17 +1485,15 @@ public void onMsg(Object msg){
                 int time2 = msg.MessageContent.lastIndexOf(" ");
                 String time1 = msg.MessageContent.substring(time2 + 1); 
                 int time=Integer.parseInt(time1);  
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){  
+                for(String u:mAtListCopy){  
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,time);       
                 } 
                 return; 
             }   
         }
-        if(msg.MessageContent.startsWith("解")&&msg.mAtList.size()>=1){    	
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for(String 千:atListCopy){  
+        if(msg.MessageContent.startsWith("解")&&mAtListCopy.size()>=1){    	
+            for(String 千:mAtListCopy){  
                 unifiedForbidden(groupUin,千,0);
             } 
             return; 
@@ -1595,9 +1613,8 @@ public void onMsg(Object msg){
             unifiedForbidden(groupUin,msg.ReplyTo,banTime);
             sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
         }
-        if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&msg.mAtList.size()>=1){
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for(String u:atListCopy){
+        if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&mAtListCopy.size()>=1){
+            for(String u:mAtListCopy){
                 if (检查代管保护(groupUin, u, "踢出")) continue;
                 if (!有权限操作(groupUin, qq, u)) continue;
                 unifiedKick(groupUin,u,false);
@@ -1605,26 +1622,24 @@ public void onMsg(Object msg){
             sendMsg(groupUin,"","踢出成功\n权限使用人："+名(qq));
             return;
         }
-        if(msg.MessageContent.startsWith("踢黑")&&msg.mAtList.size()>=1){
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for(String 千:atListCopy){
+        if(msg.MessageContent.startsWith("踢黑")&&mAtListCopy.size()>=1){
+            for(String 千:mAtListCopy){
                 if (检查代管保护(groupUin, 千, "踢黑")) continue;
                 if (!有权限操作(groupUin, qq, 千)) continue;
                 unifiedKick(groupUin,千,true);
             }
             sendMsg(groupUin,"","已踢出，不会再收到该用户入群申请\n权限使用人："+名(qq));
         }
-        if(msg.MessageContent.equals("禁")&&msg.mAtList.size()==0){	  
+        if(msg.MessageContent.equals("禁")&&mAtListCopy.size()==0){	  
             unifiedForbidden(groupUin,"",1);return;
         }
-        if(msg.MessageType == 1 && msg.MessageContent.equals("解")&&msg.mAtList.size()==0){		    
+        if(msg.MessageType == 1 && msg.MessageContent.equals("解")&&mAtListCopy.size()==0){		    
             unifiedForbidden(groupUin,"",0);return;
         }
         if(msg.MessageContent.startsWith("头衔@")){    	
             int str = msg.MessageContent.lastIndexOf(" ")+1;
             String text = msg.MessageContent.substring(str);   
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for(String u:atListCopy){
+            for(String u:mAtListCopy){
                 setTitle(groupUin,u,text);
             }
         }
@@ -1723,12 +1738,11 @@ public void onMsg(Object msg){
         if(qq.equals(myUin)){
             if(msg.MessageContent.startsWith("添加代管")||msg.MessageContent.startsWith("添加管理员")||msg.MessageContent.startsWith("设置代管")||msg.MessageContent.startsWith("添加老婆")){
                 String QQUin = "";
-                if(msg.mAtList.size()==0){
+                if(mAtListCopy.size()==0){
                     sendReply(groupUin,msg,"你艾特的人呢？");
                     return;
                 }
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){
+                for(String u:mAtListCopy){
                     File 代管文件 = 获取代管文件();
                     if(!代管文件.exists()){
                         try {
@@ -1751,12 +1765,11 @@ public void onMsg(Object msg){
             }
             if(msg.MessageContent.startsWith("删除代管@")||msg.MessageContent.startsWith("删除管理员@")){
                 String QQUin="";
-                if(msg.mAtList.size()==0){
+                if(mAtListCopy.size()==0){
                     sendReply(groupUin,msg,"你艾特的人呢？");
                     return;
                 }
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String 千:atListCopy){
+                for(String 千:mAtListCopy){
                     File 代管文件 = 获取代管文件();
                     if(!代管文件.exists()) continue;
                     try {
@@ -1819,21 +1832,20 @@ public void onMsg(Object msg){
             }
             sendReply(groupUin,msg,"代管列表已清空");
         }
-        if(msg.MessageContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&msg.mAtList.size()>=1){
+        if(msg.MessageContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
             int banTime = get_time(msg);
             if(banTime > 2592000){
                 sendReply(groupUin,msg,"时间太长无法禁言");
                 return;
             }else if(banTime > 0){
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){
+                for(String u:mAtListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,banTime);
                 }
                 return;
             }
         }
-        if(msg.MessageContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&msg.mAtList.size()>=1){
+        if(msg.MessageContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
             int str1 = msg.MessageContent.lastIndexOf(" ");
             String str =msg.MessageContent.substring(str1 + 1);
             String text=str.replaceAll("[天分时小时分钟秒]","");
@@ -1842,20 +1854,18 @@ public void onMsg(Object msg){
             if(banTime > 2592000){
                 sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
             }else if(banTime > 0){
-                ArrayList atListCopy = safeCopyList(msg.mAtList);
-                for(String u:atListCopy){
+                for(String u:mAtListCopy){
                     if (检查代管保护(groupUin, u, "禁言")) continue;
                     unifiedForbidden(groupUin,u,banTime);
                 }
                 return;
             }
         }
-        if(msg.MessageContent.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&msg.mAtList.size()>=1){  
+        if(msg.MessageContent.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&mAtListCopy.size()>=1){  
             int str = msg.MessageContent.lastIndexOf(" ");
             String text =msg.MessageContent.substring(str + 1);
             int time=CN_zh_int(text);
-            ArrayList atListCopy = safeCopyList(msg.mAtList);
-            for(String u:atListCopy){
+            for(String u:mAtListCopy){
                 if (检查代管保护(groupUin, u, "禁言")) continue;
                 unifiedForbidden(groupUin,u,time*60);
                 return;
@@ -1863,9 +1873,6 @@ public void onMsg(Object msg){
         }                          
     }
 }
-
-addMenuItem("踢", "kickMenuItem");
-addMenuItem("踢黑", "kickBlackMenuItem");
 
 public void kickMenuItem(final Object msg) {
     if (!msg.IsGroup) {
@@ -1907,7 +1914,6 @@ public void kickMenuItem(final Object msg) {
                 
                 builder.show();
             } catch (Exception e) {
-                toast("显示对话框失败: " + e.toString());
             }
         }
     });
@@ -1953,7 +1959,109 @@ public void kickBlackMenuItem(final Object msg) {
                 
                 builder.show();
             } catch (Exception e) {
-                toast("显示对话框失败: " + e.toString());
+            }
+        }
+    });
+}
+
+public void forbiddenMenuItem(final Object msg) {
+    if (!msg.IsGroup) {
+        toast("只能在群聊中使用");
+        return;
+    }
+    
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    final String operatorUin = myUin;
+    
+    if (!isAdmin(groupUin, operatorUin)) {
+        toast("需要群管权限");
+        return;
+    }
+    
+    if (检查代管保护(groupUin, targetUin, "禁言")) {
+        return;
+    }
+    
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                builder.setTitle("设置禁言时间");
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(30, 30, 30, 30);
+                
+                TextView hint = new TextView(activity);
+                hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
+                hint.setTextSize(16);
+                layout.addView(hint);
+                
+                TextView unitHint = new TextView(activity);
+                unitHint.setText("时间单位换算:\n60秒=1分钟\n3600秒=1小时\n86400秒=1天\n2592000秒=30天");
+                unitHint.setTextSize(12);
+                unitHint.setTextColor(Color.GRAY);
+                unitHint.setPadding(0, 10, 0, 20);
+                layout.addView(unitHint);
+                
+                EditText inputEditText = new EditText(activity);
+                inputEditText.setHint("请输入禁言时间（秒）");
+                inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+                inputEditText.setHintTextColor(Color.GRAY);
+                inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+                layout.addView(inputEditText);
+                
+                builder.setView(layout);
+                
+                builder.setPositiveButton("确定禁言", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        String input = inputEditText.getText().toString().trim();
+                        if (!input.isEmpty()) {
+                            try {
+                                int time = Integer.parseInt(input);
+                                if (time > 0) {
+                                    if (time > 2592000) {
+                                        toast("禁言时间不能超过30天（2592000秒）");
+                                        return;
+                                    }
+                                    unifiedForbidden(groupUin, targetUin, time);
+                                    
+                                    String timeDisplay;
+                                    if (time < 60) {
+                                        timeDisplay = time + "秒";
+                                    } else if (time < 3600) {
+                                        timeDisplay = (time / 60) + "分钟";
+                                    } else if (time < 86400) {
+                                        timeDisplay = (time / 3600) + "小时";
+                                    } else {
+                                        timeDisplay = (time / 86400) + "天";
+                                    }
+                                    
+                                    toast("已禁言 " + 名(targetUin) + " " + timeDisplay);
+                                } else {
+                                    toast("请输入大于0的数字");
+                                }
+                            } catch (NumberFormatException e) {
+                                toast("请输入有效的数字");
+                            }
+                        } else {
+                            toast("请输入禁言时间");
+                        }
+                    }
+                });
+                
+                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        toast("已取消");
+                    }
+                });
+                
+                builder.show();
+            } catch (Exception e) {
             }
         }
     });
