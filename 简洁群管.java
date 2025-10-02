@@ -380,7 +380,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_60.0_更新日志\n" +
                     "- [新增] addMenuItem弹窗禁言，单位秒\n" +
                     "- [优化] 脚本大部分代码\n" +
-                    "- [修复] 部分存在的问题，并打死了hd\n\n" +
+                    "- [修复] 部分存在的问题，并打死了hd\n" +
+                    "————————\n" +
+                    "简洁群管_61.0_更新日志\n" +
+                    "- [修复] 被WAuxiliary脚本引擎做局导致出现的部分问题并打死了hd\n\n" +
                     "临江、海枫 岁岁平安 >_<");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1272,19 +1275,6 @@ public String isGN(String groupUin, String key) {
     if("开".equals(getString(groupUin, key))) return "✅";
     else return "❌";
 }
-
-/*
-该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
-*/
-/*接口说明 
-
-显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
-显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
-显示群员头衔 SetTroopShowTitle(qun,myUin,getSkey(),getey("clt.qq.com"),1);
-
-隐藏就是最后1改成0
-
-*/
 
 public void onMsg(Object msg){
     String 故=msg.MessageContent;
