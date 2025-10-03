@@ -386,10 +386,14 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 被WAuxiliary脚本引擎做局导致出现的部分问题并打死了hd\n" +
                     "————————\n" +
                     "简洁群管_62.0_更新日志\n" +
-                    "- [优化] 底层代码\n" +
+                    "- [优化] 底层代码，修复了部分泛型和lambda表达式\n" +
                     "————————\n" +
                     "简洁群管_63.0_更新日志\n" +
-                    "- [修复] 禁言列表\n\n" +
+                    "- [修复] 禁言列表不太正常的问题\n" +
+                    "————————\n" +
+                    "简洁群管_64.0_更新日志\n" +
+                    "- [修复] 部分存在报错的问题\n" +
+                    "- [移除] lambda表达式\n\n" +
                     "临江、海枫 岁岁平安 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1208,7 +1212,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     }
                 }
                 if (!有权限) {
-                    toast("没有管理员权限，无法踢人");
+                    toast("没有群管权限，无法踢人");
                     return;
                 }
                 StringBuilder 踢出列表 = new StringBuilder();
@@ -1894,7 +1898,7 @@ public void kickMenuItem(final Object msg) {
     final String operatorUin = myUin;
     
     if (!isAdmin(groupUin, operatorUin)) {
-        toast("需要管理员权限");
+        toast("需要群管权限");
         return;
     }
     
@@ -1939,7 +1943,7 @@ public void kickBlackMenuItem(final Object msg) {
     final String operatorUin = myUin;
     
     if (!isAdmin(groupUin, operatorUin)) {
-        toast("需要管理员权限");
+        toast("需要群管权限");
         return;
     }
     
@@ -2076,4 +2080,5 @@ public void forbiddenMenuItem(final Object msg) {
     });
 }
 
+// 我那么喜欢你 你喜欢我一下会死吗
 // 接下来的故事慢慢听我说……
