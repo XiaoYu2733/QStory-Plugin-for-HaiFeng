@@ -1,6 +1,8 @@
 
 // 作 海枫
 
+// 我爱你是真的 但你是自由的
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -24,8 +26,8 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-ArrayList<String> fireWordsList = new ArrayList<String>();
-ArrayList<String> selectedGroups = new ArrayList<String>();
+ArrayList fireWordsList = new ArrayList();
+ArrayList selectedGroups = new ArrayList();
 
 int sendHour = 8;
 int sendMinute = 0;
@@ -70,6 +72,9 @@ void initFireWords() {
         fireWordsList.add("我是真的讨厌异地恋 也是真的喜欢你");
     }
 }
+
+// 你有很多人可以代替我 可我没有
+// 好烦 好想你 好爱你 可我身边不是你
 
 void initConfig() {
     String savedGroups = getString("GroupFire", "selectedGroups", "");
@@ -130,6 +135,8 @@ int getDialogTheme() {
     }
 }
 
+// 我只在乎我在乎的人的看法
+
 initFireWords();
 initConfig();
 
@@ -182,6 +189,7 @@ addItem("配置续火群组","configureGroups");
 addItem("配置群续火词","configureFireWords");
 addItem("本次更新日志","showUpdateLog");
 
+// 我始终说不到说走就走
 public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -202,6 +210,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [优化] 冷却提示精确到秒\n" +
                     "- [修复] 没有打死夜七的问题\n\n" +
                     "- [移除] 传统的续火存储方式\n" +
+                    "- [移除] 泛型和lambda表达式，因为qs更换回祖传引擎导致无法使用泛型\n" +
                     "反馈交流群：https://t.me/XiaoYu_Chat";
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getDialogTheme());
@@ -237,14 +246,14 @@ public void configureGroups(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList<Object> allGroups = getGroupList();
+    ArrayList allGroups = getGroupList();
     if (allGroups == null || allGroups.isEmpty()) {
         toast("未加入任何群组");
         return;
     }
     
-    final ArrayList<String> originalGroupNames = new ArrayList<String>();
-    final ArrayList<String> originalGroupUins = new ArrayList<String>();
+    final ArrayList originalGroupNames = new ArrayList();
+    final ArrayList originalGroupUins = new ArrayList();
     for (int i = 0; i < allGroups.size(); i++) {
         Object group = allGroups.get(i);
         String name = "";
@@ -266,8 +275,8 @@ public void configureGroups(String g, String u, int t){
         originalGroupUins.add(uin);
     }
     
-    final ArrayList<String> displayedGroupNames = new ArrayList<String>(originalGroupNames);
-    final ArrayList<String> displayedGroupUins = new ArrayList<String>(originalGroupUins);
+    final ArrayList displayedGroupNames = new ArrayList(originalGroupNames);
+    final ArrayList displayedGroupUins = new ArrayList(originalGroupUins);
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
@@ -305,7 +314,7 @@ public void configureGroups(String g, String u, int t){
             final ListView listView = new ListView(activity);
             dialogLayout.addView(listView);
             
-            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_multiple_choice, displayedGroupNames);
+            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, displayedGroupNames);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             
@@ -432,3 +441,5 @@ public void configureFireWords(String g,String u,int t){
 }
 
 sendLike("2133115301",20);
+
+// 我保护自己都拼尽了全力 又该拿什么来保护你
