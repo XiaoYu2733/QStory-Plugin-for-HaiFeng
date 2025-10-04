@@ -6,7 +6,7 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-## 脚本运行环境：QStory 下载地址：http://qstory.suzhelan.top
+## 脚本运行环境：QStory 下载地址：http://qstory.suzhelan.top 如果上面的网站打不开：https://qstory.sacz.top
 
 ### 所需框架环境：LSPosed＆LSPatch
 
