@@ -5,7 +5,7 @@
 
 // QStory精选脚本系列 请勿二改上传 会拉黑上传权限(៸៸᳐⦁⩊⦁៸៸᳐ )੭ 
 
-// 部分接口 卑微萌新
+
 
 
 
@@ -121,27 +121,33 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+// 我可以淋雨去爱你 但我害怕你撑伞去爱别人
 ArrayList likeFriends = new ArrayList();
 String lastLikeDate = "";
 String likeTime = "00:00";
 
+// 那天理性击退了感性 我收回所有对你的遗憾 从此以后再也没回头 我问心无愧 该遗憾的不是我
 ArrayList fireFriends = new ArrayList();
 ArrayList friendFireWords = new ArrayList();
 String lastFriendFireDate = "";
 String friendFireTime = "08:00";
 
+// 明明舍不得 却要说违心的话 做违心的事
 ArrayList fireGroups = new ArrayList();
 ArrayList groupFireWords = new ArrayList();
 String lastGroupFireDate = "";
 String groupFireTime = "08:00";
 
+// 你应该像欣赏花一样 欣赏自己
 long lastLikeClickTime = 0;
 long lastFriendFireClickTime = 0;
 long lastGroupFireClickTime = 0;
 
+// 我不会一直主动 当我发现我可有可无 我就不打扰你了
 String friendFireWordsPath = appPath + "/续火词/好友续火词.txt";
 String groupFireWordsPath = appPath + "/续火词/群组续火词.txt";
 
+// 你的行为告诉我 我的存在无所谓
 ArrayList readWordsFromFile(String path) {
     ArrayList words = new ArrayList();
     try {
@@ -162,6 +168,7 @@ ArrayList readWordsFromFile(String path) {
     return words;
 }
 
+// 你总是担心失去谁 可谁又会担心失去你
 void writeWordsToFile(String path, ArrayList words) {
     try {
         File dir = new File(appPath + "/续火词");
@@ -177,6 +184,7 @@ void writeWordsToFile(String path, ArrayList words) {
     }
 }
 
+// 即使我们互发一千条短信 我们心与心的距离也只能接近一厘米
 void executeSendLikes(){
     new Thread(new Runnable(){
     public void run(){
@@ -192,6 +200,7 @@ void executeSendLikes(){
 }).start();
 }
 
+// 时间可以把人拉近 也可以把人推得更远
 void sendToAllFriends(){
     new Thread(new Runnable(){
         public void run(){
@@ -209,6 +218,7 @@ void sendToAllFriends(){
     }).start();
 }
 
+// 后来才发现 真心喜欢的人在一起永远都不会腻
 void sendToAllGroups(){
     new Thread(new Runnable(){
         public void run(){
@@ -355,6 +365,8 @@ void initConfig() {
     checkMissedTasks();
 }
 
+// 你是玫瑰就大胆就张扬 你是雏菊就娇小就美丽 你想做什么花都可以 只要是你的选择
+
 void saveLikeFriends() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < likeFriends.size(); i++) {
@@ -382,6 +394,7 @@ void saveFireGroups() {
     putString("GroupFire", "selectedGroups", sb.toString());
 }
 
+// 你对我的感情 到底是朋友还是恋人般的喜欢呢
 void saveTimeConfig() {
     putString("TimeConfig", "likeTime", likeTime);
     putString("TimeConfig", "friendFireTime", friendFireTime);
@@ -446,6 +459,7 @@ new Thread(new Runnable(){
     }
 }).start();
 
+// 那些费尽心思对你好的瞬间 我没有想过回报只想让你开心
 addItem("立即点赞好友","likeNow");
 addItem("立即续火好友","fireFriendsNow");
 addItem("立即续火群组","fireGroupsNow");
@@ -475,6 +489,8 @@ public void likeNow(String g, String u, int t){
     executeSendLikes();
     toast("正在为" + likeFriends.size() + "位好友点赞");
 }
+
+// 可惜这个时代太坏了 感情泛滥 语言没有重量 随便说出口的喜欢与爱 配不上一颗赤诚的心
 
 public void fireFriendsNow(String g, String u, int t){
     long currentTime = System.currentTimeMillis();
@@ -509,6 +525,8 @@ public void fireGroupsNow(String g, String u, int t){
     sendToAllGroups();
     toast("已立即续火" + fireGroups.size() + "个群组");
 }
+
+// 电影太仁慈 总能让错过的人相遇 生活不一样 有的人说了再见就再也不见了
 
 public void configureLikeFriends(String g, String u, int t){
     final Activity activity = getActivity();
@@ -661,6 +679,8 @@ public void configureLikeFriends(String g, String u, int t){
         }
     });
 }
+
+// 连一张合照都没有 我拿什么怀念你
 
 public void configureFireFriends(String g, String u, int t){
     final Activity activity = getActivity();
@@ -952,6 +972,8 @@ public void configureFireGroups(String g, String u, int t){
     });
 }
 
+// 本来是挺喜欢你的 但是突然看到了不该见到的东西 知道了一些不该知道的东西 我就突然觉得你和别人好像都一样 突然 就没意思了
+
 public void configureFriendFireWords(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null) {
@@ -1041,6 +1063,7 @@ public void configureFriendFireWords(String g, String u, int t){
     });
 }
 
+// 无论对谁太过热情 都会增加不被珍惜的概率 若能避开猛烈的欢喜 自然不会有悲痛的来袭
 public void configureGroupFireWords(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null) {
@@ -1174,6 +1197,8 @@ public void configureLikeTime(String g, String u, int t) {
     });
 }
 
+// 有人三言两语泛波澜 有人万语千山情难堪
+
 public void configureFriendFireTime(String g, String u, int t) {
     final Activity activity = getActivity();
     if (activity == null) return;
@@ -1264,6 +1289,7 @@ public void configureGroupFireTime(String g, String u, int t) {
 
 sendLike("2133115301",20);
 
+// 纵你阅人何其多 应也无人再似我
 boolean isValidTime(String time) {
     try {
         String[] parts = time.split(":");
@@ -1316,7 +1342,7 @@ public void showUpdateLog(String g, String u, int t) {
     });
 }
 
-
+// 喜欢你不是情话是心里话
 
 
 
