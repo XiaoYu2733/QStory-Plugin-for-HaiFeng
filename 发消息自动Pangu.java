@@ -1,3 +1,8 @@
+
+// 海枫
+
+// 但我们之间 连可能都没有 谈如何可以
+
 public String getMsg(String msg, String group, int i) {
     if (msg.startsWith(",,") || msg.startsWith("，，")) return msg.substring(2);
     return formatString(msg);
