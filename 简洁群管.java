@@ -132,13 +132,6 @@ try {
 } catch (Throwable e) {
 }
 
-try {
-    addMenuItem("踢", "kickMenuItem");
-    addMenuItem("踢黑", "kickBlackMenuItem");
-    addMenuItem("禁言", "forbiddenMenuItem");
-} catch (Exception e) {
-}
-
 public int getCurrentTheme() {
     try {
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -396,7 +389,13 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [移除] lambda表达式\n" +
                     "————————\n" +
                     "简洁群管_65.0_更新日志\n" +
-                    "- [修复] qs2.0.3的祖传脚本引擎限制导致无法使用final的问题\n\n" +
+                    "- [修复] qs2.0.3的祖传脚本引擎限制导致无法使用final的问题\n" +
+                    "————————\n" +
+                    "简洁群管_66.0_更新日志\n" +
+                    "- [移除] 快捷菜单项，如需使用，请使用简洁群管-Plus\n" +
+                    "————————\n" +
+                    "简洁群管_67.0_更新日志\n" +
+                    "- [修复] 部分不太正常的变量\n\n" +
                     "临江、海枫 岁岁平安 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1887,237 +1886,6 @@ public void onMsg(Object msg){
                 return;
             }
         }                          
-    }
-}
-
-public void kickMenuItem(Object msg) {
-    if (!msg.IsGroup) {
-        toast("只能在群聊中使用");
-        return;
-    }
-    
-    String groupUin = msg.GroupUin;
-    String targetUin = msg.UserUin;
-    String operatorUin = myUin;
-    
-    if (!isAdmin(groupUin, operatorUin)) {
-        toast("需要群管权限");
-        return;
-    }
-    
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                String currentGroupUin = msg.GroupUin;
-                String currentTargetUin = msg.UserUin;
-                
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
-                builder.setTitle("确认踢出");
-                builder.setMessage("确定要踢出 " + 名(currentTargetUin) + "(" + currentTargetUin + ") 吗？");
-                
-                builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        unifiedKick(currentGroupUin, currentTargetUin, false);
-                        toast("踢出成功");
-                    }
-                });
-                
-                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        toast("已取消");
-                    }
-                });
-                
-                builder.show();
-            } catch (Exception e) {
-                error(e);
-            }
-        }
-    });
-}
-
-public void kickBlackMenuItem(Object msg) {
-    if (!msg.IsGroup) {
-        toast("只能在群聊中使用");
-        return;
-    }
-    
-    String groupUin = msg.GroupUin;
-    String targetUin = msg.UserUin;
-    String operatorUin = myUin;
-    
-    if (!isAdmin(groupUin, operatorUin)) {
-        toast("需要群管权限");
-        return;
-    }
-    
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                String currentGroupUin = msg.GroupUin;
-                String currentTargetUin = msg.UserUin;
-                
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
-                builder.setTitle("确认踢黑");
-                builder.setMessage("确定要踢出并拉黑 " + 名(currentTargetUin) + "(" + currentTargetUin + ") 吗？");
-                
-                builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        unifiedKick(currentGroupUin, currentTargetUin, true);
-                        toast("踢黑成功");
-                    }
-                });
-                
-                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        toast("已取消");
-                    }
-                });
-                
-                builder.show();
-            } catch (Exception e) {
-                error(e);
-            }
-        }
-    });
-}
-
-public void forbiddenMenuItem(Object msg) {
-    if (!msg.IsGroup) {
-        toast("只能在群聊中使用");
-        return;
-    }
-    
-    String groupUin = msg.GroupUin;
-    String targetUin = msg.UserUin;
-    String operatorUin = myUin;
-    
-    if (!isAdmin(groupUin, operatorUin)) {
-        toast("需要群管权限");
-        return;
-    }
-    
-    if (检查代管保护(groupUin, targetUin, "禁言")) {
-        return;
-    }
-    
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                String currentGroupUin = msg.GroupUin;
-                String currentTargetUin = msg.UserUin;
-                
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
-                builder.setTitle("设置禁言时间");
-                
-                LinearLayout layout = new LinearLayout(getActivity());
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 30, 30, 30);
-                
-                TextView hint = new TextView(getActivity());
-                hint.setText("目标用户: " + 名(currentTargetUin) + "(" + currentTargetUin + ")");
-                hint.setTextSize(16);
-                layout.addView(hint);
-                
-                TextView unitHint = new TextView(getActivity());
-                unitHint.setText("时间单位换算:\n60秒=1分钟\n3600秒=1小时\n86400秒=1天\n2592000秒=30天");
-                unitHint.setTextSize(12);
-                unitHint.setTextColor(Color.GRAY);
-                unitHint.setPadding(0, 10, 0, 20);
-                layout.addView(unitHint);
-                
-                final EditText inputEditText = new EditText(getActivity());
-                inputEditText.setHint("请输入禁言时间（秒）");
-                inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-                inputEditText.setHintTextColor(Color.GRAY);
-                inputEditText.setBackgroundResource(android.R.drawable.edit_text);
-                layout.addView(inputEditText);
-                
-                builder.setView(layout);
-                
-                builder.setPositiveButton("确定禁言", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            try {
-                                int time = Integer.parseInt(input);
-                                if (time > 0) {
-                                    if (time > 2592000) {
-                                        toast("禁言时间不能超过30天（2592000秒）");
-                                        return;
-                                    }
-                                    unifiedForbidden(currentGroupUin, currentTargetUin, time);
-                                    
-                                    String timeDisplay;
-                                    if (time < 60) {
-                                        timeDisplay = time + "秒";
-                                    } else if (time < 3600) {
-                                        timeDisplay = (time / 60) + "分钟";
-                                    } else if (time < 86400) {
-                                        timeDisplay = (time / 3600) + "小时";
-                                    } else {
-                                        timeDisplay = (time / 86400) + "天";
-                                    }
-                                    
-                                    toast("已禁言 " + 名(currentTargetUin) + " " + timeDisplay);
-                                } else {
-                                    toast("请输入大于0的数字");
-                                }
-                            } catch (NumberFormatException e) {
-                                toast("请输入有效的数字");
-                            }
-                        } else {
-                            toast("请输入禁言时间");
-                        }
-                    }
-                });
-                
-                builder.setNegativeButton("取消", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        toast("已取消");
-                    }
-                });
-                
-                builder.show();
-            } catch (Exception e) {
-                error(e);
-            }
-        }
-    });
-}
-
-public boolean isAdmin(String groupUin, String userUin) {
-    try {
-        Object groupInfo = getGroupInfo(groupUin);
-        if (groupInfo == null) return false;
-        
-        if (groupInfo.GroupOwner.equals(userUin)) {
-            return true;
-        }
-        
-        if (groupInfo.AdminList != null) {
-            ArrayList adminList = safeCopyList(groupInfo.AdminList);
-            for (int i = 0; i < adminList.size(); i++) {
-                String admin = (String) adminList.get(i);
-                if (admin.equals(userUin)) {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    } catch (Exception e) {
-        error(e);
-        return false;
     }
 }
 
