@@ -123,6 +123,7 @@ try {
     addItem("开启/关闭艾特禁言","开关艾特禁言方法");
     addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
     addItem("开启/关闭自助头衔", "开关自助头衔方法");
+    addItem("开启/关闭自动解禁代管", "自动解禁代管方法");
     addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
     addItem("查看群管功能", "群管功能弹窗");
     addItem("代管管理功能", "代管管理弹窗");
@@ -142,6 +143,32 @@ public int getCurrentTheme() {
         }
     } catch (Exception e) {
         return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    }
+}
+
+public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
+    if (!有权限操作(groupUin, uin, uin)) return;
+    
+    String currentState = getString("自动解禁代管配置", "开关");
+    if("开".equals(currentState)){
+        putString("自动解禁代管配置", "开关", null);
+        toast("已关闭自动解禁代管");
+    }else{
+        putString("自动解禁代管配置", "开关", "开");
+        toast("已开启自动解禁代管");
+    }
+}
+
+public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long time) {
+    if (!"开".equals(getString("自动解禁代管配置", "开关"))) return;
+    
+    if (是代管(groupUin, userUin) && time > 0) {
+        try {
+            unifiedForbidden(groupUin, userUin, 0);
+            toast("检测代管在群:" + groupUin + "被禁言,已尝试解禁");
+        } catch (Throwable e) {
+            toast("检测代管在群:" + groupUin + "被禁言,无权限无法解禁");
+        }
     }
 }
 
@@ -395,7 +422,12 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [移除] 快捷菜单项，如需使用，请使用简洁群管-Plus\n" +
                     "————————\n" +
                     "简洁群管_67.0_更新日志\n" +
-                    "- [修复] 部分不太正常的变量\n\n" +
+                    "- [修复] 部分不太正常的变量\n" +
+                    "————————\n" +
+                    "简洁群管_68.0_更新日志\n" +
+                    "- [修复] 部分存在报错的问题\n" +
+                    "- [修复] 部分不太正常的变量\n" +
+                    "- [新增] 开启/关闭自动解禁代管 全局生效 代管被禁言时 会尝试自动解禁，但是此功能可能有点不稳定，如果没有权限 则提示无法解禁代管\n\n" +
                     "临江、海枫 岁岁平安 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -424,8 +456,9 @@ public void showGroupManageDialog() {
                 "16. 显示/隐藏标识 - 切换互动标识\n" +
                 "17. 开启/关闭自助头衔 - 切换自助头衔功能\n" +
                 "18. 开启/关闭退群拉黑 - 切换退群拉黑功能\n" +
-                "19. 查看黑名单 - 显示退群被拉黑的用户\n" +
-                "20. 移除黑名单@成员 - 移除退群被拉黑的用户\n\n" +
+                "19. 开启/关闭自动解禁代管 - 全局生效 代管被禁言时 会尝试自动解禁，但是此功能可能有点不稳定，如果没有权限 则提示无法解禁代管\n" +
+                "20. 查看黑名单 - 显示退群被拉黑的用户\n" +
+                "21. 移除黑名单@成员 - 移除退群被拉黑的用户\n\n" +
                 "回复操作：\n" +
                 "• 回复消息 /ban ban - 踢黑\n" +
                 "• 回复消息 /kick kick - 普通踢出\n\n" +
@@ -1283,11 +1316,6 @@ public boolean 检查代管保护(String groupUin, String targetUin, String oper
     return false;
 }
 
-public String isGN(String groupUin, String key) {
-    if("开".equals(getString(groupUin, key))) return "✅";
-    else return "❌";
-}
-
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
 */
@@ -1300,6 +1328,11 @@ public String isGN(String groupUin, String key) {
 隐藏就是最后1改成0
 
 */
+
+public String isGN(String groupUin, String key) {
+    if("开".equals(getString(groupUin, key))) return "✅";
+    else return "❌";
+}
 
 public void onMsg(Object msg){
     String 故=msg.MessageContent;
@@ -1352,6 +1385,24 @@ public void onMsg(Object msg){
         if(msg.MessageContent.equals("隐藏头衔")){
             String result = SetTroopShowTitle(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
             sendMsg(groupUin,"",result);
+        }
+        if(msg.MessageContent.equals("开启自动解禁代管")){
+            if (!有权限操作(groupUin, qq, qq)) return;
+            if("开".equals(getString("自动解禁代管配置", "开关"))){
+                sendMsg(groupUin,"","此功能已开启");
+            }else{
+                putString("自动解禁代管配置", "开关", "开");
+                sendMsg(groupUin,"","已开启自动解禁代管");
+            }
+        }
+        if(msg.MessageContent.equals("关闭自动解禁代管")){
+            if (!有权限操作(groupUin, qq, qq)) return;
+            if("开".equals(getString("自动解禁代管配置", "开关"))){
+                putString("自动解禁代管配置", "开关", null);
+                sendMsg(groupUin,"","已关闭自动解禁代管");
+            }else{
+                sendMsg(groupUin,"","未开启无法关闭");
+            }
         }
         if(msg.MessageContent.equals("群管功能")){
             String a=
