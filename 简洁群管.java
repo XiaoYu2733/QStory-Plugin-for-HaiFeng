@@ -6,6 +6,7 @@
 
 // 你说你讨厌被骗 可你骗我的时候也没有心软
 
+// 如果你不会动的话最好别乱动下面的东西
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -117,6 +118,8 @@ public String 禁言组文本(String qun) {
     return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
+// 上一次觉得阳光这么温暖 是什么时候 好像就在咋天 又好像上辈子那么远
+
 try {
     addItem("开启/关闭艾特禁言","开关艾特禁言方法");
     addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
@@ -223,6 +226,9 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
         }
     });
 }
+
+// 我以为你和别人不一样 我也以为你很爱我
+// 你和他很像 但我清晰的意识到自己喜欢的是你
 
 public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
@@ -492,6 +498,8 @@ public void showGroupManageDialog() {
     }
 }
 
+// 你说我好可爱 确实 可怜没人爱
+
 public void 群管功能弹窗(String groupUin, String uin, int chatType) {
     showGroupManageDialog();
 }
@@ -576,6 +584,8 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     });
 }
 
+// 你敷衍的那么明显 我怎么会不懂
+
 public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -656,6 +666,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     });
 }
 
+// 遗憾吗 一张合照都没有 只有一堆没用的聊天记录
 public void 开关自助头衔方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"自助头衔"))){
@@ -667,6 +678,7 @@ public void 开关自助头衔方法(String groupUin, String uin, int chatType) 
     }
 }
 
+// 你是真的爱我 还是一时兴起的新鲜感
 public void 开关艾特禁言方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"艾特禁言"))){
@@ -678,6 +690,7 @@ public void 开关艾特禁言方法(String groupUin, String uin, int chatType) 
     }
 }
 
+// 真希望能和昨天一样 一直开心下去
 public void 退群拉黑开关方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"退群拉黑"))){
@@ -692,12 +705,16 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
+//检测退群拉黑文件夹是否存在 不存在则创建
 if (!退群拉黑文件夹.exists()) {
     退群拉黑文件夹.mkdirs();
 }
 
+// 默认禁言配置 可自行更改或脚本弹窗说明
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
+// 检测代管文件夹是否存在 不存在则创建
+// 代管.txt需要添加代管才会自动创建，以防每次简洁群管更新文件会被覆盖
 public File 获取代管文件() {
     String 代管目录 = appPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
@@ -707,6 +724,7 @@ public File 获取代管文件() {
     return new File(代管目录, "代管.txt");
 }
 
+// 单词反复记不住 他随口说的话你记了好久
 public long GetBkn(String skey){
     long hash = 5381;
     for (int i = 0, len = skey.length(); i < len; i++) {
@@ -715,6 +733,7 @@ public long GetBkn(String skey){
     return hash & 2147483647L;
 }
 
+// 不联系不见面是最好的和解
 public String httppost(String urlPath, String cookie,String data){
     StringBuffer buffer = new StringBuffer();
     InputStreamReader isr = null;
@@ -725,8 +744,8 @@ public String httppost(String urlPath, String cookie,String data){
         HttpURLConnection uc = (HttpURLConnection) url.openConnection();
         uc.setDoInput(true);
         uc.setDoOutput(true);
-        uc.setConnectTimeout(20000);
-        uc.setReadTimeout(20000);
+        uc.setConnectTimeout(20000);// 设置连接主机超时（单位：毫秒）
+        uc.setReadTimeout(20000);// 设置从主机读取数据超时（单位：毫秒）
         uc.setRequestMethod("POST");
         uc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         uc.setRequestProperty("Cookie",cookie);
@@ -775,6 +794,8 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
     } 
 }
 
+// 又要重新认识一个人 吃饭 散步 送礼物 互相了解这样走流程吗 我不想了
+
 public String SetTroopShowLevel(String qun,String myQQ,String skey,String pskey,int type){
     return SetTroopShowInfo(qun,myQQ,skey,pskey,"levelnewflag",type);
 }
@@ -802,6 +823,8 @@ public String SetTroopShowInfo(String qun,String myQQ,String skey,String pskey,S
         return "设置失败，原因:"+e;
     } 
 }
+
+// 用野草来纪念我吧 鲜花太贵了 野草遍地都是
 
 Object app=BaseApplicationImpl.getApplication().getRuntime();
 IProfileDataService ProfileData=app.getRuntimeService(IProfileDataService.class);
@@ -2000,6 +2023,8 @@ public void kickBlackMenuItem(Object msg) {
         }
     });
 }
+
+// 重逢的街头，心跳比我先认出你
 
 public void forbiddenMenuItem(Object msg) {
     if (!msg.IsGroup) return;
