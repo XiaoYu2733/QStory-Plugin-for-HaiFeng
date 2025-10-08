@@ -8,7 +8,7 @@
 
 ## 脚本运行环境：QStory下载地址：http://qstory.suzhelan.top 
 
-#@@ 备用QStory下载地址：如果上面的网站打不开：https://qstory.sacz.top
+### 备用QStory下载地址：如果上面的网站打不开：https://qstory.sacz.top
 
 ### 所需框架环境：LSPosed＆LSPatch
 
