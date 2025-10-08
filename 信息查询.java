@@ -1,103 +1,18 @@
-
 // 你能进到这里就说明你这个人不简单，可能是比较厉害的人或者脚本开发者
 
 // 声明 使用的QQ内部接口 随时会失效 接口来自卑微萌新 具体与本人无关
 
-//可能用到的库
-import android.text.*;
-import android.app.*;
 import android.os.*;
-import android.view.*;
-import java.lang.*;
 import android.content.*;
-import android.webkit.*;
 import android.widget.*;
-import android.media.*;
-import java.text.*;
-import android.net.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import android.app.Dialog;
-import android.view.Window;
-import android.app.Activity;
-import android.graphics.*;
-import android.content.DialogInterface;
-import android.view.KeyEvent;
-import android.widget.LinearLayout;
-import android.graphics.drawable.*;
-import android.view.Gravity;
-import android.widget.ScrollView;
-import android.widget.ProgressBar;
-import java.text.SimpleDateFormat;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.json.JSONException;
-import android.graphics.BitmapFactory;
-import android.graphics.Bitmap;
-import android.view.animation.AlphaAnimation;
-import android.widget.SeekBar;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.io.*;
-import java.net.HttpURLConnection;
-import android.graphics.drawable.Drawable;
-import java.io.File;
-import java.io.IOException;
-import android.media.MediaPlayer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import android.view.LayoutInflater;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
-import android.view.View;
-import android.view.ViewGroup;
-import java.io.*;
-import java.util.zip.*;
-import android.os.Bundle;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import java.io.FileOutputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.File;
-import android.graphics.drawable.*;
-import android.view.Gravity;
-import android.widget.ScrollView;
-import android.widget.ProgressBar;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.view.Gravity;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.content.Intent;
-import android.net.Uri;
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.text.TextWatcher;
-import android.text.Editable;
-import java.text.DecimalFormat;
-import android.os.Handler;
-import android.os.Looper;
+import java.net.*;
+import org.json.*;
 
-addMenuItem("查询信息", "queryFriendFromMenu");
+void onCreateMenu(Object msg) {
+    addMenuItem("查询信息", "queryFriendFromMenu");
+}
 
 void onMsg(Object msg) {
     if (!msg.IsSend) return;
@@ -113,15 +28,18 @@ void onMsg(Object msg) {
         } else {
             sendMsg(msg.IsGroup ? group : "", msg.IsGroup ? "" : qq, "QQ号格式不正确");
         }
+        return;
     }
     
     if (text.equals("查询自己")) {
         queryFriendInfo(msg, myUin);
+        return;
     }
     
     if (text.startsWith("查询@") && msg.mAtList.size() > 0) {
         String targetUin = msg.mAtList.get(0);
         queryFriendInfo(msg, targetUin);
+        return;
     }
 }
 
@@ -219,33 +137,28 @@ public String getUsersInfo(String uin){
 }
 
 public String httpget(String url, String cookie) {
-    StringBuffer buffer = new StringBuffer();
-    InputStreamReader isr = null;
+    StringBuilder buffer = new StringBuilder();
     try {
         URL urlObj = new URL(url);
-        URLConnection uc = urlObj.openConnection();
+        HttpURLConnection uc = (HttpURLConnection) urlObj.openConnection();
+        uc.setRequestMethod("GET");
         uc.setRequestProperty("Cookie", cookie);
         uc.setRequestProperty("Referer", "https://qzone.qq.com/");
         uc.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36");
         uc.setConnectTimeout(10000);
         uc.setReadTimeout(10000);
-        isr = new InputStreamReader(uc.getInputStream(), "utf-8");
-        BufferedReader reader = new BufferedReader(isr);
-        String line;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
+        
+        int responseCode = uc.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(uc.getInputStream(), "utf-8"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
+            }
+            reader.close();
         }
     } catch (Exception e) {
-        e.printStackTrace();
         return null;
-    } finally {
-        try {
-            if (null != isr) {
-                isr.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     return buffer.toString();
 }
@@ -259,8 +172,8 @@ public long getGTK(String skey) {
 }
 
 public String timestampToDate(long timestamp) {
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy年MM月dd日");
-    return sdf.format(new java.util.Date(timestamp));
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+    return sdf.format(new Date(timestamp));
 }
 
 String getMsg(String msg, String uin, int type) {
