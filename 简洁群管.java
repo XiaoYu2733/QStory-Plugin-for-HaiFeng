@@ -34,6 +34,8 @@ import android.widget.Toast;
 import android.content.res.Configuration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -136,9 +138,7 @@ public String 禁言组文本(String qun) {
     return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
-// 上一次觉得阳光这么温暖 是什么时候 好像就在咋天 又好像上辈子那么远
-
-
+// 时光流逝 愿你有一天 能和重要的人重逢
 void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
         try {
@@ -150,8 +150,9 @@ void onCreateMenu(Object msg) {
     }
 }
 
+// 随意 对于你 我已经不期待了
 void onClickFloatingWindow(int type, String uin) {
-    if (type == 2) { // 群
+    if (type == 2) {
         try {
             addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
             addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
@@ -168,6 +169,7 @@ void onClickFloatingWindow(int type, String uin) {
     }
 }
 
+// 不建议动 这里是 dialog弹窗 如果用户系统使用浅色模式 弹窗也会是浅色 深色同理
 public int getCurrentTheme() {
     try {
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -180,6 +182,8 @@ public int getCurrentTheme() {
         return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
     }
 }
+
+private Set<String> processingUnforbidden = new HashSet<>();
 
 public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
@@ -197,11 +201,18 @@ public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long
     if (!"开".equals(getString("自动解禁代管配置", "开关"))) return;
     
     if (是代管(groupUin, userUin) && time > 0) {
+        String key = groupUin + ":" + userUin;
+        if (processingUnforbidden.contains(key)) {
+            return;
+        }
+        processingUnforbidden.add(key);
         try {
             unifiedForbidden(groupUin, userUin, 0);
             toast("检测代管在群:" + groupUin + "被禁言,已尝试解禁");
         } catch (Throwable e) {
             toast("检测代管在群:" + groupUin + "被禁言,无权限无法解禁");
+        } finally {
+            processingUnforbidden.remove(key);
         }
     }
 }
@@ -261,8 +272,7 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     });
 }
 
-// 我以为你和别人不一样 我也以为你很爱我
-// 你和他很像 但我清晰的意识到自己喜欢的是你
+// 风是抓不住的 花也会凋谢 人总要学会和不属于自己的东西告别
 
 public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
@@ -478,7 +488,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [移除] toast只能在群聊中使用的代码\n" +
                     "————————\n" +
                     "简洁群管_70.0_更新日志\n" +
-                    "- [修复] 遍历的同时修改导致出现部分问题\n\n" +
+                    "- [修复] 遍历的同时修改导致出现部分问题\n" +
+                    "————————\n" +
+                    "简洁群管_71.0_更新日志\n" +
+                    "- [修复] 部分网易导致的空指针异常以及错误\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -539,8 +552,6 @@ public void showGroupManageDialog() {
     } catch (Exception e) {
     }
 }
-
-// 你说我好可爱 确实 可怜没人爱
 
 public void 群管功能弹窗(String groupUin, String uin, int chatType) {
     showGroupManageDialog();
@@ -626,8 +637,6 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     });
 }
 
-// 你敷衍的那么明显 我怎么会不懂
-
 public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -708,7 +717,6 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     });
 }
 
-// 遗憾吗 一张合照都没有 只有一堆没用的聊天记录
 public void 开关自助头衔方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"自助头衔"))){
@@ -720,7 +728,6 @@ public void 开关自助头衔方法(String groupUin, String uin, int chatType) 
     }
 }
 
-// 你是真的爱我 还是一时兴起的新鲜感
 public void 开关艾特禁言方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"艾特禁言"))){
@@ -732,7 +739,6 @@ public void 开关艾特禁言方法(String groupUin, String uin, int chatType) 
     }
 }
 
-// 真希望能和昨天一样 一直开心下去
 public void 退群拉黑开关方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
     if("开".equals(getString(groupUin,"退群拉黑"))){
@@ -744,10 +750,10 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
+// 检测退群拉黑文件夹是否存在 不存在则创建
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
-//检测退群拉黑文件夹是否存在 不存在则创建
 if (!退群拉黑文件夹.exists()) {
     退群拉黑文件夹.mkdirs();
 }
@@ -766,7 +772,6 @@ public File 获取代管文件() {
     return new File(代管目录, "代管.txt");
 }
 
-// 单词反复记不住 他随口说的话你记了好久
 public long GetBkn(String skey){
     long hash = 5381;
     for (int i = 0, len = skey.length(); i < len; i++) {
@@ -775,7 +780,6 @@ public long GetBkn(String skey){
     return hash & 2147483647L;
 }
 
-// 不联系不见面是最好的和解
 public String httppost(String urlPath, String cookie,String data){
     StringBuffer buffer = new StringBuffer();
     InputStreamReader isr = null;
@@ -836,8 +840,6 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
     } 
 }
 
-// 又要重新认识一个人 吃饭 散步 送礼物 互相了解这样走流程吗 我不想了
-
 public String SetTroopShowLevel(String qun,String myQQ,String skey,String pskey,int type){
     return SetTroopShowInfo(qun,myQQ,skey,pskey,"levelnewflag",type);
 }
@@ -865,8 +867,6 @@ public String SetTroopShowInfo(String qun,String myQQ,String skey,String pskey,S
         return "设置失败，原因:"+e;
     } 
 }
-
-// 用野草来纪念我吧 鲜花太贵了 野草遍地都是
 
 Object app=BaseApplicationImpl.getApplication().getRuntime();
 IProfileDataService ProfileData=app.getRuntimeService(IProfileDataService.class);
@@ -2062,8 +2062,6 @@ public void kickBlackMenuItem(Object msg) {
     });
 }
 
-// 重逢的街头，心跳比我先认出你
-
 public void forbiddenMenuItem(Object msg) {
     if (!msg.IsGroup) return;
     
@@ -2141,5 +2139,4 @@ public void forbiddenMenuItem(Object msg) {
     });
 }
 
-// 我那么喜欢你 你喜欢我一下会死吗
 // 接下来的故事慢慢听我说……
