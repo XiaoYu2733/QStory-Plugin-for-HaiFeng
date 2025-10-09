@@ -56,9 +56,19 @@ public ArrayList safeCopyList(ArrayList original) {
         return new ArrayList();
     }
     try {
+        ArrayList copy = new ArrayList();
         synchronized (original) {
-            return new ArrayList(original);
+            for (int i = 0; i < original.size(); i++) {
+                try {
+                    Object item = original.get(i);
+                    if (item != null) {
+                        copy.add(item);
+                    }
+                } catch (Exception e) {
+                }
+            }
         }
+        return copy;
     } catch (Exception e) {
         return new ArrayList();
     }
@@ -69,8 +79,12 @@ public ArrayList unifiedGetForbiddenList(String groupUin) {
         ArrayList result = getForbiddenList(groupUin);
         return safeCopyList(result);
     } catch (Throwable e) {
-        ArrayList result = getProhibitList(groupUin);
-        return safeCopyList(result);
+        try {
+            ArrayList result = getProhibitList(groupUin);
+            return safeCopyList(result);
+        } catch (Throwable e2) {
+            return new ArrayList();
+        }
     }
 }
 
@@ -81,11 +95,16 @@ public ArrayList 禁言组(String groupUin) {
     }
     
     ArrayList uinList = new ArrayList();
-    ArrayList listCopy = safeCopyList(list);
-    for (Object item : listCopy) {
+    for (int i = 0; i < list.size(); i++) {
+        Object item = list.get(i);
         if (item != null) {
             try {
-                uinList.add(item.UserUin);
+                java.lang.reflect.Field userUinField = item.getClass().getDeclaredField("UserUin");
+                userUinField.setAccessible(true);
+                Object uin = userUinField.get(item);
+                if (uin != null) {
+                    uinList.add(uin.toString());
+                }
             } catch (Exception e) {
             }
         }
@@ -94,14 +113,13 @@ public ArrayList 禁言组(String groupUin) {
 }
 
 public String 禁言组文本(String qun) {
-    Object st = getForbiddenList(qun);
+    ArrayList st = unifiedGetForbiddenList(qun);
     ArrayList t = new ArrayList();
     int i = 1;
     
-    if (st instanceof ArrayList) {
-        ArrayList stList = (ArrayList) st;
-        ArrayList listCopy = safeCopyList(stList);
-        for (Object b : listCopy) {
+    if (st != null && st.size() > 0) {
+        ArrayList stListCopy = safeCopyList(st);
+        for (Object b : stListCopy) {
             try {
                 t.add(i + "." + b.UserName + "(" + b.UserUin + ")");
                 i++;
@@ -146,7 +164,6 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
             addTemporaryItem("查看更新日志", "showUpdateLog");
         } catch (Exception e) {
-            // 海枫枫叶飘落
         }
     }
 }
@@ -458,7 +475,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_69.0_更新日志\n" +
                     "- [更改] addItem为addTemporaryItem\n" +
                     "- [更改] 简洁群管菜单只能在群聊显示，而不是私聊\n" +
-                    "- [移除] toast只能在群聊中使用的代码\n\n" +
+                    "- [移除] toast只能在群聊中使用的代码\n" +
+                    "————————\n" +
+                    "简洁群管_70.0_更新日志\n" +
+                    "- [修复] 遍历的同时修改导致出现部分问题\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -766,8 +786,8 @@ public String httppost(String urlPath, String cookie,String data){
         HttpURLConnection uc = (HttpURLConnection) url.openConnection();
         uc.setDoInput(true);
         uc.setDoOutput(true);
-        uc.setConnectTimeout(20000);// 设置连接主机超时（单位：毫秒）
-        uc.setReadTimeout(20000);// 设置从主机读取数据超时（单位：毫秒）
+        uc.setConnectTimeout(20000);
+        uc.setReadTimeout(20000);
         uc.setRequestMethod("POST");
         uc.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         uc.setRequestProperty("Cookie",cookie);
@@ -1792,24 +1812,32 @@ public void onMsg(Object msg){
             String uin = indexStr;
             unifiedForbidden(groupUin, uin, 0);
         }
-        if(msg.MessageContent.equals("#踢禁言")) {
-            unifiedForbidden(groupUin, "", 0);
-            Object list=unifiedGetForbiddenList(groupUin);
-            if(list==null||((ArrayList)list).size()==0) 
-                sendMsg(groupUin,"", "当前没有人被禁言");
-            else{
-                String kickListStr = "";
-                ArrayList listCopy = safeCopyList((ArrayList)list);
-                for(Object ForbiddenList : listCopy){   
-                    String u = ForbiddenList.UserUin;
-                    if (检查代管保护(groupUin, u, "踢出")) continue;
-                    if (!有权限操作(groupUin, qq, u)) continue;
-                    kickListStr+="\n"+u;
-                    unifiedKick(groupUin, u, false);
-                }
-                sendMsg(groupUin,"", "已踢出禁言列表:"+kickListStr);
+if(msg.MessageContent.equals("#踢禁言")) {
+    unifiedForbidden(groupUin, "", 0);
+    ArrayList list = unifiedGetForbiddenList(groupUin);
+    if(list == null || list.size() == 0) {
+        sendMsg(groupUin,"", "当前没有人被禁言");
+    } else {
+        String kickListStr = "";
+        ArrayList listCopy = safeCopyList(list);
+        for(int i = 0; i < listCopy.size(); i++) {
+            Object ForbiddenList = listCopy.get(i);
+            try {
+                java.lang.reflect.Field userUinField = ForbiddenList.getClass().getDeclaredField("UserUin");
+                userUinField.setAccessible(true);
+                String u = userUinField.get(ForbiddenList).toString();
+                
+                if (检查代管保护(groupUin, u, "踢出")) continue;
+                if (!有权限操作(groupUin, qq, u)) continue;
+                
+                kickListStr += "\n" + u;
+                unifiedKick(groupUin, u, false);
+            } catch (Exception e) {
             }
         }
+        sendMsg(groupUin,"", "已踢出禁言列表:" + kickListStr);
+    }
+}
         if(msg.MessageContent.equals("全禁")){
             unifiedForbidden(groupUin, "", 0);
             Object list=unifiedGetForbiddenList(groupUin);
