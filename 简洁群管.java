@@ -120,18 +120,35 @@ public String 禁言组文本(String qun) {
 
 // 上一次觉得阳光这么温暖 是什么时候 好像就在咋天 又好像上辈子那么远
 
-try {
-    addItem("开启/关闭艾特禁言","开关艾特禁言方法");
-    addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-    addItem("开启/关闭自助头衔", "开关自助头衔方法");
-    addItem("开启/关闭自动解禁代管", "自动解禁代管方法");
-    addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-    addItem("查看群管功能", "群管功能弹窗");
-    addItem("代管管理功能", "代管管理弹窗");
-    addItem("群黑名单管理", "黑名单管理弹窗");
-    addItem("检测群黑名单", "检测黑名单方法");
-    addItem("查看更新日志","showUpdateLog");
-} catch (Throwable e) {
+
+void onCreateMenu(Object msg) {
+    if (msg.IsGroup) {
+        try {
+    addMenuItem("踢", "kickMenuItem");
+    addMenuItem("踢黑", "kickBlackMenuItem"); 
+    addMenuItem("禁言", "forbiddenMenuItem");
+        } catch (Exception e) {
+        }
+    }
+}
+
+void onClickFloatingWindow(int type, String uin) {
+    if (type == 2) { // 群
+        try {
+            addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
+            addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
+            addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
+            addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
+            addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
+            addTemporaryItem("查看群管功能", "群管功能弹窗");
+            addTemporaryItem("代管管理功能", "代管管理弹窗");
+            addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
+            addTemporaryItem("检测群黑名单", "检测黑名单方法");
+            addTemporaryItem("查看更新日志", "showUpdateLog");
+        } catch (Exception e) {
+            // 海枫枫叶飘落
+        }
+    }
 }
 
 public int getCurrentTheme() {
@@ -436,7 +453,12 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [新增] addMenuItem快捷菜单，支持禁言、踢、踢黑 长按信息即可显示\n" +
                     "- [新增] addMenuItem快捷菜单只在群聊显示，如需使用请更新QStory至2.0.4+\n" +
                     "- [新增] 使用了部分泛型以及尝试实用性使用lambda表达式\n" +
-                    "- [更改] 部分文本显示，更简洁\n\n" +
+                    "- [更改] 部分文本显示，更简洁\n" +
+                    "————————\n" +
+                    "简洁群管_69.0_更新日志\n" +
+                    "- [更改] addItem为addTemporaryItem\n" +
+                    "- [更改] 简洁群管菜单只能在群聊显示，而不是私聊\n" +
+                    "- [移除] toast只能在群聊中使用的代码\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1239,7 +1261,6 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
 
 void 检测黑名单方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) {
-        toast("只能在群聊中使用此功能");
         return;
     }
     new Thread(new Runnable() {
@@ -1954,17 +1975,6 @@ public void onMsg(Object msg){
                 return;
             }
         }                          
-    }
-}
-
-void onCreateMenu(Object msg) {
-    if (msg.IsGroup) {
-        try {
-            addMenuItem("踢", "kickMenuItem");
-            addMenuItem("踢黑", "kickBlackMenuItem"); 
-            addMenuItem("禁言", "forbiddenMenuItem");
-        } catch (Exception e) {
-        }
     }
 }
 
