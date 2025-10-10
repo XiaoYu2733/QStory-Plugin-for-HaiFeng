@@ -1,0 +1,3 @@
+QStory发送语音示例 长按任何信息有一个"发送语音"选项 点击即可发送对应的语音 代码里面String voiceUrl替换为自己的音乐链接即可
+
+反馈交流群：https://t.me/XiaoYu_Chat
