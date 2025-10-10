@@ -491,7 +491,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 遍历的同时修改导致出现部分问题\n" +
                     "————————\n" +
                     "简洁群管_71.0_更新日志\n" +
-                    "- [修复] 部分网易导致的空指针异常以及错误\n\n" +
+                    "- [修复] 部分问题导致的空指针异常以及错误\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -552,6 +552,8 @@ public void showGroupManageDialog() {
     } catch (Exception e) {
     }
 }
+
+// 我知道你身边有好多人 但是我希望你可以记住我
 
 public void 群管功能弹窗(String groupUin, String uin, int chatType) {
     showGroupManageDialog();
