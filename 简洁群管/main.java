@@ -142,9 +142,13 @@ public String 禁言组文本(String qun) {
 void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
         try {
-    addMenuItem("踢", "kickMenuItem");
-    addMenuItem("踢黑", "kickBlackMenuItem"); 
-    addMenuItem("禁言", "forbiddenMenuItem");
+            GroupMemberInfo myInfo = getMemberInfo(msg.GroupUin, myUin);
+            
+            if (myInfo != null && (myInfo.IsOwner || myInfo.IsAdmin)) {
+                addMenuItem("踢", "kickMenuItem");
+                addMenuItem("踢黑", "kickBlackMenuItem"); 
+                addMenuItem("禁言", "forbiddenMenuItem");
+            }
         } catch (Exception e) {
         }
     }
@@ -491,7 +495,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 遍历的同时修改导致出现部分问题\n" +
                     "————————\n" +
                     "简洁群管_71.0_更新日志\n" +
-                    "- [修复] 部分网易导致的空指针异常以及错误\n\n" +
+                    "- [修复] 部分问题导致的空指针异常以及错误\n" +
+                    "————————\n" +
+                    "简洁群管_72.0_更新日志\n" +
+                    "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
