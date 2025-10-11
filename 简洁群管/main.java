@@ -145,14 +145,12 @@ void onCreateMenu(Object msg) {
             GroupMemberInfo myInfo = getMemberInfo(msg.GroupUin, myUin);
             
             if (myInfo != null && (myInfo.IsOwner || myInfo.IsAdmin)) {
-                // 踢、踢黑、禁言菜单只在长按他人消息时显示
                 if (!msg.UserUin.equals(myUin)) {
                     addMenuItem("踢", "kickMenuItem");
                     addMenuItem("踢黑", "kickBlackMenuItem"); 
                     addMenuItem("禁言", "forbiddenMenuItem");
                 }
                 
-                // 设置头衔菜单群主长按任何消息都显示（包括自己）
                 if (myInfo.IsOwner) {
                     addMenuItem("设置头衔", "setTitleMenuItem");
                 }
