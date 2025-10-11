@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collections;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -58,19 +60,7 @@ public ArrayList safeCopyList(ArrayList original) {
         return new ArrayList();
     }
     try {
-        ArrayList copy = new ArrayList();
-        synchronized (original) {
-            for (int i = 0; i < original.size(); i++) {
-                try {
-                    Object item = original.get(i);
-                    if (item != null) {
-                        copy.add(item);
-                    }
-                } catch (Exception e) {
-                }
-            }
-        }
-        return copy;
+        return new ArrayList(original);
     } catch (Exception e) {
         return new ArrayList();
     }
@@ -97,8 +87,9 @@ public ArrayList 禁言组(String groupUin) {
     }
     
     ArrayList uinList = new ArrayList();
-    for (int i = 0; i < list.size(); i++) {
-        Object item = list.get(i);
+    ArrayList listCopy = safeCopyList(list);
+    for (int i = 0; i < listCopy.size(); i++) {
+        Object item = listCopy.get(i);
         if (item != null) {
             try {
                 java.lang.reflect.Field userUinField = item.getClass().getDeclaredField("UserUin");
@@ -242,7 +233,7 @@ public int getCurrentTheme() {
     }
 }
 
-private Set<String> processingUnforbidden = new HashSet<>();
+private Set<String> processingUnforbidden = Collections.synchronizedSet(new HashSet<String>());
 
 public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
@@ -555,7 +546,11 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_72.0_更新日志\n" +
                     "- [新增] addMenuItem设置头衔快捷菜单 如果我们是群主 则显示快捷菜单 如果不是群主 则不显示，管理员/私聊不显示快捷菜单\n" +
                     "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n" +
-                    "- [更改] 长按自己的消息不显示踢 踢黑 禁言 设置头衔除外\n\n" +
+                    "- [更改] 长按自己的消息不显示踢 踢黑 禁言 设置头衔除外\n" +
+                    "————————\n" +
+                    "简洁群管_73.0_更新日志\n" +
+                    "- [修复] bsh.NameSpace.getMethods\n" +
+                    "- [其他] 打死hd\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1458,141 +1453,590 @@ public String isGN(String groupUin, String key) {
 }
 
 public void onMsg(Object msg){
-    String 故=msg.MessageContent;
-    String qq=msg.UserUin;
-    String groupUin = msg.GroupUin;
-    
-    ArrayList mAtListCopy = safeCopyList(msg.mAtList);
-    
-    if(msg.MessageContent.startsWith("我要头衔")&&"开".equals(getString(groupUin,"自助头衔"))){
-        String a=msg.MessageContent.substring(4);
-        setTitle(groupUin,qq,a);
-    }
-    
-    if("开".equals(getString(groupUin,"艾特禁言"))){
-        if(atMe(msg)){
-            unifiedForbidden(groupUin,qq,艾特禁言时间);
+    synchronized (this) {
+        String 故=msg.MessageContent;
+        String qq=msg.UserUin;
+        String groupUin = msg.GroupUin;
+        
+        ArrayList mAtListCopy;
+        if (msg.mAtList != null) {
+            synchronized (msg.mAtList) {
+                mAtListCopy = new ArrayList(msg.mAtList);
+            }
+        } else {
+            mAtListCopy = new ArrayList();
         }
-    }
-    
-    boolean isAdminUser = false;
-    try {
-        File 代管文件 = 获取代管文件();
-        if (代管文件.exists()) {
-            ArrayList 代管列表 = 简取(代管文件);
-            isAdminUser = 代管列表.contains(qq);
+        
+        if(msg.MessageContent.startsWith("我要头衔")&&"开".equals(getString(groupUin,"自助头衔"))){
+            String a=msg.MessageContent.substring(4);
+            setTitle(groupUin,qq,a);
         }
-    } catch (Exception e) {}
-    
-    if(msg.UserUin.equals(myUin)||isAdminUser){
-        if(msg.MessageContent.equals("显示标识")){
-            String result = SetTroopShowHonour(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("隐藏标识")){
-            String result = SetTroopShowHonour(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("显示等级")){
-            String result = SetTroopShowLevel(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("隐藏等级")){
-            String result = SetTroopShowLevel(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("显示头衔")){
-            String result = SetTroopShowTitle(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("隐藏头衔")){
-            String result = SetTroopShowTitle(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
-            sendMsg(groupUin,"",result);
-        }
-        if(msg.MessageContent.equals("开启自动解禁代管")){
-            if (!(msg.UserUin.equals(myUin) || 是代管(groupUin, qq))) return;
-            if("开".equals(getString("自动解禁代管配置", "开关"))){
-                sendMsg(groupUin,"","已经打开了，再打开个捶子啊");
-            }else{
-                putString("自动解禁代管配置", "开关", "开");
-                sendMsg(groupUin,"","已开启自动解禁代管");
+        
+        if("开".equals(getString(groupUin,"艾特禁言"))){
+            if(atMe(msg)){
+                unifiedForbidden(groupUin,qq,艾特禁言时间);
             }
         }
-        if(msg.MessageContent.equals("关闭自动解禁代管")){
-            if (!(msg.UserUin.equals(myUin) || 是代管(groupUin, qq))) return;
-            if("开".equals(getString("自动解禁代管配置", "开关"))){
-                putString("自动解禁代管配置", "开关", null);
-                sendMsg(groupUin,"","已关闭自动解禁代管");
-            }else{
-                sendMsg(groupUin,"","未开启无法关闭");
+        
+        boolean isAdminUser = false;
+        try {
+            File 代管文件 = 获取代管文件();
+            if (代管文件.exists()) {
+                ArrayList 代管列表 = 简取(代管文件);
+                isAdminUser = 代管列表.contains(qq);
             }
-        }
-        if(msg.MessageContent.equals("群管功能")){
-            String a=
-                "群管功能:\n"
-                +"禁@ 禁言@ 头衔@\n"
-                +"@+时间+天|分|秒\n"
-                +"解@ 踢@ 踢黑@\n"
-                +"禁/解(全体禁言/解禁) \n"
-                +"查看禁言列表\n"
-                +"全解(解所有人禁言)\n"
-                +"添加代管@ 删除代管@\n"
-                +"查看/清空 代管\n"
-                +"显示/隐藏 头衔|等级|标识\n"
-                +"开启/关闭退群拉黑\n"
-                +"查看/移除黑名单@\n"
-                +"开启/关闭自动解禁代管\n"
-                +"开启/关闭自助头衔"+isGN(groupUin,"自助头衔");
-            sendMsg(groupUin,"",a);
-        }
-        if(msg.MessageContent.equals("开启自助头衔")){
-            putString(groupUin,"自助头衔","开");
-            sendMsg(groupUin,"","自助头衔已开启 大家可以发送 我要头衔xxx来获取头衔");
-            return;
-        }
-        if(msg.MessageContent.equals("关闭自助头衔")){
-            if("开".equals(getString(groupUin,"自助头衔"))){
-                putString(groupUin,"自助头衔",null);
-                sendMsg(groupUin,"","自助头衔已关闭 你们不要再发我要头衔了!");
-                return;
-            }else sendMsg(groupUin,"","未开启无法关闭");
-        }
-        if (msg.MessageContent.equals("开启退群拉黑")) {
-            putString(groupUin, "退群拉黑", "开");
-            sendMsg(groupUin, "", "退群拉黑已开启");
-            return;
-        }
-        if (msg.MessageContent.equals("关闭退群拉黑")) {
-            putString(groupUin, "退群拉黑", null);
-            sendMsg(groupUin, "", "退群拉黑已关闭");
-            return;
-        }
-        if (msg.MessageContent.equals("查看黑名单")) {
-            ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
-            if (黑名单列表.isEmpty()) {
-                sendMsg(groupUin, "", "本群黑名单为空");
-            } else {
-                String 黑名单文本 = "本群黑名单:\n";
-                ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
-                for (int i = 0; i < 黑名单列表副本.size(); i++) {
-                    黑名单文本 += (i + 1) + ". " + 名(黑名单列表副本.get(i).toString()) + "(" + 黑名单列表副本.get(i) + ")\n";
+        } catch (Exception e) {}
+        
+        if(msg.UserUin.equals(myUin)||isAdminUser){
+            if(msg.MessageContent.equals("显示标识")){
+                String result = SetTroopShowHonour(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("隐藏标识")){
+                String result = SetTroopShowHonour(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("显示等级")){
+                String result = SetTroopShowLevel(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("隐藏等级")){
+                String result = SetTroopShowLevel(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("显示头衔")){
+                String result = SetTroopShowTitle(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),1);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("隐藏头衔")){
+                String result = SetTroopShowTitle(groupUin,myUin,getSkey(),getPskey("clt.qq.com"),0);
+                sendMsg(groupUin,"",result);
+            }
+            if(msg.MessageContent.equals("开启自动解禁代管")){
+                if (!(msg.UserUin.equals(myUin) || 是代管(groupUin, qq))) return;
+                if("开".equals(getString("自动解禁代管配置", "开关"))){
+                    sendMsg(groupUin,"","已经打开了，再打开个捶子啊");
+                }else{
+                    putString("自动解禁代管配置", "开关", "开");
+                    sendMsg(groupUin,"","已开启自动解禁代管");
                 }
-                sendMsg(groupUin, "", 黑名单文本);
             }
-            return;
-        }
-        if (msg.MessageContent.startsWith("移除黑名单@") && mAtListCopy.size() > 0) {
-            for (String uin : mAtListCopy) {
-                移除黑名单(groupUin, uin);
+            if(msg.MessageContent.equals("关闭自动解禁代管")){
+                if (!(msg.UserUin.equals(myUin) || 是代管(groupUin, qq))) return;
+                if("开".equals(getString("自动解禁代管配置", "开关"))){
+                    putString("自动解禁代管配置", "开关", null);
+                    sendMsg(groupUin,"","已关闭自动解禁代管");
+                }else{
+                    sendMsg(groupUin,"","未开启无法关闭");
+                }
             }
-            sendMsg(groupUin, "", "已删黑该用户");
-            return;
-        }
-        if(!msg.MessageContent.startsWith("禁言")&&msg.MessageContent.startsWith("禁")&&mAtListCopy.size()>=1){   			
-            if(msg.MessageContent.matches("禁 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
+            if(msg.MessageContent.equals("群管功能")){
+                String a=
+                    "群管功能:\n"
+                    +"禁@ 禁言@ 头衔@\n"
+                    +"@+时间+天|分|秒\n"
+                    +"解@ 踢@ 踢黑@\n"
+                    +"禁/解(全体禁言/解禁) \n"
+                    +"查看禁言列表\n"
+                    +"全解(解所有人禁言)\n"
+                    +"添加代管@ 删除代管@\n"
+                    +"查看/清空 代管\n"
+                    +"显示/隐藏 头衔|等级|标识\n"
+                    +"开启/关闭退群拉黑\n"
+                    +"查看/移除黑名单@\n"
+                    +"开启/关闭自动解禁代管\n"
+                    +"开启/关闭自助头衔"+isGN(groupUin,"自助头衔");
+                sendMsg(groupUin,"",a);
+            }
+            if(msg.MessageContent.equals("开启自助头衔")){
+                putString(groupUin,"自助头衔","开");
+                sendMsg(groupUin,"","自助头衔已开启 大家可以发送 我要头衔xxx来获取头衔");
+                return;
+            }
+            if(msg.MessageContent.equals("关闭自助头衔")){
+                if("开".equals(getString(groupUin,"自助头衔"))){
+                    putString(groupUin,"自助头衔",null);
+                    sendMsg(groupUin,"","自助头衔已关闭 你们不要再发我要头衔了!");
+                    return;
+                }else sendMsg(groupUin,"","未开启无法关闭");
+            }
+            if (msg.MessageContent.equals("开启退群拉黑")) {
+                putString(groupUin, "退群拉黑", "开");
+                sendMsg(groupUin, "", "退群拉黑已开启");
+                return;
+            }
+            if (msg.MessageContent.equals("关闭退群拉黑")) {
+                putString(groupUin, "退群拉黑", null);
+                sendMsg(groupUin, "", "退群拉黑已关闭");
+                return;
+            }
+            if (msg.MessageContent.equals("查看黑名单")) {
+                ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
+                if (黑名单列表.isEmpty()) {
+                    sendMsg(groupUin, "", "本群黑名单为空");
+                } else {
+                    String 黑名单文本 = "本群黑名单:\n";
+                    ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
+                    for (int i = 0; i < 黑名单列表副本.size(); i++) {
+                        黑名单文本 += (i + 1) + ". " + 名(黑名单列表副本.get(i).toString()) + "(" + 黑名单列表副本.get(i) + ")\n";
+                    }
+                    sendMsg(groupUin, "", 黑名单文本);
+                }
+                return;
+            }
+            if (msg.MessageContent.startsWith("移除黑名单@") && mAtListCopy.size() > 0) {
+                for (String uin : mAtListCopy) {
+                    移除黑名单(groupUin, uin);
+                }
+                sendMsg(groupUin, "", "已删黑该用户");
+                return;
+            }
+            if(!msg.MessageContent.startsWith("禁言")&&msg.MessageContent.startsWith("禁")&&mAtListCopy.size()>=1){   			
+                if(msg.MessageContent.matches("禁 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
+                    int banTime = get_time(msg);
+                    if(banTime > 2592000){
+                        sendMsg(groupUin,"","请控制在30天以内");
+                        return;
+                    }else if(banTime > 0){
+                        for(String u:mAtListCopy){
+                            if (检查代管保护(groupUin, u, "禁言")) continue;
+                            unifiedForbidden(groupUin,u,banTime);
+                        }
+                        return;
+                    }
+                }
+                if(msg.MessageContent.matches("禁 ?@[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)")){
+                    int str1 = msg.MessageContent.lastIndexOf(" ");
+                    String str =msg.MessageContent.substring(str1 + 1);
+                    String text=str.replaceAll("[天分时小时分钟秒]","");
+                    int time=CN_zh_int(text);
+                    int banTime = get_time_int(msg,time);
+                    if(banTime > 2592000){
+                        sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                    }else if(banTime > 0){
+                        for(String u:mAtListCopy){
+                            if (检查代管保护(groupUin, u, "禁言")) continue;
+                            unifiedForbidden(groupUin,u,banTime);
+                        }
+                        return;
+                    }
+                }
+                if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
+                    for(String u:mAtListCopy){
+                        if (检查代管保护(groupUin, u, "禁言")) continue;
+                        unifiedForbidden(groupUin,u,2592000);
+                    }
+                    return;
+                }else{
+                    int  time2= msg.MessageContent.lastIndexOf(" ");
+                    String time1 = msg.MessageContent.substring(time2 + 1); 
+                    int time=Integer.parseInt(time1);  
+                    for(String u:mAtListCopy){  
+                        if (检查代管保护(groupUin, u, "禁言")) continue;
+                        unifiedForbidden(groupUin,u,time*60);       
+                    } 
+                    return; 
+                }
+            }    
+            if(msg.MessageContent.startsWith("禁言")&&mAtListCopy.size()>=1){ 
+                if(msg.MessageContent.matches("禁言 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
+                    int banTime = get_time(msg);
+                    if(banTime > 2592000){
+                        sendMsg(groupUin,"","请控制在30天以内");
+                        return;
+                    }else if(banTime > 0){
+                        for(String u:mAtListCopy){
+                            if (检查代管保护(groupUin, u, "禁言")) continue;
+                            unifiedForbidden(groupUin,u,banTime);
+                        }
+                        return;
+                    }
+                }
+                if(msg.MessageContent.matches("禁言 ?@[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)")){
+                    int str1 = msg.MessageContent.lastIndexOf(" ");
+                    String str =msg.MessageContent.substring(str1 + 1);
+                    String text= str.replaceAll("[天分时小时分钟秒]","");
+                    int time=CN_zh_int(text);
+                    int banTime = get_time_int(msg,time);
+                    if(banTime > 2592000){
+                        sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                    }else if(banTime > 0){
+                        for(String u:mAtListCopy){
+                            if (检查代管保护(groupUin, u, "禁言")) continue;
+                            unifiedForbidden(groupUin,u,banTime);
+                        }
+                        return;
+                    }
+                }  
+                if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
+                    for(String u:mAtListCopy){
+                        if (检查代管保护(groupUin, u, "禁言")) continue;
+                        unifiedForbidden(groupUin,u,86400);
+                    }
+                    return;
+                }else{
+                    int time2 = msg.MessageContent.lastIndexOf(" ");
+                    String time1 = msg.MessageContent.substring(time2 + 1); 
+                    int time=Integer.parseInt(time1);  
+                    for(String u:mAtListCopy){  
+                        if (检查代管保护(groupUin, u, "禁言")) continue;
+                        unifiedForbidden(groupUin,u,time);       
+                    } 
+                    return; 
+                }   
+            }
+            if(msg.MessageContent.startsWith("解")&&mAtListCopy.size()>=1){    	
+                for(String 千:mAtListCopy){  
+                    unifiedForbidden(groupUin,千,0);
+                } 
+                return; 
+            }
+            if(msg.MessageType == 6 &&( msg.MessageContent.equals("解") || msg.MessageContent.equals("解禁"))) {
+                unifiedForbidden(groupUin,msg.ReplyTo,0);
+            }
+            if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/dban")||msg.MessageContent.startsWith("dban"))) {
+                if (检查代管保护(groupUin, msg.ReplyTo, "踢黑")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedKick(groupUin,msg.ReplyTo,true);
+                sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"不会再收到该用户入群申请\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/ban")||msg.MessageContent.startsWith("ban"))) {
+                if (检查代管保护(groupUin, msg.ReplyTo, "踢黑")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedKick(groupUin,msg.ReplyTo,true);
+                sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"不会再收到该用户入群申请\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/kick")||msg.MessageContent.startsWith("kick"))) {
+                if (检查代管保护(groupUin, msg.ReplyTo, "踢出")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedKick(groupUin,msg.ReplyTo,false);
+                sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"，此用户还可再次申请入群\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 ?[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")) {
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                int banTime = get_time(msg);
+                if(banTime > 2592000) {
+                    sendMsg(groupUin,"","请控制在30天以内");
+                    return;
+                } else if(banTime > 0){
+                    if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                    unifiedForbidden(groupUin,msg.ReplyTo,banTime);
+                }
+                return;
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 [0-9]+(天|分|时|小时|分钟|秒) ?(.+)?")) {
+                int index = msg.MessageContent.indexOf(" ");
+                String 原因 = "";
+                int lastIndex = msg.MessageContent.lastIndexOf(" ");
+                boolean hasCause = lastIndex != index;
+                if (hasCause) {
+                    原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
+                }
+                String timeText = msg.MessageContent;
+                if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
+                int time = get_time(timeText);
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedForbidden(groupUin,msg.ReplyTo,time);
+                sendMsg(groupUin,"","已禁言 时长"+time + 原因 + "\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 [零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒) ?(.+)?")) {
+                int index = msg.MessageContent.indexOf(" ");
+                String str =msg.MessageContent.substring(index + 1);
+                String text=str.replaceAll("[^零一二三四五六七八九十百千万]","");
+                String 原因 = "";
+                int lastIndex = msg.MessageContent.lastIndexOf(" ");
+                boolean hasCause = lastIndex != index;
+                if (hasCause) {
+                    原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
+                }
+                int time = CN_zh_int(text);
+                String timeText = msg.MessageContent;
+                if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
+                int banTime = get_time_int(timeText,time);
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedForbidden(groupUin,msg.ReplyTo,banTime);
+                sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁 ?[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")) {
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                int banTime = get_time(msg);
+                if(banTime > 2592000) {
+                    sendMsg(groupUin,"","请控制在30天以内");
+                    return;
+                } else if(banTime > 0){
+                    if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                    unifiedForbidden(groupUin,msg.ReplyTo,banTime);
+                }
+                return;
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁 [0-9]+(天|分|时|小时|分钟|秒) ?(.+)?")) {
+                int index = msg.MessageContent.indexOf(" ");
+                String 原因 = "";
+                int lastIndex = msg.MessageContent.lastIndexOf(" ");
+                boolean hasCause = lastIndex != index;
+                if (hasCause) {
+                    原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
+                }
+                String timeText = msg.MessageContent;
+                if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
+                int time = get_time(timeText);
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedForbidden(groupUin,msg.ReplyTo,time);
+                sendMsg(groupUin,"","已禁言 时长"+time + 原因 + "\n权限使用人："+名(qq));
+            }
+            if(msg.MessageType == 6 && msg.MessageContent.matches("禁 [零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒) ?(.+)?")) {
+                int index = msg.MessageContent.indexOf(" ");
+                String str =msg.MessageContent.substring(index + 1);
+                String text=str.replaceAll("[^零一二三四五六七八九十百千万]","");
+                String 原因 = "";
+                int lastIndex = msg.MessageContent.lastIndexOf(" ");
+                boolean hasCause = lastIndex != index;
+                if (hasCause) {
+                    原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
+                }
+                int time = CN_zh_int(text);
+                String timeText = msg.MessageContent;
+                if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
+                int banTime = get_time_int(timeText,time);
+                if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
+                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
+                unifiedForbidden(groupUin,msg.ReplyTo,banTime);
+                sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
+            }
+            if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&mAtListCopy.size()>=1){
+                for(String u:mAtListCopy){
+                    if (检查代管保护(groupUin, u, "踢出")) continue;
+                    if (!有权限操作(groupUin, qq, u)) continue;
+                    unifiedKick(groupUin,u,false);
+                }
+                sendMsg(groupUin,"","踢出成功\n权限使用人："+名(qq));
+                return;
+            }
+            if(msg.MessageContent.startsWith("踢黑")&&mAtListCopy.size()>=1){
+                for(String 千:mAtListCopy){
+                    if (检查代管保护(groupUin, 千, "踢黑")) continue;
+                    if (!有权限操作(groupUin, qq, 千)) continue;
+                    unifiedKick(groupUin,千,true);
+                }
+                sendMsg(groupUin,"","已踢出，不会再收到该用户入群申请\n权限使用人："+名(qq));
+            }
+            if(msg.MessageContent.equals("禁")&&mAtListCopy.size()==0){	  
+                unifiedForbidden(groupUin,"",1);return;
+            }
+            if(msg.MessageType == 1 && msg.MessageContent.equals("解")&&mAtListCopy.size()==0){		    
+                unifiedForbidden(groupUin,"",0);return;
+            }
+            if(msg.MessageContent.startsWith("头衔@")){    	
+                int str = msg.MessageContent.lastIndexOf(" ")+1;
+                String text = msg.MessageContent.substring(str);   
+                for(String u:mAtListCopy){
+                    setTitle(groupUin,u,text);
+                }
+            }
+            if(msg.MessageContent.equals("查看禁言列表")) {
+                ArrayList 禁言列表 = 禁言组(groupUin);
+                if(禁言列表.size() == 0) {
+                    sendReply(groupUin,msg,"当前没有人被禁言");
+                } else {
+                    sendReply(groupUin,msg,禁言组文本(groupUin));
+                }
+            }
+            if (msg.MessageContent.matches("^解禁? ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
+                String indexStr = msg.MessageContent.replaceAll(" |解","");
+                int index = Integer.parseInt(indexStr) - 1;
+                ArrayList 禁言列表 = 禁言组(groupUin);
+                if (index >= 0 && index < 禁言列表.size()) {
+                    unifiedForbidden(groupUin, (String)禁言列表.get(index), 0);
+                }
+            }
+            if (msg.MessageContent.matches("^踢 ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
+                String indexStr = msg.MessageContent.replaceAll(" |踢","");
+                int index = Integer.parseInt(indexStr) - 1;
+                ArrayList 禁言列表 = 禁言组(groupUin);
+                if (index >= 0 && index < 禁言列表.size()) {
+                    String targetUin = (String)禁言列表.get(index);
+                    if (检查代管保护(groupUin, targetUin, "踢出")) return;
+                    if (!有权限操作(groupUin, qq, targetUin)) return;
+                    unifiedKick(groupUin, targetUin, false);
+                    sendMsg(groupUin,"","已踢出"+targetUin+"\n权限使用人："+名(qq));
+                }
+            }
+            if (msg.MessageContent.matches("^踢黑 ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
+                String indexStr = msg.MessageContent.replaceAll(" |踢|黑","");
+                int index = Integer.parseInt(indexStr) - 1;
+                ArrayList 禁言列表 = 禁言组(groupUin);
+                if (index >= 0 && index < 禁言列表.size()) {
+                    String targetUin = (String)禁言列表.get(index);
+                    if (检查代管保护(groupUin, targetUin, "踢黑")) return;
+                    if (!有权限操作(groupUin, qq, targetUin)) return;
+                    unifiedKick(groupUin, targetUin, true);
+                    sendMsg(groupUin,"","已踢出"+targetUin+"并且不会再收到该成员申请\n权限使用人："+名(qq));
+                }
+            }
+            if (msg.MessageContent.matches("^解禁? ?[0-9]{4,10}+$") && msg.MessageContent.length() >= 6){
+                String indexStr = msg.MessageContent.replaceAll(" |解","");
+                String uin = indexStr;
+                unifiedForbidden(groupUin, uin, 0);
+            }
+            if(msg.MessageContent.equals("#踢禁言")) {
+                unifiedForbidden(groupUin, "", 0);
+                ArrayList list = unifiedGetForbiddenList(groupUin);
+                if(list == null || list.size() == 0) {
+                    sendMsg(groupUin,"", "当前没有人被禁言");
+                } else {
+                    String kickListStr = "";
+                    ArrayList listCopy = safeCopyList(list);
+                    for(int i = 0; i < listCopy.size(); i++) {
+                        Object ForbiddenList = listCopy.get(i);
+                        try {
+                            java.lang.reflect.Field userUinField = ForbiddenList.getClass().getDeclaredField("UserUin");
+                            userUinField.setAccessible(true);
+                            String u = userUinField.get(ForbiddenList).toString();
+                            
+                            if (检查代管保护(groupUin, u, "踢出")) continue;
+                            if (!有权限操作(groupUin, qq, u)) continue;
+                            
+                            kickListStr += "\n" + u;
+                            unifiedKick(groupUin, u, false);
+                        } catch (Exception e) {
+                        }
+                    }
+                    sendMsg(groupUin,"", "已踢出禁言列表:" + kickListStr);
+                }
+            }
+            if(msg.MessageContent.equals("全禁")){
+                unifiedForbidden(groupUin, "", 0);
+                Object list=unifiedGetForbiddenList(groupUin);
+                if(list==null||((ArrayList)list).size()==0) 
+                    sendMsg(groupUin,"", "当前没有人被禁言");
+                else{
+                    ArrayList listCopy = safeCopyList((ArrayList)list);
+                    for(Object ForbiddenList : listCopy){
+                        String u = ForbiddenList.UserUin+"";
+                        if (检查代管保护(groupUin, u, "禁言")) continue;
+                        if (!有权限操作(groupUin, qq, u)) continue;
+                        unifiedForbidden(groupUin, u, 2592000);
+                    }
+                    sendReply(groupUin,msg, "禁言列表已加倍禁言");
+                }
+            }
+            if(msg.MessageContent.equals("全解")){
+                unifiedForbidden(groupUin, "", 0);
+                Object list=unifiedGetForbiddenList(groupUin);
+                if(list==null||((ArrayList)list).size() == 0) 
+                    sendMsg(groupUin,"", "当前没有人被禁言");
+                else{
+                    ArrayList listCopy = safeCopyList((ArrayList)list);
+                    for(Object ForbiddenList : listCopy){
+                        unifiedForbidden(groupUin, ForbiddenList.UserUin+"", 0);
+                    }
+                    sendReply(groupUin,msg, "禁言列表已解禁");
+                }
+            }
+            if(qq.equals(myUin)){
+                if(msg.MessageContent.startsWith("添加代管")||msg.MessageContent.startsWith("添加管理员")||msg.MessageContent.startsWith("设置代管")||msg.MessageContent.startsWith("添加老婆")){
+                    String QQUin = "";
+                    if(mAtListCopy.size()==0){
+                        sendReply(groupUin,msg,"你艾特的人呢？");
+                        return;
+                    }
+                    for(String u:mAtListCopy){
+                        File 代管文件 = 获取代管文件();
+                        if(!代管文件.exists()){
+                            try {
+                                代管文件.createNewFile();
+                            } catch (Exception e) {}
+                        }
+                        try {
+                            if(jiandu(u, 简取(代管文件))){
+                                sendMsg(groupUin,"","列表内的"+u+"已经是代管了 已自动略过");
+                                continue;
+                            }else {
+                                简写(代管文件,u);
+                            }
+                            QQUin = QQUin + u + " ";
+                        } catch (Exception e) {}
+                    }
+                    if(QQUin.replace(" ","").equals("")){
+                        sendMsg(groupUin,"","以上代管已经添加过了");
+                    }else{ sendMsg(groupUin,"","已添加代管:\n"+QQUin);}
+                }
+                if(msg.MessageContent.startsWith("删除代管@")||msg.MessageContent.startsWith("删除管理员@")){
+                    String QQUin="";
+                    if(mAtListCopy.size()==0){
+                        sendReply(groupUin,msg,"你艾特的人呢？");
+                        return;
+                    }
+                    for(String 千:mAtListCopy){
+                        File 代管文件 = 获取代管文件();
+                        if(!代管文件.exists()) continue;
+                        try {
+                            if(jiandu(千, 简取(代管文件))){
+                                简弃(代管文件,千);
+                                QQUin = QQUin + 千 + " ";
+                            }else sendMsg(groupUin,"","QQ "+千+"并不是代管");
+                        } catch (Exception e) {}
+                    }
+                    sendMsg(groupUin,"","已删除管理员:\n"+QQUin);
+                    return;
+                }
+                if(msg.MessageContent.startsWith("删除代管")||msg.MessageContent.startsWith("删除管理员")){
+                    String QQUin="";
+                    String Stext=msg.MessageContent.substring(4).replace(" ","");
+                    String text=Stext.replaceAll("[\u4e00-\u9fa5]","");
+                    {
+                        if(!text.matches("[0-9]+")){
+                            sendReply(groupUin,msg,"正确方式 : 删除代管+Q号，请不要输入别的字符");
+                            return;
+                        }
+                        File 代管文件 = 获取代管文件();
+                        if(!代管文件.exists()) {
+                            sendReply(groupUin,msg,"代管列表为空");
+                            return;
+                        }
+                        try {
+                            if(!jiandu(text, 简取(代管文件))){
+                                sendReply(groupUin,msg,"此人并不是代管");
+                                return;
+                            } else {
+                                简弃(代管文件,text);
+                            }
+                        } catch (Exception e) {}
+                        QQUin = QQUin + text + " ";
+                    }
+                    sendMsg(groupUin,"","已删除管理员:\n"+QQUin);
+                    return;
+                }      
+            }
+            if(msg.MessageContent.equals("查看代管")){
+                File 代管文件 = 获取代管文件();
+                if (!代管文件.exists()) {
+                    sendMsg(groupUin,"","当前没有代管");
+                    return;
+                }
+                try {
+                    String 代=组名(简取(代管文件));
+                    String 代管文本=论(代,"]","");
+                    代管文本=论(代管文本,"["," ");
+                    sendMsg(groupUin,"","当前的代管如下:\n"+代管文本);
+                } catch (Exception e) {}
+            }                   
+            if(msg.MessageContent.equals("清空代管")){
+                File 代管文件 = 获取代管文件();
+                if (代管文件.exists()) {
+                    try {
+                        全弃(代管文件);
+                    } catch (Exception e) {}
+                }
+                sendReply(groupUin,msg,"代管列表已清空");
+            }
+            if(msg.MessageContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
                 int banTime = get_time(msg);
                 if(banTime > 2592000){
-                    sendMsg(groupUin,"","请控制在30天以内");
+                    sendReply(groupUin,msg,"时间太长无法禁言");
                     return;
                 }else if(banTime > 0){
                     for(String u:mAtListCopy){
@@ -1602,7 +2046,7 @@ public void onMsg(Object msg){
                     return;
                 }
             }
-            if(msg.MessageContent.matches("禁 ?@[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)")){
+            if(msg.MessageContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
                 int str1 = msg.MessageContent.lastIndexOf(" ");
                 String str =msg.MessageContent.substring(str1 + 1);
                 String text=str.replaceAll("[天分时小时分钟秒]","");
@@ -1618,457 +2062,17 @@ public void onMsg(Object msg){
                     return;
                 }
             }
-            if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                for(String u:mAtListCopy){
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,2592000);
-                }
-                return;
-            }else{
-                int  time2= msg.MessageContent.lastIndexOf(" ");
-                String time1 = msg.MessageContent.substring(time2 + 1); 
-                int time=Integer.parseInt(time1);  
-                for(String u:mAtListCopy){  
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,time*60);       
-                } 
-                return; 
-            }
-        }    
-        if(msg.MessageContent.startsWith("禁言")&&mAtListCopy.size()>=1){ 
-            if(msg.MessageContent.matches("禁言 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
-                int banTime = get_time(msg);
-                if(banTime > 2592000){
-                    sendMsg(groupUin,"","请控制在30天以内");
-                    return;
-                }else if(banTime > 0){
-                    for(String u:mAtListCopy){
-                        if (检查代管保护(groupUin, u, "禁言")) continue;
-                        unifiedForbidden(groupUin,u,banTime);
-                    }
-                    return;
-                }
-            }
-            if(msg.MessageContent.matches("禁言 ?@[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)")){
-                int str1 = msg.MessageContent.lastIndexOf(" ");
-                String str =msg.MessageContent.substring(str1 + 1);
-                String text= str.replaceAll("[天分时小时分钟秒]","");
+            if(msg.MessageContent.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&mAtListCopy.size()>=1){  
+                int str = msg.MessageContent.lastIndexOf(" ");
+                String text =msg.MessageContent.substring(str + 1);
                 int time=CN_zh_int(text);
-                int banTime = get_time_int(msg,time);
-                if(banTime > 2592000){
-                    sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
-                }else if(banTime > 0){
-                    for(String u:mAtListCopy){
-                        if (检查代管保护(groupUin, u, "禁言")) continue;
-                        unifiedForbidden(groupUin,u,banTime);
-                    }
+                for(String u:mAtListCopy){
+                    if (检查代管保护(groupUin, u, "禁言")) continue;
+                    unifiedForbidden(groupUin,u,time*60);
                     return;
                 }
-            }  
-            if(!Character.isDigit(msg.MessageContent.charAt(msg.MessageContent.length() - 1))){
-                for(String u:mAtListCopy){
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,86400);
-                }
-                return;
-            }else{
-                int time2 = msg.MessageContent.lastIndexOf(" ");
-                String time1 = msg.MessageContent.substring(time2 + 1); 
-                int time=Integer.parseInt(time1);  
-                for(String u:mAtListCopy){  
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,time);       
-                } 
-                return; 
-            }   
+            }                          
         }
-        if(msg.MessageContent.startsWith("解")&&mAtListCopy.size()>=1){    	
-            for(String 千:mAtListCopy){  
-                unifiedForbidden(groupUin,千,0);
-            } 
-            return; 
-        }
-        if(msg.MessageType == 6 &&( msg.MessageContent.equals("解") || msg.MessageContent.equals("解禁"))) {
-            unifiedForbidden(groupUin,msg.ReplyTo,0);
-        }
-        if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/dban")||msg.MessageContent.startsWith("dban"))) {
-            if (检查代管保护(groupUin, msg.ReplyTo, "踢黑")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedKick(groupUin,msg.ReplyTo,true);
-            sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"不会再收到该用户入群申请\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/ban")||msg.MessageContent.startsWith("ban"))) {
-            if (检查代管保护(groupUin, msg.ReplyTo, "踢黑")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedKick(groupUin,msg.ReplyTo,true);
-            sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"不会再收到该用户入群申请\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && (msg.MessageContent.startsWith("/kick")||msg.MessageContent.startsWith("kick"))) {
-            if (检查代管保护(groupUin, msg.ReplyTo, "踢出")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedKick(groupUin,msg.ReplyTo,false);
-            sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"，此用户还可再次申请入群\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 ?[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")) {
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            int banTime = get_time(msg);
-            if(banTime > 2592000) {
-                sendMsg(groupUin,"","请控制在30天以内");
-                return;
-            } else if(banTime > 0){
-                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-                unifiedForbidden(groupUin,msg.ReplyTo,banTime);
-            }
-            return;
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 [0-9]+(天|分|时|小时|分钟|秒) ?(.+)?")) {
-            int index = msg.MessageContent.indexOf(" ");
-            String 原因 = "";
-            int lastIndex = msg.MessageContent.lastIndexOf(" ");
-            boolean hasCause = lastIndex != index;
-            if (hasCause) {
-                原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
-            }
-            String timeText = msg.MessageContent;
-            if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
-            int time = get_time(timeText);
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedForbidden(groupUin,msg.ReplyTo,time);
-            sendMsg(groupUin,"","已禁言 时长"+time + 原因 + "\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁言 [零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒) ?(.+)?")) {
-            int index = msg.MessageContent.indexOf(" ");
-            String str =msg.MessageContent.substring(index + 1);
-            String text=str.replaceAll("[^零一二三四五六七八九十百千万]","");
-            String 原因 = "";
-            int lastIndex = msg.MessageContent.lastIndexOf(" ");
-            boolean hasCause = lastIndex != index;
-            if (hasCause) {
-                原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
-            }
-            int time = CN_zh_int(text);
-            String timeText = msg.MessageContent;
-            if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
-            int banTime = get_time_int(timeText,time);
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedForbidden(groupUin,msg.ReplyTo,banTime);
-            sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁 ?[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")) {
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            int banTime = get_time(msg);
-            if(banTime > 2592000) {
-                sendMsg(groupUin,"","请控制在30天以内");
-                return;
-            } else if(banTime > 0){
-                if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-                unifiedForbidden(groupUin,msg.ReplyTo,banTime);
-            }
-            return;
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁 [0-9]+(天|分|时|小时|分钟|秒) ?(.+)?")) {
-            int index = msg.MessageContent.indexOf(" ");
-            String 原因 = "";
-            int lastIndex = msg.MessageContent.lastIndexOf(" ");
-            boolean hasCause = lastIndex != index;
-            if (hasCause) {
-                原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
-            }
-            String timeText = msg.MessageContent;
-            if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
-            int time = get_time(timeText);
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedForbidden(groupUin,msg.ReplyTo,time);
-            sendMsg(groupUin,"","已禁言 时长"+time + 原因 + "\n权限使用人："+名(qq));
-        }
-        if(msg.MessageType == 6 && msg.MessageContent.matches("禁 [零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒) ?(.+)?")) {
-            int index = msg.MessageContent.indexOf(" ");
-            String str =msg.MessageContent.substring(index + 1);
-            String text=str.replaceAll("[^零一二三四五六七八九十百千万]","");
-            String 原因 = "";
-            int lastIndex = msg.MessageContent.lastIndexOf(" ");
-            boolean hasCause = lastIndex != index;
-            if (hasCause) {
-                原因 = "\n原因 : "+ msg.MessageContent.substring(lastIndex + 1);
-            }
-            int time = CN_zh_int(text);
-            String timeText = msg.MessageContent;
-            if (hasCause) timeText = msg.MessageContent.substring(index , lastIndex);
-            int banTime = get_time_int(timeText,time);
-            if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
-            if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
-            unifiedForbidden(groupUin,msg.ReplyTo,banTime);
-            sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
-        }
-        if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&mAtListCopy.size()>=1){
-            for(String u:mAtListCopy){
-                if (检查代管保护(groupUin, u, "踢出")) continue;
-                if (!有权限操作(groupUin, qq, u)) continue;
-                unifiedKick(groupUin,u,false);
-            }
-            sendMsg(groupUin,"","踢出成功\n权限使用人："+名(qq));
-            return;
-        }
-        if(msg.MessageContent.startsWith("踢黑")&&mAtListCopy.size()>=1){
-            for(String 千:mAtListCopy){
-                if (检查代管保护(groupUin, 千, "踢黑")) continue;
-                if (!有权限操作(groupUin, qq, 千)) continue;
-                unifiedKick(groupUin,千,true);
-            }
-            sendMsg(groupUin,"","已踢出，不会再收到该用户入群申请\n权限使用人："+名(qq));
-        }
-        if(msg.MessageContent.equals("禁")&&mAtListCopy.size()==0){	  
-            unifiedForbidden(groupUin,"",1);return;
-        }
-        if(msg.MessageType == 1 && msg.MessageContent.equals("解")&&mAtListCopy.size()==0){		    
-            unifiedForbidden(groupUin,"",0);return;
-        }
-        if(msg.MessageContent.startsWith("头衔@")){    	
-            int str = msg.MessageContent.lastIndexOf(" ")+1;
-            String text = msg.MessageContent.substring(str);   
-            for(String u:mAtListCopy){
-                setTitle(groupUin,u,text);
-            }
-        }
-        if(msg.MessageContent.equals("查看禁言列表")) {
-            ArrayList 禁言列表 = 禁言组(groupUin);
-            if(禁言列表.size() == 0) {
-                sendReply(groupUin,msg,"当前没有人被禁言");
-            } else {
-                sendReply(groupUin,msg,禁言组文本(groupUin));
-            }
-        }
-        if (msg.MessageContent.matches("^解禁? ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
-            String indexStr = msg.MessageContent.replaceAll(" |解","");
-            int index = Integer.parseInt(indexStr) - 1;
-            ArrayList 禁言列表 = 禁言组(groupUin);
-            if (index >= 0 && index < 禁言列表.size()) {
-                unifiedForbidden(groupUin, (String)禁言列表.get(index), 0);
-            }
-        }
-        if (msg.MessageContent.matches("^踢 ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
-            String indexStr = msg.MessageContent.replaceAll(" |踢","");
-            int index = Integer.parseInt(indexStr) - 1;
-            ArrayList 禁言列表 = 禁言组(groupUin);
-            if (index >= 0 && index < 禁言列表.size()) {
-                String targetUin = (String)禁言列表.get(index);
-                if (检查代管保护(groupUin, targetUin, "踢出")) return;
-                if (!有权限操作(groupUin, qq, targetUin)) return;
-                unifiedKick(groupUin, targetUin, false);
-                sendMsg(groupUin,"","已踢出"+targetUin+"\n权限使用人："+名(qq));
-            }
-        }
-        if (msg.MessageContent.matches("^踢黑 ?[1-9]{0,2}+$") && msg.MessageContent.length() >= 2){
-            String indexStr = msg.MessageContent.replaceAll(" |踢|黑","");
-            int index = Integer.parseInt(indexStr) - 1;
-            ArrayList 禁言列表 = 禁言组(groupUin);
-            if (index >= 0 && index < 禁言列表.size()) {
-                String targetUin = (String)禁言列表.get(index);
-                if (检查代管保护(groupUin, targetUin, "踢黑")) return;
-                if (!有权限操作(groupUin, qq, targetUin)) return;
-                unifiedKick(groupUin, targetUin, true);
-                sendMsg(groupUin,"","已踢出"+targetUin+"并且不会再收到该成员申请\n权限使用人："+名(qq));
-            }
-        }
-        if (msg.MessageContent.matches("^解禁? ?[0-9]{4,10}+$") && msg.MessageContent.length() >= 6){
-            String indexStr = msg.MessageContent.replaceAll(" |解","");
-            String uin = indexStr;
-            unifiedForbidden(groupUin, uin, 0);
-        }
-if(msg.MessageContent.equals("#踢禁言")) {
-    unifiedForbidden(groupUin, "", 0);
-    ArrayList list = unifiedGetForbiddenList(groupUin);
-    if(list == null || list.size() == 0) {
-        sendMsg(groupUin,"", "当前没有人被禁言");
-    } else {
-        String kickListStr = "";
-        ArrayList listCopy = safeCopyList(list);
-        for(int i = 0; i < listCopy.size(); i++) {
-            Object ForbiddenList = listCopy.get(i);
-            try {
-                java.lang.reflect.Field userUinField = ForbiddenList.getClass().getDeclaredField("UserUin");
-                userUinField.setAccessible(true);
-                String u = userUinField.get(ForbiddenList).toString();
-                
-                if (检查代管保护(groupUin, u, "踢出")) continue;
-                if (!有权限操作(groupUin, qq, u)) continue;
-                
-                kickListStr += "\n" + u;
-                unifiedKick(groupUin, u, false);
-            } catch (Exception e) {
-            }
-        }
-        sendMsg(groupUin,"", "已踢出禁言列表:" + kickListStr);
-    }
-}
-        if(msg.MessageContent.equals("全禁")){
-            unifiedForbidden(groupUin, "", 0);
-            Object list=unifiedGetForbiddenList(groupUin);
-            if(list==null||((ArrayList)list).size()==0) 
-                sendMsg(groupUin,"", "当前没有人被禁言");
-            else{
-                ArrayList listCopy = safeCopyList((ArrayList)list);
-                for(Object ForbiddenList : listCopy){
-                    String u = ForbiddenList.UserUin+"";
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    if (!有权限操作(groupUin, qq, u)) continue;
-                    unifiedForbidden(groupUin, u, 2592000);
-                }
-                sendReply(groupUin,msg, "禁言列表已加倍禁言");
-            }
-        }
-        if(msg.MessageContent.equals("全解")){
-            unifiedForbidden(groupUin, "", 0);
-            Object list=unifiedGetForbiddenList(groupUin);
-            if(list==null||((ArrayList)list).size() == 0) 
-                sendMsg(groupUin,"", "当前没有人被禁言");
-            else{
-                ArrayList listCopy = safeCopyList((ArrayList)list);
-                for(Object ForbiddenList : listCopy){
-                    unifiedForbidden(groupUin, ForbiddenList.UserUin+"", 0);
-                }
-                sendReply(groupUin,msg, "禁言列表已解禁");
-            }
-        }
-        if(qq.equals(myUin)){
-            if(msg.MessageContent.startsWith("添加代管")||msg.MessageContent.startsWith("添加管理员")||msg.MessageContent.startsWith("设置代管")||msg.MessageContent.startsWith("添加老婆")){
-                String QQUin = "";
-                if(mAtListCopy.size()==0){
-                    sendReply(groupUin,msg,"你艾特的人呢？");
-                    return;
-                }
-                for(String u:mAtListCopy){
-                    File 代管文件 = 获取代管文件();
-                    if(!代管文件.exists()){
-                        try {
-                            代管文件.createNewFile();
-                        } catch (Exception e) {}
-                    }
-                    try {
-                        if(jiandu(u, 简取(代管文件))){
-                            sendMsg(groupUin,"","列表内的"+u+"已经是代管了 已自动略过");
-                            continue;
-                        }else {
-                            简写(代管文件,u);
-                        }
-                        QQUin = QQUin + u + " ";
-                    } catch (Exception e) {}
-                }
-                if(QQUin.replace(" ","").equals("")){
-                    sendMsg(groupUin,"","以上代管已经添加过了");
-                }else{ sendMsg(groupUin,"","已添加代管:\n"+QQUin);}
-            }
-            if(msg.MessageContent.startsWith("删除代管@")||msg.MessageContent.startsWith("删除管理员@")){
-                String QQUin="";
-                if(mAtListCopy.size()==0){
-                    sendReply(groupUin,msg,"你艾特的人呢？");
-                    return;
-                }
-                for(String 千:mAtListCopy){
-                    File 代管文件 = 获取代管文件();
-                    if(!代管文件.exists()) continue;
-                    try {
-                        if(jiandu(千, 简取(代管文件))){
-                            简弃(代管文件,千);
-                            QQUin = QQUin + 千 + " ";
-                        }else sendMsg(groupUin,"","QQ "+千+"并不是代管");
-                    } catch (Exception e) {}
-                }
-                sendMsg(groupUin,"","已删除管理员:\n"+QQUin);
-                return;
-            }
-            if(msg.MessageContent.startsWith("删除代管")||msg.MessageContent.startsWith("删除管理员")){
-                String QQUin="";
-                String Stext=msg.MessageContent.substring(4).replace(" ","");
-                String text=Stext.replaceAll("[\u4e00-\u9fa5]","");
-                {
-                    if(!text.matches("[0-9]+")){
-                        sendReply(groupUin,msg,"正确方式 : 删除代管+Q号，请不要输入别的字符");
-                        return;
-                    }
-                    File 代管文件 = 获取代管文件();
-                    if(!代管文件.exists()) {
-                        sendReply(groupUin,msg,"代管列表为空");
-                        return;
-                    }
-                    try {
-                        if(!jiandu(text, 简取(代管文件))){
-                            sendReply(groupUin,msg,"此人并不是代管");
-                            return;
-                        } else {
-                            简弃(代管文件,text);
-                        }
-                    } catch (Exception e) {}
-                    QQUin = QQUin + text + " ";
-                }
-                sendMsg(groupUin,"","已删除管理员:\n"+QQUin);
-                return;
-            }      
-        }
-        if(msg.MessageContent.equals("查看代管")){
-            File 代管文件 = 获取代管文件();
-            if (!代管文件.exists()) {
-                sendMsg(groupUin,"","当前没有代管");
-                return;
-            }
-            try {
-                String 代=组名(简取(代管文件));
-                String 代管文本=论(代,"]","");
-                代管文本=论(代管文本,"["," ");
-                sendMsg(groupUin,"","当前的代管如下:\n"+代管文本);
-            } catch (Exception e) {}
-        }                   
-        if(msg.MessageContent.equals("清空代管")){
-            File 代管文件 = 获取代管文件();
-            if (代管文件.exists()) {
-                try {
-                    全弃(代管文件);
-                } catch (Exception e) {}
-            }
-            sendReply(groupUin,msg,"代管列表已清空");
-        }
-        if(msg.MessageContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
-            int banTime = get_time(msg);
-            if(banTime > 2592000){
-                sendReply(groupUin,msg,"时间太长无法禁言");
-                return;
-            }else if(banTime > 0){
-                for(String u:mAtListCopy){
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,banTime);
-                }
-                return;
-            }
-        }
-        if(msg.MessageContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
-            int str1 = msg.MessageContent.lastIndexOf(" ");
-            String str =msg.MessageContent.substring(str1 + 1);
-            String text=str.replaceAll("[天分时小时分钟秒]","");
-            int time=CN_zh_int(text);
-            int banTime = get_time_int(msg,time);
-            if(banTime > 2592000){
-                sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
-            }else if(banTime > 0){
-                for(String u:mAtListCopy){
-                    if (检查代管保护(groupUin, u, "禁言")) continue;
-                    unifiedForbidden(groupUin,u,banTime);
-                }
-                return;
-            }
-        }
-        if(msg.MessageContent.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&mAtListCopy.size()>=1){  
-            int str = msg.MessageContent.lastIndexOf(" ");
-            String text =msg.MessageContent.substring(str + 1);
-            int time=CN_zh_int(text);
-            for(String u:mAtListCopy){
-                if (检查代管保护(groupUin, u, "禁言")) continue;
-                unifiedForbidden(groupUin,u,time*60);
-                return;
-            }
-        }                          
     }
 }
 
