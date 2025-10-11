@@ -145,10 +145,14 @@ void onCreateMenu(Object msg) {
             GroupMemberInfo myInfo = getMemberInfo(msg.GroupUin, myUin);
             
             if (myInfo != null && (myInfo.IsOwner || myInfo.IsAdmin)) {
-                addMenuItem("踢", "kickMenuItem");
-                addMenuItem("踢黑", "kickBlackMenuItem"); 
-                addMenuItem("禁言", "forbiddenMenuItem");
+                // 踢、踢黑、禁言菜单只在长按他人消息时显示
+                if (!msg.UserUin.equals(myUin)) {
+                    addMenuItem("踢", "kickMenuItem");
+                    addMenuItem("踢黑", "kickBlackMenuItem"); 
+                    addMenuItem("禁言", "forbiddenMenuItem");
+                }
                 
+                // 设置头衔菜单群主长按任何消息都显示（包括自己）
                 if (myInfo.IsOwner) {
                     addMenuItem("设置头衔", "setTitleMenuItem");
                 }
@@ -552,7 +556,8 @@ public void showUpdateLog(String g, String u, int t) {
                     "————————\n" +
                     "简洁群管_72.0_更新日志\n" +
                     "- [新增] addMenuItem设置头衔快捷菜单 如果我们是群主 则显示快捷菜单 如果不是群主 则不显示，管理员/私聊不显示快捷菜单\n" +
-                    "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n\n" +
+                    "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n" +
+                    "- [更改] 长按自己的消息不现实踢 踢黑 禁言 设置头衔除外\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
