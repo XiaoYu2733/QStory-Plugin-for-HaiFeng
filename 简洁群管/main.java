@@ -557,7 +557,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_72.0_更新日志\n" +
                     "- [新增] addMenuItem设置头衔快捷菜单 如果我们是群主 则显示快捷菜单 如果不是群主 则不显示，管理员/私聊不显示快捷菜单\n" +
                     "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n" +
-                    "- [更改] 长按自己的消息不现实踢 踢黑 禁言 设置头衔除外\n\n" +
+                    "- [更改] 长按自己的消息不显示踢 踢黑 禁言 设置头衔除外\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
