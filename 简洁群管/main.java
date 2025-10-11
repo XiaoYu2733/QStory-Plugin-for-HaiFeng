@@ -1,3 +1,4 @@
+
 // 作 临江踏雨不返 海枫
 // 发送 群管功能 以查看功能
 // 部分接口 卑微萌新
@@ -44,6 +45,23 @@ import android.os.Looper;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 
+public boolean isDarkMode() {
+    int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+    return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+}
+
+public String getBackgroundColor() {
+    return isDarkMode() ? "#333333" : "#FFFFFF";
+}
+
+public String getTextColor() {
+    return isDarkMode() ? "#FFFFFF" : "#000000";
+}
+
+public String getBorderColor() {
+    return isDarkMode() ? "#555555" : "#DDDDDD";
+}
+
 public int c(float f) {
     return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
 }
@@ -68,6 +86,10 @@ public void Toasts(String text) {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
         public void run() {
             try {
+                String bgColor = getBackgroundColor();
+                String textColor = getTextColor();
+                String borderColor = getBorderColor();
+                
                 LinearLayout linearLayout = new LinearLayout(context);
                 linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                 linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -75,11 +97,11 @@ public void Toasts(String text) {
                 int padding = c(15);
                 linearLayout.setPadding(padding, padding, padding, padding);
                 
-                linearLayout.setBackground(getShape("#FFFFFF", "#FFFFFF", c(2), c(10), 180, false));
+                linearLayout.setBackground(getShape(bgColor, borderColor, c(2), c(10), 230, false));
                 
                 TextView textView = new TextView(context);
                 textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                textView.setTextColor(Color.parseColor("#000000"));
+                textView.setTextColor(Color.parseColor(textColor));
                 textView.setTextSize(13.0f);
                 textView.setText(text);
                 linearLayout.addView(textView);
@@ -609,7 +631,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_73.0_更新日志\n" +
                     "- [修复] bsh.NameSpace.getMethods\n" +
                     "- [更改] 弹窗风格 更美观\n" +
-                    "- [其他] 打死hd\n\n" +
+                    "- [其他] 打死hd\n" +
+                    "————————\n" +
+                    "简洁群管_74.0_更新日志\n" +
+                    "- [适配] toast弹窗支持深色模式，如果用户系统是浅色模式，则是白色弹窗，深色模式同理\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
