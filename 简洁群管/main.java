@@ -148,10 +148,63 @@ void onCreateMenu(Object msg) {
                 addMenuItem("踢", "kickMenuItem");
                 addMenuItem("踢黑", "kickBlackMenuItem"); 
                 addMenuItem("禁言", "forbiddenMenuItem");
+                
+                if (myInfo.IsOwner) {
+                    addMenuItem("设置头衔", "setTitleMenuItem");
+                }
             }
         } catch (Exception e) {
         }
     }
+}
+
+public void setTitleMenuItem(Object msg) {
+    if (!msg.IsGroup) return;
+    
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            builder.setTitle("设置头衔");
+            
+            LinearLayout layout = new LinearLayout(getActivity());
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(30, 30, 30, 30);
+            
+            TextView hint = new TextView(getActivity());
+            hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
+            hint.setTextSize(16);
+            layout.addView(hint);
+            
+            final EditText inputEditText = new EditText(getActivity());
+            inputEditText.setHint("请输入头衔内容");
+            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+            layout.addView(inputEditText);
+            
+            builder.setView(layout);
+            
+            builder.setPositiveButton("确定设置", new android.content.DialogInterface.OnClickListener() {
+                public void onClick(android.content.DialogInterface dialog, int which) {
+                    String input = inputEditText.getText().toString().trim();
+                    if (!input.isEmpty()) {
+                        setTitle(groupUin, targetUin, input);
+                        toast("已为 " + 名(targetUin) + " 设置头衔: " + input);
+                    } else {
+                        toast("请输入头衔内容");
+                    }
+                }
+            });
+            
+            builder.setNegativeButton("取消", null);
+            builder.show();
+        }
+    });
 }
 
 // 随意 对于你 我已经不期待了
@@ -498,6 +551,7 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 部分问题导致的空指针异常以及错误\n" +
                     "————————\n" +
                     "简洁群管_72.0_更新日志\n" +
+                    "- [新增] addMenuItem设置头衔快捷菜单 如果我们是群主 则显示快捷菜单 如果不是群主 则不显示，管理员/私聊不显示快捷菜单\n" +
                     "- [新增] addMenuItem快捷菜单 如果我们是群主/管理 则显示快捷菜单 如果不是 则不显示\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
