@@ -51,33 +51,22 @@ public boolean isDarkMode() {
 }
 
 public String getBackgroundColor() {
-    return isDarkMode() ? "#333333" : "#FFFFFF";
+    return isDarkMode() ? "#CC1E1E1E" : "#CCFFFFFF";
 }
 
 public String getTextColor() {
-    return isDarkMode() ? "#FFFFFF" : "#000000";
-}
-
-public String getBorderColor() {
-    return isDarkMode() ? "#555555" : "#DDDDDD";
+    return isDarkMode() ? "#E0E0E0" : "#333333";
 }
 
 public int c(float f) {
     return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
 }
 
-public GradientDrawable getShape(String color1, String color2, int size1, int size2, int tm, boolean pd) {
-    GradientDrawable shape;
-    if(pd){
-        int[] colors = { Color.parseColor(color1), Color.parseColor(color2) };
-        shape = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
-    } else {
-        shape = new GradientDrawable();
-        shape.setColor(Color.parseColor(color1));
-    }
-    shape.setStroke(size1, Color.parseColor(color2));
-    shape.setCornerRadius(size2);
-    shape.setAlpha(tm);
+public GradientDrawable getShape(String color, int cornerRadius, int alpha) {
+    GradientDrawable shape = new GradientDrawable();
+    shape.setColor(Color.parseColor(color));
+    shape.setCornerRadius(cornerRadius);
+    shape.setAlpha(alpha);
     shape.setShape(GradientDrawable.RECTANGLE);
     return shape;
 }
@@ -86,34 +75,40 @@ public void Toasts(String text) {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
         public void run() {
             try {
-                String bgColor = getBackgroundColor();
-                String textColor = getTextColor();
-                String borderColor = getBorderColor();
-                
-                LinearLayout linearLayout = new LinearLayout(context);
-                linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                linearLayout.setOrientation(LinearLayout.VERTICAL);
-                
-                int padding = c(15);
-                linearLayout.setPadding(padding, padding, padding, padding);
-                
-                linearLayout.setBackground(getShape(bgColor, borderColor, c(2), c(10), 230, false));
-                
-                TextView textView = new TextView(context);
-                textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                textView.setTextColor(Color.parseColor(textColor));
-                textView.setTextSize(13.0f);
-                textView.setText(text);
-                linearLayout.addView(textView);
-                linearLayout.setGravity(Gravity.CENTER);
-                
-                Toast toast = new Toast(context);
-                toast.setGravity(Gravity.TOP, 0, c(80));
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(linearLayout);
-                toast.show();
+                if (getActivity() != null) {
+                    String bgColor = getBackgroundColor();
+                    String textColor = getTextColor();
+                    
+                    LinearLayout linearLayout = new LinearLayout(context);
+                    linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    
+                    int paddingHorizontal = c(18);
+                    int paddingVertical = c(12);
+                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+                    
+                    linearLayout.setBackground(getShape(bgColor, c(12), 230));
+                    
+                    TextView textView = new TextView(context);
+                    textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    textView.setTextColor(Color.parseColor(textColor));
+                    textView.setTextSize(14.5f);
+                    textView.setText(text);
+                    textView.setGravity(Gravity.CENTER);
+                    
+                    linearLayout.addView(textView);
+                    linearLayout.setGravity(Gravity.CENTER);
+                    
+                    Toast toast = new Toast(context);
+                    toast.setGravity(Gravity.TOP, 0, c(80));
+                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setView(linearLayout);
+                    toast.show();
+                } else {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         }
     });
@@ -634,7 +629,8 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [其他] 打死hd\n" +
                     "————————\n" +
                     "简洁群管_74.0_更新日志\n" +
-                    "- [适配] toast弹窗支持深色模式，如果用户系统是浅色模式，则是白色弹窗，深色模式同理\n\n" +
+                    "- [适配] toast弹窗支持深色模式，如果用户系统是浅色模式，则是白色弹窗，深色模式同理\n" +
+                    "- [更改] 由于自定义弹窗限制只能在前台显示，后台不显示 更改弹窗逻辑，如果QQ在前台时则显示自定义弹窗，在后台则使用默认Android弹窗\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
