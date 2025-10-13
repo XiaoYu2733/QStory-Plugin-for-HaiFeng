@@ -209,13 +209,21 @@ void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
         try {
             GroupMemberInfo myInfo = getMemberInfo(msg.GroupUin, myUin);
+            GroupMemberInfo targetInfo = getMemberInfo(msg.GroupUin, msg.UserUin);
             
-            if (myInfo != null && (myInfo.IsOwner || myInfo.IsAdmin)) {
-                if (!msg.UserUin.equals(myUin)) {
+            if (myInfo != null && targetInfo != null) {
+                if (myInfo.IsOwner && !msg.UserUin.equals(myUin)) {
+                    addMenuItem("快捷群管", "quickManageMenuItem");
+                }
+                else if (myInfo.IsAdmin && !myInfo.IsOwner && 
+                         !msg.UserUin.equals(myUin) && 
+                         !targetInfo.IsOwner && 
+                         !targetInfo.IsAdmin) {
                     addMenuItem("快捷群管", "quickManageMenuItem");
                 }
             }
         } catch (Exception e) {
+            log("创建菜单异常: " + e.getMessage());
         }
     }
 }
@@ -836,7 +844,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [更改] 由于自定义弹窗限制只能在前台显示，后台不显示 更改弹窗逻辑，如果QQ在前台时则显示自定义弹窗，在后台则使用默认Android弹窗\n" +
                     "————————\n" +
                     "简洁群管_75.0_更新日志\n" +
-                    "- [更改] addMenuItem菜单太多导致群待办,设置精华没办法正常显示，在已经将这些功能整合在一个addMenuItem通过弹窗调用\n\n" +
+                    "- [更改] addMenuItem菜单太多导致群待办,设置精华没办法正常显示，在已经将这些功能整合在一个addMenuItem通过弹窗调用\n" +
+                    "————————\n" +
+                    "简洁群管_76.0_更新日志\n" +
+                    "- [更改] addMenuItem菜单，如果你是群主，可以利用addMenuItem来禁言任何用户，如果你是管理员，addMenuItem菜单只在长按普通群员才能显示，现在管理员长按管理员/群主信息不会显示这个addMenuItem菜单了，不影响群主长按管理员显示addMenuItem菜单\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
