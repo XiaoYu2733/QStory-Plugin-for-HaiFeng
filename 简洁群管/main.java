@@ -43,6 +43,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
+import java.util.Arrays;
 
 // 如果你不会动的话最好别乱动下面的东西
 public boolean isDarkMode() {
@@ -208,22 +209,50 @@ public String 禁言组文本(String qun) {
 void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
         try {
-            GroupMemberInfo myInfo = getMemberInfo(msg.GroupUin, myUin);
-            GroupMemberInfo targetInfo = getMemberInfo(msg.GroupUin, msg.UserUin);
+            String groupUin = msg.GroupUin;
+            String targetUin = msg.UserUin;
             
-            if (myInfo != null && targetInfo != null) {
-                if (myInfo.IsOwner && !msg.UserUin.equals(myUin)) {
-                    addMenuItem("快捷群管", "quickManageMenuItem");
-                }
-                else if (myInfo.IsAdmin && !myInfo.IsOwner && 
-                         !msg.UserUin.equals(myUin) && 
-                         !targetInfo.IsOwner && 
-                         !targetInfo.IsAdmin) {
-                    addMenuItem("快捷群管", "quickManageMenuItem");
+            if (targetUin.equals(myUin)) {
+                return;
+            }
+            
+            GroupInfo groupInfo = getGroupInfo(groupUin);
+            if (groupInfo == null) return;
+            
+            boolean isMyOwner = myUin.equals(groupInfo.GroupOwner);
+            boolean isMyAdmin = false;
+            
+            if (groupInfo.AdminList != null) {
+                ArrayList adminListCopy = safeCopyList(groupInfo.AdminList);
+                for (int i = 0; i < adminListCopy.size(); i++) {
+                    if (myUin.equals(adminListCopy.get(i))) {
+                        isMyAdmin = true;
+                        break;
+                    }
                 }
             }
+            
+            boolean isTargetOwner = targetUin.equals(groupInfo.GroupOwner);
+            boolean isTargetAdmin = false;
+            
+            if (groupInfo.AdminList != null) {
+                ArrayList adminListCopy = safeCopyList(groupInfo.AdminList);
+                for (int i = 0; i < adminListCopy.size(); i++) {
+                    if (targetUin.equals(adminListCopy.get(i))) {
+                        isTargetAdmin = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (isMyOwner && !isTargetOwner) {
+                addMenuItem("快捷群管", "quickManageMenuItem");
+            }
+            else if (isMyAdmin && !isMyOwner && !isTargetOwner && !isTargetAdmin) {
+                addMenuItem("快捷群管", "quickManageMenuItem");
+            }
+            
         } catch (Exception e) {
-            log("创建菜单异常: " + e.getMessage());
         }
     }
 }
@@ -847,7 +876,11 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [更改] addMenuItem菜单太多导致群待办,设置精华没办法正常显示，在已经将这些功能整合在一个addMenuItem通过弹窗调用\n" +
                     "————————\n" +
                     "简洁群管_76.0_更新日志\n" +
-                    "- [更改] addMenuItem菜单，如果你是群主，可以利用addMenuItem来禁言任何用户，如果你是管理员，addMenuItem菜单只在长按普通群员才能显示，现在管理员长按管理员/群主信息不会显示这个addMenuItem菜单了，不影响群主长按管理员显示addMenuItem菜单\n\n" +
+                    "- [更改] addMenuItem菜单，如果你是群主，可以利用addMenuItem来权限任何用户，如果你是管理员，addMenuItem菜单只在长按普通群员才能显示，现在管理员长按管理员/群主信息不会显示这个addMenuItem菜单了，不影响群主长按管理员显示addMenuItem菜单\n" +
+                    "————————\n" +
+                    "简洁群管_77.0_更新日志\n" +
+                    "- [更改] addMenuItem菜单原始的使用 getMemberInfo 获取群信息，这样会导致盯帧每次使用会慢100ms 使用 getGroupInfo 来获取群信息\n" +
+                    "- [移除] 部分log输出日志代码 看着难受\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
