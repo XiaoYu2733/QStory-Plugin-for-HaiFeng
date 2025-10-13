@@ -1,7 +1,5 @@
 
-// 作 海枫 suzhelan
-
-// 后来我只想睡个好觉 可我发现睡个好觉也好难
+// 海枫
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,7 +27,7 @@ public void onMsg(Object msg) {
     if (text.equals("赞我")) {
         if (getBoolean("点赞记录_"+getTodayDate(),qq,false)) 
         {
-            String reply = "今天已经给你点过赞了 请明天再来哦";
+            String reply = "[PicUrl=https://q.qlogo.cn/g?b=qq&s=0&nk=" + qq + "]今天已经给你点过赞了 请明天再来哦";
             if (msg.IsGroup) 
             {
                 sendReply(qun,msg,reply);
@@ -40,7 +38,7 @@ public void onMsg(Object msg) {
             }
             return;
         }
-        String reply = "已经给你点赞了 记得给我回赞 如果未成功请添加好友";
+        String reply = "[PicUrl=https://q.qlogo.cn/g?b=qq&s=0&nk=" + qq + "]已经给你点赞了 记得给我回赞 如果未成功请添加好友";
         if (msg.IsGroup) 
         {
             sendReply(qun,msg,reply);
