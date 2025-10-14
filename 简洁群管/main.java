@@ -206,6 +206,20 @@ public String 禁言组文本(String qun) {
 }
 
 // 时光流逝 愿你有一天 能和重要的人重逢
+private Map<String, GroupInfo> groupInfoCache = new HashMap<>();
+
+{
+    try {
+        ArrayList<GroupInfo> groupList = getGroupList();
+        if (groupList != null) {
+            for (GroupInfo groupInfo : groupList) {
+                groupInfoCache.put(groupInfo.GroupUin, groupInfo);
+            }
+        }
+    } catch (Exception e) {
+    }
+}
+
 void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
         try {
@@ -216,39 +230,17 @@ void onCreateMenu(Object msg) {
                 return;
             }
             
-            GroupInfo groupInfo = getGroupInfo(groupUin);
-            if (groupInfo == null) return;
-            
-            boolean isMyOwner = myUin.equals(groupInfo.GroupOwner);
-            boolean isMyAdmin = false;
-            
-            if (groupInfo.AdminList != null) {
-                ArrayList adminListCopy = safeCopyList(groupInfo.AdminList);
-                for (int i = 0; i < adminListCopy.size(); i++) {
-                    if (myUin.equals(adminListCopy.get(i))) {
-                        isMyAdmin = true;
-                        break;
-                    }
+            GroupInfo groupInfo = groupInfoCache.get(groupUin);
+            if (groupInfo == null) {
+                groupInfo = getGroupInfo(groupUin);
+                if (groupInfo != null) {
+                    groupInfoCache.put(groupUin, groupInfo);
+                } else {
+                    return;
                 }
             }
             
-            boolean isTargetOwner = targetUin.equals(groupInfo.GroupOwner);
-            boolean isTargetAdmin = false;
-            
-            if (groupInfo.AdminList != null) {
-                ArrayList adminListCopy = safeCopyList(groupInfo.AdminList);
-                for (int i = 0; i < adminListCopy.size(); i++) {
-                    if (targetUin.equals(adminListCopy.get(i))) {
-                        isTargetAdmin = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (isMyOwner && !isTargetOwner) {
-                addMenuItem("快捷群管", "quickManageMenuItem");
-            }
-            else if (isMyAdmin && !isMyOwner && !isTargetOwner && !isTargetAdmin) {
+            if (groupInfo.IsOwnerOrAdmin) {
                 addMenuItem("快捷群管", "quickManageMenuItem");
             }
             
@@ -880,7 +872,13 @@ public void showUpdateLog(String g, String u, int t) {
                     "————————\n" +
                     "简洁群管_77.0_更新日志\n" +
                     "- [更改] addMenuItem菜单原始的使用 getMemberInfo 获取群信息，这样会导致盯帧每次使用会慢100ms 使用 getGroupInfo 来获取群信息\n" +
-                    "- [移除] 部分log输出日志代码 看着难受\n\n" +
+                    "- [移除] 部分log输出日志代码 看着难受\n" +
+                    "————————\n" +
+                    "简洁群管_78.0_更新日志\n" +
+                    "- [更新] 版本号\n" +
+                    "————————\n" +
+                    "简洁群管_79.0_更新日志\n" +
+                    "- [优化] addMenuItem获取权限方式以优化性能\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
