@@ -878,7 +878,13 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [更新] 版本号\n" +
                     "————————\n" +
                     "简洁群管_79.0_更新日志\n" +
-                    "- [优化] addMenuItem获取权限方式以优化性能\n\n" +
+                    "- [优化] addMenuItem获取权限方式以优化性能\n" +
+                    "————————\n" +
+                    "简洁群管_80.0_更新日志\n" +
+                    "- [修复] 空指针异常在onMsg添加空指针检查，确保msg不为null\n" +
+                    "- [修复] 代管保护逻辑，在极端情况下代管也会被踢出的问题\n" +
+                    "- [优化] 线程，在遍历ArrayList时使用safeCopyList方法创建副本，避免并发修改异常\n" +
+                    "- [其他] 增强错误处理，在可能为空的地方添加了额外的空值检查\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
@@ -1787,6 +1793,8 @@ public String isGN(String groupUin, String key) {
 }
 
 public void onMsg(Object msg){
+    if (msg == null) return;
+    
     synchronized (this) {
         String 故=msg.MessageContent;
         String qq=msg.UserUin;
@@ -2151,23 +2159,35 @@ public void onMsg(Object msg){
                 sendMsg(groupUin,"","已禁言 时长"+banTime + 原因 + "\n权限使用人："+名(qq));
             }
             if(!msg.MessageContent.startsWith("踢黑")&&msg.MessageContent.startsWith("踢")&&mAtListCopy.size()>=1){
+                boolean hasProtectedUser = false;
                 for(int i = 0; i < mAtListCopy.size(); i++){
                     String u = (String) mAtListCopy.get(i);
-                    if (检查代管保护(groupUin, u, "踢出")) continue;
+                    if (检查代管保护(groupUin, u, "踢出")) {
+                        hasProtectedUser = true;
+                        continue;
+                    }
                     if (!有权限操作(groupUin, qq, u)) continue;
                     unifiedKick(groupUin,u,false);
                 }
-                sendMsg(groupUin,"","踢出成功\n权限使用人："+名(qq));
+                if (!hasProtectedUser) {
+                    sendMsg(groupUin,"","踢出成功\n权限使用人："+名(qq));
+                }
                 return;
             }
             if(msg.MessageContent.startsWith("踢黑")&&mAtListCopy.size()>=1){
+                boolean hasProtectedUser = false;
                 for(int i = 0; i < mAtListCopy.size(); i++){
                     String 千 = (String) mAtListCopy.get(i);
-                    if (检查代管保护(groupUin, 千, "踢黑")) continue;
+                    if (检查代管保护(groupUin, 千, "踢黑")) {
+                        hasProtectedUser = true;
+                        continue;
+                    }
                     if (!有权限操作(groupUin, qq, 千)) continue;
                     unifiedKick(groupUin,千,true);
                 }
-                sendMsg(groupUin,"","已踢出，不会再收到该用户入群申请\n权限使用人："+名(qq));
+                if (!hasProtectedUser) {
+                    sendMsg(groupUin,"","已踢出，不会再收到该用户入群申请\n权限使用人："+名(qq));
+                }
             }
             if(msg.MessageContent.equals("禁")&&mAtListCopy.size()==0){	  
                 unifiedForbidden(groupUin,"",1);return;
