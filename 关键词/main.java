@@ -42,7 +42,17 @@ public void initKeywordStore() {
         for (File file : fileList) {
             if (file.getName().matches("\\d+\\.json") && file.isFile()) {
                 String groupId = file.getName().substring(0, file.getName().lastIndexOf("."));
-                keywordStore.put(groupId, new JSONObject(QiuShi.readFile(file.getAbsolutePath())));
+                try {
+                    String content = QiuShi.readFile(file.getAbsolutePath());
+                    if (content != null && !content.trim().isEmpty()) {
+                        keywordStore.put(groupId, new JSONObject(content));
+                    } else {
+                        keywordStore.put(groupId, new JSONObject());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    keywordStore.put(groupId, new JSONObject());
+                }
             }
         }
     }
