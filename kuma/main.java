@@ -3,6 +3,17 @@
 
 // 愛意随风起 既又不随风散 這路遙馬急的人間 我又能在你心里待多久
 
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.view.ViewGroup.LayoutParams;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +28,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.widget.EditText;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -50,6 +60,22 @@ void checkAndCleanDailyWaifu() {
     
     if (lastCleanDate == null || !lastCleanDate.equals(today)) {
         putString(lastCleanDateKey, "global", today);
+        
+        File waifuDataDir = new File(appPath + "/老婆数据/");
+        if (waifuDataDir.exists() && waifuDataDir.isDirectory()) {
+            File[] files = waifuDataDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && file.getName().endsWith(".txt") && !file.getName().contains("_married")) {
+                        try {
+                            file.delete();
+                        } catch (Exception e) {
+                            error(e);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -159,7 +185,7 @@ void handleAgree(Object msg, String groupUin, String userUin) {
     String spouseName = getMemberName(groupUin, userUin);
     String requesterAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + requesterUin + "&s=0";
     String spouseAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + userUin + "&s=0";
-    sendMsg(groupin, "", "恭喜 " + requesterName + " 和 " + spouseName + " 结婚啦！ [PicUrl=" + requesterAvatar + "] [PicUrl=" + spouseAvatar + "]");
+    sendMsg(groupUin, "", "恭喜 " + requesterName + " 和 " + spouseName + " 结婚啦！ [PicUrl=" + requesterAvatar + "] [PicUrl=" + spouseAvatar + "]");
 }
 
 void handleQuote(Object msg, String groupUin, String userUin) {
@@ -173,7 +199,7 @@ void handleQuote(Object msg, String groupUin, String userUin) {
     long time = repliedMsg.MessageTime;
     String quote = speaker + "\u0001" + time + "\u0001" + content;
     String filename = groupUin + ".txt";
-    String filePath = appPath + "/语录/" + filename;
+    String filePath = appPath + "/语录数据/" + filename;
     try {
         FileOutputStream fos = new FileOutputStream(filePath, true);
         fos.write((quote + "\n").getBytes("UTF-8"));
@@ -192,7 +218,7 @@ void handleQuote(Object msg, String groupUin, String userUin) {
 
 void handleQrand(Object msg, String groupUin, String userUin) {
     String filename = groupUin + ".txt";
-    String filePath = appPath + "/语录/" + filename;
+    String filePath = appPath + "/语录数据/" + filename;
     File file = new File(filePath);
     if (!file.exists()) {
         sendReply(groupUin, msg, "该群没有语录");
@@ -273,41 +299,41 @@ addItem("脚本本次更新日志", "showUpdateLog");
 
 public void toggleWaifu(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
-        toast("仅群聊可用");
+        MonetToasts("仅群聊可用");
         return;
     }
     boolean current = getBoolean(waifuSwitch, groupUin, false);
     putBoolean(waifuSwitch, groupUin, !current);
-    toast("本群每日老婆功能已" + (!current ? "开启" : "关闭"));
+    MonetToasts("本群每日老婆功能已" + (!current ? "开启" : "关闭"));
 }
 
 public void toggleQuote(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
-        toast("仅群聊可用");
+        MonetToasts("仅群聊可用");
         return;
     }
     boolean current = getBoolean(quoteSwitch, groupUin, false);
     putBoolean(quoteSwitch, groupUin, !current);
-    toast("本群记录语录功能已" + (!current ? "开启" : "关闭"));
+    MonetToasts("本群记录语录功能已" + (!current ? "开启" : "关闭"));
 }
 
 public void toggleQrand(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
-        toast("仅群聊可用");
+        MonetToasts("仅群聊可用");
         return;
     }
     boolean current = getBoolean(qrandSwitch, groupUin, false);
     putBoolean(qrandSwitch, groupUin, !current);
-    toast("本群随机语录功能已" + (!current ? "开启" : "关闭"));
+    MonetToasts("本群随机语录功能已" + (!current ? "开启" : "关闭"));
 }
 
 public void cleanWaifuData(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
-        toast("仅群聊可用");
+        MonetToasts("仅群聊可用");
         return;
     }
     checkAndCleanDailyWaifu();
-    toast("已清理所有未结婚的老婆数据");
+    MonetToasts("已清理所有未结婚的老婆数据");
 }
 
 public void showUsage(String g, String u, int t) {
@@ -334,10 +360,7 @@ public void showUpdateLog(String g, String u, int t) {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
-            "更新日志\n\n" +
-            "更新了……什么呀？\n\n" +
-            "反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("海枫qwq\n\n更新日志\n\n更新了……什么呀？\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
@@ -345,6 +368,117 @@ public void showUpdateLog(String g, String u, int t) {
     });
 }
 
-sendLike("2133115301",20);
+public boolean isDarkMode() {
+    int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+    return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+}
 
-// 我知道这个年纪遇到的人没有未来 可是你好特别 我舍不得
+public String[] getMonetDarkColors() {
+    return new String[] {
+        "#FF1E2B3C",
+        "#FF2D3A4B",
+        "#FF3C495A",
+        "#FF4B5869",
+        "#FF5A6778"
+    };
+}
+
+public String[] getMonetLightColors() {
+    return new String[] {
+        "#FFE8F4F8",
+        "#FFD9E8ED",
+        "#FFCADCE2",
+        "#FFBBD0D7",
+        "#FFACC4CC"
+    };
+}
+
+public String getMonetBackgroundColor() {
+    String[] colors = isDarkMode() ? getMonetDarkColors() : getMonetLightColors();
+    return colors[0];
+}
+
+public String getMonetTextColor() {
+    return isDarkMode() ? "#FFE8F4F8" : "#FF1E2B3C";
+}
+
+public String getMonetAccentColor() {
+    String[] colors = isDarkMode() ? getMonetDarkColors() : getMonetLightColors();
+    return colors[2];
+}
+
+public int c(float f) {
+    return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
+}
+
+public GradientDrawable getMonetShape(String baseColor, String accentColor, int cornerRadius) {
+    GradientDrawable shape = new GradientDrawable();
+    
+    int[] colors = new int[] {
+        Color.parseColor(baseColor),
+        Color.parseColor(accentColor),
+        Color.parseColor(baseColor)
+    };
+    
+    shape.setColors(colors);
+    shape.setCornerRadius(cornerRadius);
+    shape.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+    shape.setOrientation(GradientDrawable.Orientation.TL_BR);
+    shape.setAlpha(220);
+    shape.setShape(GradientDrawable.RECTANGLE);
+    
+    shape.setStroke(c(0.8f), Color.parseColor(isDarkMode() ? "#20FFFFFF" : "#20000000"));
+    
+    return shape;
+}
+
+public void MonetToasts(String text) {
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+        public void run() {
+            try {
+                if (getActivity() != null) {
+                    String bgColor = getMonetBackgroundColor();
+                    String textColor = getMonetTextColor();
+                    String accentColor = getMonetAccentColor();
+                    
+                    LinearLayout linearLayout = new LinearLayout(context);
+                    linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    
+                    int paddingHorizontal = c(20);
+                    int paddingVertical = c(14);
+                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+                    
+                    linearLayout.setBackground(getMonetShape(bgColor, accentColor, c(18)));
+                    
+                    TextView textView = new TextView(context);
+                    textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    textView.setTextColor(Color.parseColor(textColor));
+                    textView.setTextSize(14.5f);
+                    textView.setText(text);
+                    textView.setGravity(Gravity.CENTER);
+                    
+                    textView.setShadowLayer(c(1.2f), c(0.8f), c(0.8f), 
+                        Color.parseColor(isDarkMode() ? "#40000000" : "#20FFFFFF"));
+                    
+                    textView.setTypeface(textView.getTypeface(), android.graphics.Typeface.NORMAL);
+                    
+                    linearLayout.addView(textView);
+                    linearLayout.setGravity(Gravity.CENTER);
+                    
+                    Toast toast = new Toast(context);
+                    toast.setGravity(Gravity.TOP, 0, c(80));
+                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setView(linearLayout);
+                    toast.show();
+                } else {
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                }
+            } catch(Exception e) {
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            }
+        }
+    });
+}
+
+sendLike("2133115301",20);
