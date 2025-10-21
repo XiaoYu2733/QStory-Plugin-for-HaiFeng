@@ -360,7 +360,7 @@ public void showUpdateLog(String g, String u, int t) {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n更新日志\n\n更新了……什么呀？\n\n反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("- [修复] 抽取到但是未结婚的老婆在其他群也会显示一致的问题(不知道还有没有问题了)\n- [更改] 抽取老婆逻辑 每天定时刷新\n- [更改] Tosat弹窗样式 使用莫奈弹窗\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
