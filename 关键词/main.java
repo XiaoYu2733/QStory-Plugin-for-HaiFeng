@@ -30,6 +30,8 @@ public class JiangYun {
     };
 }
 
+// 你看 世界如此辽阔
+
 ConcurrentHashMap<String, JSONObject> keywordStore = new ConcurrentHashMap<>();
 
 public void initKeywordStore() {
@@ -120,7 +122,7 @@ public void onMsg(Object msg) {
     
     if (userId.equals(myUin)) {
         if (content.startsWith("添加关键词")) {
-            addKeyword(groupId, content);
+            addKeyword(groupId, content, msg);
             return;
         }
         
@@ -162,9 +164,9 @@ public void onMsg(Object msg) {
             for (String keyword : keywordList) {
                 try {
                     if (content.contains(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword));
+                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
                     } else if (getString("正则表达式", groupId) != null && content.matches(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword));
+                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -174,7 +176,7 @@ public void onMsg(Object msg) {
     }
 }
 
-public void addKeyword(String groupId, String content) {
+public void addKeyword(String groupId, String content, Object msgObj) {
     new Thread(new Runnable() {
         public void run() {
             try {
@@ -215,7 +217,7 @@ public void addKeyword(String groupId, String content) {
                 
                 String resultText = "关键词【" + keyword + "】\n处理方式:\n" + actionText;
                 if (shouldRevoke) {
-                    revokeMsg(getCurrentMessage());
+                    revokeMsg(msgObj);
                     toast(resultText);
                 } else {
                     sendMsg(groupId, "", resultText);
@@ -440,7 +442,7 @@ public void clearKeywords(String groupId) {
     }).start();
 }
 
-public void executeActions(String groupId, String userId, String content, JSONArray actionGroup) {
+public void executeActions(String groupId, String userId, String content, JSONArray actionGroup, Object msgObj) {
     new Thread(new Runnable() {
         public void run() {
             try {
@@ -481,6 +483,7 @@ public void executeActions(String groupId, String userId, String content, JSONAr
                         String actionStr = (String)action;
                         
                         if (actionStr.equals("撤回")) {
+                            revokeMsg(msgObj);
                         }
                         
                         if (actionStr.equals("全体禁言")) {
