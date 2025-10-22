@@ -30,8 +30,6 @@ public class JiangYun {
     };
 }
 
-// 你看 世界如此辽阔
-
 ConcurrentHashMap<String, JSONObject> keywordStore = new ConcurrentHashMap<>();
 
 public void initKeywordStore() {
@@ -536,7 +534,7 @@ public void 加载提示(String s) {
 }
 
 if (getString("加载提示", "开关") == null)
-    toast("发送 \"关键词\" 查看使用说明");
+    toast("发送 \"关键词\" 查看使用说明");;
 
 // 希望有人懂你的言外之意 更懂你的欲言而止.
 // 我始终做不到说走就走.
