@@ -59,7 +59,7 @@ public class QiuShi {
                         parent.mkdirs();
                     }
                     file.createNewFile();
-                    writeFile(file.getAbsolutePath(), "{}");
+                    return "{}";
                 }
                 String line;
                 fileReader = new FileReader(file);  
@@ -69,6 +69,7 @@ public class QiuShi {
                 }
             } catch(Exception e) {
                 e.printStackTrace();
+                return "{}";
             } finally {
                 try {
                     if (bufferedReader != null)
@@ -79,7 +80,8 @@ public class QiuShi {
                     e2.printStackTrace();
                 }
             }
-            return contentBuilder.toString();
+            String result = contentBuilder.toString();
+            return result.isEmpty() ? "{}" : result;
         }
     }
 }
