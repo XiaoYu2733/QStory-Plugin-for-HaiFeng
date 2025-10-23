@@ -31,6 +31,7 @@ public class JiangYun {
 }
 
 ConcurrentHashMap<String, JSONObject> keywordStore = new ConcurrentHashMap<>();
+ConcurrentHashMap<String, Object> groupLocks = new ConcurrentHashMap<>();
 
 public void initKeywordStore() {
     File dataDir = new File(dataPath);
@@ -151,23 +152,26 @@ public void onMsg(Object msg) {
     }
     
     if ((!userId.equals(myUin) || getString("关键词", "己") != null)) {
-        JSONObject groupKeywords = keywordStore.get(groupId);
-        if (groupKeywords != null) {
-            List<String> keywordList = new ArrayList<>();
-            Iterator<String> keywordIterator = groupKeywords.keys();
-            while (keywordIterator.hasNext()) {
-                keywordList.add(keywordIterator.next());
-            }
-            
-            for (String keyword : keywordList) {
-                try {
-                    if (content.contains(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
-                    } else if (getString("正则表达式", groupId) != null && content.matches(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
+        Object lock = groupLocks.computeIfAbsent(groupId, k -> new Object());
+        synchronized (lock) {
+            JSONObject groupKeywords = keywordStore.get(groupId);
+            if (groupKeywords != null) {
+                List<String> keywordList = new ArrayList<>();
+                Iterator<String> keywordIterator = groupKeywords.keys();
+                while (keywordIterator.hasNext()) {
+                    keywordList.add(keywordIterator.next());
+                }
+                
+                for (String keyword : keywordList) {
+                    try {
+                        if (content.contains(keyword)) {
+                            executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
+                        } else if (getString("正则表达式", groupId) != null && content.matches(keyword)) {
+                            executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -177,53 +181,56 @@ public void onMsg(Object msg) {
 public void addKeyword(String groupId, String content, Object msgObj) {
     new Thread(new Runnable() {
         public void run() {
-            try {
-                String processText = content.substring(5).trim();
-                int startPos = processText.lastIndexOf("[");
-                int endPos = processText.lastIndexOf("]");
-                
-                if (startPos == -1 || endPos == -1) {
-                    sendMsg(groupId, "", "格式错误，请使用: 添加关键词 关键词 [处理方式]");
-                    return;
-                }
-                
-                String keyword = processText.substring(0, startPos).trim();
-                String actionText = processText.substring(startPos + 1, endPos);
-                
-                JSONArray actionGroup = parseActions(actionText, keyword);
-                if (actionGroup.length() == 0) {
-                    sendMsg(groupId, "", "不包含任何处理方式");
-                    return;
-                }
-                
-                JSONObject groupKeywords = keywordStore.get(groupId);
-                if (groupKeywords == null) {
-                    groupKeywords = new JSONObject();
-                }
-                
-                groupKeywords.put(keyword, actionGroup);
-                keywordStore.put(groupId, groupKeywords);
-                QiuShi.writeFile(dataPath + groupId + ".json", groupKeywords.toString());
-               
-                boolean shouldRevoke = false;
-                for (int i = 0; i < actionGroup.length(); i++) {
-                    if (actionGroup.get(i).toString().equals("撤回")) {
-                        shouldRevoke = true;
-                        break;
+            Object lock = groupLocks.computeIfAbsent(groupId, k -> new Object());
+            synchronized (lock) {
+                try {
+                    String processText = content.substring(5).trim();
+                    int startPos = processText.lastIndexOf("[");
+                    int endPos = processText.lastIndexOf("]");
+                    
+                    if (startPos == -1 || endPos == -1) {
+                        sendMsg(groupId, "", "格式错误，请使用: 添加关键词 关键词 [处理方式]");
+                        return;
                     }
+                    
+                    String keyword = processText.substring(0, startPos).trim();
+                    String actionText = processText.substring(startPos + 1, endPos);
+                    
+                    JSONArray actionGroup = parseActions(actionText, keyword);
+                    if (actionGroup.length() == 0) {
+                        sendMsg(groupId, "", "不包含任何处理方式");
+                        return;
+                    }
+                    
+                    JSONObject groupKeywords = keywordStore.get(groupId);
+                    if (groupKeywords == null) {
+                        groupKeywords = new JSONObject();
+                    }
+                    
+                    groupKeywords.put(keyword, actionGroup);
+                    keywordStore.put(groupId, groupKeywords);
+                    QiuShi.writeFile(dataPath + groupId + ".json", groupKeywords.toString());
+                   
+                    boolean shouldRevoke = false;
+                    for (int i = 0; i < actionGroup.length(); i++) {
+                        if (actionGroup.get(i).toString().equals("撤回")) {
+                            shouldRevoke = true;
+                            break;
+                        }
+                    }
+                    
+                    String resultText = "关键词【" + keyword + "】\n处理方式:\n" + actionText;
+                    if (shouldRevoke) {
+                        revokeMsg(msgObj);
+                        toast(resultText);
+                    } else {
+                        sendMsg(groupId, "", resultText);
+                    }
+                    
+                } catch (Exception e) {
+                    sendMsg(groupId, "", "添加失败，格式错误");
+                    e.printStackTrace();
                 }
-                
-                String resultText = "关键词【" + keyword + "】\n处理方式:\n" + actionText;
-                if (shouldRevoke) {
-                    revokeMsg(msgObj);
-                    toast(resultText);
-                } else {
-                    sendMsg(groupId, "", resultText);
-                }
-                
-            } catch (Exception e) {
-                sendMsg(groupId, "", "添加失败，格式错误");
-                e.printStackTrace();
             }
         }
     }).start();
@@ -296,23 +303,26 @@ public JSONArray parseActions(String actionText, String keyword) {
 public void deleteKeyword(String groupId, String content) {
     new Thread(new Runnable() {
         public void run() {
-            try {
-                String keyword = content.substring(5).trim();
-                
-                JSONObject groupKeywords = keywordStore.get(groupId);
-                if (groupKeywords == null || groupKeywords.isNull(keyword)) {
-                    sendMsg(groupId, "", "当前群聊不存在关键词\"" + keyword + "\"");
-                    return;
+            Object lock = groupLocks.computeIfAbsent(groupId, k -> new Object());
+            synchronized (lock) {
+                try {
+                    String keyword = content.substring(5).trim();
+                    
+                    JSONObject groupKeywords = keywordStore.get(groupId);
+                    if (groupKeywords == null || groupKeywords.isNull(keyword)) {
+                        sendMsg(groupId, "", "当前群聊不存在关键词\"" + keyword + "\"");
+                        return;
+                    }
+                    
+                    groupKeywords.remove(keyword);
+                    keywordStore.put(groupId, groupKeywords);
+                    QiuShi.writeFile(dataPath + groupId + ".json", groupKeywords.toString());
+                    sendMsg(groupId, "", "已删除关键词\"" + keyword + "\"");
+                    
+                } catch (Exception e) {
+                    sendMsg(groupId, "", "删除失败");
+                    e.printStackTrace();
                 }
-                
-                groupKeywords.remove(keyword);
-                keywordStore.put(groupId, groupKeywords);
-                QiuShi.writeFile(dataPath + groupId + ".json", groupKeywords.toString());
-                sendMsg(groupId, "", "已删除关键词\"" + keyword + "\"");
-                
-            } catch (Exception e) {
-                sendMsg(groupId, "", "删除失败");
-                e.printStackTrace();
             }
         }
     }).start();
@@ -321,34 +331,37 @@ public void deleteKeyword(String groupId, String content) {
 public void viewKeywords(String groupId) {
     new Thread(new Runnable() {
         public void run() {
-            try {
-                JSONObject groupKeywords = keywordStore.get(groupId);
-                if (groupKeywords == null) {
-                    sendMsg(groupId, "", "当前群暂无关键词");
-                    return;
-                }
-                
-                StringBuilder result = new StringBuilder("当前群的关键词列表:\n");
-                List<String> keywordList = new ArrayList<>();
-                Iterator<String> keywordIterator = groupKeywords.keys();
-                while (keywordIterator.hasNext()) {
-                    keywordList.add(keywordIterator.next());
-                }
-                
-                for (String keyword : keywordList) {
-                    result.append(keyword).append(" 处理方式:\n");
-                    JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
-                    for (int i = 0; i < actionGroup.length(); i++) {
-                        result.append(actionGroup.get(i).toString()).append("\n");
+            Object lock = groupLocks.computeIfAbsent(groupId, k -> new Object());
+            synchronized (lock) {
+                try {
+                    JSONObject groupKeywords = keywordStore.get(groupId);
+                    if (groupKeywords == null) {
+                        sendMsg(groupId, "", "当前群暂无关键词");
+                        return;
                     }
-                    result.append("\n");
+                    
+                    StringBuilder result = new StringBuilder("当前群的关键词列表:\n");
+                    List<String> keywordList = new ArrayList<>();
+                    Iterator<String> keywordIterator = groupKeywords.keys();
+                    while (keywordIterator.hasNext()) {
+                        keywordList.add(keywordIterator.next());
+                    }
+                    
+                    for (String keyword : keywordList) {
+                        result.append(keyword).append(" 处理方式:\n");
+                        JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
+                        for (int i = 0; i < actionGroup.length(); i++) {
+                            result.append(actionGroup.get(i).toString()).append("\n");
+                        }
+                        result.append("\n");
+                    }
+                    
+                    sendMsg(groupId, "", result.toString());
+                    
+                } catch (Exception e) {
+                    sendMsg(groupId, "", "查看失败");
+                    e.printStackTrace();
                 }
-                
-                sendMsg(groupId, "", result.toString());
-                
-            } catch (Exception e) {
-                sendMsg(groupId, "", "查看失败");
-                e.printStackTrace();
             }
         }
     }).start();
@@ -365,23 +378,26 @@ public void viewAllKeywords(String groupId) {
                     for (File file : dataDir.listFiles()) {
                         if (file.getName().matches("\\d+\\.json") && file.isFile()) {
                             String fileGroupId = file.getName().replace(".json", "");
-                            JSONObject groupKeywords = new JSONObject(QiuShi.readFile(file.getAbsolutePath()));
-                            result.append("群 ").append(fileGroupId).append(":\n");
-                            
-                            List<String> keywordList = new ArrayList<>();
-                            Iterator<String> keywordIterator = groupKeywords.keys();
-                            while (keywordIterator.hasNext()) {
-                                keywordList.add(keywordIterator.next());
-                            }
-                            
-                            for (String keyword : keywordList) {
-                                result.append(keyword).append(" 处理方式:\n");
-                                JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
-                                for (int i = 0; i < actionGroup.length(); i++) {
-                                    result.append(actionGroup.get(i).toString()).append("\n");
+                            Object lock = groupLocks.computeIfAbsent(fileGroupId, k -> new Object());
+                            synchronized (lock) {
+                                JSONObject groupKeywords = new JSONObject(QiuShi.readFile(file.getAbsolutePath()));
+                                result.append("群 ").append(fileGroupId).append(":\n");
+                                
+                                List<String> keywordList = new ArrayList<>();
+                                Iterator<String> keywordIterator = groupKeywords.keys();
+                                while (keywordIterator.hasNext()) {
+                                    keywordList.add(keywordIterator.next());
                                 }
+                                
+                                for (String keyword : keywordList) {
+                                    result.append(keyword).append(" 处理方式:\n");
+                                    JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
+                                    for (int i = 0; i < actionGroup.length(); i++) {
+                                        result.append(actionGroup.get(i).toString()).append("\n");
+                                    }
+                                }
+                                result.append("\n");
                             }
-                            result.append("\n");
                         }
                     }
                 }
@@ -408,7 +424,11 @@ public void clearAllKeywords(String groupId) {
                 if (dataDir.exists() && dataDir.listFiles() != null) {
                     for (File file : dataDir.listFiles()) {
                         if (file.getName().matches("\\d+\\.json") && file.isFile()) {
-                            QiuShi.writeFile(file.getAbsolutePath(), "{}");
+                            String fileGroupId = file.getName().replace(".json", "");
+                            Object lock = groupLocks.computeIfAbsent(fileGroupId, k -> new Object());
+                            synchronized (lock) {
+                                QiuShi.writeFile(file.getAbsolutePath(), "{}");
+                            }
                         }
                     }
                 }
@@ -427,14 +447,17 @@ public void clearAllKeywords(String groupId) {
 public void clearKeywords(String groupId) {
     new Thread(new Runnable() {
         public void run() {
-            try {
-                keywordStore.put(groupId, new JSONObject());
-                QiuShi.writeFile(dataPath + groupId + ".json", "{}");
-                sendMsg(groupId, "", "本群所有关键词已清空");
-                
-            } catch (Exception e) {
-                sendMsg(groupId, "", "清空失败");
-                e.printStackTrace();
+            Object lock = groupLocks.computeIfAbsent(groupId, k -> new Object());
+            synchronized (lock) {
+                try {
+                    keywordStore.put(groupId, new JSONObject());
+                    QiuShi.writeFile(dataPath + groupId + ".json", "{}");
+                    sendMsg(groupId, "", "本群所有关键词已清空");
+                    
+                } catch (Exception e) {
+                    sendMsg(groupId, "", "清空失败");
+                    e.printStackTrace();
+                }
             }
         }
     }).start();
@@ -500,8 +523,8 @@ public void executeActions(String groupId, String userId, String content, JSONAr
     }).start();
 }
 
-addItem("检测自己", "关键词", pluginID);
-public void 关键词(String s) {
+addItem("检测自己", "关键词");
+public void 关键词(String groupUin, String uin, int chatType) {
     if (getString("关键词", "己") == null) {
         putString("关键词", "己", "开");
         toast("已关闭屏蔽自己 会检测自己发送的关键词");
@@ -511,19 +534,19 @@ public void 关键词(String s) {
     }
 }
 
-addItem("正则表达式", "正则表达式", pluginID);
-public void 正则表达式(String s) {
-    if (getString("正则表达式", s) == null) {
-        putString("正则表达式", s, "开");
+addItem("正则表达式", "正则表达式");
+public void 正则表达式(String groupUin, String uin, int chatType) {
+    if (getString("正则表达式", groupUin) == null) {
+        putString("正则表达式", groupUin, "开");
         toast("已开启本群的正则表达式模式");
     } else {
-        putString("正则表达式", s, null);
+        putString("正则表达式", groupUin, null);
         toast("已关闭本群的正则表达式模式");
     }
 }
 
-addItem("开关加载提示", "加载提示", pluginID);
-public void 加载提示(String s) {
+addItem("开关加载提示", "加载提示");
+public void 加载提示(String groupUin, String uin, int chatType) {
     if (getString("加载提示", "开关") == null) {
         putString("加载提示", "开关", "关");
         toast("已关闭加载提示");
@@ -534,7 +557,7 @@ public void 加载提示(String s) {
 }
 
 if (getString("加载提示", "开关") == null)
-    toast("发送 \"关键词\" 查看使用说明");;
+    toast("发送 \"关键词\" 查看使用说明");
 
 // 希望有人懂你的言外之意 更懂你的欲言而止.
 // 我始终做不到说走就走.
