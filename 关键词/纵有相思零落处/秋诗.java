@@ -1,11 +1,11 @@
 
 // 计划了很多事 其实根本没有那一天
+// 你是我心里最特别的人 也是我最不想失去的人
 
 import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class QiuShi {
-
     private static ConcurrentHashMap<String, Object> fileLocks = new ConcurrentHashMap<>();
     
     private static Object getFileLock(String filePath) {
@@ -54,11 +54,6 @@ public class QiuShi {
             try {
                 File file = new File(filePath);
                 if (!file.exists()) {
-                    File parent = file.getParentFile();
-                    if (parent != null && !parent.exists()) {
-                        parent.mkdirs();
-                    }
-                    file.createNewFile();
                     return "{}";
                 }
                 String line;
