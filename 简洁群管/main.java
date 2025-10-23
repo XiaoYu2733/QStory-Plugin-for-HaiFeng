@@ -884,7 +884,12 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [修复] 空指针异常在onMsg添加空指针检查，确保msg不为null\n" +
                     "- [修复] 代管保护逻辑，在极端情况下代管也会被踢出的问题\n" +
                     "- [优化] 线程，在遍历ArrayList时使用safeCopyList方法创建副本，避免并发修改异常\n" +
-                    "- [其他] 增强错误处理，在可能为空的地方添加了额外的空值检查\n\n" +
+                    "- [其他] 增强错误处理，在可能为空的地方添加了额外的空值检查\n" +
+                    "————————\n" +
+                    "简洁群管_81.0_更新日志\n" +
+                    "- [添加] 在 isGN 方法添加了空值检查\n" +
+                    "- [添加] 在所有访问 msg.MessageContent 的地方都添加了空值检查\n" +
+                    "- [修复] 可能导致并发修改异常和空指针异常的地方\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
