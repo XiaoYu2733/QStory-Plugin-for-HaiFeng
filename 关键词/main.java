@@ -31,18 +31,22 @@ public class JiangYun {
 ConcurrentHashMap<String, JSONObject> keywordStore = new ConcurrentHashMap<>();
 
 public void initKeywordStore() {
-    File dataDir = new File(dataPath);
-    if (!dataDir.exists()) {
-        dataDir.mkdirs();
-    }
-    File[] fileList = dataDir.listFiles();
-    if (fileList != null) {
-        for (File file : fileList) {
+    try {
+        File dataDir = new File(dataPath);
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+            return;
+        }
+        File[] fileList = dataDir.listFiles();
+        if (fileList == null) return;
+        
+        for (int i = 0; i < fileList.length; i++) {
+            File file = fileList[i];
             if (file.getName().matches("\\d+\\.json") && file.isFile()) {
                 String groupId = file.getName().substring(0, file.getName().lastIndexOf("."));
                 try {
                     String content = QiuShi.readFile(file.getAbsolutePath());
-                    if (content != null && !content.trim().isEmpty()) {
+                    if (content != null && !content.trim().isEmpty() && !content.equals("{}")) {
                         keywordStore.put(groupId, new JSONObject(content));
                     } else {
                         keywordStore.put(groupId, new JSONObject());
@@ -52,17 +56,21 @@ public void initKeywordStore() {
                 }
             }
         }
+    } catch (Exception e) {
     }
 }
 
 initKeywordStore();
 
 public void onMsg(Object msg) {
+    if (msg == null) return;
     if (!msg.IsGroup) return;
     
     String groupId = msg.GroupUin;
     String content = msg.MessageContent;
     String userId = msg.UserUin;
+    
+    if (groupId == null || content == null || userId == null) return;
     
     if (userId.equals(myUin)) {
         for (int i = 0; i < JiangYun.HELP_MENU.length; i++) {
@@ -150,17 +158,20 @@ public void onMsg(Object msg) {
     if ((!userId.equals(myUin) || getString("关键词", "己") != null)) {
         JSONObject groupKeywords = keywordStore.get(groupId);
         if (groupKeywords != null) {
-            List<String> keywordList = new ArrayList<>();
-            for (String key : groupKeywords.keySet()) {
-                keywordList.add(key);
-            }
-            
-            for (String keyword : keywordList) {
+            Iterator<String> keys = groupKeywords.keys();
+            while (keys.hasNext()) {
                 try {
+                    String keyword = keys.next();
                     if (content.contains(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
+                        JSONArray actionGroup = groupKeywords.optJSONArray(keyword);
+                        if (actionGroup != null) {
+                            executeActions(groupId, userId, content, actionGroup, msg);
+                        }
                     } else if (getString("正则表达式", groupId) != null && content.matches(keyword)) {
-                        executeActions(groupId, userId, content, groupKeywords.getJSONArray(keyword), msg);
+                        JSONArray actionGroup = groupKeywords.optJSONArray(keyword);
+                        if (actionGroup != null) {
+                            executeActions(groupId, userId, content, actionGroup, msg);
+                        }
                     }
                 } catch (Exception e) {
                 }
@@ -225,65 +236,67 @@ public void addKeyword(String groupId, String content, Object msgObj) {
 
 public JSONArray parseActions(String actionText, String keyword) {
     JSONArray actionGroup = new JSONArray();
-    String pattern = "撤回|回复 ?[\\S\\s][^\\]，,]*|回 ?[\\S\\s][^\\]，,]*|踢|踢出|踢黑|禁言 ?\\d+|延迟 ?\\d+|全体禁言|全体解禁|全禁|全解";
-    Pattern r = Pattern.compile(pattern);
-    Matcher m = r.matcher(actionText);
-    
-    while (m.find()) {
-        String actionType = actionText.substring(m.start(), m.end());
+    try {
+        String pattern = "撤回|回复 ?[\\S\\s][^\\]，,]*|回 ?[\\S\\s][^\\]，,]*|踢|踢出|踢黑|禁言 ?\\d+|延迟 ?\\d+|全体禁言|全体解禁|全禁|全解";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(actionText);
         
-        if (actionType.startsWith("回复")) {
-            String replyContent = actionType.substring(2).trim();
-            if (replyContent.isEmpty()) {
-                replyContent = "江江大美女";
+        while (m.find()) {
+            String actionType = actionText.substring(m.start(), m.end());
+            
+            if (actionType.startsWith("回复")) {
+                String replyContent = actionType.substring(2).trim();
+                if (replyContent.isEmpty()) {
+                    replyContent = "江江大美女";
+                }
+                JSONObject actionContent = new JSONObject();
+                actionContent.put("回复", replyContent);
+                actionGroup.put(actionContent);
             }
-            JSONObject actionContent = new JSONObject();
-            actionContent.put("回复", replyContent);
-            actionGroup.put(actionContent);
-        }
-        else if (actionType.startsWith("回")) {
-            String replyContent = actionType.substring(1).trim();
-            if (replyContent.isEmpty()) {
-                replyContent = "江江大美女";
+            else if (actionType.startsWith("回")) {
+                String replyContent = actionType.substring(1).trim();
+                if (replyContent.isEmpty()) {
+                    replyContent = "江江大美女";
+                }
+                JSONObject actionContent = new JSONObject();
+                actionContent.put("回", replyContent);
+                actionGroup.put(actionContent);
             }
-            JSONObject actionContent = new JSONObject();
-            actionContent.put("回", replyContent);
-            actionGroup.put(actionContent);
-        }
-        else if (actionType.startsWith("踢")) {
-            JSONObject actionContent = new JSONObject();
-            if (actionType.equals("踢黑")) {
-                actionContent.put("踢", true);
-            } else {
-                actionContent.put("踢", false);
+            else if (actionType.startsWith("踢")) {
+                JSONObject actionContent = new JSONObject();
+                if (actionType.equals("踢黑")) {
+                    actionContent.put("踢", true);
+                } else {
+                    actionContent.put("踢", false);
+                }
+                actionGroup.put(actionContent);
             }
-            actionGroup.put(actionContent);
+            else if (actionType.startsWith("禁言")) {
+                String timeText = actionType.substring(2).trim();
+                int muteTime = Integer.parseInt(timeText);
+                JSONObject actionContent = new JSONObject();
+                actionContent.put("禁言", muteTime);
+                actionGroup.put(actionContent);
+            }
+            else if (actionType.startsWith("延迟")) {
+                String timeText = actionType.substring(2).trim();
+                long delayTime = Long.parseLong(timeText);
+                JSONObject actionContent = new JSONObject();
+                actionContent.put("延迟", delayTime);
+                actionGroup.put(actionContent);
+            }
+            else if (actionType.equals("撤回")) {
+                actionGroup.put("撤回");
+            }
+            else if (actionType.equals("全体禁言") || actionType.equals("全禁")) {
+                actionGroup.put("全体禁言");
+            }
+            else if (actionType.equals("全体解禁") || actionType.equals("全解")) {
+                actionGroup.put("全体解禁");
+            }
         }
-        else if (actionType.startsWith("禁言")) {
-            String timeText = actionType.substring(2).trim();
-            int muteTime = Integer.parseInt(timeText);
-            JSONObject actionContent = new JSONObject();
-            actionContent.put("禁言", muteTime);
-            actionGroup.put(actionContent);
-        }
-        else if (actionType.startsWith("延迟")) {
-            String timeText = actionType.substring(2).trim();
-            long delayTime = Long.parseLong(timeText);
-            JSONObject actionContent = new JSONObject();
-            actionContent.put("延迟", delayTime);
-            actionGroup.put(actionContent);
-        }
-        else if (actionType.equals("撤回")) {
-            actionGroup.put("撤回");
-        }
-        else if (actionType.equals("全体禁言") || actionType.equals("全禁")) {
-            actionGroup.put("全体禁言");
-        }
-        else if (actionType.equals("全体解禁") || actionType.equals("全解")) {
-            actionGroup.put("全体解禁");
-        }
+    } catch (Exception e) {
     }
-    
     return actionGroup;
 }
 
@@ -294,7 +307,7 @@ public void deleteKeyword(String groupId, String content) {
                 String keyword = content.substring(5).trim();
                 
                 JSONObject groupKeywords = keywordStore.get(groupId);
-                if (groupKeywords == null || groupKeywords.isNull(keyword)) {
+                if (groupKeywords == null || !groupKeywords.has(keyword)) {
                     sendMsg(groupId, "", "当前群聊不存在关键词\"" + keyword + "\"");
                     return;
                 }
@@ -316,18 +329,15 @@ public void viewKeywords(String groupId) {
         public void run() {
             try {
                 JSONObject groupKeywords = keywordStore.get(groupId);
-                if (groupKeywords == null) {
+                if (groupKeywords == null || groupKeywords.length() == 0) {
                     sendMsg(groupId, "", "当前群暂无关键词");
                     return;
                 }
                 
                 StringBuilder result = new StringBuilder("当前群的关键词列表:\n");
-                List<String> keywordList = new ArrayList<>();
-                for (String key : groupKeywords.keySet()) {
-                    keywordList.add(key);
-                }
-                
-                for (String keyword : keywordList) {
+                Iterator<String> keys = groupKeywords.keys();
+                while (keys.hasNext()) {
+                    String keyword = keys.next();
                     result.append(keyword).append(" 处理方式:\n");
                     JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
                     for (int i = 0; i < actionGroup.length(); i++) {
@@ -353,22 +363,24 @@ public void viewAllKeywords(String groupId) {
                 File dataDir = new File(dataPath);
                 
                 if (dataDir.exists() && dataDir.listFiles() != null) {
-                    for (File file : dataDir.listFiles()) {
+                    File[] files = dataDir.listFiles();
+                    for (int i = 0; i < files.length; i++) {
+                        File file = files[i];
                         if (file.getName().matches("\\d+\\.json") && file.isFile()) {
                             String fileGroupId = file.getName().replace(".json", "");
-                            JSONObject groupKeywords = new JSONObject(QiuShi.readFile(file.getAbsolutePath()));
+                            String fileContent = QiuShi.readFile(file.getAbsolutePath());
+                            if (fileContent == null || fileContent.equals("{}")) continue;
+                            
+                            JSONObject groupKeywords = new JSONObject(fileContent);
                             result.append("群 ").append(fileGroupId).append(":\n");
                             
-                            List<String> keywordList = new ArrayList<>();
-                            for (String key : groupKeywords.keySet()) {
-                                keywordList.add(key);
-                            }
-                            
-                            for (String keyword : keywordList) {
+                            Iterator<String> keys = groupKeywords.keys();
+                            while (keys.hasNext()) {
+                                String keyword = keys.next();
                                 result.append(keyword).append(" 处理方式:\n");
                                 JSONArray actionGroup = groupKeywords.getJSONArray(keyword);
-                                for (int i = 0; i < actionGroup.length(); i++) {
-                                    result.append(actionGroup.get(i).toString()).append("\n");
+                                for (int j = 0; j < actionGroup.length(); j++) {
+                                    result.append(actionGroup.get(j).toString()).append("\n");
                                 }
                             }
                             result.append("\n");
@@ -395,7 +407,9 @@ public void clearAllKeywords(String groupId) {
             try {
                 File dataDir = new File(dataPath);
                 if (dataDir.exists() && dataDir.listFiles() != null) {
-                    for (File file : dataDir.listFiles()) {
+                    File[] files = dataDir.listFiles();
+                    for (int i = 0; i < files.length; i++) {
+                        File file = files[i];
                         if (file.getName().matches("\\d+\\.json") && file.isFile()) {
                             QiuShi.writeFile(file.getAbsolutePath(), "{}");
                         }
