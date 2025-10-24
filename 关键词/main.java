@@ -431,6 +431,8 @@ public void executeActions(String groupId, String userId, String content, JSONAr
     new Thread(new Runnable() {
         public void run() {
             try {
+                if (actionGroup == null) return;
+                
                 for (int i = 0; i < actionGroup.length(); i++) {
                     Object action = actionGroup.get(i);
                     
