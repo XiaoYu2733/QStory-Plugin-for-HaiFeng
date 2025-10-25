@@ -44,6 +44,7 @@ import android.os.Looper;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
 // 如果你不会动的话最好别乱动下面的东西
 public boolean isDarkMode() {
@@ -206,13 +207,14 @@ public String 禁言组文本(String qun) {
 }
 
 // 时光流逝 愿你有一天 能和重要的人重逢
-private Map<String, GroupInfo> groupInfoCache = new HashMap<>();
+private Map<String, GroupInfo> groupInfoCache = new ConcurrentHashMap<>();
 
 {
     try {
         ArrayList<GroupInfo> groupList = getGroupList();
         if (groupList != null) {
-            for (GroupInfo groupInfo : groupList) {
+            ArrayList<GroupInfo> groupListCopy = safeCopyList(groupList);
+            for (GroupInfo groupInfo : groupListCopy) {
                 groupInfoCache.put(groupInfo.GroupUin, groupInfo);
             }
         }
@@ -267,8 +269,8 @@ public void quickManageMenuItem(final Object msg) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                 builder.setTitle("快捷群管 - " + 名(targetUin) + "(" + targetUin + ")");
                 
-                final List<String> items = new ArrayList<>();
-                final List<Runnable> actions = new ArrayList<>();
+                final List<String> items = new CopyOnWriteArrayList<>();
+                final List<Runnable> actions = new CopyOnWriteArrayList<>();
                 
                 if (myInfo.IsOwner || myInfo.IsAdmin) {
                     items.add("踢出");
@@ -289,6 +291,14 @@ public void quickManageMenuItem(final Object msg) {
                     actions.add(new Runnable() {
                         public void run() {
                             forbiddenMenuItem(msg);
+                        }
+                    });
+                    
+                    // 新增：加入黑名单选项
+                    items.add("加入黑名单");
+                    actions.add(new Runnable() {
+                        public void run() {
+                            addToBlacklistMenuItem(msg);
                         }
                     });
                 }
@@ -321,6 +331,51 @@ public void quickManageMenuItem(final Object msg) {
             } catch (Exception e) {
                 Toasts("打开快捷群管失败: " + e.getMessage());
             }
+        }
+    });
+}
+
+public void addToBlacklistMenuItem(Object msg) {
+    if (!msg.IsGroup) return;
+    
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            builder.setTitle("确认加入黑名单");
+            builder.setMessage("确定要将 " + 名(targetUin) + "(" + targetUin + ") 加入黑名单并踢出吗？\n\n加入黑名单后，该用户再次入群时会被自动踢出。");
+            
+            builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                public void onClick(android.content.DialogInterface dialog, int which) {
+                    try {
+                        if (检查代管保护(groupUin, targetUin, "加入黑名单")) {
+                            return;
+                        }
+                        
+                        if (!有权限操作(groupUin, myUin, targetUin)) {
+                            Toasts("没有权限操作该用户");
+                            return;
+                        }
+                        
+                        添加黑名单(groupUin, targetUin);
+                        unifiedKick(groupUin, targetUin, true);
+                        
+                        String successMsg = "群:" + groupUin + " 已成功将该用户:" + 名(targetUin) + "(" + targetUin + ")加入黑名单并执行踢黑";
+                        Toasts(successMsg);
+                        
+                    } catch (Exception e) {
+                        Toasts("加入黑名单失败: " + e.getMessage());
+                    }
+                }
+            });
+            
+            builder.setNegativeButton("取消", null);
+            builder.show();
         }
     });
 }
@@ -889,6 +944,15 @@ public void showUpdateLog(String g, String u, int t) {
                     "简洁群管_81.0_更新日志\n" +
                     "- [添加] 在 isGN 方法添加了空值检查\n" +
                     "- [添加] 在所有访问 msg.MessageContent 的地方都添加了空值检查\n" +
+                    "- [更改] 将 groupInfoCache 从 HashMap 改为 ConcurrentHashMap 以避免并发访问问题\n" +
+                    "- [更改] Map改为ConcurrentHashMap：groupInfoCache,Arab2Chinese,UnitMap\n" +
+                    "- [更改] List改为CopyOnWriteArrayList：在quickManageMenuItem方法中的items和actions\n" +
+                    "- [添加] 在 onMsg 方法中为 mAtList 添加了同步块，确保线程安全\n" +
+                    "- [添加] import java.util.concurrent.ConcurrentHashMap;\n" +
+                    "- [添加] 在初始化代码中也使用safeCopyList确保线程安全\n" +
+                    "- [添加] 快捷群管加入黑名单功能，触发后，该用户会被立即踢黑并加入黑名单无法再次入群\n" +
+                    "- [调整] 为onMsg方法添加了专门的锁对象msgLock，确保消息处理的线程安全\n" +
+                    "- [其他] 保持所有原有的同步方法和同步块\n" +
                     "- [修复] 可能导致并发修改异常和空指针异常的地方\n\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
@@ -1310,7 +1374,7 @@ public void SetTroopAdmin(Object qun,Object qq,int type){
     }
 }
 
-private final Map Arab2Chinese = new HashMap();
+private final Map Arab2Chinese = new ConcurrentHashMap();
 {
     Arab2Chinese.put('零', 0);
     Arab2Chinese.put('一', 1);
@@ -1325,7 +1389,7 @@ private final Map Arab2Chinese = new HashMap();
     Arab2Chinese.put('十', 10);
 }
 
-private final Map UnitMap = new HashMap();
+private final Map UnitMap = new ConcurrentHashMap();
 {
     UnitMap.put('十', 10);
     UnitMap.put('百', 100);
@@ -1797,10 +1861,12 @@ public String isGN(String groupUin, String key) {
     else return "❌";
 }
 
+private final Object msgLock = new Object();
+
 public void onMsg(Object msg){
     if (msg == null) return;
     
-    synchronized (this) {
+    synchronized (msgLock) {
         String 故=msg.MessageContent;
         String qq=msg.UserUin;
         String groupUin = msg.GroupUin;
