@@ -294,7 +294,6 @@ public void quickManageMenuItem(final Object msg) {
                         }
                     });
                     
-                    // 新增：加入黑名单选项
                     items.add("加入黑名单");
                     actions.add(new Runnable() {
                         public void run() {
