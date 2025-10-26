@@ -1,4 +1,3 @@
-
 // 海枫
 
 // 好想你 好想跟你见面 然后紧紧的把你抱住
@@ -384,9 +383,9 @@ public void showLocalScripts(String title, String javaString) {
                                 loadButton.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
-                                        boolean result = PluginManager.loadPlugin(null, (PluginInfo)pluginInfos.get(clickedIndex));
+                                        boolean result = PluginManager.loadPlugin(context, (PluginInfo)pluginInfos.get(clickedIndex));
                                         if(result) {
-                                            Toasts("加载成功");
+                                            Toasts("加载成功: " + pluginNames.get(clickedIndex));
                                         } else {
                                             Toasts("加载错误: " + pluginNames.get(clickedIndex));
                                         }
@@ -397,7 +396,7 @@ public void showLocalScripts(String title, String javaString) {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
                                         PluginManager.stopPlugin((PluginInfo)pluginInfos.get(clickedIndex));
-                                        Toasts("停止成功");
+                                        Toasts("停止成功: " + pluginNames.get(clickedIndex));
                                     }
                                 });
                                 
@@ -405,9 +404,9 @@ public void showLocalScripts(String title, String javaString) {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
                                         PluginManager.stopPlugin((PluginInfo)pluginInfos.get(clickedIndex));
-                                        boolean result = PluginManager.loadPlugin(null, (PluginInfo)pluginInfos.get(clickedIndex));
+                                        boolean result = PluginManager.loadPlugin(context, (PluginInfo)pluginInfos.get(clickedIndex));
                                         if(result) {
-                                            Toasts("重新加载成功");
+                                            Toasts("重新加载成功: " + pluginNames.get(clickedIndex));
                                         } else {
                                             Toasts("重新加载错误: " + pluginNames.get(clickedIndex));
                                         }
