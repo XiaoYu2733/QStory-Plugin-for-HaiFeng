@@ -383,11 +383,13 @@ public void showLocalScripts(String title, String javaString) {
                                 loadButton.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
-                                        boolean result = PluginManager.loadPlugin(context, (PluginInfo)pluginInfos.get(clickedIndex));
-                                        if(result) {
+                                        try {
+                                            PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                                            String pluginPath = pluginInfo.pluginLocalPath;
+                                            load(pluginPath + "/main.java");
                                             Toasts("加载成功: " + pluginNames.get(clickedIndex));
-                                        } else {
-                                            Toasts("加载错误: " + pluginNames.get(clickedIndex));
+                                        } catch (Exception e) {
+                                            Toasts("加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
                                         }
                                     }
                                 });
@@ -403,12 +405,14 @@ public void showLocalScripts(String title, String javaString) {
                                 reloadButton.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
-                                        PluginManager.stopPlugin((PluginInfo)pluginInfos.get(clickedIndex));
-                                        boolean result = PluginManager.loadPlugin(context, (PluginInfo)pluginInfos.get(clickedIndex));
-                                        if(result) {
+                                        try {
+                                            PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                                            String pluginPath = pluginInfo.pluginLocalPath;
+                                            PluginManager.stopPlugin(pluginInfo);
+                                            load(pluginPath + "/main.java");
                                             Toasts("重新加载成功: " + pluginNames.get(clickedIndex));
-                                        } else {
-                                            Toasts("重新加载错误: " + pluginNames.get(clickedIndex));
+                                        } catch (Exception e) {
+                                            Toasts("重新加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
                                         }
                                     }
                                 });
