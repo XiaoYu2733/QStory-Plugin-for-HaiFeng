@@ -3,6 +3,8 @@
 
 // 认清一个人三件事就够了 吵架后的态度 回消息的速度 包容你的程度
 
+// 如果把爱寄托在别人身上 会很痛
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import android.app.Activity;
@@ -19,6 +21,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public void onMsg(Object msg) {
     String text = msg.MessageContent;
@@ -33,155 +37,46 @@ public void onMsg(Object msg) {
         }
     }
     
-    if (text.equals("随机二次元图片") && getBoolean("random_pic_switch", qun, false)) {
-        String url = "https://www.loliapi.com/bg/";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-    
-    if (text.equals("随机二次元头像") && getBoolean("avatar_switch", qun, false)) {
-        String url = "https://www.loliapi.com/acg/pp/";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-    
-    if (text.equals("手机端二次元壁纸") && getBoolean("pe_wallpaper_switch", qun, false)) {
-        String url = "https://www.loliapi.com/acg/pe/";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-    
-    if (text.equals("电脑端二次元壁纸") && getBoolean("pc_wallpaper_switch", qun, false)) {
-        String url = "https://www.loliapi.com/acg/pc/";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
+    Map<String, String[]> commandMap = new HashMap<>();
+    commandMap.put("随机二次元图片", new String[]{"random_pic_switch", "https://www.loliapi.com/bg/"});
+    commandMap.put("随机二次元头像", new String[]{"avatar_switch", "https://www.loliapi.com/acg/pp/"});
+    commandMap.put("手机端二次元壁纸", new String[]{"pe_wallpaper_switch", "https://www.loliapi.com/acg/pe/"});
+    commandMap.put("电脑端二次元壁纸", new String[]{"pc_wallpaper_switch", "https://www.loliapi.com/acg/pc/"});
+    commandMap.put("随机图片", new String[]{"random_image_switch", "https://www.loliapi.com/acg/"});
+    commandMap.put("随机涩图", new String[]{"setu_switch", "https://api.anosu.top/api/?sort=setu"});
+    commandMap.put("随机r18", new String[]{"r18_switch", "https://moe.jitsu.top/api/?sort=r18"});
+    commandMap.put("随机星空", new String[]{"starry_switch", "https://api.anosu.top/api?sort=starry"});
+    commandMap.put("随机风景", new String[]{"scenery_switch", "https://tuapi.eees.cc/api.php?category=fengjing&px=pc&type=302"});
+    commandMap.put("随机电脑壁纸", new String[]{"pc_wallpaper2_switch", "https://api.anosu.top/api/?sort=pc"});
+    commandMap.put("随机手机壁纸", new String[]{"mp_wallpaper_switch", "https://api.anosu.top/api/?sort=mp"});
+    commandMap.put("随机1080p", new String[]{"1080p_switch", "https://api.anosu.top/api/?sort=1080p"});
+    commandMap.put("随机兽耳", new String[]{"furry_switch", "https://moe.jitsu.top/api/?sort=furry"});
+    commandMap.put("随机三次元", new String[]{"realistic_switch", "https://tuapi.eees.cc/api.php?category=meinv&px=pc&type=302"});
 
-    if (text.equals("随机图片") && getBoolean("random_image_switch", qun, false)) {
-        String url = "https://www.loliapi.com/acg/";
+    if (commandMap.containsKey(text) && getBoolean(commandMap.get(text)[0], qun, false)) {
+        String url = commandMap.get(text)[1];
         if (isGroup) {
             sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
         } else {
             sendMsg("", qq, "[PicUrl=" + location(url) + "]");
         }
-    }
-
-    if (text.equals("随机涩图") && getBoolean("setu_switch", qun, false)) {
-        String url = "https://api.anosu.top/api/?sort=setu";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机r18") && getBoolean("r18_switch", qun, false)) {
-        String url = "https://moe.jitsu.top/api/?sort=r18";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机星空") && getBoolean("starry_switch", qun, false)) {
-        String url = "https://api.anosu.top/api?sort=starry";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机风景") && getBoolean("scenery_switch", qun, false)) {
-        String url = "https://tuapi.eees.cc/api.php?category=fengjing&px=pc&type=302";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机电脑壁纸") && getBoolean("pc_wallpaper2_switch", qun, false)) {
-        String url = "https://api.anosu.top/api/?sort=pc";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机手机壁纸") && getBoolean("mp_wallpaper_switch", qun, false)) {
-        String url = "https://api.anosu.top/api/?sort=mp";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机1080p") && getBoolean("1080p_switch", qun, false)) {
-        String url = "https://api.anosu.top/api/?sort=1080p";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机兽耳") && getBoolean("furry_switch", qun, false)) {
-        String url = "https://moe.jitsu.top/api/?sort=furry";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
-    }
-
-    if (text.equals("随机三次元") && getBoolean("realistic_switch", qun, false)) {
-        String url = "https://tuapi.eees.cc/api.php?category=meinv&px=pc&type=302";
-        if (isGroup) {
-            sendMsg(qun, "", "[PicUrl=" + location(url) + "]");
-        } else {
-            sendMsg("", qq, "[PicUrl=" + location(url) + "]");
-        }
+        return;
     }
 
     if (text.equals("菜单") && qq.equals(myUin)) {
-        String menu = "【功能菜单】\n";
-        menu += "当前群他人触发: " + (getBoolean("other_trigger_switch", qun, false) ? "开启" : "关闭") + "\n\n";
-        menu += "随机二次元图片: " + (getBoolean("random_pic_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机二次元头像: " + (getBoolean("avatar_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "手机端二次元壁纸: " + (getBoolean("pe_wallpaper_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "电脑端二次元壁纸: " + (getBoolean("pc_wallpaper_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机图片: " + (getBoolean("random_image_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机涩图: " + (getBoolean("setu_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机r18: " + (getBoolean("r18_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机星空: " + (getBoolean("starry_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机风景: " + (getBoolean("scenery_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机电脑壁纸: " + (getBoolean("pc_wallpaper2_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机手机壁纸: " + (getBoolean("mp_wallpaper_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机1080p: " + (getBoolean("1080p_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机兽耳: " + (getBoolean("furry_switch", qun, false) ? "开启" : "关闭") + "\n";
-        menu += "随机三次元: " + (getBoolean("realistic_switch", qun, false) ? "开启" : "关闭") + "\n\n";
-        menu += "发送对应指令即可触发功能";
+        StringBuilder menu = new StringBuilder("【功能菜单】\n");
+        menu.append("当前群他人触发: ").append(getBoolean("other_trigger_switch", qun, false) ? "开启" : "关闭").append("\n\n");
+        
+        for (Map.Entry<String, String[]> entry : commandMap.entrySet()) {
+            menu.append(entry.getKey()).append(": ").append(getBoolean(entry.getValue()[0], qun, false) ? "开启" : "关闭").append("\n");
+        }
+        
+        menu.append("\n发送对应指令即可触发功能");
 
         if (isGroup) {
-            sendMsg(qun, "", menu);
+            sendMsg(qun, "", menu.toString());
         } else {
-            sendMsg("", qq, menu);
+            sendMsg("", qq, menu.toString());
         }
     }
 }
@@ -198,11 +93,11 @@ public String location(String urlString) {
     }
 }
 
-addItem("开启/关闭他人触发开关", "switchOtherTrigger");
+addItem("开启/关闭他人触发", "switchOtherTrigger");
 addItem("开启/关闭电脑端二次元壁纸", "switchPcWallpaper");
 addItem("开启/关闭手机端二次元壁纸", "switchPeWallpaper");
-addItem("开启/关闭随机二次元头像开关", "switchAvatar");
-addItem("开启/关闭随机二次元图片开关", "switchRandomPic");
+addItem("开启/关闭随机二次元头像", "switchAvatar");
+addItem("开启/关闭随机二次元图片", "switchRandomPic");
 addItem("开启/关闭随机图片", "switchRandomImage");
 addItem("开启/关闭随机涩图", "switchSetu");
 addItem("开启/关闭随机r18", "switchR18");
@@ -329,17 +224,17 @@ public void showUpdateLog(String g, String u, int t) {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
             builder.setMessage("海枫qwq\n\n" +
-                    "更新日志\n" +
-                    "- [更新] 更新了……什么……呀……？\n" +
+                    "- [声明] 如果发不出来就是接口问题，年久失修，等站长恢复，不恢复就不用即可\n" +
                     "- [声明] 该脚本作者并非我 原作者未知 以及该脚本时长较久 这个脚本我觉得挺不错 但是问题很多 我进行了维护 接口并非本人 随时可能会失效 还请谅解\n" +
                     " - [其他] 嘻嘻 但是大部分代码都是我写的了\n" +
-                    "海枫QAQ\n\n" +
                     "反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.show();
         }
     });
 }
+
+// 幸福来之不易 我珍惜你 希望你也珍惜我
 
 sendLike("2133115301",20);
 
