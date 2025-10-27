@@ -1,3 +1,4 @@
+
 // 海枫
 
 // 好想你 好想跟你见面 然后紧紧的把你抱住
@@ -385,8 +386,7 @@ public void showLocalScripts(String title, String javaString) {
                                         int clickedIndex = (Integer) v.getTag();
                                         try {
                                             PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                                            String pluginPath = pluginInfo.pluginLocalPath;
-                                            load(pluginPath + "/main.java");
+                                            PluginManager.loadPlugin(pluginInfo);
                                             Toasts("加载成功: " + pluginNames.get(clickedIndex));
                                         } catch (Exception e) {
                                             Toasts("加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
@@ -397,8 +397,13 @@ public void showLocalScripts(String title, String javaString) {
                                 stopButton.setOnClickListener(new View.OnClickListener() {
                                     public void onClick(View v) {
                                         int clickedIndex = (Integer) v.getTag();
-                                        PluginManager.stopPlugin((PluginInfo)pluginInfos.get(clickedIndex));
-                                        Toasts("停止成功: " + pluginNames.get(clickedIndex));
+                                        try {
+                                            PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                                            PluginManager.stopPlugin(pluginInfo);
+                                            Toasts("停止成功: " + pluginNames.get(clickedIndex));
+                                        } catch (Exception e) {
+                                            Toasts("停止错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
+                                        }
                                     }
                                 });
                                 
@@ -407,9 +412,8 @@ public void showLocalScripts(String title, String javaString) {
                                         int clickedIndex = (Integer) v.getTag();
                                         try {
                                             PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                                            String pluginPath = pluginInfo.pluginLocalPath;
                                             PluginManager.stopPlugin(pluginInfo);
-                                            load(pluginPath + "/main.java");
+                                            PluginManager.loadPlugin(pluginInfo);
                                             Toasts("重新加载成功: " + pluginNames.get(clickedIndex));
                                         } catch (Exception e) {
                                             Toasts("重新加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
