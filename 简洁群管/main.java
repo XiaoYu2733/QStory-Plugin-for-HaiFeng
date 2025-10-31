@@ -294,6 +294,7 @@ public void quickManageMenuItem(final Object msg) {
                         }
                     });
                     
+                    // 新增：加入黑名单选项
                     items.add("加入黑名单");
                     actions.add(new Runnable() {
                         public void run() {
@@ -952,7 +953,10 @@ public void showUpdateLog(String g, String u, int t) {
                     "- [添加] 快捷群管加入黑名单功能，触发后，该用户会被立即踢黑并加入黑名单无法再次入群\n" +
                     "- [调整] 为onMsg方法添加了专门的锁对象msgLock，确保消息处理的线程安全\n" +
                     "- [其他] 保持所有原有的同步方法和同步块\n" +
-                    "- [修复] 可能导致并发修改异常和空指针异常的地方\n\n" +
+                    "- [修复] 可能导致并发修改异常和空指针异常的地方\n" +
+                    "————————\n" +
+                    "简洁群管_82.0_更新日志\n" +
+                    "- [优化] 脚本整体代码\n" +
                     "临江、海枫 平安喜乐 (>_<)");
             builder.setPositiveButton("确定", null);
             builder.show();
