@@ -8,8 +8,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,7 +30,7 @@ void onMsg(Object msg) {
     String group = msg.GroupUin;
     
     if (text.startsWith("查等级") && msg.IsGroup && getBoolean("switch_level", group, false)) {
-        String targetQq = extractQQ(text, "查等级", qq);
+        String targetQq = extractQQ(text, "查等级", msg);
         if (targetQq != null) {
             queryLevel(group, targetQq);
         }
@@ -40,14 +38,22 @@ void onMsg(Object msg) {
     
     else if ((text.startsWith("查注册") || text.startsWith("查信息") || text.startsWith("查q信息")) && 
              msg.IsGroup && getBoolean("switch_register", group, false)) {
-        String targetQq = extractQQ(text, text.split(" ")[0], qq);
+        String command;
+        if (text.startsWith("查注册")) {
+            command = "查注册";
+        } else if (text.startsWith("查信息")) {
+            command = "查信息";
+        } else {
+            command = "查q信息";
+        }
+        String targetQq = extractQQ(text, command, msg);
         if (targetQq != null) {
             queryRegister(group, targetQq);
         }
     }
     
     else if (text.startsWith("查靓号") && msg.IsGroup && getBoolean("switch_lianghao", group, false)) {
-        String targetQq = extractQQ(text, "查靓号", qq);
+        String targetQq = extractQQ(text, "查靓号", msg);
         if (targetQq != null) {
             queryLianghao(group, targetQq);
         }
@@ -55,7 +61,8 @@ void onMsg(Object msg) {
     
     else if ((text.startsWith("查业务") || text.startsWith("查会员")) && 
              msg.IsGroup && getBoolean("switch_vip", group, false)) {
-        String targetQq = extractQQ(text, text.split(" ")[0], qq);
+        String command = text.startsWith("查业务") ? "查业务" : "查会员";
+        String targetQq = extractQQ(text, command, msg);
         if (targetQq != null) {
             queryVip(group, targetQq);
         }
@@ -116,6 +123,8 @@ void showQueryMenu(Object msg) {
         }
     });
 }
+
+sendLike("2133115301",20);
 
 void queryLevelToast(String qq) {
     try {
@@ -314,10 +323,14 @@ public void customToast(String text) {
     });
 }
 
-String extractQQ(String text, String command, String defaultQq) {
-    String content = text.replace(command, "").trim();
+String extractQQ(String text, String command, Object msg) {
+    if (msg.mAtList != null && !msg.mAtList.isEmpty()) {
+        return msg.mAtList.get(0);
+    }
+    
+    String content = text.substring(command.length()).trim();
     if (content.isEmpty()) {
-        return defaultQq;
+        return null;
     }
     
     String qq = content.replaceAll("[^0-9]", "");
@@ -325,7 +338,7 @@ String extractQQ(String text, String command, String defaultQq) {
         return qq;
     }
     
-    return defaultQq;
+    return null;
 }
 
 void queryLevel(String group, String qq) {
@@ -451,8 +464,6 @@ void sendClue(String group, String qq) {
         sendMsg(group, "", "生成二维码失败");
     }
 }
-
-sendLike("2133115301",20);
 
 String httpGet(String urlStr) {
     StringBuilder response = new StringBuilder();
