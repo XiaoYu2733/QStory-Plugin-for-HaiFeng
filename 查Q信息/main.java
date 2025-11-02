@@ -1,7 +1,7 @@
 
 // 海枫
 
-// 就算今天我把话说得再绝 明天我还是会喜欢你
+// 即使前路困难重重 我们也不要放开彼此的手
 
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -68,13 +68,12 @@ void onMsg(Object msg) {
         }
     }
     
-    else if (text.startsWith("他的线索") && msg.IsGroup && getBoolean("switch_clue", group, false)) {
-        if (msg.mAtList != null && !msg.mAtList.isEmpty()) {
-            for (String atQq : msg.mAtList) {
-                sendClue(group, atQq);
-            }
+    else if (text.startsWith("查线索") && msg.IsGroup && getBoolean("switch_clue", group, false)) {
+        String targetQq = extractQQ(text, "查线索", msg);
+        if (targetQq != null) {
+            sendClue(group, targetQq);
         } else {
-            sendMsg(group, "", "请@要查询的用户");
+            sendMsg(group, "", "请@要查询的用户或输入QQ号");
         }
     }
 }
@@ -458,7 +457,7 @@ void sendClue(String group, String qq) {
         String url = "https://ti.qq.com/friends/recall?uin=" + qq;
         String qrcodeUrl = "https://api.suyanw.cn/api/qrcode.php?text=" + url + "&size=180";
         
-        sendMsg(group, "", "请扫码查看" + qq + "的线索：[pic=" + qrcodeUrl + "]");
+        sendMsg(group, "", "=== 线索查询 ===\nQQ：" + qq + "\n链接：" + url + "\n请扫码查看：[pic=" + qrcodeUrl + "]");
     } catch (Exception e) {
         error(e);
         sendMsg(group, "", "生成二维码失败");
@@ -496,11 +495,11 @@ String httpGet(String urlStr) {
     return response.toString().trim();
 }
 
-addItem("开启查等级", "toggleLevel");
-addItem("开启查注册", "toggleRegister");
-addItem("开启查靓号", "toggleLianghao");
-addItem("开启查会员", "toggleVip");
-addItem("开启查线索", "toggleClue");
+addItem("开启/关闭本群查等级", "toggleLevel");
+addItem("开启/关闭本群查注册", "toggleRegister");
+addItem("开启/关闭本群查靓号", "toggleLianghao");
+addItem("开启/关闭本群查会员", "toggleVip");
+addItem("开启/关闭本群查线索", "toggleClue");
 
 public void toggleLevel(String groupUin, String uin, int chatType) {
     if (chatType != 2) {
