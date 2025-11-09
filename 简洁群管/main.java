@@ -30,7 +30,6 @@ import com.tencent.common.app.BaseApplicationImpl;
 import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import android.content.Context;
-import android.widget.Toast;
 import android.content.res.Configuration;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,15 +37,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Collections;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Gravity;
-import android.view.ViewGroup.LayoutParams;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 如果你不会动的话最好别乱动下面的东西
 public boolean isDarkMode() {
     try {
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -66,58 +61,6 @@ public String getTextColor() {
 
 public int c(float f) {
     return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
-}
-
-public GradientDrawable getShape(String color, int cornerRadius, int alpha) {
-    GradientDrawable shape = new GradientDrawable();
-    shape.setColor(Color.parseColor(color));
-    shape.setCornerRadius(cornerRadius);
-    shape.setAlpha(alpha);
-    shape.setShape(GradientDrawable.RECTANGLE);
-    return shape;
-}
-
-public void Toasts(String text) {
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-        public void run() {
-            try {
-                if (getActivity() != null) {
-                    String bgColor = getBackgroundColor();
-                    String textColor = getTextColor();
-                    
-                    LinearLayout linearLayout = new LinearLayout(context);
-                    linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    linearLayout.setOrientation(LinearLayout.VERTICAL);
-                    
-                    int paddingHorizontal = c(18);
-                    int paddingVertical = c(12);
-                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
-                    
-                    linearLayout.setBackground(getShape(bgColor, c(12), 230));
-                    
-                    TextView textView = new TextView(context);
-                    textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    textView.setTextColor(Color.parseColor(textColor));
-                    textView.setTextSize(14.5f);
-                    textView.setText(text);
-                    textView.setGravity(Gravity.CENTER);
-                    
-                    linearLayout.addView(textView);
-                    linearLayout.setGravity(Gravity.CENTER);
-                    
-                    Toast toast = new Toast(context);
-                    toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_LONG);
-                    toast.setView(linearLayout);
-                    toast.show();
-                } else {
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                }
-            } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-            }
-        }
-    });
 }
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
@@ -210,7 +153,6 @@ public String 禁言组文本(String qun) {
     return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
-// 时光流逝 愿你有一天 能和重要的人重逢
 private Map<String, Object> groupInfoCache = new ConcurrentHashMap<>();
 
 {
@@ -316,7 +258,7 @@ public void quickManageMenuItem(final Object msg) {
                 }
                 
                 if (items.isEmpty()) {
-                    Toasts("没有可用的操作权限");
+                    toast("没有可用的操作权限");
                     return;
                 }
                 
@@ -332,7 +274,7 @@ public void quickManageMenuItem(final Object msg) {
                 builder.show();
                 
             } catch (Exception e) {
-                Toasts("打开快捷群管失败: " + e.getMessage());
+                toast("打开快捷群管失败: " + e.getMessage());
             }
         }
     });
@@ -361,7 +303,7 @@ public void addToBlacklistMenuItem(Object msg) {
                         }
                         
                         if (!有权限操作(groupUin, myUin, targetUin)) {
-                            Toasts("没有权限操作该用户");
+                            toast("没有权限操作该用户");
                             return;
                         }
                         
@@ -369,10 +311,10 @@ public void addToBlacklistMenuItem(Object msg) {
                         unifiedKick(groupUin, targetUin, true);
                         
                         String successMsg = "群:" + groupUin + " 已成功将该用户:" + 名(targetUin) + "(" + targetUin + ")加入黑名单并执行踢黑";
-                        Toasts(successMsg);
+                        toast(successMsg);
                         
                     } catch (Exception e) {
-                        Toasts("加入黑名单失败: " + e.getMessage());
+                        toast("加入黑名单失败: " + e.getMessage());
                     }
                 }
             });
@@ -401,7 +343,7 @@ public void kickMenuItem(Object msg) {
             builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
                     unifiedKick(groupUin, targetUin, false);
-                    Toasts("踢出成功");
+                    toast("踢出成功");
                 }
             });
             
@@ -429,7 +371,7 @@ public void kickBlackMenuItem(Object msg) {
             builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
                     unifiedKick(groupUin, targetUin, true);
-                    Toasts("踢黑成功");
+                    toast("踢黑成功");
                 }
             });
             
@@ -481,7 +423,7 @@ public void forbiddenMenuItem(Object msg) {
                             int time = Integer.parseInt(input);
                             if (time > 0) {
                                 if (time > 2592000) {
-                                    Toasts("禁言时间不能超过30天");
+                                    toast("禁言时间不能超过30天");
                                     return;
                                 }
                                 unifiedForbidden(groupUin, targetUin, time);
@@ -497,15 +439,15 @@ public void forbiddenMenuItem(Object msg) {
                                     timeDisplay = (time / 86400) + "天";
                                 }
                                 
-                                Toasts("已禁言 " + 名(targetUin) + " " + timeDisplay);
+                                toast("已禁言 " + 名(targetUin) + " " + timeDisplay);
                             } else {
-                                Toasts("请输入大于0的数字");
+                                toast("请输入大于0的数字");
                             }
                         } catch (NumberFormatException e) {
-                            Toasts("请输入有效的数字");
+                            toast("请输入有效的数字");
                         }
                     } else {
-                        Toasts("请输入禁言时间");
+                        toast("请输入禁言时间");
                     }
                 }
             });
@@ -552,9 +494,9 @@ public void setTitleMenuItem(Object msg) {
                     String input = inputEditText.getText().toString().trim();
                     if (!input.isEmpty()) {
                         setTitle(groupUin, targetUin, input);
-                        Toasts("已为 " + 名(targetUin) + " 设置头衔: " + input);
+                        toast("已为 " + 名(targetUin) + " 设置头衔: " + input);
                     } else {
-                        Toasts("请输入头衔内容");
+                        toast("请输入头衔内容");
                     }
                 }
             });
@@ -604,13 +546,13 @@ public void 自动解禁代管方法(String groupUin, String uin, int chatType) 
     try {
         if("开".equals(getString("自动解禁代管配置", "开关"))){
             putString("自动解禁代管配置", "开关", null);
-            Toasts("已关闭自动解禁代管");
+            toast("已关闭自动解禁代管");
         }else{
             putString("自动解禁代管配置", "开关", "开");
-            Toasts("已开启自动解禁代管");
+            toast("已开启自动解禁代管");
         }
     } catch (Exception e) {
-        Toasts("操作失败: " + e.getMessage());
+        toast("操作失败: " + e.getMessage());
     }
 }
 
@@ -626,9 +568,9 @@ public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long
             processingUnforbidden.add(key);
             try {
                 unifiedForbidden(groupUin, userUin, 0);
-                Toasts("检测代管在群:" + groupUin + "被禁言,已尝试解禁");
+                toast("检测代管在群:" + groupUin + "被禁言,已尝试解禁");
             } catch (Throwable e) {
-                Toasts("检测代管在群:" + groupUin + "被禁言,无权限无法解禁");
+                toast("检测代管在群:" + groupUin + "被禁言,无权限无法解禁");
             } finally {
                 processingUnforbidden.remove(key);
             }
@@ -673,12 +615,12 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                                 if (newTime > 0) {
                                     艾特禁言时间 = newTime;
                                     putInt("艾特禁言时间配置", "时间", newTime);
-                                    Toasts("已设置艾特禁言时间为: " + newTime + "秒");
+                                    toast("已设置艾特禁言时间为: " + newTime + "秒");
                                 } else {
-                                    Toasts("请输入大于0的数字");
+                                    toast("请输入大于0的数字");
                                 }
                             } catch (NumberFormatException e) {
-                                Toasts("请输入有效的数字");
+                                toast("请输入有效的数字");
                             }
                         }
                     }
@@ -983,7 +925,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_84.0_更新日志\n" +
                         "- [优化] 部分代码防止wa引擎导致的报错\n\n" +
-                        "临江、海枫 平安喜乐 (>_<)");
+                        "————————\n" +
+                        "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n\n" +
+                        "临江、海枫 平安喜乐 (>_<)\n\n" +
+                        "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
             } catch (Exception e) {
@@ -1094,7 +1039,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                                     } catch (Exception e) {}
                                 }
                             }
-                            Toasts("已添加代管");
+                            toast("已添加代管");
                         }
                     }
                 });
@@ -1110,7 +1055,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                                 } catch (Exception e) {}
                             }
                         }
-                            Toasts("已删除选中代管");
+                            toast("已删除选中代管");
                     }
                 });
                 
@@ -1119,7 +1064,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                         try {
                             全弃(代管文件);
                         } catch (Exception e) {}
-                        Toasts("已清空代管");
+                        toast("已清空代管");
                     }
                 });
                 
@@ -1174,7 +1119,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                                     } catch (Exception e) {}
                                 }
                             }
-                            Toasts("已添加黑名单");
+                            toast("已添加黑名单");
                         }
                     }
                 });
@@ -1190,7 +1135,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                                 } catch (Exception e) {}
                             }
                         }
-                        Toasts("已删除选中黑名单");
+                        toast("已删除选中黑名单");
                     }
                 });
                 
@@ -1199,7 +1144,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                         try {
                             全弃(黑名单文件);
                         } catch (Exception e) {}
-                        Toasts("已清空黑名单");
+                        toast("已清空黑名单");
                     }
                 });
                 
@@ -1215,13 +1160,13 @@ public void 开关自助头衔方法(String groupUin, String uin, int chatType) 
     try {
         if("开".equals(getString(groupUin,"自助头衔"))){
             putString(groupUin,"自助头衔",null);
-            Toasts("已关闭自助头衔");
+            toast("已关闭自助头衔");
         }else{
             putString(groupUin,"自助头衔","开");
-            Toasts("已开启自助头衔");
+            toast("已开启自助头衔");
         }
     } catch (Exception e) {
-        Toasts("操作失败: " + e.getMessage());
+        toast("操作失败: " + e.getMessage());
     }
 }
 
@@ -1230,13 +1175,13 @@ public void 开关艾特禁言方法(String groupUin, String uin, int chatType) 
     try {
         if("开".equals(getString(groupUin,"艾特禁言"))){
             putString(groupUin,"艾特禁言",null);
-            Toasts("已关闭艾特禁言");
+            toast("已关闭艾特禁言");
         }else{
             putString(groupUin,"艾特禁言","开");
-            Toasts("已开启艾特禁言");
+            toast("已开启艾特禁言");
         }
     } catch (Exception e) {
-        Toasts("操作失败: " + e.getMessage());
+        toast("操作失败: " + e.getMessage());
     }
 }
 
@@ -1245,13 +1190,13 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     try {
         if("开".equals(getString(groupUin,"退群拉黑"))){
             putString(groupUin,"退群拉黑",null);
-            Toasts("已关闭退群拉黑");
+            toast("已关闭退群拉黑");
         }else{
             putString(groupUin,"退群拉黑","开");
-            Toasts("已开启退群拉黑");
+            toast("已开启退群拉黑");
         }
     } catch (Exception e) {
-        Toasts("操作失败: " + e.getMessage());
+        toast("操作失败: " + e.getMessage());
     }
 }
 
@@ -1774,13 +1719,13 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
             if (!检查黑名单(groupUin, userUin)) {
                 添加黑名单(groupUin, userUin);
                 String log = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
-                Toasts(log);
+                toast(log);
             }
         } else if (type == 2) {
             if (检查黑名单(groupUin, userUin)) {
                 unifiedKick(groupUin, userUin, true);
                 String log = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
-                Toasts(log);
+                toast(log);
             }
         }
     } catch (Exception e) {
@@ -1796,12 +1741,12 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
             try {
                 ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
                 if (黑名单列表.isEmpty()) {
-                    Toasts("本群黑名单为空");
+                    toast("本群黑名单为空");
                     return;
                 }
                 ArrayList 成员列表 = getGroupMemberList(groupUin);
                 if (成员列表 == null || 成员列表.isEmpty()) {
-                    Toasts("获取成员列表失败");
+                    toast("获取成员列表失败");
                     return;
                 }
                 boolean 有权限 = false;
@@ -1814,7 +1759,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     }
                 }
                 if (!有权限) {
-                    Toasts("没有群管权限，无法踢人");
+                    toast("没有群管权限，无法踢人");
                     return;
                 }
                 StringBuilder 踢出列表 = new StringBuilder();
@@ -1831,14 +1776,14 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     final String 结果 = "已踢出以下黑名单成员：\n" + 踢出列表.toString();
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
-                            Toasts(结果);
+                            toast(结果);
                         }
                     });
                 } else {
-                    Toasts("没有发现黑名单成员");
+                    toast("没有发现黑名单成员");
                 }
             } catch (Throwable e) {
-                Toasts("检测黑名单时出错: " + e.getMessage());
+                toast("检测黑名单时出错: " + e.getMessage());
             }
         }
     }).start();
