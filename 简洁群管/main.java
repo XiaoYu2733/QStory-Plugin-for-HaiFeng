@@ -42,27 +42,6 @@ import android.os.Looper;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-public boolean isDarkMode() {
-    try {
-        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
-    } catch (Exception e) {
-        return false;
-    }
-}
-
-public String getBackgroundColor() {
-    return isDarkMode() ? "#CC1E1E1E" : "#CCFFFFFF";
-}
-
-public String getTextColor() {
-    return isDarkMode() ? "#E0E0E0" : "#333333";
-}
-
-public int c(float f) {
-    return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
-}
-
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
         forbidden(groupUin, userUin, time);
