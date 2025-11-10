@@ -6,15 +6,10 @@
 [![Telegram](https://img.shields.io/static/v1?label=Telegram&message=Chat&color=0088cc)](https://t.me/XiaoYu_Chat)
 </div>
 
-## 脚本运行环境：QStory下载地址：http://qstory.suzhelan.top 
+## 脚本运行环境：QStory下载地址：http://qstory.suzhelan.top https://qstory.sacz.top
 
-### 备用QStory下载地址：如果上面的网站打不开：https://qstory.sacz.top
-
-### 所需框架环境：LSPosed＆LSPatch
 
 ### 插件也可以在QStory在线脚本下载，或前往 https://t.me/QStoryPluginBackup
-
-### 请更新QStory至2.0.4+ 使用WAuxiliary的bsh引擎，支持泛型 lambda表达式以及部分特性
 
 —————————————
 
