@@ -392,7 +392,6 @@ addItem("开启/关闭本群记录语录", "toggleQuote");
 addItem("开启/关闭本群随机语录", "toggleQrand");
 addItem("查看脚本使用方法", "showUsage");
 addItem("立即清理老婆数据", "cleanWaifuData");
-addItem("脚本本次更新日志", "showUpdateLog");
 
 public void toggleWaifu(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
@@ -452,38 +451,6 @@ public void cleanWaifuData(String groupUin, String userUin, int chatType) {
     putString(lastCleanDateKey, "global", today);
     
     MonetToasts("已清理所有未结婚的老婆数据（包括今日记录）");
-}
-
-public void showUsage(String g, String u, int t) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("脚本使用方法");
-            builder.setMessage("/waifu 是抽取每日老婆\n/marry 是求婚 需要对方同意\n/divorce 是离婚\n/q 是记录语录 回复信息\n/qrand 是随机语录 需要先记录语录");
-            builder.setPositiveButton("确定", null);
-            builder.setCancelable(true);
-            builder.show();
-        }
-    });
-}
-
-public void showUpdateLog(String g, String u, int t) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("脚本更新日志");
-            builder.setMessage("- [修复] 删除老婆数据后重新加载脚本仍提示已抽过老婆的问题\n- [新增] 完全清理每日老婆配置记录的功能\n- [更改] 清理老婆数据时同时清理文件和配置记录\n\n反馈交流群：https://t.me/XiaoYu_Chat");
-            builder.setPositiveButton("确定", null);
-            builder.setCancelable(true);
-            builder.show();
-        }
-    });
 }
 
 public boolean isDarkMode() {
