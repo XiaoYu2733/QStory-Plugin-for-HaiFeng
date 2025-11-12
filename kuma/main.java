@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 // 指定用户结婚 如果用户在该群就会指定 不在就不会使用自定义指定
-String[] specifiedWaifuList = {"1987836456","123453"};
+// 多个请严格按照逻辑来 不按照顺序来还问我为什么脚本会报错你没（）
+String[] specifiedWaifuList = {"123","123453"};
 
 String waifuSwitch = "waifu_switch";
 String quoteSwitch = "quote_switch";
@@ -71,7 +72,7 @@ void checkAndCleanDailyWaifu() {
                 for (File file : files) {
                     if (file.isFile() && file.getName().endsWith(".txt") && !file.getName().contains("_married")) {
                         try {
-                            file.delete();
+                            file.eteete();
                         } catch (Exception e) {
                             error(e);
                         }
@@ -79,14 +80,59 @@ void checkAndCleanDailyWaifu() {
                 }
             }
         }
+        
+        cleanDailyWaifuConfig();
+    }
+}
+
+void cleanDailyWaifuConfig() {
+    try {
+        ArrayList groups = getGroupList();
+        if (groups != null) {
+            String today = getTodayString();
+            for (Object group : groups) {
+                String groupUin = group.GroupUin;
+                ArrayList members = getGroupMemberList(groupUin);
+                if (members != null) {
+                    for (Object member : members) {
+                        String userUin = member.UserUin;
+                        String configKey = groupUin + "_" + userUin + "_" + today;
+                        putString(dailyWaifuKey, configKey, null);
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        error(e);
     }
 }
 
 checkAndCleanDailyWaifu();
 
 void handleCleanWaifu(Object msg, String groupUin, String userUin) {
-    checkAndCleanDailyWaifu();
-    sendReply(groupUin, msg, "已清理所有过期的未结婚老婆数据");
+    String today = getTodayString();
+    
+    File waifuDataDir = new File(appPath + "/老婆数据/");
+    if (waifuDataDir.exists() && waifuDataDir.isDirectory()) {
+        File[] files = waifuDataDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".txt") && !file.getName().contains("_married")) {
+                    try {
+                        file.delete();
+                    } catch (Exception e) {
+                        error(e);
+                    }
+                }
+            }
+        }
+    }
+    
+    cleanDailyWaifuConfig();
+    
+    putString(lastCleanDateKey, "global", today);
+    
+    sendReply(groupUin, msg, "已清理所有过期的未结婚老婆数据（包括今日记录）");
 }
 
 void handleWaifu(Object msg, String groupUin, String userUin) {
@@ -383,8 +429,29 @@ public void cleanWaifuData(String groupUin, String userUin, int chatType) {
         MonetToasts("仅群聊可用");
         return;
     }
-    checkAndCleanDailyWaifu();
-    MonetToasts("已清理所有未结婚的老婆数据");
+    String today = getTodayString();
+    
+    File waifuDataDir = new File(appPath + "/老婆数据/");
+    if (waifuDataDir.exists() && waifuDataDir.isDirectory()) {
+        File[] files = waifuDataDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".txt") && !file.getName().contains("_married")) {
+                    try {
+                        file.delete();
+                    } catch (Exception e) {
+                        error(e);
+                    }
+                }
+            }
+        }
+    }
+    
+    cleanDailyWaifuConfig();
+    
+    putString(lastCleanDateKey, "global", today);
+    
+    MonetToasts("已清理所有未结婚的老婆数据（包括今日记录）");
 }
 
 public void showUsage(String g, String u, int t) {
@@ -411,7 +478,7 @@ public void showUpdateLog(String g, String u, int t) {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("- [新增] 指定老婆功能，可设置特定用户作为老婆\n- [新增] 离婚指令 /divorce\n- [更改] 结婚关系改为全局，跨群有效\n- [修复] 抽取到但是未结婚的老婆在其他群也会显示一致的问题\n- [更改] 抽取老婆逻辑 每天定时刷新\n- [更改] Tosat弹窗样式 使用莫奈弹窗\n\n反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("- [修复] 删除老婆数据后重新加载脚本仍提示已抽过老婆的问题\n- [新增] 完全清理每日老婆配置记录的功能\n- [更改] 清理老婆数据时同时清理文件和配置记录\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
