@@ -1,7 +1,7 @@
 
-// 作 海枫
+// 海枫
 
-// 愛意随风起 既又不随风散 這路遙馬急的人間 我又能在你心里待多久
+// 一个人会犯多少错 两个人又会有多少承诺
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -30,6 +30,9 @@ import android.content.DialogInterface;
 import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+// 指定用户结婚 如果用户在该群就会指定 不在就不会使用自定义指定
+String[] specifiedWaifuList = {"1987836456","123453"};
 
 String waifuSwitch = "waifu_switch";
 String quoteSwitch = "quote_switch";
@@ -87,6 +90,14 @@ void handleCleanWaifu(Object msg, String groupUin, String userUin) {
 }
 
 void handleWaifu(Object msg, String groupUin, String userUin) {
+    String marriedTo = getString(marriedKey, userUin, null);
+    if (marriedTo != null) {
+        String spouseName = getMemberName(groupUin, marriedTo);
+        String spouseAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + marriedTo + "&s=0";
+        sendReply(groupUin, msg, "你已经结婚了，你的结婚老婆是" + spouseName + " [PicUrl=" + spouseAvatar + "]");
+        return;
+    }
+    
     String today = getTodayString();
     String alreadyWaifu = getString(dailyWaifuKey, groupUin + "_" + userUin + "_" + today, null);
     if (alreadyWaifu != null) {
@@ -95,14 +106,37 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
         sendReply(groupUin, msg, "你今天已经抽过老婆了，你的老婆是" + waifuName + " [PicUrl=" + avatarUrl + "]");
         return;
     }
+    
     ArrayList members = getGroupMemberList(groupUin);
     if (members == null || members.size() == 0) {
         sendReply(groupUin, msg, "获取群成员失败");
         return;
     }
+    
+    ArrayList availableSpecified = new ArrayList();
+    
+    if (specifiedWaifuList != null && specifiedWaifuList.length > 0) {
+        for (String specifiedUin : specifiedWaifuList) {
+            for (Object member : members) {
+                if (member.UserUin.equals(specifiedUin.trim())) {
+                    availableSpecified.add(member);
+                    break;
+                }
+            }
+        }
+    }
+    
     Random rand = new Random();
-    int index = rand.nextInt(members.size());
-    Object waifu = members.get(index);
+    Object waifu;
+    
+    if (availableSpecified.size() > 0) {
+        int index = rand.nextInt(availableSpecified.size());
+        waifu = availableSpecified.get(index);
+    } else {
+        int index = rand.nextInt(members.size());
+        waifu = members.get(index);
+    }
+    
     String waifuUin = waifu.UserUin;
     putString(dailyWaifuKey, groupUin + "_" + userUin + "_" + today, waifuUin);
     
@@ -118,12 +152,12 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     }
     
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + waifuUin + "&s=0";
-    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 [AtQQ=" + waifuUin + "] [PicUrl=" + avatarUrl + "]，发送 /marry 可以向对方结婚~";
+    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 [AtQQ=" + waifuUin + "] [PicUrl=" + avatarUrl + "]发送 /marry 可以向对方结婚~";
     sendMsg(groupUin, "", reply);
 }
 
 void handleMarry(Object msg, String groupUin, String userUin) {
-    String marriedTo = getString(marriedKey, groupUin + "_" + userUin, null);
+    String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
         String spouseAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + marriedTo + "&s=0";
@@ -167,7 +201,8 @@ void handleAgree(Object msg, String groupUin, String userUin) {
         putString(requestKey, groupUin + "_" + userUin, null);
         return;
     }
-    putString(marriedKey, groupUin + "_" + requesterUin, userUin);
+    putString(marriedKey, requesterUin, userUin);
+    putString(marriedKey, userUin, requesterUin);
     putString(requestKey, groupUin + "_" + userUin, null);
     
     String filename = groupUin + "_married.txt";
@@ -186,6 +221,20 @@ void handleAgree(Object msg, String groupUin, String userUin) {
     String requesterAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + requesterUin + "&s=0";
     String spouseAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + userUin + "&s=0";
     sendMsg(groupUin, "", "恭喜 " + requesterName + " 和 " + spouseName + " 结婚啦！ [PicUrl=" + requesterAvatar + "] [PicUrl=" + spouseAvatar + "]");
+}
+
+void handleDivorce(Object msg, String groupUin, String userUin) {
+    String marriedTo = getString(marriedKey, userUin, null);
+    if (marriedTo == null) {
+        sendReply(groupUin, msg, "你还没有结婚！");
+        return;
+    }
+    
+    putString(marriedKey, userUin, null);
+    putString(marriedKey, marriedTo, null);
+    
+    String spouseName = getMemberName(groupUin, marriedTo);
+    sendMsg(groupUin, "", "[AtQQ=" + userUin + "] 已经和 " + spouseName + " 离婚了");
 }
 
 void handleQuote(Object msg, String groupUin, String userUin) {
@@ -280,6 +329,8 @@ void onMsg(Object msg) {
             handleMarry(msg, groupUin, userUin);
         } else if (text.equals("/agree") && waifuOn) {
             handleAgree(msg, groupUin, userUin);
+        } else if (text.equals("/divorce") && waifuOn) {
+            handleDivorce(msg, groupUin, userUin);
         } else if (text.equals("/q") && quoteOn) {
             handleQuote(msg, groupUin, userUin);
         } else if (text.equals("/qrand") && qrandOn) {
@@ -344,7 +395,7 @@ public void showUsage(String g, String u, int t) {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本使用方法");
-            builder.setMessage("/waifu 是抽取每日老婆\n/marry 是求婚 需要对方同意\n/q 是记录语录 回复信息\n/qrand 是随机语录 需要先记录语录");
+            builder.setMessage("/waifu 是抽取每日老婆\n/marry 是求婚 需要对方同意\n/divorce 是离婚\n/q 是记录语录 回复信息\n/qrand 是随机语录 需要先记录语录");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
@@ -360,7 +411,7 @@ public void showUpdateLog(String g, String u, int t) {
         public void run() {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             builder.setTitle("脚本更新日志");
-            builder.setMessage("- [修复] 抽取到但是未结婚的老婆在其他群也会显示一致的问题(不知道还有没有问题了)\n- [更改] 抽取老婆逻辑 每天定时刷新\n- [更改] Tosat弹窗样式 使用莫奈弹窗\n\n反馈交流群：https://t.me/XiaoYu_Chat");
+            builder.setMessage("- [新增] 指定老婆功能，可设置特定用户作为老婆\n- [新增] 离婚指令 /divorce\n- [更改] 结婚关系改为全局，跨群有效\n- [修复] 抽取到但是未结婚的老婆在其他群也会显示一致的问题\n- [更改] 抽取老婆逻辑 每天定时刷新\n- [更改] Tosat弹窗样式 使用莫奈弹窗\n\n反馈交流群：https://t.me/XiaoYu_Chat");
             builder.setPositiveButton("确定", null);
             builder.setCancelable(true);
             builder.show();
