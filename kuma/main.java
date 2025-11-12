@@ -31,13 +31,9 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-// 指定抽取老婆 格式如下
-// 只有123456可以抽到354664
-// 42334可以抽到546664
-// 当然 你也可以设置双向奔赴 懂得都懂
 HashMap<String, String> specifiedWaifuMap = new HashMap<>();
-specifiedWaifuMap.put("123456", "354664");
-specifiedWaifuMap.put("42364", "54664");
+specifiedWaifuMap.put("107464738", "2133115301");
+specifiedWaifuMap.put("2133115304", "107464738");
 
 String waifuSwitch = "waifu_switch";
 String quoteSwitch = "quote_switch";
@@ -79,7 +75,7 @@ void checkAndCleanDailyWaifu() {
                         try {
                             file.delete();
                         } catch (Exception e) {
-                            log(e.toString());
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -109,7 +105,7 @@ void cleanDailyWaifuConfig() {
             }
         }
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
     }
 }
 
@@ -127,7 +123,7 @@ void handleCleanWaifu(Object msg, String groupUin, String userUin) {
                     try {
                         file.delete();
                     } catch (Exception e) {
-                        log(e.toString());
+                        e.printStackTrace();
                     }
                 }
             }
@@ -185,9 +181,9 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     ArrayList availableSpecified = new ArrayList();
     
     String specifiedUin = specifiedWaifuMap.get(userUin);
-    if (specifiedUin != null && !excludedUins.contains(specifiedUin)) {
+    if (specifiedUin != null) {
         for (Object member : members) {
-            if (member.UserUin.equals(specifiedUin)) {
+            if (member.UserUin.equals(specifiedUin) && !excludedUins.contains(specifiedUin)) {
                 availableSpecified.add(member);
                 break;
             }
@@ -227,7 +223,7 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
         fos.write(record.getBytes("UTF-8"));
         fos.close();
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
     }
     
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + waifuUin + "&s=0";
@@ -284,9 +280,9 @@ void handleChange(Object msg, String groupUin, String userUin) {
     ArrayList availableSpecified = new ArrayList();
     
     String specifiedUin = specifiedWaifuMap.get(userUin);
-    if (specifiedUin != null && !excludedUins.contains(specifiedUin)) {
+    if (specifiedUin != null) {
         for (Object member : members) {
-            if (member.UserUin.equals(specifiedUin)) {
+            if (member.UserUin.equals(specifiedUin) && !excludedUins.contains(specifiedUin)) {
                 availableSpecified.add(member);
                 break;
             }
@@ -327,7 +323,7 @@ void handleChange(Object msg, String groupUin, String userUin) {
         fos.write(record.getBytes("UTF-8"));
         fos.close();
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
     }
     
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + newWaifuUin + "&s=0";
@@ -392,7 +388,7 @@ void handleAgree(Object msg, String groupUin, String userUin) {
         fos.write(record.getBytes("UTF-8"));
         fos.close();
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
     }
     
     String requesterName = getMemberName(groupUin, requesterUin);
@@ -433,7 +429,7 @@ void handleQuote(Object msg, String groupUin, String userUin) {
         fos.write((quote + "\n").getBytes("UTF-8"));
         fos.close();
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
         sendReply(groupUin, msg, "记录失败");
         return;
     }
@@ -465,7 +461,7 @@ void handleQrand(Object msg, String groupUin, String userUin) {
         }
         br.close();
     } catch (Exception e) {
-        log(e.toString());
+        e.printStackTrace();
         sendReply(groupUin, msg, "读取语录失败");
         return;
     }
@@ -574,7 +570,7 @@ public void cleanWaifuData(String groupUin, String userUin, int chatType) {
                     try {
                         file.delete();
                     } catch (Exception e) {
-                        log(e.toString());
+                        e.printStackTrace();
                     }
                 }
             }
