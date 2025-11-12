@@ -33,7 +33,7 @@ import java.util.Calendar;
 
 // 指定用户结婚 如果用户在该群就会指定 不在就不会使用自定义指定
 // 多个请严格按照逻辑来 不按照顺序来还问我为什么脚本会报错你没（）
-String[] specifiedWaifuList = {"123","123453"};
+String[] specifiedWaifuList = {"123456","123456"};
 
 String waifuSwitch = "waifu_switch";
 String quoteSwitch = "quote_switch";
@@ -42,6 +42,7 @@ String marriedKey = "married";
 String dailyWaifuKey = "daily_waifu";
 String requestKey = "marry_request";
 String lastCleanDateKey = "last_clean_date";
+String changeWaifuKey = "change_waifu";
 
 File quoteDir = new File(appPath + "/语录数据/");
 if (!quoteDir.exists()) {
@@ -72,7 +73,7 @@ void checkAndCleanDailyWaifu() {
                 for (File file : files) {
                     if (file.isFile() && file.getName().endsWith(".txt") && !file.getName().contains("_married")) {
                         try {
-                            file.eteete();
+                            file.delete();
                         } catch (Exception e) {
                             error(e);
                         }
@@ -98,6 +99,7 @@ void cleanDailyWaifuConfig() {
                         String userUin = member.UserUin;
                         String configKey = groupUin + "_" + userUin + "_" + today;
                         putString(dailyWaifuKey, configKey, null);
+                        putString(changeWaifuKey, configKey, null);
                     }
                 }
             }
@@ -132,6 +134,11 @@ void handleCleanWaifu(Object msg, String groupUin, String userUin) {
     
     putString(lastCleanDateKey, "global", today);
     
+    File lastCleanFile = new File("/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/data/plugin/2133115301kuma/last_clean_date");
+    if (lastCleanFile.exists()) {
+        lastCleanFile.delete();
+    }
+    
     sendReply(groupUin, msg, "已清理所有过期的未结婚老婆数据（包括今日记录）");
 }
 
@@ -149,7 +156,7 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     if (alreadyWaifu != null) {
         String waifuName = getMemberName(groupUin, alreadyWaifu);
         String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + alreadyWaifu + "&s=0";
-        sendReply(groupUin, msg, "你今天已经抽过老婆了，你的老婆是" + waifuName + " [PicUrl=" + avatarUrl + "]");
+        sendReply(groupUin, msg, "你今天已经抽过老婆了，你的老婆是" + waifuName + " [PicUrl=" + avatarUrl + "]发送 /change 可以尝试换一个~");
         return;
     }
     
@@ -159,14 +166,28 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
         return;
     }
     
+    ArrayList<String> excludedUins = new ArrayList<>();
+    excludedUins.add(userUin);
+
+    for (Object member : members) {
+        String memberUin = member.UserUin;
+        String key = groupUin + "_" + memberUin + "_" + today;
+        String waifu = getString(dailyWaifuKey, key, null);
+        if (waifu != null) {
+            excludedUins.add(memberUin);
+        }
+    }
+    
     ArrayList availableSpecified = new ArrayList();
     
     if (specifiedWaifuList != null && specifiedWaifuList.length > 0) {
         for (String specifiedUin : specifiedWaifuList) {
-            for (Object member : members) {
-                if (member.UserUin.equals(specifiedUin.trim())) {
-                    availableSpecified.add(member);
-                    break;
+            if (!excludedUins.contains(specifiedUin.trim())) {
+                for (Object member : members) {
+                    if (member.UserUin.equals(specifiedUin.trim())) {
+                        availableSpecified.add(member);
+                        break;
+                    }
                 }
             }
         }
@@ -179,8 +200,20 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
         int index = rand.nextInt(availableSpecified.size());
         waifu = availableSpecified.get(index);
     } else {
-        int index = rand.nextInt(members.size());
-        waifu = members.get(index);
+        ArrayList availableMembers = new ArrayList();
+        for (Object member : members) {
+            if (!excludedUins.contains(member.UserUin)) {
+                availableMembers.add(member);
+            }
+        }
+        
+        if (availableMembers.size() == 0) {
+            sendReply(groupUin, msg, "今天没有可以抽的老婆了~");
+            return;
+        }
+        
+        int index = rand.nextInt(availableMembers.size());
+        waifu = availableMembers.get(index);
     }
     
     String waifuUin = waifu.UserUin;
@@ -198,7 +231,111 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     }
     
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + waifuUin + "&s=0";
-    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 [AtQQ=" + waifuUin + "] [PicUrl=" + avatarUrl + "]发送 /marry 可以向对方结婚~";
+    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 [AtQQ=" + waifuUin + "] [PicUrl=" + avatarUrl + "]发送 /change 可以尝试换一个~\n发送 /marry 可以向对方结婚~";
+    sendMsg(groupUin, "", reply);
+}
+
+void handleChange(Object msg, String groupUin, String userUin) {
+    String marriedTo = getString(marriedKey, userUin, null);
+    if (marriedTo != null) {
+        String spouseName = getMemberName(groupUin, marriedTo);
+        String spouseAvatar = "https://q.qlogo.cn/g?b=qq&nk=" + marriedTo + "&s=0";
+        sendReply(groupUin, msg, "你已经结婚了，你的结婚对象是" + spouseName + " [PicUrl=" + spouseAvatar + "]");
+        return;
+    }
+    
+    String today = getTodayString();
+    String alreadyChanged = getString(changeWaifuKey, groupUin + "_" + userUin + "_" + today, null);
+    if (alreadyChanged != null) {
+        sendReply(groupUin, msg, "你今天已经换过老婆了，不能再换了哦~");
+        return;
+    }
+    
+    String currentWaifu = getString(dailyWaifuKey, groupUin + "_" + userUin + "_" + today, null);
+    if (currentWaifu == null) {
+        sendReply(groupUin, msg, "你还没有抽老婆呢，先发送 /waifu 抽一个老婆吧~");
+        return;
+    }
+    
+    ArrayList members = getGroupMemberList(groupUin);
+    if (members == null || members.size() == 0) {
+        sendReply(groupUin, msg, "获取群成员失败");
+        return;
+    }
+    
+    if (members.size() <= 1) {
+        sendReply(groupUin, msg, "群里没有其他成员可以换了~");
+        return;
+    }
+    
+    ArrayList<String> excludedUins = new ArrayList<>();
+    excludedUins.add(userUin);
+    excludedUins.add(currentWaifu);
+
+    for (Object member : members) {
+        String memberUin = member.UserUin;
+        String key = groupUin + "_" + memberUin + "_" + today;
+        String waifu = getString(dailyWaifuKey, key, null);
+        if (waifu != null) {
+            excludedUins.add(memberUin);
+        }
+    }
+    
+    ArrayList availableSpecified = new ArrayList();
+    
+    if (specifiedWaifuList != null && specifiedWaifuList.length > 0) {
+        for (String specifiedUin : specifiedWaifuList) {
+            if (!excludedUins.contains(specifiedUin.trim())) {
+                for (Object member : members) {
+                    if (member.UserUin.equals(specifiedUin.trim())) {
+                        availableSpecified.add(member);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    Random rand = new Random();
+    Object newWaifu;
+    
+    if (availableSpecified.size() > 0) {
+        int index = rand.nextInt(availableSpecified.size());
+        newWaifu = availableSpecified.get(index);
+    } else {
+        ArrayList availableMembers = new ArrayList();
+        for (Object member : members) {
+            if (!excludedUins.contains(member.UserUin)) {
+                availableMembers.add(member);
+            }
+        }
+        
+        if (availableMembers.size() == 0) {
+            sendReply(groupUin, msg, "没有其他成员可以换了~");
+            return;
+        }
+        
+        int index = rand.nextInt(availableMembers.size());
+        newWaifu = availableMembers.get(index);
+    }
+    
+    String newWaifuUin = newWaifu.UserUin;
+    putString(dailyWaifuKey, groupUin + "_" + userUin + "_" + today, newWaifuUin);
+    putString(changeWaifuKey, groupUin + "_" + userUin + "_" + today, "true");
+    
+    String filename = groupUin + ".txt";
+    String filePath = appPath + "/老婆数据/" + filename;
+    try {
+        FileOutputStream fos = new FileOutputStream(filePath, true);
+        String record = userUin + "换老婆从" + currentWaifu + "换到了" + newWaifuUin + " " + today + "\n";
+        fos.write(record.getBytes("UTF-8"));
+        fos.close();
+    } catch (Exception e) {
+        error(e);
+    }
+    
+    String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + newWaifuUin + "&s=0";
+    String reply = "[AtQQ=" + userUin + "] 你换了一个新老婆！现在你的老婆是 [AtQQ=" + newWaifuUin + "] [PicUrl=" + avatarUrl + "]发送 /marry 可以向对方结婚~";
     sendMsg(groupUin, "", reply);
 }
 
@@ -371,6 +508,8 @@ void onMsg(Object msg) {
         
         if (text.equals("/waifu") && waifuOn) {
             handleWaifu(msg, groupUin, userUin);
+        } else if (text.equals("/change") && waifuOn) {
+            handleChange(msg, groupUin, userUin);
         } else if (text.equals("/marry") && waifuOn) {
             handleMarry(msg, groupUin, userUin);
         } else if (text.equals("/agree") && waifuOn) {
@@ -449,6 +588,11 @@ public void cleanWaifuData(String groupUin, String userUin, int chatType) {
     cleanDailyWaifuConfig();
     
     putString(lastCleanDateKey, "global", today);
+    
+    File lastCleanFile = new File("/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/data/plugin/2133115301kuma/last_clean_date");
+    if (lastCleanFile.exists()) {
+        lastCleanFile.delete();
+    }
     
     MonetToasts("已清理所有未结婚的老婆数据（包括今日记录）");
 }
