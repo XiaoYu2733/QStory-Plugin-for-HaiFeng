@@ -1,5 +1,4 @@
 
-
 // 海枫
 
 // 一个人会犯多少错 两个人又会有多少承诺
@@ -563,8 +562,19 @@ public void toggleQrand(String groupUin, String userUin, int chatType) {
     toast("本群随机语录功能已" + (!current ? "开启" : "关闭"));
 }
 
-public void showUsage(String groupUin, String userUin, int chatType) {
-    toast("使用方法：在群内发送相应命令即可使用功能");
+public void showUsage(String g, String u, int t) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            builder.setTitle("脚本使用方法");
+            builder.setMessage("/waifu 是抽取每日老婆\n/marry 是求婚 需要对方同意\n/divorce 是离婚\n/q 是记录语录 回复信息\n/qrand 是随机语录 需要先记录语录");
+            builder.setPositiveButton("确定", null);
+            builder.setCancelable(true);
+            builder.show();
+        }
+    });
 }
 
 public void cleanWaifuData(String groupUin, String userUin, int chatType) {
