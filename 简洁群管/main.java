@@ -132,7 +132,7 @@ public String 禁言组文本(String qun) {
     return y + "\n输入 解禁+序号快速解禁\n输入 踢/踢黑+序号 可快速踢出\n输入全禁可禁言30天\n输入#踢禁言 可踢出上述所有人";
 }
 
-private Map<String, Object> groupInfoCache = new ConcurrentHashMap<>();
+private Map groupInfoCache = new ConcurrentHashMap();
 
 {
     try {
@@ -194,8 +194,8 @@ public void quickManageMenuItem(final Object msg) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                 builder.setTitle("快捷群管 - " + 名(targetUin) + "(" + targetUin + ")");
                 
-                final List<String> items = new CopyOnWriteArrayList<>();
-                final List<Runnable> actions = new CopyOnWriteArrayList<>();
+                final List items = new CopyOnWriteArrayList();
+                final List actions = new CopyOnWriteArrayList();
                 
                 if (myInfo.IsOwner || myInfo.IsAdmin) {
                     items.add("踢出");
@@ -517,7 +517,7 @@ public int getCurrentTheme() {
     }
 }
 
-private Set<String> processingUnforbidden = Collections.synchronizedSet(new HashSet<String>());
+private Set processingUnforbidden = Collections.synchronizedSet(new HashSet());
 
 public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
@@ -905,7 +905,11 @@ public void showUpdateLog(String g, String u, int t) {
                         "简洁群管_84.0_更新日志\n" +
                         "- [优化] 部分代码防止wa引擎导致的报错\n\n" +
                         "————————\n" +
-                        "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n\n" +
+                        "简洁群管_85.0_更新日志\n" +
+                        "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n" +
+                        "————————\n" +
+                        "简洁群管_86.0_更新日志\n" +
+                        "- [修复] 部分写法错误以及报错\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1333,7 +1337,7 @@ public void SetTroopAdmin(Object qun,Object qq,int type){
     }
 }
 
-private final Map Arab2Chinese = new ConcurrentHashMap();
+private Map Arab2Chinese = new ConcurrentHashMap();
 {
     Arab2Chinese.put('零', 0);
     Arab2Chinese.put('一', 1);
@@ -1348,7 +1352,7 @@ private final Map Arab2Chinese = new ConcurrentHashMap();
     Arab2Chinese.put('十', 10);
 }
 
-private final Map UnitMap = new ConcurrentHashMap();
+private Map UnitMap = new ConcurrentHashMap();
 {
     UnitMap.put('十', 10);
     UnitMap.put('百', 100);
