@@ -570,6 +570,19 @@ public void toggleQrand(String groupUin, String userUin, int chatType) {
     MonetToasts("本群随机语录功能已" + (!current ? "开启" : "关闭"));
 }
 
+public void showUsage(String groupUin, String userUin, int chatType) {
+    String usage = "脚本使用方法：\n" +
+                   "/waifu - 抽取今日老婆\n" +
+                   "/change - 更换今日老婆\n" +
+                   "/marry - 向今日老婆求婚\n" +
+                   "/agree - 同意求婚\n" +
+                   "/divorce - 离婚\n" +
+                   "/q - 记录语录(回复消息使用)\n" +
+                   "/qrand - 随机语录\n" +
+                   "/cleanwaifu - 清理老婆数据";
+    MonetToasts(usage);
+}
+
 public void cleanWaifuData(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
         MonetToasts("仅群聊可用");
