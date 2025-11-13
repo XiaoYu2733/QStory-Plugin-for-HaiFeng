@@ -31,9 +31,15 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+// 指定用户抽取 前面是抽取者 后面是被抽取者 二者可双向奔赴 懂得都懂
 HashMap<String, String> specifiedWaifuMap = new HashMap<>();
 specifiedWaifuMap.put("107464738", "2133115301");
 specifiedWaifuMap.put("2133115304", "107464738");
+
+// 黑名单 加入后 该用户将无法被抽中 遍历所有群聊 如果用户过多请按照格式来添加
+HashMap<String, String> blacklistMap = new HashMap<>();
+blacklistMap.put("123456789", "true");
+blacklistMap.put("987654321", "true");
 
 String waifuSwitch = "waifu_switch";
 String quoteSwitch = "quote_switch";
@@ -143,6 +149,11 @@ void handleCleanWaifu(Object msg, String groupUin, String userUin) {
 }
 
 void handleWaifu(Object msg, String groupUin, String userUin) {
+    if (blacklistMap.containsKey(userUin)) {
+        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
+        return;
+    }
+    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
@@ -171,6 +182,10 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
 
     for (Object member : members) {
         String memberUin = member.UserUin;
+        if (blacklistMap.containsKey(memberUin)) {
+            excludedUins.add(memberUin);
+            continue;
+        }
         String key = groupUin + "_" + memberUin + "_" + today;
         String waifu = getString(dailyWaifuKey, key, null);
         if (waifu != null) {
@@ -181,7 +196,7 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     ArrayList availableSpecified = new ArrayList();
     
     String specifiedUin = specifiedWaifuMap.get(userUin);
-    if (specifiedUin != null) {
+    if (specifiedUin != null && !blacklistMap.containsKey(specifiedUin)) {
         for (Object member : members) {
             if (member.UserUin.equals(specifiedUin) && !excludedUins.contains(specifiedUin)) {
                 availableSpecified.add(member);
@@ -198,7 +213,7 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
     } else {
         ArrayList availableMembers = new ArrayList();
         for (Object member : members) {
-            if (!excludedUins.contains(member.UserUin)) {
+            if (!excludedUins.contains(member.UserUin) && !blacklistMap.containsKey(member.UserUin)) {
                 availableMembers.add(member);
             }
         }
@@ -226,12 +241,18 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
         e.printStackTrace();
     }
     
+    String waifuName = getMemberName(groupUin, waifuUin);
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + waifuUin + "&s=0";
-    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 [AtQQ=" + waifuUin + "] [PicUrl=" + avatarUrl + "]发送 /change 可以尝试换一个~\n发送 /marry 可以向对方结婚~";
+    String reply = "[AtQQ=" + userUin + "] 你今日的老婆是 " + waifuName + "(" + waifuUin + ") [PicUrl=" + avatarUrl + "]发送 /change 可以尝试换一个~\n发送 /marry 可以向对方结婚~";
     sendMsg(groupUin, "", reply);
 }
 
 void handleChange(Object msg, String groupUin, String userUin) {
+    if (blacklistMap.containsKey(userUin)) {
+        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
+        return;
+    }
+    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
@@ -270,6 +291,10 @@ void handleChange(Object msg, String groupUin, String userUin) {
 
     for (Object member : members) {
         String memberUin = member.UserUin;
+        if (blacklistMap.containsKey(memberUin)) {
+            excludedUins.add(memberUin);
+            continue;
+        }
         String key = groupUin + "_" + memberUin + "_" + today;
         String waifu = getString(dailyWaifuKey, key, null);
         if (waifu != null) {
@@ -280,7 +305,7 @@ void handleChange(Object msg, String groupUin, String userUin) {
     ArrayList availableSpecified = new ArrayList();
     
     String specifiedUin = specifiedWaifuMap.get(userUin);
-    if (specifiedUin != null) {
+    if (specifiedUin != null && !blacklistMap.containsKey(specifiedUin)) {
         for (Object member : members) {
             if (member.UserUin.equals(specifiedUin) && !excludedUins.contains(specifiedUin)) {
                 availableSpecified.add(member);
@@ -297,7 +322,7 @@ void handleChange(Object msg, String groupUin, String userUin) {
     } else {
         ArrayList availableMembers = new ArrayList();
         for (Object member : members) {
-            if (!excludedUins.contains(member.UserUin)) {
+            if (!excludedUins.contains(member.UserUin) && !blacklistMap.containsKey(member.UserUin)) {
                 availableMembers.add(member);
             }
         }
@@ -326,12 +351,18 @@ void handleChange(Object msg, String groupUin, String userUin) {
         e.printStackTrace();
     }
     
+    String newWaifuName = getMemberName(groupUin, newWaifuUin);
     String avatarUrl = "https://q.qlogo.cn/g?b=qq&nk=" + newWaifuUin + "&s=0";
-    String reply = "[AtQQ=" + userUin + "] 你换了一个新老婆！现在你的老婆是 [AtQQ=" + newWaifuUin + "] [PicUrl=" + avatarUrl + "]发送 /marry 可以向对方结婚~";
+    String reply = "[AtQQ=" + userUin + "] 你换了一个新老婆！现在你的老婆是 " + newWaifuName + "(" + newWaifuUin + ") [PicUrl=" + avatarUrl + "]发送 /marry 可以向对方结婚~";
     sendMsg(groupUin, "", reply);
 }
 
 void handleMarry(Object msg, String groupUin, String userUin) {
+    if (blacklistMap.containsKey(userUin)) {
+        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
+        return;
+    }
+    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
