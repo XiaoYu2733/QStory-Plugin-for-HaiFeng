@@ -31,6 +31,12 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+addItem("开启/关闭本群每日老婆", "toggleWaifu");
+addItem("开启/关闭本群记录语录", "toggleQuote");
+addItem("开启/关闭本群随机语录", "toggleQrand");
+addItem("查看脚本使用方法", "showUsage");
+addItem("立即清理老婆数据", "cleanWaifuData");
+
 // 指定用户抽取 前面是抽取者 后面是被抽取者 二者可双向奔赴 懂得都懂
 HashMap<String, String> specifiedWaifuMap = new HashMap<>();
 specifiedWaifuMap.put("107464738", "2133115301");
@@ -149,11 +155,6 @@ void handleCleanWaifu(Object msg, String groupUin, String userUin) {
 }
 
 void handleWaifu(Object msg, String groupUin, String userUin) {
-    if (blacklistMap.containsKey(userUin)) {
-        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
-        return;
-    }
-    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
@@ -248,11 +249,6 @@ void handleWaifu(Object msg, String groupUin, String userUin) {
 }
 
 void handleChange(Object msg, String groupUin, String userUin) {
-    if (blacklistMap.containsKey(userUin)) {
-        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
-        return;
-    }
-    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
@@ -358,11 +354,6 @@ void handleChange(Object msg, String groupUin, String userUin) {
 }
 
 void handleMarry(Object msg, String groupUin, String userUin) {
-    if (blacklistMap.containsKey(userUin)) {
-        sendReply(groupUin, msg, "你已被封禁，无法使用此功能");
-        return;
-    }
-    
     String marriedTo = getString(marriedKey, userUin, null);
     if (marriedTo != null) {
         String spouseName = getMemberName(groupUin, marriedTo);
@@ -548,12 +539,6 @@ void onMsg(Object msg) {
         }
     }
 }
-
-addItem("开启/关闭本群每日老婆", "toggleWaifu");
-addItem("开启/关闭本群记录语录", "toggleQuote");
-addItem("开启/关闭本群随机语录", "toggleQrand");
-addItem("查看脚本使用方法", "showUsage");
-addItem("立即清理老婆数据", "cleanWaifuData");
 
 public void toggleWaifu(String groupUin, String userUin, int chatType) {
     if (chatType != 2) {
