@@ -909,7 +909,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n" +
                         "————————\n" +
                         "简洁群管_86.0_更新日志\n" +
-                        "- [修复] 部分写法错误以及报错\n\n" +
+                        "- [修复] 部分写法错误以及报错\n" +
+                        "————————\n" +
+                        "简洁群管_87.0_更新日志\n" +
+                        "- [调整] 艾特用户时 比如 @用户 再等我五分钟，然后被艾特的用户会被禁言五分钟，现已优化，改为精确\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1968,7 +1971,7 @@ public void onMsg(Object msg){
                         if(故.matches("禁 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
                             int banTime = get_time(故);
                             if(banTime > 2592000){
-                                sendMsg(groupUin,"","请控制在30天以内");
+                                sendMsg(groupUin,"","时间太长无法禁言");
                                 return;
                             }else if(banTime > 0){
                                 for(int i = 0; i < mAtListCopy.size(); i++){
@@ -1986,7 +1989,7 @@ public void onMsg(Object msg){
                             int time=CN_zh_int(text);
                             int banTime = get_time_int(故,time);
                             if(banTime > 2592000){
-                                sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                                sendReply(groupUin,msg,"时间太长无法禁言");return;
                             }else if(banTime > 0){
                                 for(int i = 0; i < mAtListCopy.size(); i++){
                                     String u = (String) mAtListCopy.get(i);
@@ -2019,7 +2022,7 @@ public void onMsg(Object msg){
                         if(故.matches("禁言 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")){
                             int banTime = get_time(故);
                             if(banTime > 2592000){
-                                sendMsg(groupUin,"","请控制在30天以内");
+                                sendMsg(groupUin,"","时间太长无法禁言");
                                 return;
                             }else if(banTime > 0){
                                 for(int i = 0; i < mAtListCopy.size(); i++){
@@ -2037,7 +2040,7 @@ public void onMsg(Object msg){
                             int time=CN_zh_int(text);
                             int banTime = get_time_int(故,time);
                             if(banTime > 2592000){
-                                sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                                sendReply(groupUin,msg,"时间太长无法禁言");return;
                             }else if(banTime > 0){
                                 for(int i = 0; i < mAtListCopy.size(); i++){
                                     String u = (String) mAtListCopy.get(i);
@@ -2098,7 +2101,7 @@ public void onMsg(Object msg){
                         if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
                         int banTime = get_time(故);
                         if(banTime > 2592000) {
-                            sendMsg(groupUin,"","请控制在30天以内");
+                            sendMsg(groupUin,"","时间太长无法禁言");
                             return;
                         } else if(banTime > 0){
                             if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
@@ -2145,7 +2148,7 @@ public void onMsg(Object msg){
                         if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
                         int banTime = get_time(故);
                         if(banTime > 2592000) {
-                            sendMsg(groupUin,"","请控制在30天以内");
+                            sendMsg(groupUin,"","时间太长无法禁言");
                             return;
                         } else if(banTime > 0){
                             if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
@@ -2455,7 +2458,7 @@ public void onMsg(Object msg){
                         int time=CN_zh_int(text);
                         int banTime = get_time_int(故,time);
                         if(banTime > 2592000){
-                            sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                            sendReply(groupUin,msg,"时间太长无法禁言");return;
                         }else if(banTime > 0){
                             for(int i = 0; i < mAtListCopy.size(); i++){
                                 String u = (String) mAtListCopy.get(i);
