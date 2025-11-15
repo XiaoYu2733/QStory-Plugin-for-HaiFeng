@@ -1,7 +1,7 @@
 
 // 海枫
 
-// 原来心情不好真的说不出来话 就像现在这样 只能发呆
+// 世界好吵 我只想在沉默里被拥抱着
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,75 +23,6 @@ import java.util.Set;
 import android.graphics.drawable.GradientDrawable;
 import android.content.res.Configuration;
 
-public boolean isDarkMode() {
-    int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-    return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
-}
-
-public String getBackgroundColor() {
-    return isDarkMode() ? "#CC1E1E1E" : "#CCFFFFFF";
-}
-
-public String getTextColor() {
-    return isDarkMode() ? "#E0E0E0" : "#333333";
-}
-
-public int c(float f) {
-    return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
-}
-
-public GradientDrawable getShape(String color, int cornerRadius, int alpha) {
-    GradientDrawable shape = new GradientDrawable();
-    shape.setColor(Color.parseColor(color));
-    shape.setCornerRadius(cornerRadius);
-    shape.setAlpha(alpha);
-    shape.setShape(GradientDrawable.RECTANGLE);
-    return shape;
-}
-
-public void Toasts(String text) {
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-        public void run() {
-            try {
-                if (getActivity() != null) {
-                    String bgColor = getBackgroundColor();
-                    String textColor = getTextColor();
-                    
-                    LinearLayout linearLayout = new LinearLayout(context);
-                    linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    linearLayout.setOrientation(LinearLayout.VERTICAL);
-                    
-                    int paddingHorizontal = c(18);
-                    int paddingVertical = c(12);
-                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
-                    
-                    linearLayout.setBackground(getShape(bgColor, c(12), 230));
-                    
-                    TextView textView = new TextView(context);
-                    textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    textView.setTextColor(Color.parseColor(textColor));
-                    textView.setTextSize(14.5f);
-                    textView.setText(text);
-                    textView.setGravity(Gravity.CENTER);
-                    
-                    linearLayout.addView(textView);
-                    linearLayout.setGravity(Gravity.CENTER);
-                    
-                    Toast toast = new Toast(context);
-                    toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_LONG);
-                    toast.setView(linearLayout);
-                    toast.show();
-                } else {
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                }
-            } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-            }
-        }
-    });
-}
-
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
         forbidden(groupUin, userUin, time);
@@ -107,8 +38,6 @@ public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
         kickGroup(groupUin, userUin, isBlack);
     }
 }
-
-// 哪有什么心脉受损 就是能力不够 解决不了问题 接受不了结果
 
 void onCreateMenu(Object msg) {
     if (msg.IsGroup) {
@@ -129,8 +58,6 @@ void onCreateMenu(Object msg) {
         }
     }
 }
-
-// 别人再好与我无关 你再不好我都喜欢
 
 public void quickManageMenuItem(final Object msg) {
     if (!msg.IsGroup) return;
@@ -186,7 +113,7 @@ public void quickManageMenuItem(final Object msg) {
                 }
                 
                 if (items.isEmpty()) {
-                    Toasts("没有可用的操作权限");
+                    toast("没有可用的操作权限");
                     return;
                 }
                 
@@ -202,15 +129,11 @@ public void quickManageMenuItem(final Object msg) {
                 builder.show();
                 
             } catch (Exception e) {
-                Toasts("打开快捷群管失败: " + e.getMessage());
+                toast("打开快捷群管失败: " + e.getMessage());
             }
         }
     });
 }
-
-// 我只要你 我不要别人 只想和你一直在一起
-
-// 喜欢你 跟你在一起 是一件很幸福的事情 我们要一直在一起好不好
 
 public void forbiddenMenuItem(Object msg) {
     if (!msg.IsGroup) return;
@@ -252,7 +175,7 @@ public void forbiddenMenuItem(Object msg) {
                             int time = Integer.parseInt(input);
                             if (time > 0) {
                                 if (time > 2592000) {
-                                    Toasts("禁言时间不能超过30天");
+                                    toast("禁言时间不能超过30天");
                                     return;
                                 }
                                 unifiedForbidden(groupUin, targetUin, time);
@@ -268,15 +191,15 @@ public void forbiddenMenuItem(Object msg) {
                                     timeDisplay = (time / 86400) + "天";
                                 }
                                 
-                                Toasts("已禁言 " + getMemberName(groupUin, targetUin) + " " + timeDisplay);
+                                toast("已禁言 " + getMemberName(groupUin, targetUin) + " " + timeDisplay);
                             } else {
-                                Toasts("请输入大于0的数字");
+                                toast("请输入大于0的数字");
                             }
                         } catch (NumberFormatException e) {
-                            Toasts("请输入有效的数字");
+                            toast("请输入有效的数字");
                         }
                     } else {
-                        Toasts("请输入禁言时间");
+                        toast("请输入禁言时间");
                     }
                 }
             });
@@ -307,7 +230,7 @@ public void kickMenuItem(Object msg) {
             builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
                     unifiedKick(groupUin, targetUin, false);
-                    Toasts("踢出成功");
+                    toast("踢出成功");
                 }
             });
             
@@ -335,7 +258,7 @@ public void kickBlackMenuItem(Object msg) {
             builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
                     unifiedKick(groupUin, targetUin, true);
-                    Toasts("踢黑成功");
+                    toast("踢黑成功");
                 }
             });
             
@@ -381,9 +304,9 @@ public void setTitleMenuItem(Object msg) {
                     String input = inputEditText.getText().toString().trim();
                     if (!input.isEmpty()) {
                         setTitle(groupUin, targetUin, input);
-                        Toasts("已为 " + getMemberName(groupUin, targetUin) + " 设置头衔: " + input);
+                        toast("已为 " + getMemberName(groupUin, targetUin) + " 设置头衔: " + input);
                     } else {
-                        Toasts("请输入头衔内容");
+                        toast("请输入头衔内容");
                     }
                 }
             });
@@ -409,7 +332,7 @@ public void onMsg(Object msg){
     boolean isAdminUser = isAdmin(groupUin, qq);
     
     if(msg.UserUin.equals(myUin) || isAdminUser){
-        if(content.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$") && mAtListCopy.size() >= 1){
+        if(content.matches("^禁言[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)$") && mAtListCopy.size() >= 1){
             int banTime = get_time(msg);
             if(banTime > 2592000){
                 sendReply(groupUin, msg, "时间太长无法禁言");
@@ -423,12 +346,8 @@ public void onMsg(Object msg){
             }
         }
         
-        if((content.startsWith("禁") || content.startsWith("禁言")) && mAtListCopy.size() >= 1){
+        if((content.equals("禁言") || content.equals("禁")) && mAtListCopy.size() >= 1){
             int time = 60;
-            if(content.contains("天")) time = 86400;
-            else if(content.contains("小时") || content.contains("时")) time = 3600;
-            else if(content.contains("分钟") || content.contains("分")) time = 60;
-            
             for(int i = 0; i < mAtListCopy.size(); i++){
                 String u = (String) mAtListCopy.get(i);
                 unifiedForbidden(groupUin, u, time);
@@ -436,7 +355,7 @@ public void onMsg(Object msg){
             return;
         }
         
-        if(content.startsWith("解") && mAtListCopy.size() >= 1){
+        if(content.equals("解禁") && mAtListCopy.size() >= 1){
             for(int i = 0; i < mAtListCopy.size(); i++){
                 String u = (String) mAtListCopy.get(i);
                 unifiedForbidden(groupUin, u, 0);
@@ -444,18 +363,17 @@ public void onMsg(Object msg){
             return;
         }
         
-        if(content.equals("禁") && mAtListCopy.size() == 0){
+        if(content.equals("全员禁言")){
             unifiedForbidden(groupUin, "", 1);
             return;
         }
         
-        if(content.equals("解") && mAtListCopy.size() == 0){
+        if(content.equals("解除全员禁言")){
             unifiedForbidden(groupUin, "", 0);
             return;
         }
         
-        // 踢出
-        if(content.startsWith("踢") && mAtListCopy.size() >= 1 && !content.startsWith("踢黑")){
+        if(content.equals("踢出") && mAtListCopy.size() >= 1){
             for(int i = 0; i < mAtListCopy.size(); i++){
                 String u = (String) mAtListCopy.get(i);
                 unifiedKick(groupUin, u, false);
@@ -464,7 +382,7 @@ public void onMsg(Object msg){
             return;
         }
         
-        if(content.startsWith("踢黑") && mAtListCopy.size() >= 1){
+        if(content.equals("踢黑") && mAtListCopy.size() >= 1){
             for(int i = 0; i < mAtListCopy.size(); i++){
                 String u = (String) mAtListCopy.get(i);
                 unifiedKick(groupUin, u, true);
@@ -509,5 +427,3 @@ public boolean isAdmin(String groupUin, String userUin) {
         return false;
     }
 }
-
-// 你不必担忧 我定会用最初的心 陪你走最远的路
