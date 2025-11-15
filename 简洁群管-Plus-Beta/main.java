@@ -317,6 +317,41 @@ public void setTitleMenuItem(Object msg) {
     });
 }
 
+public int get_time(Object msg){
+    String content = msg.MessageContent;
+    int lastSpace = content.lastIndexOf(" ");
+    String date = content.substring(lastSpace + 1);
+    date = date.trim();
+    
+    String t = "";
+    for(int i = 0; i < date.length(); i++){
+        if(date.charAt(i) >= '0' && date.charAt(i) <= '9'){
+            t += date.charAt(i);
+        }
+    }
+    
+    if(t.isEmpty()) return 0;
+    
+    int time = Integer.parseInt(t);
+    if(date.contains("天")){
+        return time * 86400;
+    } else if(date.contains("小时") || date.contains("时")){
+        return time * 3600;
+    } else if(date.contains("分钟") || date.contains("分")){
+        return time * 60;
+    }
+    return time;
+}
+
+public boolean isAdmin(String groupUin, String userUin) {
+    try {
+        GroupMemberInfo memberInfo = getMemberInfo(groupUin, userUin);
+        return memberInfo != null && (memberInfo.IsOwner || memberInfo.IsAdmin);
+    } catch (Exception e) {
+        return false;
+    }
+}
+
 public void onMsg(Object msg){
     if (msg == null) return;
     
@@ -332,7 +367,21 @@ public void onMsg(Object msg){
     boolean isAdminUser = isAdmin(groupUin, qq);
     
     if(msg.UserUin.equals(myUin) || isAdminUser){
-        if(content.matches("^禁言[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)$") && mAtListCopy.size() >= 1){
+        if(content.matches("^禁言 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)$") && mAtListCopy.size() >= 1){
+            int banTime = get_time(msg);
+            if(banTime > 2592000){
+                sendReply(groupUin, msg, "时间太长无法禁言");
+                return;
+            } else if(banTime > 0){
+                for(int i = 0; i < mAtListCopy.size(); i++){
+                    String u = (String) mAtListCopy.get(i);
+                    unifiedForbidden(groupUin, u, banTime);
+                }
+                return;
+            }
+        }
+        
+        if(content.matches("^禁 ?@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)$") && mAtListCopy.size() >= 1){
             int banTime = get_time(msg);
             if(banTime > 2592000){
                 sendReply(groupUin, msg, "时间太长无法禁言");
@@ -390,40 +439,5 @@ public void onMsg(Object msg){
             sendMsg(groupUin, "", "已踢黑");
             return;
         }
-    }
-}
-
-public int get_time(Object msg){
-    String content = msg.MessageContent;
-    int lastSpace = content.lastIndexOf(" ");
-    String date = content.substring(lastSpace + 1);
-    date = date.trim();
-    
-    String t = "";
-    for(int i = 0; i < date.length(); i++){
-        if(date.charAt(i) >= '0' && date.charAt(i) <= '9'){
-            t += date.charAt(i);
-        }
-    }
-    
-    if(t.isEmpty()) return 0;
-    
-    int time = Integer.parseInt(t);
-    if(date.contains("天")){
-        return time * 86400;
-    } else if(date.contains("小时") || date.contains("时")){
-        return time * 3600;
-    } else if(date.contains("分钟") || date.contains("分")){
-        return time * 60;
-    }
-    return time;
-}
-
-public boolean isAdmin(String groupUin, String userUin) {
-    try {
-        GroupMemberInfo memberInfo = getMemberInfo(groupUin, userUin);
-        return memberInfo != null && (memberInfo.IsOwner || memberInfo.IsAdmin);
-    } catch (Exception e) {
-        return false;
     }
 }
