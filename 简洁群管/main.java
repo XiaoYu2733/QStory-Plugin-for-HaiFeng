@@ -909,7 +909,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n" +
                         "————————\n" +
                         "简洁群管_86.0_更新日志\n" +
-                        "- [修复] 部分写法错误以及报错\n\n" +
+                        "- [修复] 部分写法错误以及报错\n" 
+                        "————————\n" +
+                        "简洁群管_87.0_更新日志\n" +
+                        "- [优化] @用户 时间 的准确性 例如之前：@用户 一行白鹭上青天 该用户会被禁言一天 现已优化\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -2434,7 +2437,7 @@ public void onMsg(Object msg){
                         }
                         sendReply(groupUin,msg,"代管列表已清空");
                     }
-                    if(故 != null && 故.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
+                    if(故 != null && 故.matches("^禁言@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
                         int banTime = get_time(故);
                         if(banTime > 2592000){
                             sendReply(groupUin,msg,"时间太长无法禁言");
@@ -2448,7 +2451,7 @@ public void onMsg(Object msg){
                             return;
                         }
                     }
-                    if(故 != null && 故.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
+                    if(故 != null && 故.matches("^禁言@[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
                         int str1 = 故.lastIndexOf(" ");
                         String str =故.substring(str1 + 1);
                         String text=str.replaceAll("[天分时小时分钟秒]","");
@@ -2462,17 +2465,6 @@ public void onMsg(Object msg){
                                 if (检查代管保护(groupUin, u, "禁言")) continue;
                                 unifiedForbidden(groupUin,u,banTime);
                             }
-                            return;
-                        }
-                    }
-                    if(故 != null && 故.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&mAtListCopy.size()>=1){  
-                        int str = 故.lastIndexOf(" ");
-                        String text =故.substring(str + 1);
-                        int time=CN_zh_int(text);
-                        for(int i = 0; i < mAtListCopy.size(); i++){
-                            String u = (String) mAtListCopy.get(i);
-                            if (检查代管保护(groupUin, u, "禁言")) continue;
-                            unifiedForbidden(groupUin,u,time*60);
                             return;
                         }
                     }                          
