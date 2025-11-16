@@ -913,7 +913,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_87.0_更新日志\n" +
                         "- [优化] 全解 全禁触发逻辑\n" +
-                        "- [优化] @用户 时间 的准确性 例如之前：@用户 一行白鹭上青天 该用户会被禁言一天 现已优化\n\n" +
+                        "- [优化] @用户 时间 的准确性 例如之前：@用户 一行白鹭上青天 该用户会被禁言一天 现已优化\n" +
+                        "————————\n" +
+                        "简洁群管_88.0_更新日志\n" +
+                        "- [变更] 继续使用旧版简洁群管禁言逻辑，因为87.0的禁言过于严格导致无法多个禁言，有的时候，最简单的方法是最可靠的\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -2309,6 +2312,7 @@ public void onMsg(Object msg){
                         }
                     }
                     if(故 != null && 故.equals("全禁")){
+                        unifiedForbidden(groupUin, "", 0);
                         Object list=unifiedGetForbiddenList(groupUin);
                         if(list==null||((ArrayList)list).size()==0) 
                             sendMsg(groupUin,"", "当前没有人被禁言");
@@ -2325,6 +2329,7 @@ public void onMsg(Object msg){
                         }
                     }
                     if(故 != null && 故.equals("全解")){
+                        unifiedForbidden(groupUin, "", 0);
                         Object list=unifiedGetForbiddenList(groupUin);
                         if(list==null||((ArrayList)list).size() == 0) 
                             sendMsg(groupUin,"", "当前没有人被禁言");
@@ -2436,39 +2441,46 @@ public void onMsg(Object msg){
                         }
                         sendReply(groupUin,msg,"代管列表已清空");
                     }
-                    if(故 != null && mAtListCopy.size()>=1){
-                        String[] parts = 故.split("\\s+");
-                        if(parts.length == 2){
-                            String timePart = parts[1];
-                            if(timePart.matches("[0-9]+(天|分|时|小时|分钟|秒)")){
-                                int banTime = get_time(timePart);
-                                if(banTime > 2592000){
-                                    sendReply(groupUin,msg,"时间太长无法禁言");
-                                    return;
-                                }else if(banTime > 0){
-                                    for(int i = 0; i < mAtListCopy.size(); i++){
-                                        String u = (String) mAtListCopy.get(i);
-                                        if (检查代管保护(groupUin, u, "禁言")) continue;
-                                        unifiedForbidden(groupUin,u,banTime);
-                                    }
-                                    return;
-                                }
+                    if(故 != null && 故.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
+                        int banTime = get_time(故);
+                        if(banTime > 2592000){
+                            sendReply(groupUin,msg,"时间太长无法禁言");
+                            return;
+                        }else if(banTime > 0){
+                            for(int i = 0; i < mAtListCopy.size(); i++){
+                                String u = (String) mAtListCopy.get(i);
+                                if (检查代管保护(groupUin, u, "禁言")) continue;
+                                unifiedForbidden(groupUin,u,banTime);
                             }
-                            if(timePart.matches("[零一二三四五六七八九十百千万]+(天|分|时|小时|分钟|秒)")){
-                                String text=timePart.replaceAll("[天分时小时分钟秒]","");
-                                int time=CN_zh_int(text);
-                                int banTime = get_time_int(timePart,time);
-                                if(banTime > 2592000){
-                                    sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
-                                }else if(banTime > 0){
-                                    for(int i = 0; i < mAtListCopy.size(); i++){
-                                        String u = (String) mAtListCopy.get(i);
-                                        if (检查代管保护(groupUin, u, "禁言")) continue;
-                                        unifiedForbidden(groupUin,u,banTime);
-                                    }
-                                    return;
-                                }
+                            return;
+                        }
+                    }
+                    if(故 != null && 故.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")&&mAtListCopy.size()>=1){
+                        int str1 = 故.lastIndexOf(" ");
+                        String str =故.substring(str1 + 1);
+                        String text=str.replaceAll("[天分时小时分钟秒]","");
+                        int time=CN_zh_int(text);
+                        int banTime = get_time_int(故,time);
+                        if(banTime > 2592000){
+                            sendReply(groupUin,msg,"禁言时间太长无法禁言");return;
+                        }else if(banTime > 0){
+                            for(int i = 0; i < mAtListCopy.size(); i++){
+                                String u = (String) mAtListCopy.get(i);
+                                if (检查代管保护(groupUin, u, "禁言")) continue;
+                                unifiedForbidden(groupUin,u,banTime);
                             }
+                            return;
+                        }
+                    }
+                    if(故 != null && 故.matches("^@?[\\s\\S]+([零一二三四五六七八九十]?[十百千万])+$")&&mAtListCopy.size()>=1){  
+                        int str = 故.lastIndexOf(" ");
+                        String text =故.substring(str + 1);
+                        int time=CN_zh_int(text);
+                        for(int i = 0; i < mAtListCopy.size(); i++){
+                            String u = (String) mAtListCopy.get(i);
+                            if (检查代管保护(groupUin, u, "禁言")) continue;
+                            unifiedForbidden(groupUin,u,time*60);
+                            return;
                         }
                     }                          
                 }
@@ -2480,5 +2492,3 @@ public void onMsg(Object msg){
         error(e);
     }
 }
-
-// 接下来的故事要慢慢听我诉说
