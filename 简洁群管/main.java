@@ -1190,6 +1190,7 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
+// 检测退群拉黑文件夹是否存在，不存在则创建
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
@@ -1197,8 +1198,11 @@ if (!退群拉黑文件夹.exists()) {
     退群拉黑文件夹.mkdirs();
 }
 
+// 默认艾特时间 也可以不需要修改 脚本菜单提供了修改时间方法
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
+// 检测代管文件夹是否存在 不存在则创建
+// 代管.txt只在用户发送添加代管xxx才会进行创建，以防简洁群管更新会覆盖掉你的代管文件
 public File 获取代管文件() {
     String 代管目录 = appPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
