@@ -1,8 +1,8 @@
 # QStory  Java脚本开发文档
 
-### 有bug 维护方面的问题 可前往 https://t.me/QStoryPluginBackup 反馈
+### 有bug 维护方面的问题 请前往有我的地方向我反馈
 
-最近一次文档更新日期 2025-10-30
+最近一次文档更新日期 2025-11-15
 
 适配新版本QStory指南
 
@@ -290,7 +290,17 @@ void onMsg(Object msg) {
 `log(Object content)` //输出日志到脚本目录下
 
 `String httpGet(String url);`  //内置http get请求方法 可以获取能在浏览器中打开的链接内容
-`String httpPost(String,Map);` //内置http post请求方法 可以用来发送post表单请求 仅支持字符串
+`String httpGet(String url, Map<String, String> headers);`  同上 可以获取请求头
+
+`String httpPost(String,Map<String,String> data);` //内置http post请求方法 可以用来发送post表单请求 
+`String httpPost(String url, Map<String, String> headers, Map<String, String> data)` 同上 可携带请求头
+
+ `httpDownload(String url, String path);`  //内置http 下载文件方法 参数一为文件链接,参数二为路径,必须是脚本内的相对路径 其他路径QQ可能没有权限读写
+`httpDownload(String url, String path, Map<String, String> headers)` 同上 headers参数可携带请求头
+
+- Map参数和响应结果仅支持字符串
+- get方法和post如果请求异常会返回 "” 字符串
+- 文件下载失败则会抛出异常
 
 ---
 
