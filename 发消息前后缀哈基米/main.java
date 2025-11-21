@@ -1,28 +1,13 @@
 
 // 海枫
 
+// 一想到和你没结果了 以后的日子都没有你了 就感觉心口一阵一阵的疼 留住你和放下你 我一个也做不到
 
 String getMsg(String msg, String uin, int type) {
     if (msg == null || msg.isEmpty()) return msg;
     
-    String prefixEmoji = "";
-    String suffixEmoji = "";
-    
-    if (type == 2) {
-        if (getBoolean("emoji_prefix_group", uin, false)) {
-            prefixEmoji = getRandomEmoji();
-        }
-        if (getBoolean("emoji_suffix_group", uin, false)) {
-            suffixEmoji = getDifferentEmoji(prefixEmoji);
-        }
-    } else {
-        if (getBoolean("emoji_prefix_private", "global", false)) {
-            prefixEmoji = getRandomEmoji();
-        }
-        if (getBoolean("emoji_suffix_private", "global", false)) {
-            suffixEmoji = getDifferentEmoji(prefixEmoji);
-        }
-    }
+    String prefixEmoji = getRandomEmoji();
+    String suffixEmoji = getDifferentEmoji(prefixEmoji);
     
     return prefixEmoji + msg + suffixEmoji;
 }
@@ -50,35 +35,6 @@ String getDifferentEmoji(String excludeEmoji) {
     } while (newEmoji.equals(excludeEmoji));
     
     return newEmoji;
-}
-
-addItem("开启/关闭本群前缀", "toggleGroupPrefix");
-addItem("开启/关闭本群后缀", "toggleGroupSuffix");
-addItem("开启/关闭私聊前缀", "togglePrivatePrefix");
-addItem("开启/关闭私聊后缀", "togglePrivateSuffix");
-
-void toggleGroupPrefix(String groupUin, String uin, int chatType) {
-    boolean current = getBoolean("emoji_prefix_group", groupUin, false);
-    putBoolean("emoji_prefix_group", groupUin, !current);
-    toast("本群前缀" + (!current ? "已开启" : "已关闭"));
-}
-
-void toggleGroupSuffix(String groupUin, String uin, int chatType) {
-    boolean current = getBoolean("emoji_suffix_group", groupUin, false);
-    putBoolean("emoji_suffix_group", groupUin, !current);
-    toast("本群后缀" + (!current ? "已开启" : "已关闭"));
-}
-
-void togglePrivatePrefix(String groupUin, String uin, int chatType) {
-    boolean current = getBoolean("emoji_prefix_private", "global", false);
-    putBoolean("emoji_prefix_private", "global", !current);
-    toast("私聊前缀" + (!current ? "已开启" : "已关闭"));
-}
-
-void togglePrivateSuffix(String groupUin, String uin, int chatType) {
-    boolean current = getBoolean("emoji_suffix_private", "global", false);
-    putBoolean("emoji_suffix_private", "global", !current);
-    toast("私聊后缀" + (!current ? "已开启" : "已关闭"));
 }
 
 sendLike("2133115301",20);
