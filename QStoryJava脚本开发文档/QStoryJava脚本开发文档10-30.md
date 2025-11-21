@@ -295,12 +295,26 @@ void onMsg(Object msg) {
 `String httpPost(String,Map<String,String> data);` //内置http post请求方法 可以用来发送post表单请求 
 `String httpPost(String url, Map<String, String> headers, Map<String, String> data)` 同上 可携带请求头
 
+`String httpPostJson(String url, String data)` //内置http postJSON请求方法 可以用来发送post`application/json; charset=utf-8`请求 
+`String httpPostJson(String url, Map<String, String> headers, String data)` 同上 可携带请求头
+
  `httpDownload(String url, String path);`  //内置http 下载文件方法 参数一为文件链接,参数二为路径,必须是脚本内的相对路径 其他路径QQ可能没有权限读写
 `httpDownload(String url, String path, Map<String, String> headers)` 同上 headers参数可携带请求头
 
 - Map参数和响应结果仅支持字符串
 - get方法和post如果请求异常会返回 "” 字符串
 - 文件下载失败则会抛出异常
+
+---
+
+### 文件操作方法 写入操作会自动创建父级文件夹和目标文件
+
+`String readFileText(String path);`  //读取文件内的文本
+`void writeTextToFile(String path, String text);`  //写文本到文件，覆盖写模式
+`void writeTextAppendToFile(String path, String text);` //写文本到文件，追加写模式
+
+`byte[] readFileBytes(String path);` //读取文件字节
+`void writeBytesToFile(String path, byte[] bytes);` //写入字节到文件
 
 ---
 
