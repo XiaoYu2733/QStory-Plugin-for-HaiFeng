@@ -490,15 +490,15 @@ void onClickFloatingWindow(int type, String uin) {
     try {
         if (type == 2) {
             addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
-            addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-            addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
+            addTemporaryItem("开启/关闭本群退群拉黑", "退群拉黑开关方法");
+            addTemporaryItem("开启/关闭本群自助头衔", "开关自助头衔方法");
+            addTemporaryItem("开启/关闭本群彩蛋开关", "开关彩蛋开关方法");
             addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
             addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
             addTemporaryItem("代管管理功能", "代管管理弹窗");
             addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
-            addTemporaryItem("开启/关闭本群彩蛋开关", "haifeng520");
             addTemporaryItem("查看更新日志", "showUpdateLog");
         }
     } catch (Exception e) {
@@ -2503,7 +2503,7 @@ public void onMsg(Object msg){
 
 String configName = "彩蛋开关";
 
-public void haifeng520(String groupUin, String uin, int chatType) {
+public void 开关彩蛋开关方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) {
         toast("仅支持群聊开启");
         return;
