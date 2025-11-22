@@ -498,6 +498,7 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("代管管理功能", "代管管理弹窗");
             addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
+            addTemporaryItem("开启/关闭本群彩蛋开关", "haifeng520");
             addTemporaryItem("查看更新日志", "showUpdateLog");
         }
     } catch (Exception e) {
@@ -917,7 +918,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_88.0_更新日志\n" +
                         "- [变更] 继续使用旧版简洁群管禁言逻辑，因为87.0的禁言过于严格导致无法多个禁言，有的时候，最简单的方法是最可靠的\n\n" +
-                        "临江、海枫 平安喜乐 (>_<)\n\n" +
+                        "临江、海枫 平安喜乐 (>_<)\n" +
+                        "————————\n" +
+                        "简洁群管_89.0_更新日志\n" +
+                        "- [新增] 彩蛋开关，未经稳定性测试\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
@@ -2495,4 +2499,81 @@ public void onMsg(Object msg){
     } catch (Throwable e) {
         error(e);
     }
+}
+
+String configName = "彩蛋开关";
+
+public void haifeng520(String groupUin, String uin, int chatType) {
+    if (chatType != 2) {
+        toast("仅支持群聊开启");
+        return;
+    }
+    
+    if (getBoolean(configName, groupUin, false)) {
+        putBoolean(configName, groupUin, false);
+        toast("已关闭本群彩蛋开关");
+    } else {
+        putBoolean(configName, groupUin, true);
+        toast("已开启本群彩蛋开关");
+    }
+}
+
+public boolean isMonitorEnabled(String groupUin) {
+    return getBoolean(configName, groupUin, false);
+}
+
+void onMsg(Object msg) {
+    if (!msg.IsGroup || msg.IsSend || !isMonitorEnabled(msg.GroupUin)) {
+        return;
+    }
+    
+    Object memberInfo = getMemberInfo(msg.GroupUin, msg.UserUin);
+    if (memberInfo == null) {
+        return;
+    }
+    
+    String senderNick = memberInfo.NickName;
+    if (isValidNickname(senderNick)) {
+        return;
+    }
+    
+    try {
+        forbidden(msg.GroupUin, msg.UserUin, 30 * 24 * 60 * 60);
+        toast("已禁言违规昵称用户：" + msg.UserUin);
+    } catch (Exception e) {
+        toast("禁言失败，可能权限不足");
+    }
+}
+
+boolean isValidNickname(String nick) {
+    if (nick == null || nick.trim().isEmpty()) {
+        return false;
+    }
+    
+    for (int i = 0; i < nick.length(); i++) {
+        char c = nick.charAt(i);
+        if (!isValidChar(c)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+boolean isValidChar(char c) {
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9') ||
+           (c >= '\u4e00' && c <= '\u9fa5') ||
+           c == '_' || c == '-' || c == '.' ||
+           c == ' ' || c == '~' || c == '!' ||
+           c == '@' || c == '#' || c == '$' ||
+           c == '%' || c == '^' || c == '&' ||
+           c == '*' || c == '(' || c == ')' ||
+           c == '+' || c == '=' || c == '{' ||
+           c == '}' || c == '[' || c == ']' ||
+           c == ':' || c == ';' || c == '"' ||
+           c == '\'' || c == '<' || c == '>' ||
+           c == ',' || c == '?' || c == '/' ||
+           c == '|' || c == '\\';
 }
