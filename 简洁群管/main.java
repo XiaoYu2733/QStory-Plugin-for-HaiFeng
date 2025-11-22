@@ -490,9 +490,8 @@ void onClickFloatingWindow(int type, String uin) {
     try {
         if (type == 2) {
             addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
-            addTemporaryItem("开启/关闭本群退群拉黑", "退群拉黑开关方法");
-            addTemporaryItem("开启/关闭本群自助头衔", "开关自助头衔方法");
-            addTemporaryItem("开启/关闭本群彩蛋开关", "开关彩蛋开关方法");
+            addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
+            addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
             addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
             addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
@@ -904,7 +903,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [其他] 82.0更新日志忘加了，已添加\n" +
                         "————————\n" +
                         "简洁群管_84.0_更新日志\n" +
-                        "- [优化] 部分代码防止wa引擎导致的报错\n" +
+                        "- [优化] 部分代码防止wa引擎导致的报错\n\n" +
                         "————————\n" +
                         "简洁群管_85.0_更新日志\n" +
                         "- [移除] 脚本的自定义toast弹窗，使用qs传统弹窗\n" +
@@ -920,7 +919,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [变更] 继续使用旧版简洁群管禁言逻辑，因为87.0的禁言过于严格导致无法多个禁言，有的时候，最简单的方法是最可靠的\n" +
                         "————————\n" +
                         "简洁群管_89.0_更新日志\n" +
-                        "- [新增] 彩蛋开关，未经稳定性测试\n\n" +
+                        "- [其他] 版本号\n" +
+                        "————————\n" +
+                        "简洁群管_90.0_更新日志\n" +
+                        "- [修复] 指令生效\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1194,7 +1196,6 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
-// 检测退群拉黑文件夹是否存在，不存在则创建
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
@@ -1202,11 +1203,8 @@ if (!退群拉黑文件夹.exists()) {
     退群拉黑文件夹.mkdirs();
 }
 
-// 默认艾特时间 也可以不需要修改 脚本菜单提供了修改时间方法
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
-// 检测代管文件夹是否存在 不存在则创建
-// 代管.txt只在用户发送添加代管xxx才会进行创建，以防简洁群管更新会覆盖掉你的代管文件
 public File 获取代管文件() {
     String 代管目录 = appPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
@@ -2499,81 +2497,4 @@ public void onMsg(Object msg){
     } catch (Throwable e) {
         error(e);
     }
-}
-
-String configName = "彩蛋开关";
-
-public void 开关彩蛋开关方法(String groupUin, String uin, int chatType) {
-    if (chatType != 2) {
-        toast("仅支持群聊开启");
-        return;
-    }
-    
-    if (getBoolean(configName, groupUin, false)) {
-        putBoolean(configName, groupUin, false);
-        toast("已关闭本群彩蛋开关");
-    } else {
-        putBoolean(configName, groupUin, true);
-        toast("已开启本群彩蛋开关");
-    }
-}
-
-public boolean isMonitorEnabled(String groupUin) {
-    return getBoolean(configName, groupUin, false);
-}
-
-void onMsg(Object msg) {
-    if (!msg.IsGroup || msg.IsSend || !isMonitorEnabled(msg.GroupUin)) {
-        return;
-    }
-    
-    Object memberInfo = getMemberInfo(msg.GroupUin, msg.UserUin);
-    if (memberInfo == null) {
-        return;
-    }
-    
-    String senderNick = memberInfo.NickName;
-    if (isValidNickname(senderNick)) {
-        return;
-    }
-    
-    try {
-        forbidden(msg.GroupUin, msg.UserUin, 30 * 24 * 60 * 60);
-        toast("已禁言违规昵称用户：" + msg.UserUin);
-    } catch (Exception e) {
-        toast("禁言失败，可能权限不足");
-    }
-}
-
-boolean isValidNickname(String nick) {
-    if (nick == null || nick.trim().isEmpty()) {
-        return false;
-    }
-    
-    for (int i = 0; i < nick.length(); i++) {
-        char c = nick.charAt(i);
-        if (!isValidChar(c)) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-boolean isValidChar(char c) {
-    return (c >= 'a' && c <= 'z') ||
-           (c >= 'A' && c <= 'Z') ||
-           (c >= '0' && c <= '9') ||
-           (c >= '\u4e00' && c <= '\u9fa5') ||
-           c == '_' || c == '-' || c == '.' ||
-           c == ' ' || c == '~' || c == '!' ||
-           c == '@' || c == '#' || c == '$' ||
-           c == '%' || c == '^' || c == '&' ||
-           c == '*' || c == '(' || c == ')' ||
-           c == '+' || c == '=' || c == '{' ||
-           c == '}' || c == '[' || c == ']' ||
-           c == ':' || c == ';' || c == '"' ||
-           c == '\'' || c == '<' || c == '>' ||
-           c == ',' || c == '?' || c == '/' ||
-           c == '|' || c == '\\';
 }
