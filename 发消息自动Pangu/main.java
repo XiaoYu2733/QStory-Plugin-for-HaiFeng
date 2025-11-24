@@ -6,6 +6,11 @@
 public String getMsg(String msg, String group, int i) {
     if (msg.startsWith(",,") || msg.startsWith("，，")) return msg.substring(2);
     if (msg.trim().isEmpty()) return msg;
+    
+    if (msg.contains("[AtQQ=")) {
+        return msg;
+    }
+    
     return formatString(msg);
 }
 
