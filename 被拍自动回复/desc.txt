@@ -1,3 +1,15 @@
-所有群聊默认关闭 不用担心 和拍一拍Pro原理不一样 语录需要自己更改 支持多个 不会改的话 加载的时候会有教程
+所有群聊默认关闭 不用担心 和拍一拍Pro原理不一样
+
+2.0更新日志
+
+- [调整] 现在支持私聊开启了
+- [添加] 现在支持图片与表情包了 被他人拍可以自动发送表情包、图片等
+- [优化] 脚本的使用效果
+- [移除] 脚本的toast提示
+
+注意：每次更新脚本都会覆盖掉你的语录文件 请备份
+
+脚本图片表情包存放目录：/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin/被拍自动回复/拍一拍图片
+脚本语录存放目录：/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin/被拍自动回复/拍一拍语录/被拍语录.txt
 
 反馈：https://t.me/XiaoYu_Chat
