@@ -930,7 +930,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [其他] 版本号\n" +
                         "————————\n" +
                         "简洁群管_90.0_更新日志\n" +
-                        "- [修复] 指令生效\n" +
+                        "- [修复] 指令失效\n" +
                         "————————\n" +
                         "简洁群管_91.0_更新日志\n" +
                         "- [新增] 封禁联盟，只有简洁群管所有者可以添加\n" +
@@ -951,7 +951,11 @@ public void showUpdateLog(String g, String u, int t) {
                         "临江、海枫 平安喜乐 (>_<)\n" +
                         "————————\n" +
                         "简洁群管_92.0_更新日志\n" +
-                        "- [修复] 可能导致QQ闪退的问题\n\n" +
+                        "- [修复] 可能导致QQ闪退的问题\n" +
+                        "————————\n" +
+                        "简洁群管_93.0_更新日志\n" +
+                        "- [修复] 继续修复闪退的问题\n" +
+                        "- [修复] /fban和/unfban指令失效的问题\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
@@ -2882,10 +2886,133 @@ public void onMsg(Object msg){
                         }
                     }
                     
+                    if ((故.startsWith("/addgroup") || 故.startsWith("!addgroup")) && qq.equals(myUin)) {
+                        添加联盟群组(groupUin);
+                        String 回复 = "已添加该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin;
+                        sendReply(groupUin, msg, 回复);
+                        return;
+                    }
+                    
+                    if ((故.startsWith("/ungroup") || 故.startsWith("!ungroup")) && qq.equals(myUin)) {
+                        移除联盟群组(groupUin);
+                        String 回复 = "已取消该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin;
+                        sendReply(groupUin, msg, 回复);
+                        return;
+                    }
+                    
+                    if (是联盟群组(groupUin)) {
+                        if (!有权限操作(groupUin, qq, "")) return;
+                        
+                        if (故.startsWith("/fban") || 故.startsWith("!fban")) {
+                            String 目标QQ = null;
+                            String 理由 = null;
+                            
+                            if (mAtListCopy.size() > 0) {
+                                目标QQ = (String) mAtListCopy.get(0);
+                                String[] 部分 = 故.split(" ", 2);
+                                if (部分.length > 1) {
+                                    理由 = 部分[1].trim();
+                                    if (理由.isEmpty()) 理由 = null;
+                                }
+                            } else {
+                                String[] 部分 = 故.split("\\s+", 3);
+                                if (部分.length < 2) {
+                                    sendReply(groupUin, msg, "使用方法：/fban @用户 或 /fban QQ号 [理由]");
+                                    return;
+                                }
+                                目标QQ = 部分[1];
+                                if (部分.length > 2) {
+                                    理由 = 部分[2].trim();
+                                    if (理由.isEmpty()) 理由 = null;
+                                }
+                            }
+                            
+                            if (目标QQ == null || !目标QQ.matches("[0-9]{4,10}")) {
+                                sendReply(groupUin, msg, "QQ号格式错误");
+                                return;
+                            }
+                            
+                            if (检查代管保护(groupUin, 目标QQ, "联盟封禁")) return;
+                            if (!有权限操作(groupUin, qq, 目标QQ)) {
+                                sendReply(groupUin, msg, "你没有权限操作该用户");
+                                return;
+                            }
+                            
+                            ArrayList 成员列表 = getGroupMemberList(groupUin);
+                            if (成员列表 != null) {
+                                ArrayList 成员列表副本 = safeCopyList(成员列表);
+                                for (int j = 0; j < 成员列表副本.size(); j++) {
+                                    Object 成员 = 成员列表副本.get(j);
+                                    if (成员.UserUin.equals(目标QQ)) {
+                                        unifiedKick(groupUin, 目标QQ, true);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            添加封禁用户(目标QQ, 理由);
+                            
+                            String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                            if (理由 != null && !理由.isEmpty()) {
+                                回复 += "\n理由：" + 理由;
+                            }
+                            
+                            sendReply(groupUin, msg, 回复);
+                            return;
+                        }
+                        
+                        if (故.startsWith("/unfban") || 故.startsWith("!unfban")) {
+                            String 目标QQ = null;
+                            String 原因 = null;
+                            
+                            if (mAtListCopy.size() > 0) {
+                                目标QQ = (String) mAtListCopy.get(0);
+                                String[] 部分 = 故.split(" ", 2);
+                                if (部分.length > 1) {
+                                    原因 = 部分[1].trim();
+                                    if (原因.isEmpty()) 原因 = null;
+                                }
+                            } else {
+                                String[] 部分 = 故.split("\\s+", 3);
+                                if (部分.length < 2) {
+                                    sendReply(groupUin, msg, "使用方法：/unfban @用户 或 /unfban QQ号 [原因]");
+                                    return;
+                                }
+                                目标QQ = 部分[1];
+                                if (部分.length > 2) {
+                                    原因 = 部分[2].trim();
+                                    if (原因.isEmpty()) 原因 = null;
+                                }
+                            }
+                            
+                            if (目标QQ == null || !目标QQ.matches("[0-9]{4,10}")) {
+                                sendReply(groupUin, msg, "QQ号格式错误");
+                                return;
+                            }
+                            
+                            if (!是封禁用户(目标QQ)) {
+                                sendReply(groupUin, msg, "该用户未被联盟封禁");
+                                return;
+                            }
+                            
+                            if (!有权限操作(groupUin, qq, 目标QQ)) {
+                                sendReply(groupUin, msg, "你没有权限操作该用户");
+                                return;
+                            }
+                            
+                            移除封禁用户(目标QQ);
+                            
+                            String 回复 = "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                            if (原因 != null && !原因.isEmpty()) {
+                                回复 += "\n原因：" + 原因;
+                            }
+                            
+                            sendReply(groupUin, msg, 回复);
+                            return;
+                        }
+                    }
+                    
                 }
-                
-                处理联盟指令(msg);
-                
             } catch (Exception e) {
                 error(e);
             }
