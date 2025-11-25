@@ -930,6 +930,8 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [其他] 联盟管理员就是代管，当封禁了联盟用户之后，其绑定的联盟会进行封禁他\n" +
                         "- [修复] 退群拉黑失效的问题\n" +
                         "- [调整] 封禁联盟如果进入联盟群聊，会被踢黑，与退群拉黑原理相同\n" +
+                        "- [修复] 封禁联盟绑定的群聊没有踢出的问题\n" +
+                        "- [调整] 现在脚本会在每次加载的时候检测退群拉黑和封禁联盟\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1727,7 +1729,7 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
                     String log = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
                     toast(log);
                 }
-            } else if (type == 2) { // 入群
+            } else if (type == 2) {
                 if (检查黑名单(groupUin, userUin)) {
                     unifiedKick(groupUin, userUin, true);
                     String log = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
@@ -1800,6 +1802,39 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
         }
     }).start();
 }
+
+new Thread(new Runnable() {
+    public void run() {
+        try {
+            Thread.sleep(10000);
+            ArrayList 联盟群组列表 = 简取(联盟群组文件);
+            ArrayList 封禁列表 = 简取(封禁列表文件);
+            
+            ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
+            ArrayList 封禁列表副本 = safeCopyList(封禁列表);
+            
+            for (int i = 0; i < 联盟群组列表副本.size(); i++) {
+                String 群号 = (String)联盟群组列表副本.get(i);
+                ArrayList 成员列表 = getGroupMemberList(群号);
+                if (成员列表 != null) {
+                    ArrayList 成员列表副本 = safeCopyList(成员列表);
+                    for (int j = 0; j < 成员列表副本.size(); j++) {
+                        Object 成员 = 成员列表副本.get(j);
+                        for (int k = 0; k < 封禁列表副本.size(); k++) {
+                            String 封禁记录 = (String)封禁列表副本.get(k);
+                            if (封禁记录.startsWith(成员.UserUin + "|")) {
+                                unifiedKick(群号, 成员.UserUin, true);
+                                Thread.sleep(500);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+}).start();
 
 public boolean 是代管(String groupUin, String userUin) {
     try {
@@ -1903,6 +1938,32 @@ public void 添加封禁用户(String userUin, String reason) {
                 简写(封禁列表文件, (String)当前封禁.get(i));
             }
         }
+        
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    ArrayList 联盟群组列表 = 简取(联盟群组文件);
+                    ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
+                    for (int i = 0; i < 联盟群组列表副本.size(); i++) {
+                        String 群号 = (String)联盟群组列表副本.get(i);
+                        ArrayList 成员列表 = getGroupMemberList(群号);
+                        if (成员列表 != null) {
+                            ArrayList 成员列表副本 = safeCopyList(成员列表);
+                            for (int j = 0; j < 成员列表副本.size(); j++) {
+                                Object 成员 = 成员列表副本.get(j);
+                                if (成员.UserUin.equals(userUin)) {
+                                    unifiedKick(群号, userUin, true);
+                                    Thread.sleep(500);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }).start();
+        
     } catch (Exception e) {}
 }
 
@@ -2000,20 +2061,7 @@ public void 处理联盟指令(Object msg) {
             
             添加封禁用户(目标QQ, 理由);
             
-            String 联盟管理员 = "";
-            try {
-                File 代管文件 = 获取代管文件();
-                if (代管文件.exists()) {
-                    ArrayList 代管列表 = 简取(代管文件);
-                    for (int i = 0; i < 代管列表.size(); i++) {
-                        String 代管QQ = (String)代管列表.get(i);
-                        联盟管理员 += 名(代管QQ) + "(" + 代管QQ + ")\n";
-                    }
-                }
-            } catch (Exception e) {}
-            
-            String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + (联盟管理员.isEmpty() ? "无" : "\n" + 联盟管理员) + 
-                         "用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+            String 回复 = "新联盟封禁\n联盟：简洁群管\n操作者：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
             if (理由 != null && !理由.isEmpty()) {
                 回复 += "\n理由：" + 理由;
             }
@@ -2039,20 +2087,7 @@ public void 处理联盟指令(Object msg) {
             
             移除封禁用户(目标QQ);
             
-            String 联盟管理员 = "";
-            try {
-                File 代管文件 = 获取代管文件();
-                if (代管文件.exists()) {
-                    ArrayList 代管列表 = 简取(代管文件);
-                    for (int i = 0; i < 代管列表.size(); i++) {
-                        String 代管QQ = (String)代管列表.get(i);
-                        联盟管理员 += 名(代管QQ) + "(" + 代管QQ + ")\n";
-                    }
-                }
-            } catch (Exception e) {}
-            
-            String 回复 = "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + (联盟管理员.isEmpty() ? "无" : "\n" + 联盟管理员) + 
-                         "用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+            String 回复 = "新联盟解除封禁\n联盟：简洁群管\n操作者：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
             if (原因 != null && !原因.isEmpty()) {
                 回复 += "\n原因：" + 原因;
             }
@@ -2757,20 +2792,7 @@ public void onMsg(Object msg){
                             
                             添加封禁用户(目标QQ, 理由);
                             
-                            String 联盟管理员 = "";
-                            try {
-                                File 代管文件 = 获取代管文件();
-                                if (代管文件.exists()) {
-                                    ArrayList 代管列表 = 简取(代管文件);
-                                    for (int i = 0; i < 代管列表.size(); i++) {
-                                        String 代管QQ = (String)代管列表.get(i);
-                                        联盟管理员 += 名(代管QQ) + "(" + 代管QQ + ")\n";
-                                    }
-                                }
-                            } catch (Exception e) {}
-                            
-                            String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + (联盟管理员.isEmpty() ? "无" : "\n" + 联盟管理员) + 
-                                         "用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                            String 回复 = "新联盟封禁\n联盟：简洁群管\n操作者：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
                             if (理由 != null && !理由.isEmpty()) {
                                 回复 += "\n理由：" + 理由;
                             }
@@ -2796,20 +2818,7 @@ public void onMsg(Object msg){
                             
                             移除封禁用户(目标QQ);
                             
-                            String 联盟管理员 = "";
-                            try {
-                                File 代管文件 = 获取代管文件();
-                                if (代管文件.exists()) {
-                                    ArrayList 代管列表 = 简取(代管文件);
-                                    for (int i = 0; i < 代管列表.size(); i++) {
-                                        String 代管QQ = (String)代管列表.get(i);
-                                        联盟管理员 += 名(代管QQ) + "(" + 代管QQ + ")\n";
-                                    }
-                                }
-                            } catch (Exception e) {}
-                            
-                            String 回复 = "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + (联盟管理员.isEmpty() ? "无" : "\n" + 联盟管理员) + 
-                                         "用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                            String 回复 = "新联盟解除封禁\n联盟：简洁群管\n操作者：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
                             if (原因 != null && !原因.isEmpty()) {
                                 回复 += "\n原因：" + 原因;
                             }
