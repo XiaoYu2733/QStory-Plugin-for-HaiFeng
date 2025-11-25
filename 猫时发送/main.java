@@ -918,9 +918,7 @@ public void showChangelog(String g, String u, int t){
             try {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setTitle("更新日志");
-                builder.setMessage("v1.2 做了消息卡片和图片的适配哦，以及过长消息的折叠");
-                builder.setMessage(builder.getMessage() + "\nv1.1 增加了通过长按消息设置定时发送的功能喵~");
-                builder.setMessage(builder.getMessage() + "\n脚本弹窗设置时间已重新启用了喵\n- [修复] 精简了无用的线程喵\n\n猫猫的QQ: 乐凝浅月 1253997128\n原作者反馈交流群：https://t.me/XiaoYu_Chat");
+                builder.setMessage("v1.3 现在设定完消息后会自动选择群组哦\nv1.2 做了消息卡片和图片的适配哦，以及过长消息的折叠\nv1.1 增加了通过长按消息设置定时发送的功能喵~\n脚本弹窗设置时间已重新启用了喵\n- [修复] 精简了无用的线程喵\n\n猫猫的QQ: 乐凝浅月 1253997128\n原作者反馈交流群：https://t.me/XiaoYu_Chat");
                 builder.setPositiveButton("确定", null);
                 builder.setCancelable(true);
                 builder.show();
