@@ -46,7 +46,10 @@ public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
         forbidden(groupUin, userUin, time);
     } catch (Throwable e) {
-        shutUp(groupUin, userUin, time);
+        try {
+            shutUp(groupUin, userUin, time);
+        } catch (Throwable e2) {
+        }
     }
 }
 
@@ -54,7 +57,10 @@ public void unifiedKick(String groupUin, String userUin, boolean isBlack) {
     try {
         kick(groupUin, userUin, isBlack);
     } catch (Throwable e) {
-        kickGroup(groupUin, userUin, isBlack);
+        try {
+            kickGroup(groupUin, userUin, isBlack);
+        } catch (Throwable e2) {
+        }
     }
 }
 
@@ -140,7 +146,9 @@ private Map groupInfoCache = new ConcurrentHashMap();
         if (groupList != null) {
             ArrayList groupListCopy = safeCopyList(groupList);
             for (Object groupInfo : groupListCopy) {
-                groupInfoCache.put(groupInfo.GroupUin, groupInfo);
+                if (groupInfo != null) {
+                    groupInfoCache.put(groupInfo.GroupUin, groupInfo);
+                }
             }
         }
     } catch (Exception e) {
@@ -149,11 +157,11 @@ private Map groupInfoCache = new ConcurrentHashMap();
 
 void onCreateMenu(Object msg) {
     try {
-        if (msg.IsGroup) {
+        if (msg != null && msg.IsGroup) {
             String groupUin = msg.GroupUin;
             String targetUin = msg.UserUin;
             
-            if (targetUin.equals(myUin)) {
+            if (targetUin != null && targetUin.equals(myUin)) {
                 return;
             }
             
@@ -177,7 +185,7 @@ void onCreateMenu(Object msg) {
 }
 
 public void quickManageMenuItem(final Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -260,7 +268,7 @@ public void quickManageMenuItem(final Object msg) {
 }
 
 public void addToBlacklistMenuItem(Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -305,7 +313,7 @@ public void addToBlacklistMenuItem(Object msg) {
 }
 
 public void kickMenuItem(Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -333,7 +341,7 @@ public void kickMenuItem(Object msg) {
 }
 
 public void kickBlackMenuItem(Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -361,7 +369,7 @@ public void kickBlackMenuItem(Object msg) {
 }
 
 public void forbiddenMenuItem(Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -438,7 +446,7 @@ public void forbiddenMenuItem(Object msg) {
 }
 
 public void setTitleMenuItem(Object msg) {
-    if (!msg.IsGroup) return;
+    if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
@@ -940,7 +948,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [新增] 群管功能的指令\n" +
                         "- [优化] onMsg(Object msg){方法\n" +
                         "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n\n" +
-                        "临江、海枫 平安喜乐 (>_<)\n\n" +
+                        "临江、海枫 平安喜乐 (>_<)\n" +
+                        "————————\n" +
+                        "简洁群管_92.0_更新日志\n" +
+                        "- [修复] 可能导致QQ闪退的问题\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
@@ -1431,7 +1442,7 @@ public Integer CN_zh_int(String chinese) {
 }
 
 public boolean atMe(Object msg){
-    if (msg.mAtList == null || msg.mAtList.size() == 0)
+    if (msg == null || msg.mAtList == null || msg.mAtList.size() == 0)
         return false;
     ArrayList atListCopy = safeCopyList(msg.mAtList);
     for (int i = 0; i < atListCopy.size(); i++) {
@@ -1578,6 +1589,7 @@ public boolean isAdmin(String GroupUin, String UserUin) {
 }
 
 public int get_time_int(Object msg,int time){
+    if (msg == null || msg.MessageContent == null) return 0;
     int datu = msg.MessageContent.lastIndexOf(" ");
     String date=msg.MessageContent.substring(datu +1); 
     if(date.contains("天")){
@@ -1593,6 +1605,7 @@ public int get_time_int(Object msg,int time){
 }
 
 public int get_time_int(String msg,int time){
+    if (msg == null) return 0;
     int datu = msg.lastIndexOf(" ");
     String date = msg.substring(datu +1); 
     if(date.contains("天")){
@@ -1608,6 +1621,7 @@ public int get_time_int(String msg,int time){
 }
 
 public int get_time(String msg){
+    if (msg == null) return 0;
     int datu = msg.lastIndexOf(" ");
     String date=msg.substring(datu +1);
     date=date.trim();
@@ -1634,6 +1648,7 @@ public int get_time(String msg){
 }
 
 public int get_time(Object msg){
+    if (msg == null || msg.MessageContent == null) return 0;
     int datu = msg.MessageContent.lastIndexOf(" ");
     String date=msg.MessageContent.substring(datu +1);
     date=date.trim();
@@ -2885,17 +2900,37 @@ public void onMsg(Object msg){
                         if (!有权限操作(groupUin, qq, "")) return;
                         
                         if (故.startsWith("/fban") || 故.startsWith("!fban")) {
-                            String[] 部分 = 故.split(" ", 3);
-                            if (部分.length < 2) {
-                                sendReply(groupUin, msg, "使用方法：/fban QQ号 [理由]");
-                                return;
-                            }
+                            String 目标QQ = null;
+                            String 理由 = null;
                             
-                            String 目标QQ = 部分[1];
-                            String 理由 = 部分.length > 2 ? 部分[2] : null;
+                            if (mAtListCopy.size() > 0) {
+                                目标QQ = (String) mAtListCopy.get(0);
+                                String[] 部分 = 故.split(" ", 2);
+                                if (部分.length > 1) {
+                                    理由 = 部分[1].trim();
+                                    if (理由.isEmpty()) 理由 = null;
+                                }
+                            } else {
+                                String[] 部分 = 故.split(" ", 3);
+                                if (部分.length < 2) {
+                                    sendReply(groupUin, msg, "使用方法：/fban @用户 或 /fban QQ号 [理由]");
+                                    return;
+                                }
+                                目标QQ = 部分[1];
+                                if (部分.length > 2) {
+                                    理由 = 部分[2].trim();
+                                    if (理由.isEmpty()) 理由 = null;
+                                }
+                            }
                             
                             if (!目标QQ.matches("[0-9]{4,10}")) {
                                 sendReply(groupUin, msg, "QQ号格式错误");
+                                return;
+                            }
+                            
+                            if (检查代管保护(groupUin, 目标QQ, "联盟封禁")) return;
+                            if (!有权限操作(groupUin, qq, 目标QQ)) {
+                                sendReply(groupUin, msg, "你没有权限操作该用户");
                                 return;
                             }
                             
@@ -2923,17 +2958,36 @@ public void onMsg(Object msg){
                         }
                         
                         if (故.startsWith("/unfban") || 故.startsWith("!unfban")) {
-                            String[] 部分 = 故.split(" ", 3);
-                            if (部分.length < 2) {
-                                sendReply(groupUin, msg, "使用方法：/unfban QQ号 [原因]");
-                                return;
-                            }
+                            String 目标QQ = null;
+                            String 原因 = null;
                             
-                            String 目标QQ = 部分[1];
-                            String 原因 = 部分.length > 2 ? 部分[2] : null;
+                            if (mAtListCopy.size() > 0) {
+                                目标QQ = (String) mAtListCopy.get(0);
+                                String[] 部分 = 故.split(" ", 2);
+                                if (部分.length > 1) {
+                                    原因 = 部分[1].trim();
+                                    if (原因.isEmpty()) 原因 = null;
+                                }
+                            } else {
+                                String[] 部分 = 故.split(" ", 3);
+                                if (部分.length < 2) {
+                                    sendReply(groupUin, msg, "使用方法：/unfban @用户 或 /unfban QQ号 [原因]");
+                                    return;
+                                }
+                                目标QQ = 部分[1];
+                                if (部分.length > 2) {
+                                    原因 = 部分[2].trim();
+                                    if (原因.isEmpty()) 原因 = null;
+                                }
+                            }
                             
                             if (!是封禁用户(目标QQ)) {
                                 sendReply(groupUin, msg, "该用户未被联盟封禁");
+                                return;
+                            }
+                            
+                            if (!有权限操作(groupUin, qq, 目标QQ)) {
+                                sendReply(groupUin, msg, "你没有权限操作该用户");
                                 return;
                             }
                             
