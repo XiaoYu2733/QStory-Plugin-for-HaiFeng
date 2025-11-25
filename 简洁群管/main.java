@@ -931,7 +931,15 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 退群拉黑失效的问题\n" +
                         "- [调整] 封禁联盟如果进入联盟群聊，会被踢黑，与退群拉黑原理相同\n" +
                         "- [修复] 封禁联盟绑定的群聊没有踢出的问题\n" +
-                        "- [调整] 现在脚本会在每次加载的时候检测退群拉黑和封禁联盟\n\n" +
+                        "- [调整] 现在脚本会在每次加载的时候检测退群拉黑和封禁联盟\n" +
+                        "————————\n" +
+                        "简洁群管_92.0_更新日志\n" +
+                        "- [修复] /unfban指令无效的问题\n" +
+                        "- [新增] /fban和/unfan可以使用回复进行 怎么用看群管功能使用方法\n" +
+                        "- [调整] 移除每次发送/fban的冷却\n" +
+                        "- [新增] 群管功能的指令\n" +
+                        "- [优化] onMsg(Object msg){方法\n" +
+                        "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1939,6 +1947,21 @@ public void 添加封禁用户(String userUin, String reason) {
             }
         }
         
+        String 当前群组 = getCurrentGroupUin();
+        if (当前群组 != null && !当前群组.isEmpty()) {
+            ArrayList 成员列表 = getGroupMemberList(当前群组);
+            if (成员列表 != null) {
+                ArrayList 成员列表副本 = safeCopyList(成员列表);
+                for (int j = 0; j < 成员列表副本.size(); j++) {
+                    Object 成员 = 成员列表副本.get(j);
+                    if (成员.UserUin.equals(userUin)) {
+                        unifiedKick(当前群组, userUin, true);
+                        break;
+                    }
+                }
+            }
+        }
+        
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -1946,6 +1969,8 @@ public void 添加封禁用户(String userUin, String reason) {
                     ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
                     for (int i = 0; i < 联盟群组列表副本.size(); i++) {
                         String 群号 = (String)联盟群组列表副本.get(i);
+                        if (群号.equals(当前群组)) continue;
+                        
                         ArrayList 成员列表 = getGroupMemberList(群号);
                         if (成员列表 != null) {
                             ArrayList 成员列表副本 = safeCopyList(成员列表);
@@ -1953,7 +1978,7 @@ public void 添加封禁用户(String userUin, String reason) {
                                 Object 成员 = 成员列表副本.get(j);
                                 if (成员.UserUin.equals(userUin)) {
                                     unifiedKick(群号, userUin, true);
-                                    Thread.sleep(500);
+                                    Thread.sleep(100); // 减少等待时间
                                     break;
                                 }
                             }
@@ -2119,7 +2144,6 @@ public void onMsg(Object msg){
                     mAtListCopy = new ArrayList();
                 }
                 
-                // 原有代码开始
                 if(故 != null && 故.startsWith("我要头衔")&&"开".equals(getString(groupUin,"自助头衔"))){
                     String a=故.substring(4);
                     setTitle(groupUin,qq,a);
@@ -2374,6 +2398,89 @@ public void onMsg(Object msg){
                         if (!有权限操作(groupUin, qq, msg.ReplyTo)) return;
                         unifiedKick(groupUin,msg.ReplyTo,false);
                         sendMsg(groupUin,"","已踢出"+msg.ReplyTo+"，此用户还可再次申请入群\n权限使用人："+名(qq));
+                    }
+                    if(msg.MessageType == 6 && (故.startsWith("/fban")||故.startsWith("!fban"))) {
+                        String 目标QQ = msg.ReplyTo;
+                        if (目标QQ == null || 目标QQ.isEmpty()) {
+                            sendReply(groupUin, msg, "无法获取被回复用户");
+                            return;
+                        }
+                        
+                        if (!有权限操作(groupUin, qq, 目标QQ)) {
+                            sendReply(groupUin, msg, "你没有权限操作该用户");
+                            return;
+                        }
+                        
+                        if (检查代管保护(groupUin, 目标QQ, "联盟封禁")) {
+                            return;
+                        }
+                        
+                        String 理由 = null;
+                        String[] 部分 = 故.split(" ", 2);
+                        if (部分.length > 1) {
+                            理由 = 部分[1].trim();
+                            if (理由.isEmpty()) {
+                                理由 = null;
+                            }
+                        }
+                        
+                        ArrayList 成员列表 = getGroupMemberList(groupUin);
+                        if (成员列表 != null) {
+                            ArrayList 成员列表副本 = safeCopyList(成员列表);
+                            for (int j = 0; j < 成员列表副本.size(); j++) {
+                                Object 成员 = 成员列表副本.get(j);
+                                if (成员.UserUin.equals(目标QQ)) {
+                                    unifiedKick(groupUin, 目标QQ, true);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        添加封禁用户(目标QQ, 理由);
+                        
+                        String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                        if (理由 != null && !理由.isEmpty()) {
+                            回复 += "\n理由：" + 理由;
+                        }
+                        
+                        sendReply(groupUin, msg, 回复);
+                        return;
+                    }
+                    if(msg.MessageType == 6 && (故.startsWith("/unfban")||故.startsWith("!unfban"))) {
+                        String 目标QQ = msg.ReplyTo;
+                        if (目标QQ == null || 目标QQ.isEmpty()) {
+                            sendReply(groupUin, msg, "无法获取被回复用户");
+                            return;
+                        }
+                        
+                        if (!有权限操作(groupUin, qq, 目标QQ)) {
+                            sendReply(groupUin, msg, "你没有权限操作该用户");
+                            return;
+                        }
+                        
+                        if (!是封禁用户(目标QQ)) {
+                            sendReply(groupUin, msg, "该用户未被联盟封禁");
+                            return;
+                        }
+                        
+                        String 原因 = null;
+                        String[] 部分 = 故.split(" ", 2);
+                        if (部分.length > 1) {
+                            原因 = 部分[1].trim();
+                            if (原因.isEmpty()) {
+                                原因 = null;
+                            }
+                        }
+                        
+                        移除封禁用户(目标QQ);
+                        
+                        String 回复 = "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                        if (原因 != null && !原因.isEmpty()) {
+                            回复 += "\n原因：" + 原因;
+                        }
+                        
+                        sendReply(groupUin, msg, 回复);
+                        return;
                     }
                     if(msg.MessageType == 6 && 故.matches("禁言 ?[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)")) {
                         if (检查代管保护(groupUin, msg.ReplyTo, "禁言")) return;
@@ -2790,9 +2897,21 @@ public void onMsg(Object msg){
                                 return;
                             }
                             
+                            ArrayList 成员列表 = getGroupMemberList(groupUin);
+                            if (成员列表 != null) {
+                                ArrayList 成员列表副本 = safeCopyList(成员列表);
+                                for (int j = 0; j < 成员列表副本.size(); j++) {
+                                    Object 成员 = 成员列表副本.get(j);
+                                    if (成员.UserUin.equals(目标QQ)) {
+                                        unifiedKick(groupUin, 目标QQ, true);
+                                        break;
+                                    }
+                                }
+                            }
+                            
                             添加封禁用户(目标QQ, 理由);
                             
-                            String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理器：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
+                            String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
                             if (理由 != null && !理由.isEmpty()) {
                                 回复 += "\n理由：" + 理由;
                             }
