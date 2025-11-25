@@ -926,8 +926,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_91.0_更新日志\n" +
                         "- [新增] 封禁联盟，只有简洁群管所有者可以添加\n" +
-                        "\n[新增] /addgroup 添加该群组联盟\n/unaddgroup 取消该群组为联盟\n/fban /unfban 封禁用户 解禁用户\n" +
-                        "- [其他] 联盟管理员就是代管，当封禁了联盟用户之后，其绑定的联盟会进行封禁他\n\n" +
+                        "- [新增] 联盟指令，自己去简洁群管使用方法看\n" +
+                        "- [其他] 联盟管理员就是代管，当封禁了联盟用户之后，其绑定的联盟会进行封禁他\n" +
+                        "- [修复] 退群拉黑失效的问题\n" +
+                        "- [调整] 封禁联盟如果进入联盟群聊，会被踢黑，与退群拉黑原理相同\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1715,23 +1717,30 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
         if (groupUin == null || groupUin.isEmpty()) {
             return;
         }
+        
+        // 退群拉黑处理
         String switchState = getString(groupUin, "退群拉黑");
-        if (switchState == null || !"开".equals(switchState)) {
-            return;
+        if (switchState != null && "开".equals(switchState)) {
+            if (type == 1) { // 退群
+                if (userUin.equals(myUin)) return;
+                if (!检查黑名单(groupUin, userUin)) {
+                    添加黑名单(groupUin, userUin);
+                    String log = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
+                    toast(log);
+                }
+            } else if (type == 2) { // 入群
+                if (检查黑名单(groupUin, userUin)) {
+                    unifiedKick(groupUin, userUin, true);
+                    String log = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
+                    toast(log);
+                }
+            }
         }
-        if (type == 1) {
-            if (userUin.equals(myUin)) return;
-            if (!检查黑名单(groupUin, userUin)) {
-                添加黑名单(groupUin, userUin);
-                String log = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
-                toast(log);
-            }
-        } else if (type == 2) {
-            if (检查黑名单(groupUin, userUin)) {
-                unifiedKick(groupUin, userUin, true);
-                String log = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
-                toast(log);
-            }
+        
+        // 联盟封禁用户入群检测
+        if (type == 2 && 是联盟群组(groupUin) && 是封禁用户(userUin)) {
+            unifiedKick(groupUin, userUin, true);
+            toast("检测到联盟封禁用户 " + userUin + " 入群，已踢出");
         }
     } catch (Exception e) {
     }
@@ -1948,20 +1957,6 @@ public String 获取封禁理由(String userUin) {
     } catch (Exception e) {
         return null;
     }
-}
-
-public void onTroopEvent(String groupUin, String userUin, int type) {
-    try {
-        if (type == 2 && 是联盟群组(groupUin) && 是封禁用户(userUin)) {
-            unifiedKick(groupUin, userUin, true);
-            String 理由 = 获取封禁理由(userUin);
-            String 日志 = "联盟群组 " + groupUin + " 检测到封禁用户 " + userUin + " 加入，已踢出";
-            if (理由 != null) {
-                日志 += "，理由：" + 理由;
-            }
-            toast(日志);
-        }
-    } catch (Exception e) {}
 }
 
 public void 处理联盟指令(Object msg) {
