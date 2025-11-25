@@ -1718,10 +1718,9 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
             return;
         }
         
-        // 退群拉黑处理
         String switchState = getString(groupUin, "退群拉黑");
         if (switchState != null && "开".equals(switchState)) {
-            if (type == 1) { // 退群
+            if (type == 1) {
                 if (userUin.equals(myUin)) return;
                 if (!检查黑名单(groupUin, userUin)) {
                     添加黑名单(groupUin, userUin);
@@ -1737,7 +1736,6 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
             }
         }
         
-        // 联盟封禁用户入群检测
         if (type == 2 && 是联盟群组(groupUin) && 是封禁用户(userUin)) {
             unifiedKick(groupUin, userUin, true);
             toast("检测到联盟封禁用户 " + userUin + " 入群，已踢出");
