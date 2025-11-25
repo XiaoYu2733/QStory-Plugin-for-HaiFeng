@@ -955,7 +955,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_93.0_更新日志\n" +
                         "- [修复] 继续修复闪退的问题\n" +
-                        "- [修复] /fban和/unfban指令失效的问题\n\n" +
+                        "- [修复] /fban和/unfban指令失效的问题\n" +
+                        "————————\n" +
+                        "简洁群管_94.0_更新日志\n" +
+                        "- [修复] 隐藏显示头衔 标识 等级 失效的问题\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
@@ -1901,6 +1904,19 @@ public boolean 检查代管保护(String groupUin, String targetUin, String oper
     }
     return false;
 }
+
+/*
+该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
+*/
+/*接口说明 
+
+显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群员头衔 SetTroopShowTitle(qun,myUin,getSkey(),getey("clt.qq.com"),1);
+
+隐藏就是最后1改成0
+
+*/
 
 public String isGN(String groupUin, String key) {
     try {
