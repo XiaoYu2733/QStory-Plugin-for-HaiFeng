@@ -972,7 +972,9 @@ public void showGroupManageDialog() {
                 "17. /unfban 取消这个封禁联盟用户\n" +
                 "回复操作：\n" +
                 "• 回复消息 /ban - 踢黑\n" +
-                "• 回复消息 /kick - 普通踢出\n\n" +
+                "• 回复消息 /kick - 普通踢出\n" +
+                "• 回复消息 /fban - 封禁联盟用户\n" +
+                "• 回复消息 /unfban - 取消封禁联盟用户\n\n" +
                 "临江：634941583\n" +
                 "海枫：https://t.me/XiaoYu_Chat";
 
