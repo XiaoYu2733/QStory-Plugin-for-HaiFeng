@@ -245,7 +245,7 @@ public void quickManageMenuItem(final Object msg) {
                 }
                 
                 if (items.isEmpty()) {
-                    toast("没有可用的操作权限");
+                    toast("无管理权限");
                     return;
                 }
                 
@@ -947,8 +947,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [调整] 移除每次发送/fban的冷却\n" +
                         "- [新增] 群管功能的指令\n" +
                         "- [优化] onMsg(Object msg){方法\n" +
-                        "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n\n" +
-                        "临江、海枫 平安喜乐 (>_<)\n" +
+                        "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n" +
                         "————————\n" +
                         "简洁群管_92.0_更新日志\n" +
                         "- [修复] 可能导致QQ闪退的问题\n" +
@@ -959,6 +958,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "————————\n" +
                         "简洁群管_94.0_更新日志\n" +
                         "- [修复] 隐藏显示头衔 标识 等级 失效的问题\n\n" +
+                        "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
                 builder.show();
@@ -993,6 +993,7 @@ public void showGroupManageDialog() {
                 "• 回复消息 /kick - 普通踢出\n" +
                 "• 回复消息 /fban - 封禁联盟用户\n" +
                 "• 回复消息 /unfban - 取消封禁联盟用户\n\n" +
+                "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n\n" +
                 "临江：634941583\n" +
                 "海枫：https://t.me/XiaoYu_Chat";
 
@@ -1237,6 +1238,7 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
+// 检测退群拉黑文件夹是否存在，不存在则创建
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
@@ -1246,6 +1248,8 @@ if (!退群拉黑文件夹.exists()) {
 
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
+// 检测代管文件夹是否存在 不存在则创建
+// 代管.tx只在用户发送添加代管时创建 以防止简洁群管更新会覆盖掉你的代管
 public File 获取代管文件() {
     String 代管目录 = appPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
