@@ -1,2 +1,2 @@
-Delayms=1400
-DefaultGroups=744974229
+Delayms=400
+DefaultGroups=123456789,987654321SendMode=StrictMode

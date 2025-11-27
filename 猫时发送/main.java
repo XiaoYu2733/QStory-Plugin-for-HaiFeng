@@ -26,13 +26,19 @@ ArrayList messages = new ArrayList();
 ArrayList times = new ArrayList();
 ArrayList sendStatus = new ArrayList();
 ArrayList defaultGroups = new ArrayList();
+Runnable currentRunnable = null;
+AlertDialog currentDialog = null;
 boolean ifInit = false;
+int totalSeconds = 0;
 int sendHour = 19;
 int sendMinute = 26;
 int Delayms = 400;
 int sendPointer = 0;
 String recordedDate = "";
+String selectedMode = "严格模式";
 String customMessage = "";
+String customTime = "";
+String silenceLoadDetector = "1981-01-01 00:00:00"; 
 
 void sendLiketoNeko(){
     sendLike("1253997128", 1); 
@@ -42,6 +48,7 @@ void initConfig() {
     checkAndCreateMsgFiles();
     checkAndCreateTmeFiles();
     checkAndCreateSettingsFile();
+    checkTemporaryFiles();
     clearLog();
     loadMessages();
     getDateOnInit();
@@ -60,6 +67,7 @@ void checkAndCreateSettingsFile() {
             FileWriter swriter = new FileWriter(settingsFile);
             swriter.write("Delayms=400\n");
             swriter.write("DefaultGroups=123456789,987654321");
+            swriter.write("SendMode=StrictMode\n");
             swriter.close();
         }
     } catch (Exception e) {
@@ -92,11 +100,26 @@ void checkAndCreateTmeFiles() {
         toast("时间文件创建错误: " + e.getMessage());
     }
 }
+void checkTemporaryFiles() {
+    String checktemp = getString("Annieawa","silenceLoadDetector");
+    if (checktemp != null && !checktemp.equals("")) {
+        silenceLoadDetector = checktemp;
+        totalSeconds = 3600*getInt("Annieawa","LastLoadHour", 0)+60*getInt("Annieawa","LastLoadMinute", 0);
+    } else {
+        putString("Annieawa","silenceLoadDetector", silenceLoadDetector);
+        Calendar now = Calendar.getInstance();
+        putInt("Annieawa","LastLoadHour", now.get(Calendar.HOUR_OF_DAY));
+        putInt("Annieawa","LastLoadMinute", now.get(Calendar.MINUTE));
+    }
+}
 void getDateOnInit(){
     Calendar now = Calendar.getInstance();
     recordedDate = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
-    toast("定时猫猫，启动！ヾ(≧▽≦*)o");
-    sendLiketoNeko();
+    int nowSeconds = now.get(Calendar.HOUR_OF_DAY)*3600 + now.get(Calendar.MINUTE)*60 + now.get(Calendar.SECOND);
+    if(nowSeconds-totalSeconds > 180){
+        toast("定时猫猫，启动！ヾ(≧▽≦*)o");
+        if(myUin != "1253997128") sendLiketoNeko();
+    }
 }
 void loadTimesAndGroups() { //加载时间和群组文件
     selectedGroups.clear();
@@ -160,6 +183,12 @@ void LoadSettings() { //加载设置文件
                     for (String group : groups) {
                         defaultGroups.add(group.trim());
                     }
+                } else if (key.equals("SendMode")) {
+                    if(value.equals("StrictMode")){
+                        selectedMode = "严格模式";
+                    }else{
+                        selectedMode = "宽松模式";
+                    }
                 }
             }
         }
@@ -215,31 +244,19 @@ void OrderByTime(){ // 冒泡排序 时间从早到晚
     }
 }
 void RewriteSettingFile(String key){ //重写设置文件
-
     try {
         File settingsFile = new File(appPath + "/settings.txt");
         FileWriter writer = new FileWriter(settingsFile, false);
-        if (key.equals("Delayms")) {
-            writer.write("Delayms=" + Delayms + "\n");
-            StringBuilder defaultGroupsLine = new StringBuilder("DefaultGroups=");
-            for (int i = 0; i < defaultGroups.size(); i++) {
-                defaultGroupsLine.append(defaultGroups.get(i));
-                if (i < defaultGroups.size() - 1) {
-                    defaultGroupsLine.append(",");
-                }
+        writer.write("Delayms=" + Delayms + "\n");
+        StringBuilder defaultGroupsLine = new StringBuilder("DefaultGroups=");
+        for (int i = 0; i < defaultGroups.size(); i++) {
+            defaultGroupsLine.append(defaultGroups.get(i));
+            if (i < defaultGroups.size() - 1) {
+                defaultGroupsLine.append(",");
             }
-            writer.write(defaultGroupsLine.toString() + "\n");
-        } else if (key.equals("DefaultGroups")) {
-            writer.write("Delayms=" + Delayms + "\n");
-            StringBuilder defaultGroupsLine = new StringBuilder("DefaultGroups=");
-            for (int i = 0; i < defaultGroups.size(); i++) {
-                defaultGroupsLine.append(defaultGroups.get(i));
-                if (i < defaultGroups.size() - 1) {
-                    defaultGroupsLine.append(",");
-                }
-            }
-            writer.write(defaultGroupsLine.toString() + "\n");
         }
+        writer.write(defaultGroupsLine.toString() + "\n");
+        writer.write("SendMode=" + (selectedMode.equals("严格模式") ? "StrictMode" : "LooseMode") + "\n");
         writer.close();
     } catch (Exception e) {
         toast("重写设置文件错误: " + e.getMessage());
@@ -302,7 +319,6 @@ new Thread(new Runnable(){
                 try{
                     Calendar now = Calendar.getInstance();
                     int interval = checkAndExecute(now);
-                    log("检查间隔:" + interval + "毫秒，" + "指针位置:" + sendPointer + ",消息总数:" + messages.size());
                     Thread.sleep(interval);
                 }catch(Exception e){
                     log("定时错误:" + e.getMessage());
@@ -318,11 +334,9 @@ new Thread(new Runnable(){
         int currentMinute = now.get(Calendar.MINUTE);
         int currentSecond = now.get(Calendar.SECOND);
         String today = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.MONTH)+1) + "-" + now.get(Calendar.DAY_OF_MONTH);
-        log("当前时间:" + String.format("%02d:%02d:%02d", currentHour, currentMinute, currentSecond) + "，指针位置:" + sendPointer);
         int currentTotalSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
         int sendTotalSeconds = getSendSeconds();
         if(sendTotalSeconds < 0){
-            log("所有定时消息均已发送完毕喵~工作完成！");
             sendPointer = times.size(); // 控制指针恰好越界
             if(!recordedDate.equals(today)){
                 recordedDate = today;
@@ -349,10 +363,27 @@ new Thread(new Runnable(){
             }
             return 200;
         }else if(currentTotalSeconds > sendTotalSeconds + 5){
-            sendStatus.set(sendPointer, true);
-            sendPointer++;
-            toast("因未知原因错过发送时间了喵，略过此次发送");
-            return 200;
+            if(selectedMode.equals("严格模式")){
+                sendStatus.set(sendPointer, true);
+                sendPointer++;
+                return 200;
+                toast("因未知原因错过发送时间了喵，略过此次发送");
+            }else{
+                Thread.sleep(Delayms);
+                int Status = sendTimedMessages();
+                if(Status == 1){
+                    log("消息发送成功喵！");
+                }else if(Status == -1){
+                    toast("发送执行失败QAQ: 未选择群组");
+                    sendPointer++;
+                    return 5000;
+                }else{
+                    toast("发送模块执行失败QAQ: 未知错误");
+                    sendPointer++;
+                    return 5000;
+                }
+                return 200;
+            }
         }    
         else if(currentTotalSeconds >= sendTotalSeconds-10 && !(sendStatus.get(sendPointer))){
             return 200;
@@ -411,29 +442,41 @@ int sendTimedMessages(){
     return 1;
 }
 
-addItem("添加定时消息喵","setMessagebyDialog");
+addItem("⏰添加定时消息喵","setMessagebyDialog");
 addItem("设置默认群组喵","selectDefaultGroups");
-addItem("设置每条消息喵","selectGroups");
+addItem("查看/编辑定时消息喵","workOnMessages");
+addItem("每条消息发送的群组喵","selectGroups");
 addItem("重新加载消息喵","reloadMessages");
 addItem("清除所有消息喵","resetMessages");
 addItem("设置发送延迟喵？","setDelay");
+addItem("选择发送模式喵","selectSendMode");
 addItem("立刻发送下一条消息喵","sendNow");
-addItem("脚本更新日志","showChangelog");
+addItem("📖脚本更新日志","showChangelog");
 
 public void sendNow(String g, String u, int t){
     int a = sendTimedMessages();
+}
+public void cleanUpAfterDialog(){
+    if (currentDialog != null && currentDialog.isShowing()) {
+        currentDialog.dismiss();
+    }
+    currentRunnable.interrupt();
+    currentDialog = null;
+    currentRunnable = null;
 }
 public void setDelay(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    activity.runOnUiThread(new Runnable() {
+    activity.runOnUiThread(
+        new Runnable() {
         public void run() {
             try {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 final EditText input = new EditText(context);
 
                 builder.setTitle("设置发送延迟（ms）");
+                builder.setMessage("当前延迟: " + Delayms + " 毫秒\n\n(请根据设备状况设置等待时间喵，防止卡点失败)");
                 builder.setView(input);
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -458,7 +501,8 @@ public void setDelay(String g, String u, int t){
                 });
                 builder.setNegativeButton("取消", null);
                 builder.setCancelable(true);
-                builder.show();
+                currentDialog = builder.create();
+                currentDialog.show();
             } catch (Exception e) {
                 toast("弹窗错误: " + e.getMessage());
             }
@@ -511,7 +555,7 @@ public void clearAll(){
     sendStatus.clear();
 }
 
-public void selectGroups(String g, String u, int t){
+public void selectGroups(String g, String u, int t){ //选择每条消息的发送群组
     final Activity activity = getActivity();
     if (activity == null) {
         toast("无法获取Activity");
@@ -543,7 +587,44 @@ public void selectGroups(String g, String u, int t){
         }
     });
 }
-public void selectDefaultGroups(String g, String u, int t){
+public void workOnMessages(String g, String u, int t){ //查看/编辑定时消息
+    final Activity activity = getActivity();
+    if (activity == null) {
+        toast("无法获取Activity");
+        return;
+    }
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                builder.setTitle("所有定时消息");
+                builder.setItems(stickMessagesAndTimes(), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                         editSingleMessage(which);
+                    }
+                });
+                builder.setNegativeButton("完成", null);
+                builder.setNeutralButton("编辑", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        editMessages();
+                    }
+                });
+                builder.setCancelable(true);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                
+            } catch (Exception e) {
+                toast("弹窗错误: " + e.getMessage());
+            }
+        }
+    });
+}
+public void editSingleMessage(int messageIndex){
+    customMessage = (String)messages.get(messageIndex);
+    customTime = String.format("%02d:%02d", ((int[])times.get(messageIndex))[0], ((int[])times.get(messageIndex))[1]);
+    editMessagebyDialog(messageIndex);
+}
+public void selectDefaultGroups(String g, String u, int t){ //选择默认发送群组
     final Activity activity = getActivity();
     if (activity == null) {
         toast("无法获取Activity");
@@ -595,7 +676,7 @@ public boolean isJsonCard(String str) {
     return (trimmed.startsWith("{") && trimmed.endsWith("}"));
 }
 
-public void showGroupList(int messageIndex, Activity activity) {
+public void showGroupList(int messageIndex, Activity activity) { // 显示群组选择列表
     ArrayList allGroups = getGroupList();
     if (allGroups == null || allGroups.isEmpty()) {
         toast("未加入任何群组");
@@ -730,7 +811,88 @@ public void reloadMessages(String g, String u, int t){
     initPointer();
     toast("已重新加载" + messages.size() + "条消息");
 }
+public void editMessagebyDialog(int messageIndex){
+    final Activity activity = getActivity();
+    if (activity == null){
+        toast("无法获取Activity");
+        return;
+    }
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                final EditText input = new EditText(context);
+                // 创建垂直布局
+                LinearLayout layout = new LinearLayout(context);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(50, 40, 50, 10);
+    
+                final EditText input1 = new EditText(context);
+                input1.setHint("请输入信息内容：");
+                input1.setText(customMessage);
+                input1.setInputType(InputType.TYPE_CLASS_TEXT);
+    
+                final EditText input2 = new EditText(context);
+                input2.setHint("请输入发送时间（格式 HH:MM）：");
+                input2.setText(customTime);
+                input2.setInputType(InputType.TYPE_CLASS_TEXT);
+    
+                // 添加间距
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 0, 0, 20); // 底部间距
+    
+                layout.addView(input1, params);
+                layout.addView(input2);
 
+                builder.setTitle("设置消息内容和发送时间");
+                builder.setView(layout);
+                
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String message = input1.getText().toString().trim();
+                        String timeStr = input2.getText().toString().trim();
+                        try {
+                            String[] parts = timeStr.split(":");
+                            int hour = Integer.parseInt(parts[0]);
+                            int minute = Integer.parseInt(parts[1]);
+                            
+                            if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                                toast("时间格式错误喵，检查一下输入叭……？");
+                                return;
+                            }
+                            ifInit = false;
+                            messages.set(messageIndex, message);
+                            times.set(messageIndex, new int[] {hour, minute, 60*hour + minute});
+                            if(times.size()>=2){
+                                OrderByTime();
+                                initPointer();
+                                RewriteFiles();
+                                toast("喵！修改了在 " + String.format("%02d:%02d", hour, minute) + " 发送消息了喵~");
+                                ifInit = true;
+                                return;
+                            }
+                            RewriteFiles();
+                            toast("喵！修改了在 " + String.format("%02d:%02d", hour, minute) + " 发送消息了喵~");
+                            initPointer();           
+                            ifInit = true;
+                            return;
+                        } catch (Exception e) {
+                            log("未知时间错误喵QAQ: " + e.getMessage());
+                        }
+                    }
+                });
+                builder.setNegativeButton("取消", null);
+                builder.setCancelable(true);
+                builder.show();
+            } catch (Exception e) {
+                toast("弹窗错误喵QAQ: " + e.getMessage());
+            }
+        }
+    });
+}
 public void setMessagebyDialog(String g, String u, int t){
     final Activity activity = getActivity();
     if (activity == null){
@@ -750,7 +912,6 @@ public void setMessagebyDialog(String g, String u, int t){
     
                 final EditText input1 = new EditText(context);
                 input1.setHint("请输入信息内容：");
-                input1.setText(customMessage);
                 input1.setInputType(InputType.TYPE_CLASS_TEXT);
     
                 final EditText input2 = new EditText(context);
@@ -817,6 +978,39 @@ public void setMessagebyDialog(String g, String u, int t){
                 customMessage = "";
             } catch (Exception e) {
                 toast("弹窗错误喵QAQ: " + e.getMessage());
+            }
+        }
+    });
+}
+public void selectSendMode(String g, String u, int t){
+    final Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(
+        new Runnable() {
+        public void run() {
+            try {
+                String[] modes = {"严格模式", "一般模式"};
+                int defaultSelection = 0;
+    
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                builder.setTitle("模式选择");
+                builder.setSingleChoiceItems(modes, defaultSelection, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        selectedMode = modes[which];
+                    }
+                });
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        RewriteSettingFile("SendMode");
+                        toast("已设置发送模式为" + selectedMode + "喵!");
+                    }
+                });
+                builder.setNegativeButton("取消", null);
+                currentDialog = builder.create();
+                currentDialog.show();
+            } catch (Exception e) {
+                toast("弹窗错误: " + e.getMessage());
             }
         }
     });
@@ -918,7 +1112,7 @@ public void showChangelog(String g, String u, int t){
             try {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 builder.setTitle("更新日志");
-                builder.setMessage("v1.3 现在设定完消息后会自动选择群组哦\nv1.2 做了消息卡片和图片的适配哦，以及过长消息的折叠\nv1.1 增加了通过长按消息设置定时发送的功能喵~\n脚本弹窗设置时间已重新启用了喵\n- [修复] 精简了无用的线程喵\n\n猫猫的QQ: 乐凝浅月 1253997128\n原作者反馈交流群：https://t.me/XiaoYu_Chat");
+                builder.setMessage("v1.4 新增发送模式的选择，消息可以编辑啦\nv1.3 现在设定完消息后会自动选择群组哦\nv1.2 做了消息卡片和图片的适配哦，以及过长消息的折叠\nv1.1 增加了通过长按消息设置定时发送的功能喵~\n脚本弹窗设置时间已重新启用了喵\n- [修复] 精简了无用的线程喵\n\n猫猫的QQ: 乐凝浅月 1253997128\n原作者反馈交流群：https://t.me/XiaoYu_Chat");
                 builder.setPositiveButton("确定", null);
                 builder.setCancelable(true);
                 builder.show();
