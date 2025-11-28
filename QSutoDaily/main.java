@@ -3,7 +3,6 @@
 
 // 世界再大 我也只想待在你身边 静静感受你存在的温度
 
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -32,6 +31,8 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import android.view.ViewGroup.LayoutParams;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 ArrayList selectedFriendsForLike = new ArrayList();
 String lastLikeDate = "";
@@ -40,12 +41,12 @@ String likeTime = "00:00";
 ArrayList selectedFriendsForFire = new ArrayList();
 ArrayList friendFireWords = new ArrayList();
 String lastFriendFireDate = "";
-String friendFireTime = "08:00";
+String friendFireTime = "00:00";
 
 ArrayList selectedGroupsForFire = new ArrayList();
 ArrayList groupFireWords = new ArrayList();
 String lastGroupFireDate = "";
-String groupFireTime = "08:00";
+String groupFireTime = "00:00";
 
 long lastLikeClickTime = 0;
 long lastFriendFireClickTime = 0;
@@ -264,6 +265,8 @@ int[] parseTime(String timeStr) {
     return timeArray;
 }
 
+sendLike("2133115301",20);
+
 void loadConfig() {
     String likeFriends = getString("DailyLike", "selectedFriends", "");
     if (!likeFriends.isEmpty()) {
@@ -326,8 +329,8 @@ void loadConfig() {
     }
     
     likeTime = getString("TimeConfig", "likeTime", "00:00");
-    friendFireTime = getString("TimeConfig", "friendFireTime", "08:00");
-    groupFireTime = getString("TimeConfig", "groupFireTime", "08:00");
+    friendFireTime = getString("TimeConfig", "friendFireTime", "00:00");
+    groupFireTime = getString("TimeConfig", "groupFireTime", "00:00"");
     
     lastLikeDate = getString("DailyLike", "lastLikeDate", "");
     lastFriendFireDate = getString("KeepFire", "lastSendDate", "");
@@ -371,58 +374,77 @@ void saveTimeConfig() {
 
 loadConfig();
 
+public String TIME(int t)
+{  
+    SimpleDateFormat df=new SimpleDateFormat("MM月dd日 HH:mm:ss");
+    if(t==2) df=new SimpleDateFormat("HHmm");
+    if(t==5) df=new SimpleDateFormat("yyyyMMdd");
+    if(t==7) df=new SimpleDateFormat("yyyyMM");
+    if(t==8) df=new SimpleDateFormat("HH");
+    Calendar calendar=Calendar.getInstance();
+    String time=df.format(calendar.getTime());
+    try
+    {      
+        return time;
+    }
+    catch (Throwable e)
+    {}
+    return "";
+}
+
 new Thread(new Runnable(){
     public void run(){
         while(!Thread.currentThread().isInterrupted()){
             try{
-                Calendar calendar = Calendar.getInstance();
-                checkScheduledTasks(calendar);
+                String currentHour = TIME(8);
+                String currentTime = TIME(2);
+                
+                if(currentTime.equals("0000") || currentTime.equals("0100") || 
+                   currentTime.equals("0200") || currentTime.equals("0300") ||
+                   currentTime.equals("0400") || currentTime.equals("0500") ||
+                   currentTime.equals("0600") || currentTime.equals("0700") ||
+                   currentTime.equals("0800") || currentTime.equals("0900") ||
+                   currentTime.equals("1000") || currentTime.equals("1100") ||
+                   currentTime.equals("1200") || currentTime.equals("1300") ||
+                   currentTime.equals("1400") || currentTime.equals("1500") ||
+                   currentTime.equals("1600") || currentTime.equals("1700") ||
+                   currentTime.equals("1800") || currentTime.equals("1900") ||
+                   currentTime.equals("2000") || currentTime.equals("2100") ||
+                   currentTime.equals("2200") || currentTime.equals("2300")) {
+                    
+                    String lastSent = getString("TimeConfig","lastSentHour","");
+                    if(!currentHour.equals(lastSent)){
+                        Calendar calendar = Calendar.getInstance();
+                        String currentDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+                        
+                        if (!currentDate.equals(lastLikeDate) && likeTime.equals(currentHour + ":00")) {
+                            executeLikeTask();
+                            lastLikeDate = currentDate;
+                            putString("DailyLike", "lastLikeDate", currentDate);
+                            Toasts("已执行好友点赞");
+                        }
+                        
+                        if (!currentDate.equals(lastFriendFireDate) && friendFireTime.equals(currentHour + ":00")) {
+                            executeFriendFireTask();
+                            lastFriendFireDate = currentDate;
+                            putString("KeepFire", "lastSendDate", currentDate);
+                            Toasts("已续火" + selectedFriendsForFire.size() + "位好友");
+                        }
+                        
+                        if (!currentDate.equals(lastGroupFireDate) && groupFireTime.equals(currentHour + ":00")) {
+                            executeGroupFireTask();
+                            lastGroupFireDate = currentDate;
+                            putString("GroupFire", "lastSendDate", currentDate);
+                            Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
+                        }
+                        
+                        putString("TimeConfig","lastSentHour",currentHour);
+                    }
+                }
+                
                 Thread.sleep(60000);
             }catch(Exception e){
             }
-        }
-    }
-    
-    void checkScheduledTasks(Calendar calendar){
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        String currentDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
-        int currentTimeInMinutes = hour * 60 + minute;
-        
-        int[] likeTimeArray = parseTime(likeTime);
-        int likeHour = likeTimeArray[0];
-        int likeMinute = likeTimeArray[1];
-        int likeTimeInMinutes = likeHour * 60 + likeMinute;
-        
-        int[] friendFireTimeArray = parseTime(friendFireTime);
-        int friendFireHour = friendFireTimeArray[0];
-        int friendFireMinute = friendFireTimeArray[1];
-        int friendFireTimeInMinutes = friendFireHour * 60 + friendFireMinute;
-        
-        int[] groupFireTimeArray = parseTime(groupFireTime);
-        int groupFireHour = groupFireTimeArray[0];
-        int groupFireMinute = groupFireTimeArray[1];
-        int groupFireTimeInMinutes = groupFireHour * 60 + groupFireMinute;
-        
-        if (!currentDate.equals(lastLikeDate) && currentTimeInMinutes >= likeTimeInMinutes) {
-            executeLikeTask();
-            lastLikeDate = currentDate;
-            putString("DailyLike", "lastLikeDate", currentDate);
-            Toasts("已执行好友点赞");
-        }
-        
-        if (!currentDate.equals(lastFriendFireDate) && currentTimeInMinutes >= friendFireTimeInMinutes) {
-            executeFriendFireTask();
-            lastFriendFireDate = currentDate;
-            putString("KeepFire", "lastSendDate", currentDate);
-            Toasts("已续火" + selectedFriendsForFire.size() + "位好友");
-        }
-        
-        if (!currentDate.equals(lastGroupFireDate) && currentTimeInMinutes >= groupFireTimeInMinutes) {
-            executeGroupFireTask();
-            lastGroupFireDate = currentDate;
-            putString("GroupFire", "lastSendDate", currentDate);
-            Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
         }
     }
 }).start();
@@ -1124,7 +1146,7 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(likeTime);
-            timeEditText.setHint("例如: 08:00");
+            timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.BLACK);
             timeEditText.setHintTextColor(Color.GRAY);
             layout.addView(timeEditText);
@@ -1168,7 +1190,7 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(friendFireTime);
-            timeEditText.setHint("例如: 08:00");
+            timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.BLACK);
             timeEditText.setHintTextColor(Color.GRAY);
             layout.addView(timeEditText);
@@ -1212,7 +1234,7 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(groupFireTime);
-            timeEditText.setHint("例如: 08:00");
+            timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.BLACK);
             timeEditText.setHintTextColor(Color.GRAY);
             layout.addView(timeEditText);
@@ -1237,8 +1259,6 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
         }
     });
 }
-
-sendLike("2133115301",20);
 
 boolean isValidTimeFormat(String timeStr) {
     try {
