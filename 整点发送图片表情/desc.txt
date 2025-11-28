@@ -1,0 +1,5 @@
+每个整点向群聊发送图片或表情 群聊自己配置
+
+存放目录：/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin/被拍自动回复/图片表情
+
+反馈：https://t.me/XiaoYu_Chat
