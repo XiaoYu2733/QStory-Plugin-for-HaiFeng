@@ -957,7 +957,11 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] /fban和/unfban指令失效的问题\n" +
                         "————————\n" +
                         "简洁群管_94.0_更新日志\n" +
-                        "- [修复] 隐藏显示头衔 标识 等级 失效的问题\n\n" +
+                        "- [修复] 隐藏显示头衔 标识 等级 失效的问题\n" +
+                        "————————\n" +
+                        "简洁群管_95.0_更新日志\n" +
+                        "- [添加] 联盟更多介绍\n\n" +
+                        
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
