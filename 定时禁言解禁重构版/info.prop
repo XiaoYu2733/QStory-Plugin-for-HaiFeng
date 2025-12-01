@@ -1,6 +1,7 @@
 name = 定时禁言解禁重构版
 type = 1
-version = 4.0
+version = 5.0
 author = 海枫
 id = 2133115301定时禁言解禁重构版
-time=2025-9-18
+date = 2025-12-1
+tags = 群聊辅助
