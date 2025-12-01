@@ -9,12 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +26,8 @@ import java.io.FileReader;
 import android.view.ViewGroup.LayoutParams;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.lang.reflect.Field;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 ArrayList selectedFriendsForLike = new ArrayList();
 String lastLikeDate = "";
@@ -65,7 +60,9 @@ ArrayList loadWordsFromFile(String filePath) {
     ArrayList wordsList = new ArrayList();
     File file = new File(filePath);
     if (file.exists()) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
@@ -74,50 +71,72 @@ ArrayList loadWordsFromFile(String filePath) {
                 }
             }
         } catch (Exception e) {
-            error(e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Exception e) {}
+            }
         }
     }
     return wordsList;
 }
 
 void saveWordsToFile(String filePath, ArrayList wordsList) {
+    FileWriter writer = null;
     try {
         File dir = new File(appPath + "/续火词");
         if (!dir.exists()) dir.mkdirs();
-        try (FileWriter writer = new FileWriter(filePath)) {
-            for (int i = 0; i < wordsList.size(); i++) {
-                writer.write((String)wordsList.get(i) + "\n");
-            }
+        writer = new FileWriter(filePath);
+        for (int i = 0; i < wordsList.size(); i++) {
+            writer.write((String)wordsList.get(i) + "\n");
         }
     } catch (Exception e) {
-        error(e);
+    } finally {
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (Exception e) {}
+        }
     }
 }
 
 String loadTimeFromFile(String filePath) {
     File file = new File(filePath);
     if (file.exists()) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
             String time = reader.readLine();
             if (time != null && isValidTimeFormat(time.trim())) {
                 return time.trim();
             }
         } catch (Exception e) {
-            error(e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Exception e) {}
+            }
         }
     }
     return null;
 }
 
 void saveTimeToFile(String filePath, String time) {
+    FileWriter writer = null;
     try {
         File dir = new File(timeConfigPath);
         if (!dir.exists()) dir.mkdirs();
-        try (FileWriter writer = new FileWriter(filePath)) {
-            writer.write(time);
-        }
+        writer = new FileWriter(filePath);
+        writer.write(time);
     } catch (Exception e) {
-        error(e);
+    } finally {
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (Exception e) {}
+        }
     }
 }
 
@@ -134,7 +153,6 @@ void initTimeConfig() {
         if (!new File(friendFireTimeFile).exists()) saveTimeToFile(friendFireTimeFile, "00:00");
         if (!new File(groupFireTimeFile).exists()) saveTimeToFile(groupFireTimeFile, "00:00");
     } catch (Exception e) {
-        error(e);
     }
 }
 
@@ -188,7 +206,8 @@ void executeGroupFireTask(){
 
 void checkMissedTasks() {
     Calendar calendar = Calendar.getInstance();
-    String currentDate = new SimpleDateFormat("yyyyMMdd").format(calendar.getTime());
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    String currentDate = sdf.format(calendar.getTime());
     int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
     int currentMinute = calendar.get(Calendar.MINUTE);
     int currentTimeInMinutes = currentHour * 60 + currentMinute;
@@ -245,17 +264,19 @@ public String TIME(int t) {
 
 void loadConfig() {
     String likeFriends = getString("DailyLike", "selectedFriends", "");
-    if (!likeFriends.isEmpty()) {
+    if (likeFriends != null && !likeFriends.isEmpty()) {
         String[] friendsArray = likeFriends.split(",");
-        for (String f : friendsArray) {
+        for (int i=0; i<friendsArray.length; i++) {
+            String f = friendsArray[i];
             if (!f.isEmpty()) selectedFriendsForLike.add(f);
         }
     }
     
     String fireFriends = getString("KeepFire", "friends", "");
-    if (!fireFriends.isEmpty()) {
+    if (fireFriends != null && !fireFriends.isEmpty()) {
         String[] friendsArray = fireFriends.split(",");
-        for (String f : friendsArray) {
+        for (int i=0; i<friendsArray.length; i++) {
+            String f = friendsArray[i];
             if (!f.isEmpty()) selectedFriendsForFire.add(f);
         }
     }
@@ -265,9 +286,12 @@ void loadConfig() {
         friendFireWords = loadedFriendWords;
     } else {
         String savedFriendWords = getString("KeepFire", "fireWords", "");
-        if (!savedFriendWords.isEmpty()) {
+        if (savedFriendWords != null && !savedFriendWords.isEmpty()) {
             String[] wordsArray = savedFriendWords.split(",");
-            for (String w : wordsArray) friendFireWords.add(w.trim());
+            for (int i=0; i<wordsArray.length; i++) {
+                String w = wordsArray[i];
+                friendFireWords.add(w.trim());
+            }
             saveWordsToFile(friendFireWordsPath, friendFireWords);
             putString("KeepFire", "fireWords", "");
         } else {
@@ -277,9 +301,10 @@ void loadConfig() {
     }
     
     String fireGroups = getString("GroupFire", "selectedGroups", "");
-    if (!fireGroups.isEmpty()) {
+    if (fireGroups != null && !fireGroups.isEmpty()) {
         String[] groupsArray = fireGroups.split(",");
-        for (String g : groupsArray) {
+        for (int i=0; i<groupsArray.length; i++) {
+            String g = groupsArray[i];
             if (!g.isEmpty()) selectedGroupsForFire.add(g);
         }
     }
@@ -289,9 +314,12 @@ void loadConfig() {
         groupFireWords = loadedGroupWords;
     } else {
         String savedGroupWords = getString("GroupFire", "fireWords", "");
-        if (!savedGroupWords.isEmpty()) {
+        if (savedGroupWords != null && !savedGroupWords.isEmpty()) {
             String[] wordsArray = savedGroupWords.split(",");
-            for (String w : wordsArray) groupFireWords.add(w.trim());
+            for (int i=0; i<wordsArray.length; i++) {
+                String w = wordsArray[i];
+                groupFireWords.add(w.trim());
+            }
             saveWordsToFile(groupFireWordsPath, groupFireWords);
             putString("GroupFire", "fireWords", "");
         } else {
@@ -444,59 +472,41 @@ public void immediateGroupFire(String groupUin, String userUin, int chatType){
     toast("已立即续火" + selectedGroupsForFire.size() + "个群组");
 }
 
-private String getFieldValue(Object obj, String fieldName) {
-    try {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        Object value = field.get(obj);
-        return value != null ? value.toString() : "";
-    } catch (Exception e) {
-        return "";
-    }
-}
-
 public void configLikeFriends(String groupUin, String userUin, int chatType){
-    showFriendSelectionDialog("选择点赞好友", selectedFriendsForLike, new Runnable() {
-        public void run() { saveLikeFriends(); }
-    });
-}
-
-public void configFireFriends(String groupUin, String userUin, int chatType){
-    showFriendSelectionDialog("选择续火好友", selectedFriendsForFire, new Runnable() {
-        public void run() { saveFireFriends(); }
-    });
-}
-
-private void showFriendSelectionDialog(final String title, final ArrayList targetList, final Runnable onSave) {
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList friendList = getFriendList();
+    final ArrayList friendList = getFriendList();
     if (friendList == null || friendList.isEmpty()) {
         toast("未添加任何好友");
         return;
     }
     
-    final ArrayList displayList = new ArrayList();
-    final ArrayList uinList = new ArrayList();
-    for (Object friend : friendList) {
-        String remark = getFieldValue(friend, "remark");
-        String name = getFieldValue(friend, "name");
-        String uin = getFieldValue(friend, "uin");
-        displayList.add((!remark.isEmpty() ? remark : name) + " (" + uin + ")");
-        uinList.add(uin);
-    }
-    
-    final ArrayList filteredDisplayList = new ArrayList(displayList);
-    final ArrayList filteredUinList = new ArrayList(uinList);
-    
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            final ArrayList displayList = new ArrayList();
+            final ArrayList uinList = new ArrayList();
+            
+            for (int i=0; i<friendList.size(); i++) {
+                Object friend = friendList.get(i);
+                String remark = friend.remark;
+                String name = friend.name;
+                String uin = friend.uin;
+                if(remark == null) remark = "";
+                if(name == null) name = "";
+                String showName = remark.isEmpty() ? name : remark;
+                displayList.add(showName + " (" + uin + ")");
+                uinList.add(uin);
+            }
+            
+            final ArrayList filteredDisplayList = new ArrayList(displayList);
+            final ArrayList filteredUinList = new ArrayList(uinList);
+            
             int uiMode = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             int theme = Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             
             final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle(title);
+            dialogBuilder.setTitle("选择点赞好友");
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -519,7 +529,7 @@ private void showFriendSelectionDialog(final String title, final ArrayList targe
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             
             for (int i = 0; i < filteredUinList.size(); i++) {
-                listView.setItemChecked(i, targetList.contains(filteredUinList.get(i)));
+                listView.setItemChecked(i, selectedFriendsForLike.contains(filteredUinList.get(i)));
             }
             
             searchEditText.addTextChangedListener(new TextWatcher() {
@@ -542,7 +552,7 @@ private void showFriendSelectionDialog(final String title, final ArrayList targe
                     }
                     adapter.notifyDataSetChanged();
                     for (int i = 0; i < filteredUinList.size(); i++) {
-                        listView.setItemChecked(i, targetList.contains(filteredUinList.get(i)));
+                        listView.setItemChecked(i, selectedFriendsForLike.contains(filteredUinList.get(i)));
                     }
                 }
             });
@@ -560,17 +570,135 @@ private void showFriendSelectionDialog(final String title, final ArrayList targe
                     for (int i = 0; i < filteredUinList.size(); i++) {
                         if (listView.isItemChecked(i)) tempSelected.add(filteredUinList.get(i));
                     }
-                    for (Object uinObj : uinList) {
-                        String uin = (String)uinObj;
+                    for (int i=0; i < uinList.size(); i++) {
+                        String uin = (String)uinList.get(i);
                         if (filteredUinList.contains(uin)) {
                             if (tempSelected.contains(uin)) {
-                                if (!targetList.contains(uin)) targetList.add(uin);
+                                if (!selectedFriendsForLike.contains(uin)) selectedFriendsForLike.add(uin);
                             } else {
-                                targetList.remove(uin);
+                                selectedFriendsForLike.remove(uin);
                             }
                         }
                     }
-                    if (onSave != null) onSave.run();
+                    saveLikeFriends();
+                    toast("操作完成");
+                }
+            });
+            dialogBuilder.setNegativeButton("取消", null);
+            dialogBuilder.show();
+        }
+    });
+}
+
+public void configFireFriends(String groupUin, String userUin, int chatType){
+    final Activity activity = getActivity();
+    if (activity == null) return;
+    
+    final ArrayList friendList = getFriendList();
+    if (friendList == null || friendList.isEmpty()) {
+        toast("未添加任何好友");
+        return;
+    }
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            final ArrayList displayList = new ArrayList();
+            final ArrayList uinList = new ArrayList();
+            
+            for (int i=0; i<friendList.size(); i++) {
+                Object friend = friendList.get(i);
+                String remark = friend.remark;
+                String name = friend.name;
+                String uin = friend.uin;
+                if(remark == null) remark = "";
+                if(name == null) name = "";
+                String showName = remark.isEmpty() ? name : remark;
+                displayList.add(showName + " (" + uin + ")");
+                uinList.add(uin);
+            }
+            
+            final ArrayList filteredDisplayList = new ArrayList(displayList);
+            final ArrayList filteredUinList = new ArrayList(uinList);
+            
+            int uiMode = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            int theme = Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+            
+            final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+            dialogBuilder.setTitle("选择续火好友");
+            
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(20, 10, 20, 10);
+            
+            final EditText searchEditText = new EditText(activity);
+            searchEditText.setHint("搜索...");
+            searchEditText.setTextColor(isDarkMode() ? Color.WHITE : Color.BLACK);
+            layout.addView(searchEditText);
+            
+            Button selectAllButton = new Button(activity);
+            selectAllButton.setText("全选");
+            layout.addView(selectAllButton);
+            
+            final ListView listView = new ListView(activity);
+            layout.addView(listView);
+            
+            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            
+            for (int i = 0; i < filteredUinList.size(); i++) {
+                listView.setItemChecked(i, selectedFriendsForFire.contains(filteredUinList.get(i)));
+            }
+            
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    String searchText = s.toString().toLowerCase().trim();
+                    filteredDisplayList.clear();
+                    filteredUinList.clear();
+                    if (searchText.isEmpty()) {
+                        filteredDisplayList.addAll(displayList);
+                        filteredUinList.addAll(uinList);
+                    } else {
+                        for (int i = 0; i < displayList.size(); i++) {
+                            if (((String)displayList.get(i)).toLowerCase().contains(searchText)) {
+                                filteredDisplayList.add(displayList.get(i));
+                                filteredUinList.add(uinList.get(i));
+                            }
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                    for (int i = 0; i < filteredUinList.size(); i++) {
+                        listView.setItemChecked(i, selectedFriendsForFire.contains(filteredUinList.get(i)));
+                    }
+                }
+            });
+            
+            selectAllButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    for (int i = 0; i < listView.getCount(); i++) listView.setItemChecked(i, true);
+                }
+            });
+            
+            dialogBuilder.setView(layout);
+            dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    ArrayList tempSelected = new ArrayList();
+                    for (int i = 0; i < filteredUinList.size(); i++) {
+                        if (listView.isItemChecked(i)) tempSelected.add(filteredUinList.get(i));
+                    }
+                    for (int i=0; i < uinList.size(); i++) {
+                        String uin = (String)uinList.get(i);
+                        if (filteredUinList.contains(uin)) {
+                            if (tempSelected.contains(uin)) {
+                                if (!selectedFriendsForFire.contains(uin)) selectedFriendsForFire.add(uin);
+                            } else {
+                                selectedFriendsForFire.remove(uin);
+                            }
+                        }
+                    }
+                    saveFireFriends();
                     toast("操作完成");
                 }
             });
@@ -584,26 +712,29 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList groupList = getGroupList();
+    final ArrayList groupList = getGroupList();
     if (groupList == null || groupList.isEmpty()) {
         toast("未加入任何群组");
         return;
     }
     
-    final ArrayList displayList = new ArrayList();
-    final ArrayList uinList = new ArrayList();
-    for (Object group : groupList) {
-        String name = getFieldValue(group, "GroupName");
-        String uin = getFieldValue(group, "GroupUin");
-        displayList.add(name + " (" + uin + ")");
-        uinList.add(uin);
-    }
-    
-    final ArrayList filteredDisplayList = new ArrayList(displayList);
-    final ArrayList filteredUinList = new ArrayList(uinList);
-    
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            final ArrayList displayList = new ArrayList();
+            final ArrayList uinList = new ArrayList();
+            
+            for (int i=0; i<groupList.size(); i++) {
+                Object group = groupList.get(i);
+                String name = group.GroupName;
+                String uin = group.GroupUin;
+                if(name == null) name = "";
+                displayList.add(name + " (" + uin + ")");
+                uinList.add(uin);
+            }
+            
+            final ArrayList filteredDisplayList = new ArrayList(displayList);
+            final ArrayList filteredUinList = new ArrayList(uinList);
+            
             int uiMode = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             int theme = Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             
@@ -672,8 +803,8 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
                     for (int i = 0; i < filteredUinList.size(); i++) {
                         if (listView.isItemChecked(i)) tempSelected.add(filteredUinList.get(i));
                     }
-                    for (Object uinObj : uinList) {
-                        String uin = (String)uinObj;
+                    for (int i=0; i<uinList.size(); i++) {
+                        String uin = (String)uinList.get(i);
                         if (filteredUinList.contains(uin)) {
                             if (tempSelected.contains(uin)) {
                                 if (!selectedGroupsForFire.contains(uin)) selectedGroupsForFire.add(uin);
@@ -700,9 +831,11 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
     showWordConfigDialog("群组续火词", groupFireWords, groupFireWordsPath);
 }
 
-private void showWordConfigDialog(final String title, final ArrayList wordsList, final String savePath) {
+void showWordConfigDialog(String title, final ArrayList wordsList, final String savePath) {
     final Activity activity = getActivity();
     if (activity == null) return;
+    
+    final String dialogTitle = title;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
@@ -727,63 +860,49 @@ private void showWordConfigDialog(final String title, final ArrayList wordsList,
             int uiMode = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             int theme = Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
             
-            new AlertDialog.Builder(activity, theme)
-                .setTitle(title)
-                .setView(layout)
-                .setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String wordsText = wordsEditText.getText().toString().trim();
-                        wordsList.clear();
-                        if (!wordsText.isEmpty()) {
-                            String[] wordsArray = wordsText.split("\n");
-                            for (String word : wordsArray) {
-                                if (!word.trim().isEmpty()) wordsList.add(word.trim());
-                            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle(dialogTitle);
+            builder.setView(layout);
+            builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    String wordsText = wordsEditText.getText().toString().trim();
+                    wordsList.clear();
+                    if (!wordsText.isEmpty()) {
+                        String[] wordsArray = wordsText.split("\n");
+                        for (int i=0; i<wordsArray.length; i++) {
+                            String word = wordsArray[i];
+                            if (!word.trim().isEmpty()) wordsList.add(word.trim());
                         }
-                        saveWordsToFile(savePath, wordsList);
-                        toast("保存成功");
                     }
-                })
-                .setNegativeButton("取消", null)
-                .show();
+                    saveWordsToFile(savePath, wordsList);
+                    toast("保存成功");
+                }
+            });
+            builder.setNegativeButton("取消", null);
+            builder.show();
         }
     });
 }
 
 public void configLikeTime(String groupUin, String userUin, int chatType) {
-    showTimeConfigDialog("设置点赞时间 (HH:mm)", likeTime, new TimeCallback() {
-        public void onTimeSet(String time) {
-            likeTime = time;
-            saveTimeConfig();
-        }
-    });
+    showTimeConfigDialog("设置点赞时间 (HH:mm)", likeTime, 1);
 }
 
 public void configFriendFireTime(String groupUin, String userUin, int chatType) {
-    showTimeConfigDialog("设置好友续火时间 (HH:mm)", friendFireTime, new TimeCallback() {
-        public void onTimeSet(String time) {
-            friendFireTime = time;
-            saveTimeConfig();
-        }
-    });
+    showTimeConfigDialog("设置好友续火时间 (HH:mm)", friendFireTime, 2);
 }
 
 public void configGroupFireTime(String groupUin, String userUin, int chatType) {
-    showTimeConfigDialog("设置群组续火时间 (HH:mm)", groupFireTime, new TimeCallback() {
-        public void onTimeSet(String time) {
-            groupFireTime = time;
-            saveTimeConfig();
-        }
-    });
+    showTimeConfigDialog("设置群组续火时间 (HH:mm)", groupFireTime, 3);
 }
 
-interface TimeCallback { void onTimeSet(String time); }
-
-private void showTimeConfigDialog(final String title, String currentTime, final TimeCallback callback) {
+void showTimeConfigDialog(String title, String currentTime, final int type) {
     final Activity activity = getActivity();
     if (activity == null) return;
     
     final String defaultTime = currentTime;
+    final String dialogTitle = title;
+    
     activity.runOnUiThread(new Runnable() {
         public void run() {
             int uiMode = activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -797,22 +916,29 @@ private void showTimeConfigDialog(final String title, String currentTime, final 
             layout.setPadding(30, 30, 30, 30);
             layout.addView(timeEditText);
             
-            new AlertDialog.Builder(activity, theme)
-                .setTitle(title)
-                .setView(layout)
-                .setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String t = timeEditText.getText().toString().trim();
-                        if (isValidTimeFormat(t)) {
-                            callback.onTimeSet(t);
-                            toast("设置成功: " + t);
-                        } else {
-                            toast("时间格式错误");
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle(dialogTitle);
+            builder.setView(layout);
+            builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    String t = timeEditText.getText().toString().trim();
+                    if (isValidTimeFormat(t)) {
+                        if (type == 1) {
+                            likeTime = t;
+                        } else if (type == 2) {
+                            friendFireTime = t;
+                        } else if (type == 3) {
+                            groupFireTime = t;
                         }
+                        saveTimeConfig();
+                        toast("设置成功: " + t);
+                    } else {
+                        toast("时间格式错误");
                     }
-                })
-                .setNegativeButton("取消", null)
-                .show();
+                }
+            });
+            builder.setNegativeButton("取消", null);
+            builder.show();
         }
     });
 }
