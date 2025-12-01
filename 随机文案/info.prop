@@ -1,6 +1,7 @@
 name = 随机文案
 type = 1
-version = 2.0
+version = 3.8
 author = 海枫
 id = 2133115301随机文案
-time=2025-8-20
+date = 2025-12-2
+tags = 娱乐功能
