@@ -1,6 +1,7 @@
 name = 警告功能
 type = 1
-version = 17.0
+version = 18.0
 author = 海枫
 id = 2133115301警告功能
-time=2025-8-3
+date = 2025-12-2
+tags = 群聊辅助
