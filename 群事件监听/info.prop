@@ -1,6 +1,8 @@
+
 name = 群事件监听
 type = 1
-version = 3.0
+version = 4.0
 author = 海枫
 id = 2133115301群事件监听
-time=2025-9-15
+date = 2025-12-1
+tags= 官方脚本,群聊辅助
