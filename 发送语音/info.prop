@@ -1,6 +1,7 @@
 name = 发送语音
 type = 1
-version = 1.0
+version = 2.0
 author = 海枫
 id = 2133115301发送语音
-time=2025-10-10
+date = 2025-12-1
+tags = 娱乐脚本
