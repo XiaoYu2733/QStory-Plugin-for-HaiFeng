@@ -1,6 +1,7 @@
 name = 艾特自动回复以及禁言
 type = 1
-version = 8.0
+version = 9.0
 author = 海枫
 id = 2133115301艾特自动回复/禁言
-time=2025-10-20
+date = 2025-12-1
+tags = 群聊辅助
