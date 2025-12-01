@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.text.Editable;
 import android.text.TextWatcher;
+import java.lang.reflect.Field;
 
 ArrayList selectedFriendsForLike = new ArrayList();
 String lastLikeDate = "";
@@ -221,21 +222,30 @@ void checkMissedTasks() {
     int[] groupFireTimeArray = parseTime(groupFireTime);
     int groupFireTimeInMinutes = groupFireTimeArray[0] * 60 + groupFireTimeArray[1];
     
-    if (!currentDate.equals(lastLikeDate) && currentTimeInMinutes >= likeTimeInMinutes) {
+    if (lastLikeDate.equals("")) {
+        lastLikeDate = currentDate;
+        putString("DailyLike", "lastLikeDate", currentDate);
+    } else if (!currentDate.equals(lastLikeDate) && currentTimeInMinutes >= likeTimeInMinutes) {
         executeLikeTask();
         lastLikeDate = currentDate;
         putString("DailyLike", "lastLikeDate", currentDate);
         toast("检测到错过点赞任务，已立即执行");
     }
     
-    if (!currentDate.equals(lastFriendFireDate) && currentTimeInMinutes >= friendFireTimeInMinutes) {
+    if (lastFriendFireDate.equals("")) {
+        lastFriendFireDate = currentDate;
+        putString("KeepFire", "lastSendDate", currentDate);
+    } else if (!currentDate.equals(lastFriendFireDate) && currentTimeInMinutes >= friendFireTimeInMinutes) {
         executeFriendFireTask();
         lastFriendFireDate = currentDate;
         putString("KeepFire", "lastSendDate", currentDate);
         toast("检测到错过好友续火任务，已立即执行");
     }
     
-    if (!currentDate.equals(lastGroupFireDate) && currentTimeInMinutes >= groupFireTimeInMinutes) {
+    if (lastGroupFireDate.equals("")) {
+        lastGroupFireDate = currentDate;
+        putString("GroupFire", "lastSendDate", currentDate);
+    } else if (!currentDate.equals(lastGroupFireDate) && currentTimeInMinutes >= groupFireTimeInMinutes) {
         executeGroupFireTask();
         lastGroupFireDate = currentDate;
         putString("GroupFire", "lastSendDate", currentDate);
@@ -472,6 +482,17 @@ public void immediateGroupFire(String groupUin, String userUin, int chatType){
     toast("已立即续火" + selectedGroupsForFire.size() + "个群组");
 }
 
+String getFieldValue(Object obj, String fieldName) {
+    try {
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        Object value = field.get(obj);
+        return value != null ? value.toString() : "";
+    } catch (Exception e) {
+        return "";
+    }
+}
+
 public void configLikeFriends(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
     if (activity == null) return;
@@ -489,11 +510,10 @@ public void configLikeFriends(String groupUin, String userUin, int chatType){
             
             for (int i=0; i<friendList.size(); i++) {
                 Object friend = friendList.get(i);
-                String remark = friend.remark;
-                String name = friend.name;
-                String uin = friend.uin;
-                if(remark == null) remark = "";
-                if(name == null) name = "";
+                String remark = getFieldValue(friend, "remark");
+                String name = getFieldValue(friend, "name");
+                String uin = getFieldValue(friend, "uin");
+                
                 String showName = remark.isEmpty() ? name : remark;
                 displayList.add(showName + " (" + uin + ")");
                 uinList.add(uin);
@@ -607,11 +627,10 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
             
             for (int i=0; i<friendList.size(); i++) {
                 Object friend = friendList.get(i);
-                String remark = friend.remark;
-                String name = friend.name;
-                String uin = friend.uin;
-                if(remark == null) remark = "";
-                if(name == null) name = "";
+                String remark = getFieldValue(friend, "remark");
+                String name = getFieldValue(friend, "name");
+                String uin = getFieldValue(friend, "uin");
+                
                 String showName = remark.isEmpty() ? name : remark;
                 displayList.add(showName + " (" + uin + ")");
                 uinList.add(uin);
@@ -725,9 +744,8 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
             
             for (int i=0; i<groupList.size(); i++) {
                 Object group = groupList.get(i);
-                String name = group.GroupName;
-                String uin = group.GroupUin;
-                if(name == null) name = "";
+                String name = getFieldValue(group, "GroupName");
+                String uin = getFieldValue(group, "GroupUin");
                 displayList.add(name + " (" + uin + ")");
                 uinList.add(uin);
             }
