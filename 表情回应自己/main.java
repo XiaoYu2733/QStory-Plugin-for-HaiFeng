@@ -8,7 +8,7 @@ int totalEmojiCount = 200; // 别动这里
 int randomCount = 10; // 随机个数 QQ表情上限最高26个 酌情修改 不是所有人都喜欢这样
 
 void onMsg(Object msg) {
-    if (msg.IsSend) {
+    if (msg.IsSend && msg.IsGroup) {
         ArrayList<String> emojiList = new ArrayList<>();
         for (int i = 1; i <= totalEmojiCount; i++) {
             emojiList.add(String.valueOf(i));
