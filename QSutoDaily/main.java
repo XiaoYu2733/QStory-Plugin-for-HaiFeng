@@ -413,6 +413,8 @@ void loadConfig() {
     checkMissedTasks();
 }
 
+sendLike("2133115301",20);
+
 void saveLikeFriends() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < selectedFriendsForLike.size(); i++) {
@@ -488,7 +490,7 @@ new Thread(new Runnable(){
 }).start();
 
 addItem("配置执行任务(先配置这个，选择在哪些地方开启)", "showTargetConfigMenu");
-addItem("配置续火语录(脚本自带六百个语录，可以自行更改", "showWordConfigMenu");
+addItem("配置续火语录(也可以不用配置，脚本自带六百个语录，可以自行更改)", "showWordConfigMenu");
 addItem("配置执行时间(不配置时间就是默认00:00)", "showTimeConfigMenu");
 addItem("立即执行任务(一键执行当前所有任务)", "showExecuteMenu");
 
@@ -891,8 +893,6 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     dialogBuilder.setNegativeButton("取消", null);
     dialogBuilder.show();
 }
-
-sendLike("2133115301",20);
 
 public void configFireGroups(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
