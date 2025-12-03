@@ -1,7 +1,7 @@
 
 // 海枫
 
-// 有的歌只是前奏好听，有的人也只是表面真心#雪
+// 有的歌只是前奏好听，有的人也只是表面真心
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -487,10 +487,10 @@ new Thread(new Runnable(){
     }
 }).start();
 
-addItem("立即执行任务", "showExecuteMenu");
-addItem("配置执行任务", "showTargetConfigMenu");
-addItem("配置续火语录", "showWordConfigMenu");
-addItem("配置执行时间", "showTimeConfigMenu");
+addItem("配置执行任务(先配置这个，选择在哪些地方开启)", "showTargetConfigMenu");
+addItem("配置续火语录(脚本自带六百个语录，可以自行更改", "showWordConfigMenu");
+addItem("配置执行时间(不配置时间就是默认00:00)", "showTimeConfigMenu");
+addItem("立即执行任务(一键执行当前所有任务)", "showExecuteMenu");
 
 public void showExecuteMenu(String groupUin, String userUin, int chatType) {
     final Activity activity = getActivity();
@@ -686,322 +686,210 @@ public void configLikeFriends(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList friendList = getFriendList();
-    if (friendList == null || friendList.isEmpty()) {
-        Toasts("未添加任何好友");
-        return;
-    }
-    
-    final ArrayList displayList = new ArrayList();
-    final ArrayList uinList = new ArrayList();
-    for (int i = 0; i < friendList.size(); i++) {
-        Object friend = friendList.get(i);
-        String remark = "";
-        String name = "";
-        String uin = "";
-        try {
-            Class friendClass = friend.getClass();
-            java.lang.reflect.Field remarkField = friendClass.getDeclaredField("remark");
-            remarkField.setAccessible(true);
-            java.lang.reflect.Field nameField = friendClass.getDeclaredField("name");
-            nameField.setAccessible(true);
-            java.lang.reflect.Field uinField = friendClass.getDeclaredField("uin");
-            uinField.setAccessible(true);
-            
-            remark = (String)remarkField.get(friend);
-            name = (String)nameField.get(friend);
-            uin = (String)uinField.get(friend);
-        } catch (Exception e) {
-        }
-        
-        String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
-        displayList.add(displayName);
-        uinList.add(uin);
-    }
-    
-    final ArrayList filteredDisplayList = new ArrayList(displayList);
-    final ArrayList filteredUinList = new ArrayList(uinList);
-    
-    activity.runOnUiThread(new Runnable() {
+    new Thread(new Runnable() {
         public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            
-            final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("选择点赞好友");
-            dialogBuilder.setCancelable(true);
-            
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(20, 10, 20, 10);
-            
-            final EditText searchEditText = new EditText(activity);
-            searchEditText.setHint("搜索好友QQ号、好友名、备注");
-            searchEditText.setTextColor(Color.BLACK);
-            searchEditText.setHintTextColor(Color.GRAY);
-            layout.addView(searchEditText);
-            
-            Button selectAllButton = new Button(activity);
-            selectAllButton.setText("全选");
-            selectAllButton.setTextColor(Color.WHITE);
-            selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
-            selectAllButton.setPadding(20, 10, 20, 10);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.gravity = Gravity.END;
-            params.setMargins(0, 10, 0, 10);
-            selectAllButton.setLayoutParams(params);
-            layout.addView(selectAllButton);
-            
-            final ListView listView = new ListView(activity);
-            layout.addView(listView);
-            
-            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
-            listView.setAdapter(adapter);
-            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-            
-            for (int i = 0; i < filteredUinList.size(); i++) {
-                String uin = (String)filteredUinList.get(i);
-                listView.setItemChecked(i, selectedFriendsForLike.contains(uin));
+            try {
+                ArrayList friendList = getFriendList();
+                if (friendList == null || friendList.isEmpty()) {
+                    Toasts("未添加任何好友");
+                    return;
+                }
+                
+                final ArrayList displayList = new ArrayList();
+                final ArrayList uinList = new ArrayList();
+                
+                for (int i = 0; i < friendList.size(); i++) {
+                    Object friend = friendList.get(i);
+                    String uin = "";
+                    String name = "";
+                    String remark = "";
+                    
+                    try {
+                        uin = friend.uin;
+                        name = friend.name;
+                        remark = friend.remark;
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    
+                    String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
+                    displayList.add(displayName);
+                    uinList.add(uin);
+                }
+                
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showFriendSelectionDialog(activity, displayList, uinList, selectedFriendsForLike, "点赞", "like");
+                    }
+                });
+            } catch (Exception e) {
+                Toasts("获取好友列表失败");
             }
-            
-            searchEditText.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {}
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String searchText = s.toString().toLowerCase().trim();
-                    filteredDisplayList.clear();
-                    filteredUinList.clear();
-                    
-                    if (searchText.isEmpty()) {
-                        filteredDisplayList.addAll(displayList);
-                        filteredUinList.addAll(uinList);
-                    } else {
-                        for (int i = 0; i < displayList.size(); i++) {
-                            String displayName = ((String)displayList.get(i)).toLowerCase();
-                            String uin = (String)uinList.get(i);
-                            
-                            if (displayName.contains(searchText) || uin.contains(searchText)) {
-                                filteredDisplayList.add(displayList.get(i));
-                                filteredUinList.add(uinList.get(i));
-                            }
-                        }
-                    }
-                    
-                    adapter.notifyDataSetChanged();
-                    
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        String uin = (String)filteredUinList.get(i);
-                        listView.setItemChecked(i, selectedFriendsForLike.contains(uin));
-                    }
-                }
-            });
-            
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            dialogBuilder.setView(layout);
-            
-            dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    ArrayList tempSelected = new ArrayList();
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            tempSelected.add(filteredUinList.get(i));
-                        }
-                    }
-                    
-                    for (int i = 0; i < uinList.size(); i++) {
-                        String uin = (String)uinList.get(i);
-                        if (filteredUinList.contains(uin)) {
-                            if (tempSelected.contains(uin)) {
-                                if (!selectedFriendsForLike.contains(uin)) {
-                                    selectedFriendsForLike.add(uin);
-                                }
-                            } else {
-                                selectedFriendsForLike.remove(uin);
-                            }
-                        }
-                    }
-                    
-                    saveLikeFriends();
-                    Toasts("已选择" + selectedFriendsForLike.size() + "位点赞好友");
-                }
-            });
-            
-            dialogBuilder.setNegativeButton("取消", null);
-            
-            dialogBuilder.show();
         }
-    });
+    }).start();
 }
 
 public void configFireFriends(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList friendList = getFriendList();
-    if (friendList == null || friendList.isEmpty()) {
-        Toasts("未添加任何好友");
-        return;
-    }
-    
-    final ArrayList displayList = new ArrayList();
-    final ArrayList uinList = new ArrayList();
-    for (int i = 0; i < friendList.size(); i++) {
-        Object friend = friendList.get(i);
-        String remark = "";
-        String name = "";
-        String uin = "";
-        try {
-            Class friendClass = friend.getClass();
-            java.lang.reflect.Field remarkField = friendClass.getDeclaredField("remark");
-            remarkField.setAccessible(true);
-            java.lang.reflect.Field nameField = friendClass.getDeclaredField("name");
-            nameField.setAccessible(true);
-            java.lang.reflect.Field uinField = friendClass.getDeclaredField("uin");
-            uinField.setAccessible(true);
-            
-            remark = (String)remarkField.get(friend);
-            name = (String)nameField.get(friend);
-            uin = (String)uinField.get(friend);
-        } catch (Exception e) {
+    new Thread(new Runnable() {
+        public void run() {
+            try {
+                ArrayList friendList = getFriendList();
+                if (friendList == null || friendList.isEmpty()) {
+                    Toasts("未添加任何好友");
+                    return;
+                }
+                
+                final ArrayList displayList = new ArrayList();
+                final ArrayList uinList = new ArrayList();
+                
+                for (int i = 0; i < friendList.size(); i++) {
+                    Object friend = friendList.get(i);
+                    String uin = "";
+                    String name = "";
+                    String remark = "";
+                    
+                    try {
+                        uin = friend.uin;
+                        name = friend.name;
+                        remark = friend.remark;
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    
+                    String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
+                    displayList.add(displayName);
+                    uinList.add(uin);
+                }
+                
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showFriendSelectionDialog(activity, displayList, uinList, selectedFriendsForFire, "续火", "fire");
+                    }
+                });
+            } catch (Exception e) {
+                Toasts("获取好友列表失败");
+            }
         }
-        
-        String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
-        displayList.add(displayName);
-        uinList.add(uin);
-    }
+    }).start();
+}
+
+private void showFriendSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList, 
+                                     ArrayList selectedList, String taskName, String configType) {
+    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    
+    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+    dialogBuilder.setTitle("选择" + taskName + "好友");
+    dialogBuilder.setCancelable(true);
+    
+    LinearLayout layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(20, 10, 20, 10);
+    
+    final EditText searchEditText = new EditText(activity);
+    searchEditText.setHint("搜索好友QQ号、好友名、备注");
+    searchEditText.setTextColor(Color.BLACK);
+    searchEditText.setHintTextColor(Color.GRAY);
+    layout.addView(searchEditText);
+    
+    Button selectAllButton = new Button(activity);
+    selectAllButton.setText("全选");
+    selectAllButton.setTextColor(Color.WHITE);
+    selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
+    selectAllButton.setPadding(20, 10, 20, 10);
+    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    );
+    params.gravity = Gravity.END;
+    params.setMargins(0, 10, 0, 10);
+    selectAllButton.setLayoutParams(params);
+    layout.addView(selectAllButton);
+    
+    final ListView listView = new ListView(activity);
+    layout.addView(listView);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+    listView.setAdapter(adapter);
+    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+    
+    for (int i = 0; i < filteredUinList.size(); i++) {
+        String uin = (String)filteredUinList.get(i);
+        listView.setItemChecked(i, selectedList.contains(uin));
+    }
+    
+    searchEditText.addTextChangedListener(new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String searchText = s.toString().toLowerCase().trim();
+            filteredDisplayList.clear();
+            filteredUinList.clear();
             
-            final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("选择续火好友");
-            dialogBuilder.setCancelable(true);
+            if (searchText.isEmpty()) {
+                filteredDisplayList.addAll(displayList);
+                filteredUinList.addAll(uinList);
+            } else {
+                for (int i = 0; i < displayList.size(); i++) {
+                    String displayName = ((String)displayList.get(i)).toLowerCase();
+                    String uin = (String)uinList.get(i);
+                    
+                    if (displayName.contains(searchText) || uin.contains(searchText)) {
+                        filteredDisplayList.add(displayList.get(i));
+                        filteredUinList.add(uinList.get(i));
+                    }
+                }
+            }
             
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(20, 10, 20, 10);
-            
-            final EditText searchEditText = new EditText(activity);
-            searchEditText.setHint("搜索好友QQ号、好友名、备注");
-            searchEditText.setTextColor(Color.BLACK);
-            searchEditText.setHintTextColor(Color.GRAY);
-            layout.addView(searchEditText);
-            
-            Button selectAllButton = new Button(activity);
-            selectAllButton.setText("全选");
-            selectAllButton.setTextColor(Color.WHITE);
-            selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
-            selectAllButton.setPadding(20, 10, 20, 10);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.gravity = Gravity.END;
-            params.setMargins(0, 10, 0, 10);
-            selectAllButton.setLayoutParams(params);
-            layout.addView(selectAllButton);
-            
-            final ListView listView = new ListView(activity);
-            layout.addView(listView);
-            
-            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
-            listView.setAdapter(adapter);
-            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            adapter.notifyDataSetChanged();
             
             for (int i = 0; i < filteredUinList.size(); i++) {
                 String uin = (String)filteredUinList.get(i);
-                listView.setItemChecked(i, selectedFriendsForFire.contains(uin));
+                listView.setItemChecked(i, selectedList.contains(uin));
             }
-            
-            searchEditText.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {}
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String searchText = s.toString().toLowerCase().trim();
-                    filteredDisplayList.clear();
-                    filteredUinList.clear();
-                    
-                    if (searchText.isEmpty()) {
-                        filteredDisplayList.addAll(displayList);
-                        filteredUinList.addAll(uinList);
-                    } else {
-                        for (int i = 0; i < displayList.size(); i++) {
-                            String displayName = ((String)displayList.get(i)).toLowerCase();
-                            String uin = (String)uinList.get(i);
-                            
-                            if (displayName.contains(searchText) || uin.contains(searchText)) {
-                                filteredDisplayList.add(displayList.get(i));
-                                filteredUinList.add(uinList.get(i));
-                            }
-                        }
-                    }
-                    
-                    adapter.notifyDataSetChanged();
-                    
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        String uin = (String)filteredUinList.get(i);
-                        listView.setItemChecked(i, selectedFriendsForFire.contains(uin));
-                    }
-                }
-            });
-            
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            dialogBuilder.setView(layout);
-            
-            dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    ArrayList tempSelected = new ArrayList();
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            tempSelected.add(filteredUinList.get(i));
-                        }
-                    }
-                    
-                    for (int i = 0; i < uinList.size(); i++) {
-                        String uin = (String)uinList.get(i);
-                        if (filteredUinList.contains(uin)) {
-                            if (tempSelected.contains(uin)) {
-                                if (!selectedFriendsForFire.contains(uin)) {
-                                    selectedFriendsForFire.add(uin);
-                                }
-                            } else {
-                                selectedFriendsForFire.remove(uin);
-                            }
-                        }
-                    }
-                    
-                    saveFireFriends();
-                    Toasts("已选择" + selectedFriendsForFire.size() + "位续火好友");
-                }
-            });
-            
-            dialogBuilder.setNegativeButton("取消", null);
-            
-            dialogBuilder.show();
         }
     });
+    
+    selectAllButton.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+            for (int i = 0; i < listView.getCount(); i++) {
+                listView.setItemChecked(i, true);
+            }
+        }
+    });
+    
+    dialogBuilder.setView(layout);
+    
+    dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            ArrayList tempSelected = new ArrayList();
+            for (int i = 0; i < filteredUinList.size(); i++) {
+                if (listView.isItemChecked(i)) {
+                    tempSelected.add(filteredUinList.get(i));
+                }
+            }
+            
+            selectedList.clear();
+            selectedList.addAll(tempSelected);
+            
+            if (configType.equals("like")) {
+                saveLikeFriends();
+                Toasts("已选择" + selectedList.size() + "位点赞好友");
+            } else if (configType.equals("fire")) {
+                saveFireFriends();
+                Toasts("已选择" + selectedList.size() + "位续火好友");
+            }
+        }
+    });
+    
+    dialogBuilder.setNegativeButton("取消", null);
+    dialogBuilder.show();
 }
 
 sendLike("2133115301",20);
@@ -1010,157 +898,154 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    ArrayList groupList = getGroupList();
-    if (groupList == null || groupList.isEmpty()) {
-        Toasts("未加入任何群组");
-        return;
-    }
-    
-    final ArrayList displayList = new ArrayList();
-    final ArrayList uinList = new ArrayList();
-    for (int i = 0; i < groupList.size(); i++) {
-        Object group = groupList.get(i);
-        String groupName = "";
-        String groupUin = "";
-        try {
-            Class groupClass = group.getClass();
-            java.lang.reflect.Field nameField = groupClass.getDeclaredField("GroupName");
-            nameField.setAccessible(true);
-            java.lang.reflect.Field uinField = groupClass.getDeclaredField("GroupUin");
-            uinField.setAccessible(true);
-            
-            groupName = (String)nameField.get(group);
-            groupUin = (String)uinField.get(group);
-        } catch (Exception e) {
+    new Thread(new Runnable() {
+        public void run() {
+            try {
+                ArrayList groupList = getGroupList();
+                if (groupList == null || groupList.isEmpty()) {
+                    Toasts("未加入任何群组");
+                    return;
+                }
+                
+                final ArrayList displayList = new ArrayList();
+                final ArrayList uinList = new ArrayList();
+                for (int i = 0; i < groupList.size(); i++) {
+                    Object group = groupList.get(i);
+                    String groupName = "";
+                    String groupUinStr = "";
+                    try {
+                        groupName = group.GroupName;
+                        groupUinStr = group.GroupUin;
+                    } catch (Exception e) {
+                        continue;
+                    }
+                    
+                    String displayName = groupName + " (" + groupUinStr + ")";
+                    displayList.add(displayName);
+                    uinList.add(groupUinStr);
+                }
+                
+                activity.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showGroupSelectionDialog(activity, displayList, uinList);
+                    }
+                });
+            } catch (Exception e) {
+                Toasts("获取群组列表失败");
+            }
         }
-        
-        String displayName = groupName + " (" + groupUin + ")";
-        displayList.add(displayName);
-        uinList.add(groupUin);
-    }
+    }).start();
+}
+
+private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
+    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    
+    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+    dialogBuilder.setTitle("选择续火群组");
+    dialogBuilder.setCancelable(true);
+    
+    LinearLayout layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(20, 10, 20, 10);
+    
+    final EditText searchEditText = new EditText(activity);
+    searchEditText.setHint("搜索群号、群名");
+    searchEditText.setTextColor(Color.BLACK);
+    searchEditText.setHintTextColor(Color.GRAY);
+    layout.addView(searchEditText);
+    
+    Button selectAllButton = new Button(activity);
+    selectAllButton.setText("全选");
+    selectAllButton.setTextColor(Color.WHITE);
+    selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
+    selectAllButton.setPadding(20, 10, 20, 10);
+    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.WRAP_CONTENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    );
+    params.gravity = Gravity.END;
+    params.setMargins(0, 10, 0, 10);
+    selectAllButton.setLayoutParams(params);
+    layout.addView(selectAllButton);
+    
+    final ListView listView = new ListView(activity);
+    layout.addView(listView);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
     
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+    listView.setAdapter(adapter);
+    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+    
+    for (int i = 0; i < filteredUinList.size(); i++) {
+        String uin = (String)filteredUinList.get(i);
+        listView.setItemChecked(i, selectedGroupsForFire.contains(uin));
+    }
+    
+    searchEditText.addTextChangedListener(new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String searchText = s.toString().toLowerCase().trim();
+            filteredDisplayList.clear();
+            filteredUinList.clear();
             
-            final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("选择续火群组");
-            dialogBuilder.setCancelable(true);
+            if (searchText.isEmpty()) {
+                filteredDisplayList.addAll(displayList);
+                filteredUinList.addAll(uinList);
+            } else {
+                for (int i = 0; i < displayList.size(); i++) {
+                    String displayName = ((String)displayList.get(i)).toLowerCase();
+                    String uin = (String)uinList.get(i);
+                    
+                    if (displayName.contains(searchText) || uin.contains(searchText)) {
+                        filteredDisplayList.add(displayList.get(i));
+                        filteredUinList.add(uinList.get(i));
+                    }
+                }
+            }
             
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(20, 10, 20, 10);
-            
-            final EditText searchEditText = new EditText(activity);
-            searchEditText.setHint("搜索群号、群名");
-            searchEditText.setTextColor(Color.BLACK);
-            searchEditText.setHintTextColor(Color.GRAY);
-            layout.addView(searchEditText);
-            
-            Button selectAllButton = new Button(activity);
-            selectAllButton.setText("全选");
-            selectAllButton.setTextColor(Color.WHITE);
-            selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
-            selectAllButton.setPadding(20, 10, 20, 10);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.gravity = Gravity.END;
-            params.setMargins(0, 10, 0, 10);
-            selectAllButton.setLayoutParams(params);
-            layout.addView(selectAllButton);
-            
-            final ListView listView = new ListView(activity);
-            layout.addView(listView);
-            
-            final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
-            listView.setAdapter(adapter);
-            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+            adapter.notifyDataSetChanged();
             
             for (int i = 0; i < filteredUinList.size(); i++) {
                 String uin = (String)filteredUinList.get(i);
                 listView.setItemChecked(i, selectedGroupsForFire.contains(uin));
             }
-            
-            searchEditText.addTextChangedListener(new TextWatcher() {
-                public void afterTextChanged(Editable s) {}
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    String searchText = s.toString().toLowerCase().trim();
-                    filteredDisplayList.clear();
-                    filteredUinList.clear();
-                    
-                    if (searchText.isEmpty()) {
-                        filteredDisplayList.addAll(displayList);
-                        filteredUinList.addAll(uinList);
-                    } else {
-                        for (int i = 0; i < displayList.size(); i++) {
-                            String displayName = ((String)displayList.get(i)).toLowerCase();
-                            String uin = (String)uinList.get(i);
-                            
-                            if (displayName.contains(searchText) || uin.contains(searchText)) {
-                                filteredDisplayList.add(displayList.get(i));
-                                filteredUinList.add(uinList.get(i));
-                            }
-                        }
-                    }
-                    
-                    adapter.notifyDataSetChanged();
-                    
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        String uin = (String)filteredUinList.get(i);
-                        listView.setItemChecked(i, selectedGroupsForFire.contains(uin));
-                    }
-                }
-            });
-            
-            selectAllButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        listView.setItemChecked(i, true);
-                    }
-                }
-            });
-            
-            dialogBuilder.setView(layout);
-            
-            dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    ArrayList tempSelected = new ArrayList();
-                    for (int i = 0; i < filteredUinList.size(); i++) {
-                        if (listView.isItemChecked(i)) {
-                            tempSelected.add(filteredUinList.get(i));
-                        }
-                    }
-                    
-                    for (int i = 0; i < uinList.size(); i++) {
-                        String uin = (String)uinList.get(i);
-                        if (filteredUinList.contains(uin)) {
-                            if (tempSelected.contains(uin)) {
-                                if (!selectedGroupsForFire.contains(uin)) {
-                                    selectedGroupsForFire.add(uin);
-                                }
-                            } else {
-                                selectedGroupsForFire.remove(uin);
-                            }
-                        }
-                    }
-                    
-                    saveFireGroups();
-                    Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
-                }
-            });
-            
-            dialogBuilder.setNegativeButton("取消", null);
-            
-            dialogBuilder.show();
         }
     });
+    
+    selectAllButton.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+            for (int i = 0; i < listView.getCount(); i++) {
+                listView.setItemChecked(i, true);
+            }
+        }
+    });
+    
+    dialogBuilder.setView(layout);
+    
+    dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            ArrayList tempSelected = new ArrayList();
+            for (int i = 0; i < filteredUinList.size(); i++) {
+                if (listView.isItemChecked(i)) {
+                    tempSelected.add(filteredUinList.get(i));
+                }
+            }
+            
+            selectedGroupsForFire.clear();
+            selectedGroupsForFire.addAll(tempSelected);
+            
+            saveFireGroups();
+            Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
+        }
+    });
+    
+    dialogBuilder.setNegativeButton("取消", null);
+    
+    dialogBuilder.show();
 }
 
 public void configFriendFireWords(String groupUin, String userUin, int chatType){
