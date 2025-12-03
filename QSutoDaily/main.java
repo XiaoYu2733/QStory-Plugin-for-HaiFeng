@@ -1,7 +1,7 @@
 
 // 海枫
 
-// 睡觉可能是唯一轻松的事
+// 有的歌只是前奏好听，有的人也只是表面真心#雪
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -487,17 +487,149 @@ new Thread(new Runnable(){
     }
 }).start();
 
-addItem("立即点赞好友","immediateLike");
-addItem("立即续火好友","immediateFriendFire");
-addItem("立即续火群组","immediateGroupFire");
-addItem("配置点赞好友","configLikeFriends");
-addItem("配置续火好友","configFireFriends");
-addItem("配置续火群组","configFireGroups");
-addItem("配置好友续火词","configFriendFireWords");
-addItem("配置群组续火词","configGroupFireWords");
-addItem("配置好友点赞时间","configLikeTime");
-addItem("配置好友续火时间","configFriendFireTime");
-addItem("配置群组续火时间","configGroupFireTime");
+addItem("立即执行任务", "showExecuteMenu");
+addItem("配置执行任务", "showTargetConfigMenu");
+addItem("配置续火语录", "showWordConfigMenu");
+addItem("配置执行时间", "showTimeConfigMenu");
+
+public void showExecuteMenu(String groupUin, String userUin, int chatType) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            String[] items = {"立即点赞好友", "立即续火好友", "立即续火群组", "执行全部任务"};
+            
+            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("立即执行任务");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) confirmAndRun(activity, "立即点赞好友", "确定要立即执行好友点赞任务吗？", new Runnable() { public void run() { immediateLike(groupUin, userUin, chatType); }});
+                    else if (which == 1) confirmAndRun(activity, "立即续火好友", "确定要立即执行好友续火任务吗？", new Runnable() { public void run() { immediateFriendFire(groupUin, userUin, chatType); }});
+                    else if (which == 2) confirmAndRun(activity, "立即续火群组", "确定要立即执行群组续火任务吗？", new Runnable() { public void run() { immediateGroupFire(groupUin, userUin, chatType); }});
+                    else if (which == 3) confirmAndRun(activity, "执行全部任务", "确定要立即执行所有任务吗？", new Runnable() { public void run() { executeAllTasks(); }});
+                }
+            });
+            builder.show();
+        }
+    });
+}
+
+public void showTargetConfigMenu(String groupUin, String userUin, int chatType) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            String[] items = {"配置点赞好友", "配置续火好友", "配置续火群组"};
+            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("配置执行任务");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) configLikeFriends(groupUin, userUin, chatType);
+                    else if (which == 1) configFireFriends(groupUin, userUin, chatType);
+                    else if (which == 2) configFireGroups(groupUin, userUin, chatType);
+                }
+            });
+            builder.show();
+        }
+    });
+}
+
+public void showWordConfigMenu(String groupUin, String userUin, int chatType) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            String[] items = {"配置好友续火词", "配置群组续火词"};
+            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("配置续火语录");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) configFriendFireWords(groupUin, userUin, chatType);
+                    else if (which == 1) configGroupFireWords(groupUin, userUin, chatType);
+                }
+            });
+            builder.show();
+        }
+    });
+}
+
+public void showTimeConfigMenu(String groupUin, String userUin, int chatType) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            String[] items = {"配置好友点赞时间", "配置好友续火时间", "配置群组续火时间"};
+            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+            builder.setTitle("配置执行时间");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) configLikeTime(groupUin, userUin, chatType);
+                    else if (which == 1) configFriendFireTime(groupUin, userUin, chatType);
+                    else if (which == 2) configGroupFireTime(groupUin, userUin, chatType);
+                }
+            });
+            builder.show();
+        }
+    });
+}
+
+private void confirmAndRun(Activity activity, String title, String message, final Runnable action) {
+    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    
+    new AlertDialog.Builder(activity, theme)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                action.run();
+            }
+        })
+        .setNegativeButton("取消", null)
+        .show();
+}
+
+public void executeAllTasks() {
+    long currentTime = System.currentTimeMillis();
+    
+    if (selectedFriendsForLike.isEmpty() && selectedFriendsForFire.isEmpty() && selectedGroupsForFire.isEmpty()) {
+        Toasts("未配置任何任务");
+        return;
+    }
+
+    if (!selectedFriendsForLike.isEmpty()) {
+        executeLikeTask();
+        lastLikeClickTime = currentTime;
+    }
+    
+    if (!selectedFriendsForFire.isEmpty()) {
+        executeFriendFireTask();
+        lastFriendFireClickTime = currentTime;
+    }
+    
+    if (!selectedGroupsForFire.isEmpty()) {
+        executeGroupFireTask();
+        lastGroupFireClickTime = currentTime;
+    }
+    
+    Toasts("已开始执行所有已配置的任务");
+}
 
 public void immediateLike(String groupUin, String userUin, int chatType){
     long currentTime = System.currentTimeMillis();
