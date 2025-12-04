@@ -50,8 +50,13 @@ long lastLikeClickTime = 0;
 long lastFriendFireClickTime = 0;
 long lastGroupFireClickTime = 0;
 
-String friendFireWordsPath = appPath + "/续火词/好友续火词.txt";
-String groupFireWordsPath = appPath + "/续火词/群组续火词.txt";
+String configDir = appPath + "/配置文件";
+String likeFriendsPath = configDir + "/点赞好友.txt";
+String friendFirePath = configDir + "/续火好友.txt";
+String groupFirePath = configDir + "/续火群组.txt";
+
+String friendFireWordsPath = appPath + "/续火语录/好友续火语录.txt";
+String groupFireWordsPath = appPath + "/续火语录/群组续火语录.txt";
 String timeConfigPath = appPath + "/执行时间";
 
 public boolean isDarkMode() {
@@ -123,8 +128,8 @@ public void Toasts(String text) {
     });
 }
 
-ArrayList loadWordsFromFile(String filePath) {
-    ArrayList wordsList = new ArrayList();
+ArrayList loadListFromFile(String filePath) {
+    ArrayList list = new ArrayList();
     try {
         File file = new File(filePath);
         if (file.exists()) {
@@ -133,25 +138,26 @@ ArrayList loadWordsFromFile(String filePath) {
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
                 if (!line.isEmpty()) {
-                    wordsList.add(line);
+                    list.add(line);
                 }
             }
             reader.close();
         }
     } catch (Exception e) {
     }
-    return wordsList;
+    return list;
 }
 
-void saveWordsToFile(String filePath, ArrayList wordsList) {
+void saveListToFile(String filePath, ArrayList list) {
     try {
-        File dir = new File(appPath + "/续火词");
-        if (!dir.exists()) {
-            dir.mkdirs();
+        File file = new File(filePath);
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdirs();
         }
         FileWriter writer = new FileWriter(filePath);
-        for (int i = 0; i < wordsList.size(); i++) {
-            writer.write((String)wordsList.get(i) + "\n");
+        for (int i = 0; i < list.size(); i++) {
+            writer.write((String)list.get(i) + "\n");
         }
         writer.close();
     } catch (Exception e) {
@@ -212,20 +218,25 @@ void initTimeConfig() {
 }
 
 void executeLikeTask() {
+    if (selectedFriendsForLike.isEmpty()) return;
+    
     new Thread(new Runnable(){
-    public void run(){
-        for(int i = 0; i < selectedFriendsForLike.size(); i++){
-            String friendUin = (String)selectedFriendsForLike.get(i);
-            try{
-                sendLike(friendUin, 20);
-            }catch(Exception e){
+        public void run(){
+            for(int i = 0; i < selectedFriendsForLike.size(); i++){
+                String friendUin = (String)selectedFriendsForLike.get(i);
+                try{
+                    sendLike(friendUin, 20);
+                }catch(Exception e){
+                }
             }
+            Toasts("点赞任务完成，共点赞" + selectedFriendsForLike.size() + "位好友");
         }
-    }
-}).start();
+    }).start();
 }
 
 void executeFriendFireTask(){
+    if (selectedFriendsForFire.isEmpty()) return;
+    
     new Thread(new Runnable(){
         public void run(){
             for(int i = 0; i < selectedFriendsForFire.size(); i++){
@@ -237,11 +248,14 @@ void executeFriendFireTask(){
                 }catch(Exception e){
                 }
             }
+            Toasts("好友续火任务完成，共续火" + selectedFriendsForFire.size() + "位好友");
         }
     }).start();
 }
 
 void executeGroupFireTask(){
+    if (selectedGroupsForFire.isEmpty()) return;
+    
     new Thread(new Runnable(){
         public void run(){
             for(int i = 0; i < selectedGroupsForFire.size(); i++){
@@ -253,89 +267,45 @@ void executeGroupFireTask(){
                 }catch(Exception e){
                 }
             }
+            Toasts("群组续火任务完成，共续火" + selectedGroupsForFire.size() + "个群组");
         }
     }).start();
 }
 
-int[] parseTime(String timeStr) {
-    int[] timeArray = new int[]{0, 0};
-    try {
-        String[] timeParts = timeStr.split(":");
-        if (timeParts.length == 2) {
-            timeArray[0] = Integer.parseInt(timeParts[0]);
-            timeArray[1] = Integer.parseInt(timeParts[1]);
-        }
-    } catch (Exception e) {
-    }
-    return timeArray;
+public String getCurrentDate() {
+    Calendar calendar = Calendar.getInstance();
+    return calendar.get(Calendar.YEAR) + "" + String.format("%02d", calendar.get(Calendar.MONTH)+1) + "" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
 }
 
-public String TIME(int t) {  
+public String getCurrentTime() {
     Calendar calendar = Calendar.getInstance();
-    if(t==2) return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
-    if(t==5) return calendar.get(Calendar.YEAR) + "" + String.format("%02d", calendar.get(Calendar.MONTH)+1) + "" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
-    return "";
+    return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 }
 
 void loadConfig() {
-    String likeFriends = getString("DailyLike", "selectedFriends", "");
-    if (!likeFriends.isEmpty()) {
-        String[] friendsArray = likeFriends.split(",");
-        for (int i = 0; i < friendsArray.length; i++) {
-            if (!friendsArray[i].isEmpty()) selectedFriendsForLike.add(friendsArray[i]);
-        }
+    File configDirFile = new File(configDir);
+    if (!configDirFile.exists()) {
+        configDirFile.mkdirs();
     }
+
+    selectedFriendsForLike = loadListFromFile(likeFriendsPath);
+    selectedFriendsForFire = loadListFromFile(friendFirePath);
+    selectedGroupsForFire = loadListFromFile(groupFirePath);
     
-    String fireFriends = getString("KeepFire", "friends", "");
-    if (!fireFriends.isEmpty()) {
-        String[] friendsArray = fireFriends.split(",");
-        for (int i = 0; i < friendsArray.length; i++) {
-            if (!friendsArray[i].isEmpty()) selectedFriendsForFire.add(friendsArray[i]);
-        }
-    }
-    
-    ArrayList loadedFriendWords = loadWordsFromFile(friendFireWordsPath);
+    ArrayList loadedFriendWords = loadListFromFile(friendFireWordsPath);
     if (!loadedFriendWords.isEmpty()) {
         friendFireWords = loadedFriendWords;
     } else {
-        String savedFriendWords = getString("KeepFire", "fireWords", "");
-        if (!savedFriendWords.isEmpty()) {
-            String[] wordsArray = savedFriendWords.split(",");
-            for (int i = 0; i < wordsArray.length; i++) {
-                friendFireWords.add(wordsArray[i].trim());
-            }
-            saveWordsToFile(friendFireWordsPath, friendFireWords);
-            putString("KeepFire", "fireWords", "");
-        } else {
-            friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
-            saveWordsToFile(friendFireWordsPath, friendFireWords);
-        }
+        friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
+        saveListToFile(friendFireWordsPath, friendFireWords);
     }
     
-    String fireGroups = getString("GroupFire", "selectedGroups", "");
-    if (!fireGroups.isEmpty()) {
-        String[] groupsArray = fireGroups.split(",");
-        for (int i = 0; i < groupsArray.length; i++) {
-            if (!groupsArray[i].isEmpty()) selectedGroupsForFire.add(groupsArray[i]);
-        }
-    }
-    
-    ArrayList loadedGroupWords = loadWordsFromFile(groupFireWordsPath);
+    ArrayList loadedGroupWords = loadListFromFile(groupFireWordsPath);
     if (!loadedGroupWords.isEmpty()) {
         groupFireWords = loadedGroupWords;
     } else {
-        String savedGroupWords = getString("GroupFire", "fireWords", "");
-        if (!savedGroupWords.isEmpty()) {
-            String[] wordsArray = savedGroupWords.split(",");
-            for (int i = 0; i < wordsArray.length; i++) {
-                groupFireWords.add(wordsArray[i].trim());
-            }
-            saveWordsToFile(groupFireWordsPath, groupFireWords);
-            putString("GroupFire", "fireWords", "");
-        } else {
-            groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
-            saveWordsToFile(groupFireWordsPath, groupFireWords);
-        }
+        groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
+        saveListToFile(groupFireWordsPath, groupFireWords);
     }
     
     initTimeConfig();
@@ -361,30 +331,15 @@ void loadConfig() {
 sendLike("2133115301",20);
 
 void saveLikeFriends() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < selectedFriendsForLike.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)selectedFriendsForLike.get(i));
-    }
-    putString("DailyLike", "selectedFriends", sb.toString());
+    saveListToFile(likeFriendsPath, selectedFriendsForLike);
 }
 
 void saveFireFriends() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < selectedFriendsForFire.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)selectedFriendsForFire.get(i));
-    }
-    putString("KeepFire", "friends", sb.toString());
+    saveListToFile(friendFirePath, selectedFriendsForFire);
 }
 
 void saveFireGroups() {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < selectedGroupsForFire.size(); i++) {
-        if (i > 0) sb.append(",");
-        sb.append((String)selectedGroupsForFire.get(i));
-    }
-    putString("GroupFire", "selectedGroups", sb.toString());
+    saveListToFile(groupFirePath, selectedGroupsForFire);
 }
 
 void saveTimeConfig() {
@@ -403,8 +358,8 @@ new Thread(new Runnable(){
     public void run(){
         while(!Thread.currentThread().isInterrupted()){
             try{
-                String currentTime = TIME(2);
-                String currentDate = TIME(5);
+                String currentDate = getCurrentDate();
+                String currentTime = getCurrentTime();
                 
                 if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime)) {
                     executeLikeTask();
@@ -495,7 +450,7 @@ public void showWordConfigMenu(String groupUin, String userUin, int chatType) {
 
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            String[] items = {"配置好友续火词", "配置群组续火词"};
+            String[] items = {"配置好友续火语录", "配置群组续火语录"};
             int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
             int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
 
@@ -1010,7 +965,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 }
                 
                 TextView titleView = new TextView(activity);
-                titleView.setText("配置好友续火词，多个请另起一行");
+                titleView.setText("配置好友续火语录，多个请另起一行");
                 titleView.setTextColor(Color.BLACK);
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -1019,7 +974,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 
                 final EditText wordsEditText = new EditText(activity);
                 wordsEditText.setText(wordsBuilder.toString());
-                wordsEditText.setHint("输入好友续火词，每行一个");
+                wordsEditText.setHint("输入好友续火语录，每行一个");
                 wordsEditText.setTextColor(Color.BLACK);
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 wordsEditText.setHintTextColor(Color.parseColor("#888888"));
@@ -1027,7 +982,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 wordsEditText.setGravity(Gravity.TOP);
                 
                 TextView hintView = new TextView(activity);
-                hintView.setText("注意：输入多个续火词时，每行一个");
+                hintView.setText("注意：输入多个续火语录时，每行一个");
                 hintView.setTextColor(Color.BLACK);
                 hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 hintView.setPadding(0, 20, 0, 0);
@@ -1049,7 +1004,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                     public void onClick(DialogInterface dialog, int which) {
                         String wordsText = wordsEditText.getText().toString().trim();
                         if (wordsText.isEmpty()) {
-                            Toasts("续火词不能为空");
+                            Toasts("续火语录不能为空");
                             return;
                         }
                         
@@ -1063,12 +1018,12 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                         }
                         
                         if (friendFireWords.isEmpty()) {
-                            Toasts("未添加有效的续火词");
+                            Toasts("未添加有效的续火语录");
                             return;
                         }
                         
-                        saveWordsToFile(friendFireWordsPath, friendFireWords);
-                        Toasts("已保存 " + friendFireWords.size() + " 个好友续火词");
+                        saveListToFile(friendFireWordsPath, friendFireWords);
+                        Toasts("已保存 " + friendFireWords.size() + " 个好友续火语录");
                     }
                 });
                 
@@ -1099,7 +1054,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 }
                 
                 TextView titleView = new TextView(activity);
-                titleView.setText("配置群组续火词，多个请另起一行");
+                titleView.setText("配置群组续火语录，多个请另起一行");
                 titleView.setTextColor(Color.BLACK);
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -1108,7 +1063,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 
                 final EditText wordsEditText = new EditText(activity);
                 wordsEditText.setText(wordsBuilder.toString());
-                wordsEditText.setHint("输入群组续火词，每行一个");
+                wordsEditText.setHint("输入群组续火语录，每行一个");
                 wordsEditText.setTextColor(Color.BLACK);
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                 wordsEditText.setHintTextColor(Color.parseColor("#888888"));
@@ -1116,7 +1071,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 wordsEditText.setGravity(Gravity.TOP);
                 
                 TextView hintView = new TextView(activity);
-                hintView.setText("注意：输入多个续火词时，每行一个");
+                hintView.setText("注意：输入多个续火语录时，每行一个");
                 hintView.setTextColor(Color.BLACK);
                 hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                 hintView.setPadding(0, 20, 0, 0);
@@ -1138,7 +1093,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                     public void onClick(DialogInterface dialog, int which) {
                         String wordsText = wordsEditText.getText().toString().trim();
                         if (wordsText.isEmpty()) {
-                            Toasts("续火词不能为空");
+                            Toasts("续火语录不能为空");
                             return;
                         }
                         
@@ -1152,12 +1107,12 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                         }
                         
                         if (groupFireWords.isEmpty()) {
-                            Toasts("未添加有效的续火词");
+                            Toasts("未添加有效的续火语录");
                             return;
                         }
                         
-                        saveWordsToFile(groupFireWordsPath, groupFireWords);
-                        Toasts("已保存 " + groupFireWords.size() + " 个群组续火词");
+                        saveListToFile(groupFireWordsPath, groupFireWords);
+                        Toasts("已保存 " + groupFireWords.size() + " 个群组续火语录");
                     }
                 });
                 
