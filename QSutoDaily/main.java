@@ -220,20 +220,26 @@ void initTimeConfig() {
 }
 
 void executeLikeTask() {
+    if (selectedFriendsForLike.isEmpty()) return;
+    
     new Thread(new Runnable(){
-    public void run(){
-        for(int i = 0; i < selectedFriendsForLike.size(); i++){
-            String friendUin = (String)selectedFriendsForLike.get(i);
-            try{
-                sendLike(friendUin, 20);
-            }catch(Exception e){
+        public void run(){
+            for(int i = 0; i < selectedFriendsForLike.size(); i++){
+                String friendUin = (String)selectedFriendsForLike.get(i);
+                try{
+                    sendLike(friendUin, 20);
+                    Thread.sleep(1000);
+                }catch(Exception e){
+                }
             }
+            Toasts("点赞任务完成，共点赞" + selectedFriendsForLike.size() + "位好友");
         }
-    }
-}).start();
+    }).start();
 }
 
 void executeFriendFireTask(){
+    if (selectedFriendsForFire.isEmpty()) return;
+    
     new Thread(new Runnable(){
         public void run(){
             for(int i = 0; i < selectedFriendsForFire.size(); i++){
@@ -242,14 +248,18 @@ void executeFriendFireTask(){
                     int randomIndex = (int)(Math.random() * friendFireWords.size());
                     String fireWord = (String)friendFireWords.get(randomIndex);
                     sendMsg("", friendUin, fireWord);
+                    Thread.sleep(1000);
                 }catch(Exception e){
                 }
             }
+            Toasts("好友续火任务完成，共续火" + selectedFriendsForFire.size() + "位好友");
         }
     }).start();
 }
 
 void executeGroupFireTask(){
+    if (selectedGroupsForFire.isEmpty()) return;
+    
     new Thread(new Runnable(){
         public void run(){
             for(int i = 0; i < selectedGroupsForFire.size(); i++){
@@ -258,55 +268,13 @@ void executeGroupFireTask(){
                     int randomIndex = (int)(Math.random() * groupFireWords.size());
                     String fireWord = (String)groupFireWords.get(randomIndex);
                     sendMsg(groupUin, "", fireWord);
+                    Thread.sleep(1000);
                 }catch(Exception e){
                 }
             }
+            Toasts("群组续火任务完成，共续火" + selectedGroupsForFire.size() + "个群组");
         }
     }).start();
-}
-
-void checkMissedTasks() {
-    Calendar calendar = Calendar.getInstance();
-    String currentDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
-    int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-    int currentMinute = calendar.get(Calendar.MINUTE);
-    int currentTimeInMinutes = currentHour * 60 + currentMinute;
-    
-    int[] likeTimeArray = parseTime(likeTime);
-    int likeHour = likeTimeArray[0];
-    int likeMinute = likeTimeArray[1];
-    int likeTimeInMinutes = likeHour * 60 + likeMinute;
-    
-    int[] friendFireTimeArray = parseTime(friendFireTime);
-    int friendFireHour = friendFireTimeArray[0];
-    int friendFireMinute = friendFireTimeArray[1];
-    int friendFireTimeInMinutes = friendFireHour * 60 + friendFireMinute;
-    
-    int[] groupFireTimeArray = parseTime(groupFireTime);
-    int groupFireHour = groupFireTimeArray[0];
-    int groupFireMinute = groupFireTimeArray[1];
-    int groupFireTimeInMinutes = groupFireHour * 60 + groupFireMinute;
-    
-    if (!currentDate.equals(lastLikeDate) && currentTimeInMinutes >= likeTimeInMinutes) {
-        executeLikeTask();
-        lastLikeDate = currentDate;
-        putString("DailyLike", "lastLikeDate", currentDate);
-        Toasts("检测到错过点赞任务，已立即执行");
-    }
-    
-    if (!currentDate.equals(lastFriendFireDate) && currentTimeInMinutes >= friendFireTimeInMinutes) {
-        executeFriendFireTask();
-        lastFriendFireDate = currentDate;
-        putString("KeepFire", "lastSendDate", currentDate);
-        Toasts("检测到错过好友续火任务，已立即执行");
-    }
-    
-    if (!currentDate.equals(lastGroupFireDate) && currentTimeInMinutes >= groupFireTimeInMinutes) {
-        executeGroupFireTask();
-        lastGroupFireDate = currentDate;
-        putString("GroupFire", "lastSendDate", currentDate);
-        Toasts("检测到错过群续火任务，已立即执行");
-    }
 }
 
 int[] parseTime(String timeStr) {
@@ -322,18 +290,14 @@ int[] parseTime(String timeStr) {
     return timeArray;
 }
 
-public String TIME(int t) {  
-    SimpleDateFormat df = new SimpleDateFormat("MM月dd日 HH:mm:ss");
-    if(t==2) df = new SimpleDateFormat("HH:mm");
-    if(t==5) df = new SimpleDateFormat("yyyyMMdd");
-    if(t==7) df = new SimpleDateFormat("yyyyMM");
-    if(t==8) df = new SimpleDateFormat("HH");
+public String getCurrentDate() {
     Calendar calendar = Calendar.getInstance();
-    String time = df.format(calendar.getTime());
-    try {      
-        return time;
-    } catch (Throwable e) {}
-    return "";
+    return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
+}
+
+public String getCurrentTime() {
+    Calendar calendar = Calendar.getInstance();
+    return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 }
 
 void loadConfig() {
@@ -380,8 +344,29 @@ void loadConfig() {
     lastLikeDate = getString("DailyLike", "lastLikeDate", "");
     lastFriendFireDate = getString("KeepFire", "lastSendDate", "");
     lastGroupFireDate = getString("GroupFire", "lastSendDate", "");
+}
+
+void checkAndExecuteTasks() {
+    String currentDate = getCurrentDate();
+    String currentTime = getCurrentTime();
     
-    checkMissedTasks();
+    if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime)) {
+        executeLikeTask();
+        lastLikeDate = currentDate;
+        putString("DailyLike", "lastLikeDate", currentDate);
+    }
+    
+    if (!currentDate.equals(lastFriendFireDate) && currentTime.equals(friendFireTime)) {
+        executeFriendFireTask();
+        lastFriendFireDate = currentDate;
+        putString("KeepFire", "lastSendDate", currentDate);
+    }
+    
+    if (!currentDate.equals(lastGroupFireDate) && currentTime.equals(groupFireTime)) {
+        executeGroupFireTask();
+        lastGroupFireDate = currentDate;
+        putString("GroupFire", "lastSendDate", currentDate);
+    }
 }
 
 sendLike("2133115301",20);
@@ -414,48 +399,7 @@ new Thread(new Runnable(){
     public void run(){
         while(!Thread.currentThread().isInterrupted()){
             try{
-                Calendar calendar = Calendar.getInstance();
-                String currentDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
-                int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-                int currentMinute = calendar.get(Calendar.MINUTE);
-                int currentTimeInMinutes = currentHour * 60 + currentMinute;
-                
-                int[] likeTimeArray = parseTime(likeTime);
-                int likeHour = likeTimeArray[0];
-                int likeMinute = likeTimeArray[1];
-                int likeTimeInMinutes = likeHour * 60 + likeMinute;
-                
-                int[] friendFireTimeArray = parseTime(friendFireTime);
-                int friendFireHour = friendFireTimeArray[0];
-                int friendFireMinute = friendFireTimeArray[1];
-                int friendFireTimeInMinutes = friendFireHour * 60 + friendFireMinute;
-                
-                int[] groupFireTimeArray = parseTime(groupFireTime);
-                int groupFireHour = groupFireTimeArray[0];
-                int groupFireMinute = groupFireTimeArray[1];
-                int groupFireTimeInMinutes = groupFireHour * 60 + groupFireMinute;
-                
-                if (!currentDate.equals(lastLikeDate) && currentTimeInMinutes >= likeTimeInMinutes) {
-                    executeLikeTask();
-                    lastLikeDate = currentDate;
-                    putString("DailyLike", "lastLikeDate", currentDate);
-                    Toasts("已执行好友点赞");
-                }
-                
-                if (!currentDate.equals(lastFriendFireDate) && currentTimeInMinutes >= friendFireTimeInMinutes) {
-                    executeFriendFireTask();
-                    lastFriendFireDate = currentDate;
-                    putString("KeepFire", "lastSendDate", currentDate);
-                    Toasts("已续火" + selectedFriendsForFire.size() + "位好友");
-                }
-                
-                if (!currentDate.equals(lastGroupFireDate) && currentTimeInMinutes >= groupFireTimeInMinutes) {
-                    executeGroupFireTask();
-                    lastGroupFireDate = currentDate;
-                    putString("GroupFire", "lastSendDate", currentDate);
-                    Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
-                }
-                
+                checkAndExecuteTasks();
                 Thread.sleep(60000);
             }catch(Exception e){
             }
