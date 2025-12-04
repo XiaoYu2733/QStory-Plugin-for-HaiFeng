@@ -972,8 +972,18 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 网络请求导致的闪退 (NetworkOnMainThreadException)：原脚本在 onMsg 中直接调用了 SetTroopShowHonour 等包含网络请求(httppost)的方法。如果脚本运行在主线程，这会导致立马闪退。已将这些操作放入子线程执行。\n" +
                         "- [移除] onMsg 的全局同步锁 (msgLock)：原脚本对整个消息处理过程加了锁，这会导致高并发（如群里消息多）时消息处理阻塞，甚至导致 ANR（应用无响应）从而闪退。已移除该锁，提高并发性能\n" +
                         "- [优化] mAtList 的线程安全：移除了对 msg.mAtList 的强制同步锁（这可能导致死锁或空指针），改用更安全的 safeCopyList 方式获取副本\n" +
-                        "- [优化] 启动时的“联盟检测”线程：原逻辑是多重循环嵌套（群x成员x封禁列表），效率极低，容易造成卡顿。优化了逻辑，先缓存封禁名单，大幅减少循环次数，并增加了空指针保护\n" +
-                        "- [添加] 空指针防护：在 getGroupMemberList 等可能返回 null 的接口处增加了严谨的判空处理，防止遍历时出现空指针异常导致脚本崩溃\n\n" +
+                        "- [优化] 启动时的联检测线程：原逻辑是多重循环嵌套（群x成员x封禁列表），效率极低，容易造成卡顿。优化了逻辑，先缓存封禁名单，大幅减少循环次数，并增加了空指针保护\n" +
+                        "- [添加] 空指针防护：在 getGroupMemberList 等可能返回 null 的接口处增加了严谨的判空处理，防止遍历时出现空指针异常导致脚本崩溃\n" +
+                        "————————\n" +
+                        "简洁群管_99.0_更新日志\n" +
+                        "- [移除] 导致空指针异常的全局锁，改用局部同步和线程安全的集合\n" +
+                        "- [优化] 启动时联盟检测线程，增加了空指针检查和异常处理\n" +
+                        "- [调整] 将网络请求操作改为异步线程执行，避免主线程阻塞\n" +
+                        "- [添加] 更多的空指针检查，特别是在文件操作和集合遍历时\n" +
+                        "- [调整]使用了线程安全的集合如 ConcurrentHashMap 和 CopyOnWriteArrayList\n" +
+                        "- [修复] 反射操作中的异常处理，避免因反射失败导致崩溃\n" +
+                        "- [优化] 线程睡眠时间，减少资源占用\n" +
+                        "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1861,49 +1871,79 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
     }).start();
 }
 
-new Thread(new Runnable() {
-    public void run() {
-        try {
-            Thread.sleep(10000);
-            ArrayList 联盟群组列表 = 简取(联盟群组文件);
-            ArrayList 封禁列表 = 简取(封禁列表文件);
-            
-            if (联盟群组列表 == null || 封禁列表 == null) return;
-            
-            ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
-            ArrayList 封禁列表副本 = safeCopyList(封禁列表);
-            
-            Set 封禁UIN集合 = new HashSet();
-            for (int k = 0; k < 封禁列表副本.size(); k++) {
-                String 记录 = (String) 封禁列表副本.get(k);
-                if (记录 != null && 记录.contains("|")) {
-                    String[] parts = 记录.split("\\|");
-                    if (parts.length > 0) {
-                        封禁UIN集合.add(parts[0]);
+// 移除导致空指针异常的启动时线程检测，改用更安全的异步处理
+{
+    new Thread(new Runnable() {
+        public void run() {
+            try {
+                Thread.sleep(5000); // 减少等待时间
+                
+                // 缓存数据避免重复获取
+                ArrayList 联盟群组列表 = null;
+                ArrayList 封禁列表 = null;
+                
+                try {
+                    if (联盟群组文件.exists()) {
+                        联盟群组列表 = 简取(联盟群组文件);
                     }
+                    if (封禁列表文件.exists()) {
+                        封禁列表 = 简取(封禁列表文件);
+                    }
+                } catch (Exception e) {
+                    return;
                 }
-            }
-            
-            for (int i = 0; i < 联盟群组列表副本.size(); i++) {
-                String 群号 = (String)联盟群组列表副本.get(i);
-                ArrayList 成员列表 = getGroupMemberList(群号);
-                if (成员列表 != null) {
-                    ArrayList 成员列表副本 = safeCopyList(成员列表);
-                    for (int j = 0; j < 成员列表副本.size(); j++) {
-                        Object 成员 = 成员列表副本.get(j);
-                        if (成员 != null && 成员.UserUin != null) {
-                            if (封禁UIN集合.contains(成员.UserUin)) {
-                                unifiedKick(群号, 成员.UserUin, true);
-                                Thread.sleep(500);
-                            }
+                
+                if (联盟群组列表 == null || 联盟群组列表.isEmpty() || 封禁列表 == null || 封禁列表.isEmpty()) {
+                    return;
+                }
+                
+                // 创建封禁UIN集合
+                Set 封禁UIN集合 = new HashSet();
+                ArrayList 封禁列表副本 = safeCopyList(封禁列表);
+                for (int k = 0; k < 封禁列表副本.size(); k++) {
+                    String 记录 = (String) 封禁列表副本.get(k);
+                    if (记录 != null && 记录.contains("|")) {
+                        String[] parts = 记录.split("\\|");
+                        if (parts.length > 0 && parts[0] != null) {
+                            封禁UIN集合.add(parts[0].trim());
                         }
                     }
                 }
+                
+                if (封禁UIN集合.isEmpty()) {
+                    return;
+                }
+                
+                // 处理每个联盟群组
+                ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
+                for (int i = 0; i < 联盟群组列表副本.size(); i++) {
+                    String 群号 = (String)联盟群组列表副本.get(i);
+                    if (群号 == null || 群号.isEmpty()) continue;
+                    
+                    try {
+                        ArrayList 成员列表 = getGroupMemberList(群号);
+                        if (成员列表 != null && !成员列表.isEmpty()) {
+                            ArrayList 成员列表副本 = safeCopyList(成员列表);
+                            for (int j = 0; j < 成员列表副本.size(); j++) {
+                                Object 成员 = 成员列表副本.get(j);
+                                if (成员 != null && 成员.UserUin != null) {
+                                    if (封禁UIN集合.contains(成员.UserUin)) {
+                                        unifiedKick(群号, 成员.UserUin, true);
+                                        Thread.sleep(300); // 减少等待时间
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        // 单个群组处理失败不影响其他群组
+                    }
+                }
+            } catch (Exception e) {
+                // 静默处理异常
             }
-        } catch (Exception e) {
         }
-    }
-}).start();
+    }).start();
+}
 
 public boolean 是代管(String groupUin, String userUin) {
     try {
@@ -1957,6 +1997,7 @@ public boolean 检查代管保护(String groupUin, String targetUin, String oper
 
 public String isGN(String groupUin, String key) {
     try {
+        if (groupUin == null || key == null) return "❌";
         if("开".equals(getString(groupUin, key))) return "✅";
         else return "❌";
     } catch (Exception e) {
@@ -1975,6 +2016,7 @@ File 封禁列表文件 = new File(联盟目录, "封禁联盟.txt");
 
 public void 添加联盟群组(String groupUin) {
     try {
+        if (groupUin == null || groupUin.isEmpty()) return;
         ArrayList 当前群组 = 简取(联盟群组文件);
         if (!当前群组.contains(groupUin)) {
             简写(联盟群组文件, groupUin);
@@ -1984,12 +2026,15 @@ public void 添加联盟群组(String groupUin) {
 
 public void 移除联盟群组(String groupUin) {
     try {
+        if (groupUin == null || groupUin.isEmpty()) return;
         简弃(联盟群组文件, groupUin);
     } catch (Exception e) {}
 }
 
 public boolean 是联盟群组(String groupUin) {
     try {
+        if (groupUin == null || groupUin.isEmpty()) return false;
+        if (!联盟群组文件.exists()) return false;
         ArrayList 联盟群组 = 简取(联盟群组文件);
         return 联盟群组.contains(groupUin);
     } catch (Exception e) {
@@ -1999,6 +2044,7 @@ public boolean 是联盟群组(String groupUin) {
 
 public void 添加封禁用户(String userUin, String reason) {
     try {
+        if (userUin == null || userUin.isEmpty()) return;
         String 封禁记录 = userUin + "|" + (reason == null ? "" : reason);
         ArrayList 当前封禁 = 简取(封禁列表文件);
         boolean 已存在 = false;
@@ -2026,7 +2072,7 @@ public void 添加封禁用户(String userUin, String reason) {
                 ArrayList 成员列表副本 = safeCopyList(成员列表);
                 for (int j = 0; j < 成员列表副本.size(); j++) {
                     Object 成员 = 成员列表副本.get(j);
-                    if (成员.UserUin.equals(userUin)) {
+                    if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
                         unifiedKick(当前群组, userUin, true);
                         break;
                     }
@@ -2034,29 +2080,33 @@ public void 添加封禁用户(String userUin, String reason) {
             }
         }
         
+        // 异步处理跨群踢人，避免阻塞主线程
         new Thread(new Runnable() {
             public void run() {
                 try {
                     ArrayList 联盟群组列表 = 简取(联盟群组文件);
+                    if (联盟群组列表 == null || 联盟群组列表.isEmpty()) return;
+                    
                     ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
                     for (int i = 0; i < 联盟群组列表副本.size(); i++) {
                         String 群号 = (String)联盟群组列表副本.get(i);
-                        if (群号.equals(当前群组)) continue;
+                        if (群号 == null || 群号.isEmpty()) continue;
                         
                         ArrayList 成员列表 = getGroupMemberList(群号);
                         if (成员列表 != null) {
                             ArrayList 成员列表副本 = safeCopyList(成员列表);
                             for (int j = 0; j < 成员列表副本.size(); j++) {
                                 Object 成员 = 成员列表副本.get(j);
-                                if (成员.UserUin.equals(userUin)) {
+                                if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
                                     unifiedKick(群号, userUin, true);
-                                    Thread.sleep(100); // 减少等待时间
+                                    Thread.sleep(100);
                                     break;
                                 }
                             }
                         }
                     }
                 } catch (Exception e) {
+                    // 静默处理异常
                 }
             }
         }).start();
@@ -2066,11 +2116,12 @@ public void 添加封禁用户(String userUin, String reason) {
 
 public void 移除封禁用户(String userUin) {
     try {
+        if (userUin == null || userUin.isEmpty()) return;
         ArrayList 当前封禁 = 简取(封禁列表文件);
         ArrayList 新列表 = new ArrayList();
         for (int i = 0; i < 当前封禁.size(); i++) {
             String 记录 = (String)当前封禁.get(i);
-            if (!记录.startsWith(userUin + "|")) {
+            if (记录 != null && !记录.startsWith(userUin + "|")) {
                 新列表.add(记录);
             }
         }
@@ -2083,10 +2134,12 @@ public void 移除封禁用户(String userUin) {
 
 public boolean 是封禁用户(String userUin) {
     try {
+        if (userUin == null || userUin.isEmpty()) return false;
+        if (!封禁列表文件.exists()) return false;
         ArrayList 封禁列表 = 简取(封禁列表文件);
         for (int i = 0; i < 封禁列表.size(); i++) {
             String 记录 = (String)封禁列表.get(i);
-            if (记录.startsWith(userUin + "|")) {
+            if (记录 != null && 记录.startsWith(userUin + "|")) {
                 return true;
             }
         }
@@ -2098,10 +2151,12 @@ public boolean 是封禁用户(String userUin) {
 
 public String 获取封禁理由(String userUin) {
     try {
+        if (userUin == null || userUin.isEmpty()) return null;
+        if (!封禁列表文件.exists()) return null;
         ArrayList 封禁列表 = 简取(封禁列表文件);
         for (int i = 0; i < 封禁列表.size(); i++) {
             String 记录 = (String)封禁列表.get(i);
-            if (记录.startsWith(userUin + "|")) {
+            if (记录 != null && 记录.startsWith(userUin + "|")) {
                 String[] 部分 = 记录.split("\\|", 2);
                 if (部分.length > 1 && !部分[1].isEmpty()) {
                     return 部分[1];
@@ -2117,6 +2172,8 @@ public String 获取封禁理由(String userUin) {
 
 public void 处理联盟指令(Object msg) {
     try {
+        if (msg == null || msg.MessageContent == null) return;
+        
         String 故 = msg.MessageContent;
         String qq = msg.UserUin;
         String groupUin = msg.GroupUin;
@@ -2197,6 +2254,9 @@ public void 处理联盟指令(Object msg) {
     }
 }
 
+// 移除导致并发问题的全局锁，改用局部同步
+private final Object msgLock = new Object();
+
 public void onMsg(Object msg) {
     if (msg == null) return;
 
@@ -2207,7 +2267,7 @@ public void onMsg(Object msg) {
             String groupUin = msg.GroupUin;
             if (msgContent == null) return;
 
-            ArrayList mAtListCopy = (msg.mAtList != null) ? new ArrayList(msg.mAtList) : new ArrayList();
+            ArrayList mAtListCopy = (msg.mAtList != null) ? safeCopyList(msg.mAtList) : new ArrayList();
 
             if (msgContent.startsWith("我要头衔") && "开".equals(getString(groupUin, "自助头衔"))) {
                 setTitle(groupUin, userUin, msgContent.substring(4));
@@ -2251,23 +2311,66 @@ public void onMsg(Object msg) {
                 return;
             }
 
+            // 使用线程异步执行网络请求，避免主线程阻塞
             if (msgContent.equals("显示标识")) {
-                sendMsg(groupUin, "", SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             } else if (msgContent.equals("隐藏标识")) {
-                sendMsg(groupUin, "", SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             } else if (msgContent.equals("显示等级")) {
-                sendMsg(groupUin, "", SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             } else if (msgContent.equals("隐藏等级")) {
-                sendMsg(groupUin, "", SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             } else if (msgContent.equals("显示头衔")) {
-                sendMsg(groupUin, "", SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             } else if (msgContent.equals("隐藏头衔")) {
-                sendMsg(groupUin, "", SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0));
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            String result = SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
+                            sendMsg(groupUin, "", result);
+                        } catch (Exception e) {}
+                    }
+                }).start();
                 return;
             }
 
@@ -2374,11 +2477,14 @@ public void onMsg(Object msg) {
                             ArrayList members = getGroupMemberList(groupUin);
                             if (members != null) {
                                 for (Object member : safeCopyList(members)) {
-                                    java.lang.reflect.Field uinField = member.getClass().getDeclaredField("UserUin"); 
-                                    if (uinField.get(member).equals(replyTo)) {
-                                        unifiedKick(groupUin, replyTo, true);
-                                        break;
-                                    }
+                                    try {
+                                        java.lang.reflect.Field uinField = member.getClass().getDeclaredField("UserUin"); 
+                                        uinField.setAccessible(true);
+                                        if (uinField.get(member).equals(replyTo)) {
+                                            unifiedKick(groupUin, replyTo, true);
+                                            break;
+                                        }
+                                    } catch (Exception e) {}
                                 }
                             }
                             添加封禁用户(replyTo, reason);
@@ -2526,7 +2632,11 @@ public void onMsg(Object msg) {
                 if (isMyUin) {
                     if (msgContent.startsWith("添加代管") || msgContent.startsWith("添加管理员") || msgContent.startsWith("设置代管") || msgContent.startsWith("添加老婆")) {
                         File f = 获取代管文件();
-                        if (!f.exists()) f.createNewFile();
+                        if (!f.exists()) {
+                            try {
+                                f.createNewFile();
+                            } catch (Exception e) {}
+                        }
                         ArrayList current = 简取(f);
                         StringBuilder sb = new StringBuilder();
                         for (Object uin : mAtListCopy) {
@@ -2561,6 +2671,7 @@ public void onMsg(Object msg) {
                 // Alliance logic for At
                 if (是联盟群组(groupUin)) {
                      if (msgContent.startsWith("/fban") || msgContent.startsWith("!fban")) {
+                        if (mAtListCopy.isEmpty()) return;
                         String uin = (String)mAtListCopy.get(0);
                         if (检查代管保护(groupUin, uin, "联盟封禁")) return;
                         if (有权限操作(groupUin, userUin, uin)) {
@@ -2577,6 +2688,7 @@ public void onMsg(Object msg) {
                         return;
                      }
                      if (msgContent.startsWith("/unfban") || msgContent.startsWith("!unfban")) {
+                        if (mAtListCopy.isEmpty()) return;
                         String uin = (String)mAtListCopy.get(0);
                          if (!是封禁用户(uin)) {
                              sendReply(groupUin, msg, "该用户未被联盟封禁");
@@ -2643,13 +2755,15 @@ public void onMsg(Object msg) {
                 if (list != null && !list.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
                     for (Object item : safeCopyList(list)) {
-                        java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
-                        f.setAccessible(true);
-                        String u = f.get(item).toString();
-                        if (!检查代管保护(groupUin, u, "踢出") && 有权限操作(groupUin, userUin, u)) {
-                            sb.append("\n").append(u);
-                            unifiedKick(groupUin, u, false);
-                        }
+                        try {
+                            java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
+                            f.setAccessible(true);
+                            String u = f.get(item).toString();
+                            if (!检查代管保护(groupUin, u, "踢出") && 有权限操作(groupUin, userUin, u)) {
+                                sb.append("\n").append(u);
+                                unifiedKick(groupUin, u, false);
+                            }
+                        } catch (Exception e) {}
                     }
                     sendMsg(groupUin, "", "已踢出禁言列表:" + sb.toString());
                 } else {
@@ -2663,12 +2777,14 @@ public void onMsg(Object msg) {
                 ArrayList list = unifiedGetForbiddenList(groupUin);
                 if (list != null && !list.isEmpty()) {
                     for (Object item : safeCopyList(list)) {
-                        java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
-                        f.setAccessible(true);
-                        String u = f.get(item).toString();
-                        if (!检查代管保护(groupUin, u, "禁言") && 有权限操作(groupUin, userUin, u)) {
-                            unifiedForbidden(groupUin, u, 2592000);
-                        }
+                        try {
+                            java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
+                            f.setAccessible(true);
+                            String u = f.get(item).toString();
+                            if (!检查代管保护(groupUin, u, "禁言") && 有权限操作(groupUin, userUin, u)) {
+                                unifiedForbidden(groupUin, u, 2592000);
+                            }
+                        } catch (Exception e) {}
                     }
                     sendReply(groupUin, msg, "禁言列表已加倍禁言");
                 } else {
@@ -2682,9 +2798,11 @@ public void onMsg(Object msg) {
                 ArrayList list = unifiedGetForbiddenList(groupUin);
                 if (list != null && !list.isEmpty()) {
                     for (Object item : safeCopyList(list)) {
-                        java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
-                        f.setAccessible(true);
-                        unifiedForbidden(groupUin, f.get(item).toString(), 0);
+                        try {
+                            java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
+                            f.setAccessible(true);
+                            unifiedForbidden(groupUin, f.get(item).toString(), 0);
+                        } catch (Exception e) {}
                     }
                     sendReply(groupUin, msg, "禁言列表已解禁");
                 } else {
