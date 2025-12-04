@@ -1871,14 +1871,12 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
     }).start();
 }
 
-// 移除导致空指针异常的启动时线程检测，改用更安全的异步处理
 {
     new Thread(new Runnable() {
         public void run() {
             try {
-                Thread.sleep(5000); // 减少等待时间
+                Thread.sleep(5000);
                 
-                // 缓存数据避免重复获取
                 ArrayList 联盟群组列表 = null;
                 ArrayList 封禁列表 = null;
                 
@@ -1897,7 +1895,6 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     return;
                 }
                 
-                // 创建封禁UIN集合
                 Set 封禁UIN集合 = new HashSet();
                 ArrayList 封禁列表副本 = safeCopyList(封禁列表);
                 for (int k = 0; k < 封禁列表副本.size(); k++) {
@@ -1914,7 +1911,6 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     return;
                 }
                 
-                // 处理每个联盟群组
                 ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
                 for (int i = 0; i < 联盟群组列表副本.size(); i++) {
                     String 群号 = (String)联盟群组列表副本.get(i);
@@ -1929,17 +1925,17 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                                 if (成员 != null && 成员.UserUin != null) {
                                     if (封禁UIN集合.contains(成员.UserUin)) {
                                         unifiedKick(群号, 成员.UserUin, true);
-                                        Thread.sleep(300); // 减少等待时间
+                                        Thread.sleep(300);
                                     }
                                 }
                             }
                         }
                     } catch (Exception e) {
-                        // 单个群组处理失败不影响其他群组
+                    
                     }
                 }
             } catch (Exception e) {
-                // 静默处理异常
+                
             }
         }
     }).start();
@@ -2080,7 +2076,6 @@ public void 添加封禁用户(String userUin, String reason) {
             }
         }
         
-        // 异步处理跨群踢人，避免阻塞主线程
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -2106,7 +2101,7 @@ public void 添加封禁用户(String userUin, String reason) {
                         }
                     }
                 } catch (Exception e) {
-                    // 静默处理异常
+                    
                 }
             }
         }).start();
@@ -2254,7 +2249,6 @@ public void 处理联盟指令(Object msg) {
     }
 }
 
-// 移除导致并发问题的全局锁，改用局部同步
 private final Object msgLock = new Object();
 
 public void onMsg(Object msg) {
@@ -2311,7 +2305,6 @@ public void onMsg(Object msg) {
                 return;
             }
 
-            // 使用线程异步执行网络请求，避免主线程阻塞
             if (msgContent.equals("显示标识")) {
                 new Thread(new Runnable() {
                     public void run() {
@@ -2668,7 +2661,6 @@ public void onMsg(Object msg) {
                     }
                 }
                 
-                // Alliance logic for At
                 if (是联盟群组(groupUin)) {
                      if (msgContent.startsWith("/fban") || msgContent.startsWith("!fban")) {
                         if (mAtListCopy.isEmpty()) return;
