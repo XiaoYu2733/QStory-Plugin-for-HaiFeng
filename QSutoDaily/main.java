@@ -228,7 +228,6 @@ void executeLikeTask() {
                 String friendUin = (String)selectedFriendsForLike.get(i);
                 try{
                     sendLike(friendUin, 20);
-                    Thread.sleep(1000);
                 }catch(Exception e){
                 }
             }
@@ -248,7 +247,6 @@ void executeFriendFireTask(){
                     int randomIndex = (int)(Math.random() * friendFireWords.size());
                     String fireWord = (String)friendFireWords.get(randomIndex);
                     sendMsg("", friendUin, fireWord);
-                    Thread.sleep(1000);
                 }catch(Exception e){
                 }
             }
@@ -268,7 +266,6 @@ void executeGroupFireTask(){
                     int randomIndex = (int)(Math.random() * groupFireWords.size());
                     String fireWord = (String)groupFireWords.get(randomIndex);
                     sendMsg(groupUin, "", fireWord);
-                    Thread.sleep(1000);
                 }catch(Exception e){
                 }
             }
