@@ -66,14 +66,14 @@ public void Toasts(String text) {
                     
                     Toast toast = new Toast(context);
                     toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setDuration(Toast.LENGTH_SHORT);
                     toast.setView(linearLayout);
                     toast.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             }
         }
     });
