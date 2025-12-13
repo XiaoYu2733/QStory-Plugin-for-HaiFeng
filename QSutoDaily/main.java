@@ -17,6 +17,7 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -274,7 +275,7 @@ void executeGroupFireTask(){
 
 public String getCurrentDate() {
     Calendar calendar = Calendar.getInstance();
-    return calendar.get(Calendar.YEAR) + "" + String.format("%02d", calendar.get(Calendar.MONTH)+1) + "" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+    return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 }
 
 public String getCurrentTime() {
@@ -381,8 +382,10 @@ new Thread(new Runnable(){
                     putString("GroupFire", "lastSendDate", currentDate);
                     Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
                 }
-                
-                Thread.sleep(60000);
+            }catch(Exception e){
+            }
+            try{
+                Thread.sleep(10000);
             }catch(Exception e){
             }
         }
@@ -687,6 +690,8 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     dialogBuilder.setTitle("选择" + taskName + "好友");
     dialogBuilder.setCancelable(true);
     
+    final ArrayList currentSessionSelected = new ArrayList(selectedList);
+
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
     layout.setPadding(20, 10, 20, 10);
@@ -698,7 +703,7 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     layout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
-    selectAllButton.setText("全选");
+    selectAllButton.setText("全选(当前显示)");
     selectAllButton.setTextColor(Color.WHITE);
     selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
     selectAllButton.setPadding(20, 10, 20, 10);
@@ -723,8 +728,22 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     
     for (int i = 0; i < filteredUinList.size(); i++) {
         String uin = (String)filteredUinList.get(i);
-        listView.setItemChecked(i, selectedList.contains(uin));
+        listView.setItemChecked(i, currentSessionSelected.contains(uin));
     }
+
+    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            String uin = (String) filteredUinList.get(position);
+            boolean isChecked = listView.isItemChecked(position);
+            if (isChecked) {
+                if (!currentSessionSelected.contains(uin)) {
+                    currentSessionSelected.add(uin);
+                }
+            } else {
+                currentSessionSelected.remove(uin);
+            }
+        }
+    });
     
     searchEditText.addTextChangedListener(new TextWatcher() {
         public void afterTextChanged(Editable s) {}
@@ -753,15 +772,19 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
             
             for (int i = 0; i < filteredUinList.size(); i++) {
                 String uin = (String)filteredUinList.get(i);
-                listView.setItemChecked(i, selectedList.contains(uin));
+                listView.setItemChecked(i, currentSessionSelected.contains(uin));
             }
         }
     });
     
     selectAllButton.setOnClickListener(new View.OnClickListener() {
         public void onClick(View v) {
-            for (int i = 0; i < listView.getCount(); i++) {
+            for (int i = 0; i < filteredUinList.size(); i++) {
                 listView.setItemChecked(i, true);
+                String uin = (String) filteredUinList.get(i);
+                if (!currentSessionSelected.contains(uin)) {
+                    currentSessionSelected.add(uin);
+                }
             }
         }
     });
@@ -770,15 +793,8 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     
     dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
-            ArrayList tempSelected = new ArrayList();
-            for (int i = 0; i < filteredUinList.size(); i++) {
-                if (listView.isItemChecked(i)) {
-                    tempSelected.add(filteredUinList.get(i));
-                }
-            }
-            
             selectedList.clear();
-            selectedList.addAll(tempSelected);
+            selectedList.addAll(currentSessionSelected);
             
             if (configType.equals("like")) {
                 saveLikeFriends();
@@ -844,6 +860,8 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
     dialogBuilder.setTitle("选择续火群组");
     dialogBuilder.setCancelable(true);
+
+    final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
     
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
@@ -856,7 +874,7 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     layout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
-    selectAllButton.setText("全选");
+    selectAllButton.setText("全选(当前显示)");
     selectAllButton.setTextColor(Color.WHITE);
     selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
     selectAllButton.setPadding(20, 10, 20, 10);
@@ -881,8 +899,22 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     
     for (int i = 0; i < filteredUinList.size(); i++) {
         String uin = (String)filteredUinList.get(i);
-        listView.setItemChecked(i, selectedGroupsForFire.contains(uin));
+        listView.setItemChecked(i, currentSessionSelected.contains(uin));
     }
+
+    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            String uin = (String) filteredUinList.get(position);
+            boolean isChecked = listView.isItemChecked(position);
+            if (isChecked) {
+                if (!currentSessionSelected.contains(uin)) {
+                    currentSessionSelected.add(uin);
+                }
+            } else {
+                currentSessionSelected.remove(uin);
+            }
+        }
+    });
     
     searchEditText.addTextChangedListener(new TextWatcher() {
         public void afterTextChanged(Editable s) {}
@@ -911,15 +943,19 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
             
             for (int i = 0; i < filteredUinList.size(); i++) {
                 String uin = (String)filteredUinList.get(i);
-                listView.setItemChecked(i, selectedGroupsForFire.contains(uin));
+                listView.setItemChecked(i, currentSessionSelected.contains(uin));
             }
         }
     });
     
     selectAllButton.setOnClickListener(new View.OnClickListener() {
         public void onClick(View v) {
-            for (int i = 0; i < listView.getCount(); i++) {
+            for (int i = 0; i < filteredUinList.size(); i++) {
                 listView.setItemChecked(i, true);
+                String uin = (String) filteredUinList.get(i);
+                if (!currentSessionSelected.contains(uin)) {
+                    currentSessionSelected.add(uin);
+                }
             }
         }
     });
@@ -928,15 +964,8 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     
     dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
-            ArrayList tempSelected = new ArrayList();
-            for (int i = 0; i < filteredUinList.size(); i++) {
-                if (listView.isItemChecked(i)) {
-                    tempSelected.add(filteredUinList.get(i));
-                }
-            }
-            
             selectedGroupsForFire.clear();
-            selectedGroupsForFire.addAll(tempSelected);
+            selectedGroupsForFire.addAll(currentSessionSelected);
             
             saveFireGroups();
             Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
@@ -1158,6 +1187,9 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
                         likeTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置点赞时间: " + likeTime);
+                        if(getCurrentTime().equals(likeTime)){
+                            executeLikeTask();
+                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
@@ -1202,6 +1234,9 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
                         friendFireTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置好友续火时间: " + friendFireTime);
+                        if(getCurrentTime().equals(friendFireTime)){
+                            executeFriendFireTask();
+                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
@@ -1246,6 +1281,9 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
                         groupFireTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置群组续火时间: " + groupFireTime);
+                        if(getCurrentTime().equals(groupFireTime)){
+                            executeGroupFireTask();
+                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
