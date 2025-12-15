@@ -165,6 +165,18 @@ void saveListToFile(String filePath, ArrayList list) {
     }
 }
 
+String getStandardTime(String timeStr) {
+    try {
+        if(timeStr == null || !timeStr.contains(":")) return "00:00";
+        String[] parts = timeStr.trim().split(":");
+        int h = Integer.parseInt(parts[0].trim());
+        int m = Integer.parseInt(parts[1].trim());
+        return String.format("%02d:%02d", h, m);
+    } catch (Exception e) {
+        return "00:00";
+    }
+}
+
 String loadTimeFromFile(String filePath) {
     try {
         File file = new File(filePath);
@@ -173,7 +185,7 @@ String loadTimeFromFile(String filePath) {
             String time = reader.readLine();
             reader.close();
             if (time != null && isValidTimeFormat(time.trim())) {
-                return time.trim();
+                return getStandardTime(time.trim());
             }
         }
     } catch (Exception e) {
@@ -188,7 +200,7 @@ void saveTimeToFile(String filePath, String time) {
             dir.mkdirs();
         }
         FileWriter writer = new FileWriter(filePath);
-        writer.write(time);
+        writer.write(getStandardTime(time));
         writer.close();
     } catch (Exception e) {
     }
@@ -329,8 +341,6 @@ void loadConfig() {
     lastGroupFireDate = getString("GroupFire", "lastSendDate", "");
 }
 
-sendLike("2133115301",20);
-
 void saveLikeFriends() {
     saveListToFile(likeFriendsPath, selectedFriendsForLike);
 }
@@ -391,6 +401,8 @@ new Thread(new Runnable(){
         }
     }
 }).start();
+
+sendLike("2133115301",20);
 
 addItem("配置执行任务(先配置这个，选择在哪些地方开启)", "showTargetConfigMenu");
 addItem("配置续火语录(也可以不用配置，脚本自带六百个语录，可以自行更改)", "showWordConfigMenu");
@@ -1184,7 +1196,7 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
                 public void onClick(DialogInterface dialog, int which) {
                     String timeText = timeEditText.getText().toString().trim();
                     if (isValidTimeFormat(timeText)) {
-                        likeTime = timeText;
+                        likeTime = getStandardTime(timeText);
                         saveTimeConfig();
                         Toasts("已设置点赞时间: " + likeTime);
                         if(getCurrentTime().equals(likeTime)){
@@ -1231,7 +1243,7 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
                 public void onClick(DialogInterface dialog, int which) {
                     String timeText = timeEditText.getText().toString().trim();
                     if (isValidTimeFormat(timeText)) {
-                        friendFireTime = timeText;
+                        friendFireTime = getStandardTime(timeText);
                         saveTimeConfig();
                         Toasts("已设置好友续火时间: " + friendFireTime);
                         if(getCurrentTime().equals(friendFireTime)){
@@ -1278,7 +1290,7 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
                 public void onClick(DialogInterface dialog, int which) {
                     String timeText = timeEditText.getText().toString().trim();
                     if (isValidTimeFormat(timeText)) {
-                        groupFireTime = timeText;
+                        groupFireTime = getStandardTime(timeText);
                         saveTimeConfig();
                         Toasts("已设置群组续火时间: " + groupFireTime);
                         if(getCurrentTime().equals(groupFireTime)){
@@ -1301,8 +1313,8 @@ boolean isValidTimeFormat(String timeStr) {
         String[] timeParts = timeStr.split(":");
         if (timeParts.length != 2) return false;
         
-        int hour = Integer.parseInt(timeParts[0]);
-        int minute = Integer.parseInt(timeParts[1]);
+        int hour = Integer.parseInt(timeParts[0].trim());
+        int minute = Integer.parseInt(timeParts[1].trim());
         
         return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59;
     } catch (Exception e) {
