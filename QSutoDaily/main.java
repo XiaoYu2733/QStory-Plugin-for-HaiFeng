@@ -302,7 +302,7 @@ void loadConfig() {
     if (!loadedFriendWords.isEmpty()) {
         friendFireWords = loadedFriendWords;
     } else {
-        friendFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
+        friendFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
         saveListToFile(friendFireWordsPath, friendFireWords);
     }
     
@@ -310,7 +310,7 @@ void loadConfig() {
     if (!loadedGroupWords.isEmpty()) {
         groupFireWords = loadedGroupWords;
     } else {
-        groupFireWords.add("世上何来常青树 心中不负便胜朝朝暮暮 也许这份喜欢是一时兴起 可是我的梦里有你");
+        groupFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
         saveListToFile(groupFireWordsPath, groupFireWords);
     }
     
