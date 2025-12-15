@@ -117,14 +117,14 @@ public void Toasts(String text) {
                     
                     Toast toast = new Toast(context);
                     toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_SHORT);
+                    toast.setDuration(Toast.LENGTH_LONG);
                     toast.setView(linearLayout);
                     toast.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         }
     });
@@ -376,30 +376,28 @@ new Thread(new Runnable(){
                 String currentDate = getCurrentDate();
                 String currentTime = getCurrentTime();
                 
-                if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime)) {
+                if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime) && !selectedFriendsForLike.isEmpty()) {
                     executeLikeTask();
                     lastLikeDate = currentDate;
                     putString("DailyLike", "lastLikeDate", currentDate);
                     Toasts("已执行好友点赞");
                 }
                 
-                if (!currentDate.equals(lastFriendFireDate) && currentTime.equals(friendFireTime)) {
+                if (!currentDate.equals(lastFriendFireDate) && currentTime.equals(friendFireTime) && !selectedFriendsForFire.isEmpty()) {
                     executeFriendFireTask();
                     lastFriendFireDate = currentDate;
                     putString("KeepFire", "lastSendDate", currentDate);
                     Toasts("已续火" + selectedFriendsForFire.size() + "位好友");
                 }
                 
-                if (!currentDate.equals(lastGroupFireDate) && currentTime.equals(groupFireTime)) {
+                if (!currentDate.equals(lastGroupFireDate) && currentTime.equals(groupFireTime) && !selectedGroupsForFire.isEmpty()) {
                     executeGroupFireTask();
                     lastGroupFireDate = currentDate;
                     putString("GroupFire", "lastSendDate", currentDate);
                     Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
                 }
-            }catch(Exception e){
-            }
-            try{
-                Thread.sleep(60000);
+                
+                Thread.sleep(30000);
             }catch(Exception e){
             }
         }
@@ -600,8 +598,6 @@ public void immediateGroupFire(String groupUin, String userUin, int chatType){
     executeGroupFireTask();
     Toasts("已立即续火" + selectedGroupsForFire.size() + "个群组");
 }
-
-sendLike("2133115301",20);
 
 public void configLikeFriends(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
@@ -1203,9 +1199,6 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
                         likeTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置点赞时间: " + likeTime);
-                        if(getCurrentTime().equals(likeTime)){
-                            executeLikeTask();
-                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
@@ -1250,9 +1243,6 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
                         friendFireTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置好友续火时间: " + friendFireTime);
-                        if(getCurrentTime().equals(friendFireTime)){
-                            executeFriendFireTask();
-                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
@@ -1297,9 +1287,6 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
                         groupFireTime = timeText;
                         saveTimeConfig();
                         Toasts("已设置群组续火时间: " + groupFireTime);
-                        if(getCurrentTime().equals(groupFireTime)){
-                            executeGroupFireTask();
-                        }
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
                     }
