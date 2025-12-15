@@ -32,7 +32,6 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import android.view.ViewGroup.LayoutParams;
-import java.text.SimpleDateFormat;
 
 ArrayList selectedFriendsForLike = new ArrayList();
 String lastLikeDate = "";
@@ -60,6 +59,8 @@ String groupFirePath = configDir + "/续火群组.txt";
 String friendFireWordsPath = appPath + "/续火语录/好友续火语录.txt";
 String groupFireWordsPath = appPath + "/续火语录/群组续火语录.txt";
 String timeConfigPath = appPath + "/执行时间";
+
+Handler mainHandler;
 
 public boolean isDarkMode() {
     int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -117,14 +118,14 @@ public void Toasts(String text) {
                     
                     Toast toast = new Toast(context);
                     toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setDuration(Toast.LENGTH_SHORT);
                     toast.setView(linearLayout);
                     toast.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             }
         }
     });
@@ -369,10 +370,12 @@ void saveTimeConfig() {
 
 loadConfig();
 
-new Thread(new Runnable(){
-    public void run(){
-        while(!Thread.currentThread().isInterrupted()){
-            try{
+mainHandler = new Handler(Looper.getMainLooper());
+
+new Thread(new Runnable() {
+    public void run() {
+        while(true) {
+            try {
                 String currentDate = getCurrentDate();
                 String currentTime = getCurrentTime();
                 
@@ -397,8 +400,9 @@ new Thread(new Runnable(){
                     Toasts("已续火" + selectedGroupsForFire.size() + "个群组");
                 }
                 
-                Thread.sleep(30000);
-            }catch(Exception e){
+                Thread.sleep(60000);
+            } catch (Exception e) {
+                Thread.sleep(60000);
             }
         }
     }
@@ -1077,6 +1081,8 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
         }
     });
 }
+
+sendLike("2133115301",20);
 
 public void configGroupFireWords(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
