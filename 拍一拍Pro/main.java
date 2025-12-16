@@ -19,11 +19,9 @@ import java.util.regex.Matcher;
 // 支持多个用户 请用 , 和 "" 隔开
 String atPaiConfig = "AtPai";
 // 配置指定人戳一戳 支持私聊和群聊（不是艾特回戳） 配置用户后该用户发一条消息就会戳一次 范围是群聊和私聊 和艾特回戳可能冲突
-String[] targetUins = {"123456","107464738","12345678"};
+String[] targetUins = {"123456"};
 // 黑名单 指定戳一戳用户不戳 范围群聊和私聊
 String[] blacklistUins = {"1633946103","951691255","2190951350","2479437177"};
-
-addItem("脚本本次更新日志", "showUpdateLog");
 
 void onMsg(Object msg) {
     String senderUin = msg.UserUin;
@@ -56,23 +54,6 @@ void onMsg(Object msg) {
             }
         }
     }
-}
-
-// 既然有人陪你了 那我就悄悄退场了
-public void showUpdateLog(String g, String u, int t) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n更新日志\n\n- [新增] 指定戳一戳用户 指定用户说一下就拍一下 支持多个QQ号\n- [新增] 私聊戳一戳 好友需要自己在代码配置 配置后该好友如果有共同群 在群内发一条消息也会戳一次\n- [新增] 黑名单 指定用户艾特你 不会戳\n- [新增] 自动回拍 当有人拍你时自动回拍对方\n\n反馈交流群：https://t.me/XiaoYu_Chat");
-            builder.setPositiveButton("确定", null);
-            builder.setCancelable(true);
-            builder.show();
-        }
-    });
 }
 
 void callbackOnRawMsg(Object msg) {
