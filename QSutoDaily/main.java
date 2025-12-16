@@ -68,7 +68,7 @@ public boolean isDarkMode() {
 }
 
 public String getBackgroundColor() {
-    return isDarkMode() ? "#CC1E1E1E" : "#CCFFFFFF";
+    return isDarkMode() ? "#1E1E1E" : "#FFFFFF";
 }
 
 public String getTextColor() {
@@ -79,11 +79,10 @@ public int c(float f) {
     return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
 }
 
-public GradientDrawable getShape(String color, int cornerRadius, int alpha) {
+public GradientDrawable getShape(String color, int cornerRadius) {
     GradientDrawable shape = new GradientDrawable();
     shape.setColor(Color.parseColor(color));
     shape.setCornerRadius(cornerRadius);
-    shape.setAlpha(alpha);
     shape.setShape(GradientDrawable.RECTANGLE);
     return shape;
 }
@@ -104,7 +103,7 @@ public void Toasts(String text) {
                     int paddingVertical = c(12);
                     linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
                     
-                    linearLayout.setBackground(getShape(bgColor, c(12), 230));
+                    linearLayout.setBackground(getShape(bgColor, c(12)));
                     
                     TextView textView = new TextView(context);
                     textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -118,14 +117,14 @@ public void Toasts(String text) {
                     
                     Toast toast = new Toast(context);
                     toast.setGravity(Gravity.TOP, 0, c(80));
-                    toast.setDuration(Toast.LENGTH_SHORT);
+                    toast.setDuration(Toast.LENGTH_LONG);
                     toast.setView(linearLayout);
                     toast.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         }
     });
@@ -1304,3 +1303,5 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
         }
     });
 }
+
+Toasts("自动点赞续火脚本加载成功\n有问题入群反馈：325031618");
