@@ -233,6 +233,15 @@ public void quickManageMenuItem(final Object msg) {
                             addToBlacklistMenuItem(msg);
                         }
                     });
+                    
+                    if (是联盟群组(groupUin)) {
+                        items.add("联盟封禁");
+                        actions.add(new Runnable() {
+                            public void run() {
+                                allianceBanMenuItem(msg);
+                            }
+                        });
+                    }
                 }
                 
                 if (myInfo.IsOwner) {
@@ -263,6 +272,65 @@ public void quickManageMenuItem(final Object msg) {
             } catch (Exception e) {
                 toast("打开快捷群管失败: " + e.getMessage());
             }
+        }
+    });
+}
+
+public void allianceBanMenuItem(Object msg) {
+    if (msg == null || !msg.IsGroup) return;
+    
+    final String groupUin = msg.GroupUin;
+    final String targetUin = msg.UserUin;
+    
+    if (检查代管保护(groupUin, targetUin, "联盟封禁")) {
+        return;
+    }
+    
+    if (!有权限操作(groupUin, myUin, targetUin)) {
+        toast("没有权限操作该用户");
+        return;
+    }
+    
+    if (是封禁用户(targetUin)) {
+        toast("该用户已经被封禁，请勿再次封禁！");
+        return;
+    }
+    
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            builder.setTitle("联盟封禁 - " + 名(targetUin) + "(" + targetUin + ")");
+            
+            LinearLayout layout = new LinearLayout(getActivity());
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(30, 30, 30, 30);
+            
+            TextView hint = new TextView(getActivity());
+            hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
+            hint.setTextSize(16);
+            layout.addView(hint);
+            
+            final EditText inputEditText = new EditText(getActivity());
+            inputEditText.setHint("请输入封禁理由，如果不填可以直接点击确定");
+            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setBackgroundResource(android.R.drawable.edit_text);
+            layout.addView(inputEditText);
+            
+            builder.setView(layout);
+            
+            builder.setPositiveButton("确定封禁", new android.content.DialogInterface.OnClickListener() {
+                public void onClick(android.content.DialogInterface dialog, int which) {
+                    String reason = inputEditText.getText().toString().trim();
+                    添加封禁用户(targetUin, reason);
+                    toast("已联盟封禁 " + 名(targetUin) + "(" + targetUin + ")");
+                }
+            });
+            
+            builder.setNegativeButton("取消", null);
+            builder.show();
         }
     });
 }
@@ -988,6 +1056,8 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n" +
                         "————————\n" +
                         "简洁群管_100.0_更新日志\n" +
+                        "- [新增] 快捷菜单封禁联盟 前提是该群组属于联盟群组\n" +
+                        "- [新增] 如果 这个用户已经被封禁，再次封禁会提示\n" +
                         "- [修复] bsh.BlockNameSpace.getInstance\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
@@ -2239,6 +2309,11 @@ public void 处理联盟指令(Object msg) {
                 return;
             }
             
+            if (是封禁用户(目标QQ)) {
+                sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                return;
+            }
+            
             添加封禁用户(目标QQ, 理由);
             
             String 回复 = "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(qq) + "\n用户：" + 名(目标QQ) + "\n用户 ID：" + 目标QQ;
@@ -2502,6 +2577,11 @@ public void onMsg(Object msg) {
                             String[] parts = msgContent.split(" ", 2);
                             if (parts.length > 1 && !parts[1].trim().isEmpty()) reason = parts[1].trim();
                             
+                            if (是封禁用户(replyTo)) {
+                                sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                                return;
+                            }
+                            
                             ArrayList members = getGroupMemberList(groupUin);
                             if (members != null) {
                                 for (Object member : safeCopyList(members)) {
@@ -2717,6 +2797,10 @@ public void onMsg(Object msg) {
                         if (uinObj == null) return;
                         String uin = uinObj.toString();
                         if (检查代管保护(groupUin, uin, "联盟封禁")) return;
+                        if (是封禁用户(uin)) {
+                            sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                            return;
+                        }
                         if (有权限操作(groupUin, userUin, uin)) {
                             String reason = null;
                             String[] parts = msgContent.split(" ", 2);
@@ -2918,10 +3002,12 @@ public void onMsg(Object msg) {
                     if (parts.length >= 2) {
                         String target = parts[1];
                         String reason = parts.length > 2 ? parts[2] : null;
-                        if (target.matches("[0-9]{4,11}") && !检查代管保护(groupUin, target, "联盟封禁") && 有权限操作(groupUin, userUin, target)) {
+                        if (target.matches("[0-9]{4,11}") && !是封禁用户(target) && !检查代管保护(groupUin, target, "联盟封禁") && 有权限操作(groupUin, userUin, target)) {
                              unifiedKick(groupUin, target, true);
                              添加封禁用户(target, reason);
                              sendReply(groupUin, msg, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(target) + "\n用户 ID：" + target + (reason != null ? "\n理由：" + reason : ""));
+                        } else if (是封禁用户(target)) {
+                            sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
                         }
                     }
                     return;
