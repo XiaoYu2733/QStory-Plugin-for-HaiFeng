@@ -146,7 +146,7 @@ private Map groupInfoCache = new ConcurrentHashMap();
         if (groupList != null) {
             ArrayList groupListCopy = safeCopyList(groupList);
             for (Object groupInfo : groupListCopy) {
-                if (groupInfo != null) {
+                if (groupInfo != null && groupInfo.GroupUin != null) {
                     groupInfoCache.put(groupInfo.GroupUin, groupInfo);
                 }
             }
@@ -514,6 +514,8 @@ void onClickFloatingWindow(int type, String uin) {
 
 public int getCurrentTheme() {
     try {
+        Context context = getActivity();
+        if (context == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             return AlertDialog.THEME_DEVICE_DEFAULT_DARK;
@@ -960,7 +962,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 隐藏显示头衔 标识 等级 失效的问题\n" +
                         "————————\n" +
                         "简洁群管_95.0_更新日志\n" +
-                        "- [添加] 联盟更多介绍\n\n" +
+                        "- [添加] 联盟更多介绍\n" +
                         "————————\n" +
                         "简洁群管_96.0_更新日志\n" +
                         "- [适配] 最新版QStory\n" +
@@ -983,7 +985,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [调整]使用了线程安全的集合如 ConcurrentHashMap 和 CopyOnWriteArrayList\n" +
                         "- [修复] 反射操作中的异常处理，避免因反射失败导致崩溃\n" +
                         "- [优化] 线程睡眠时间，减少资源占用\n" +
-                        "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n\n" +
+                        "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n" +
+                        "————————\n" +
+                        "简洁群管_100.0_更新日志\n" +
+                        "- [修复] bsh.BlockNameSpace.getInstance\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -1490,13 +1495,14 @@ public boolean atMe(Object msg){
     ArrayList atListCopy = safeCopyList(msg.mAtList);
     for (int i = 0; i < atListCopy.size(); i++) {
         String to_at = (String) atListCopy.get(i);
-        if (to_at.equals(myUin))
+        if (to_at != null && to_at.equals(myUin))
             return true;
     }
     return false;
 }
 
 public String 论(String u,String a,String b){
+    if (u == null) return "";
     return u.replace(a,b);
 }
 
@@ -1529,7 +1535,7 @@ public synchronized ArrayList 简取(File ff) {
         f2 = new BufferedReader(fr);
         String a;
         while ((a = f2.readLine()) != null) {
-            if (!a.trim().isEmpty()) {
+            if (a != null && !a.trim().isEmpty()) {
                 list1.add(a.trim());
             }
         }
@@ -1544,10 +1550,12 @@ public synchronized ArrayList 简取(File ff) {
 }
 
 public boolean jiandu(String a,ArrayList l1){
+    if (a == null || l1 == null) return false;
     boolean x=false;
     ArrayList l1Copy = safeCopyList(l1);
     for(int i=0;i<l1Copy.size();i++){
-        if(a.equals(l1Copy.get(i).toString())){
+        Object item = l1Copy.get(i);
+        if(item != null && a.equals(item.toString())){
             x=true; break;
         }
     }
@@ -1571,10 +1579,12 @@ public synchronized void 全弃(File ff) {
 }
 
 public int 度(String a){
+    if (a == null) return 0;
     return a.length();
 }
 
 public synchronized void 简弃(File ff,String a) {
+    if (a == null) return;
     ArrayList l1= new ArrayList();
     try {
         l1.addAll(简取(ff));
@@ -1588,13 +1598,17 @@ public synchronized void 简弃(File ff,String a) {
         f.close();
         
         for(int i=0;i<l1.size();i++){
-            简写(ff,l1.get(i).toString());
+            Object item = l1.get(i);
+            if (item != null) {
+                简写(ff,item.toString());
+            }
         }
     } catch (Exception e) {
     }
 }
 
 public String 名(String uin){
+    if (uin == null) return "未知";
     try{
         Object card=GetCard(uin);
         if(card != null && card.strNick != null){
@@ -1609,22 +1623,26 @@ public String 名(String uin){
 }
 
 public String 组名(ArrayList a){
+    if (a == null) return "";
     ArrayList list = new ArrayList();
     ArrayList aCopy = safeCopyList(a);
     for(int i = 0; i < aCopy.size(); i++) {
         Object uin = aCopy.get(i);
-        list.add(名(uin.toString())+"("+uin.toString()+")");
+        if (uin != null) {
+            list.add(名(uin.toString())+"("+uin.toString()+")");
+        }
     }
     return list.toString().replace(",","\n");
 }
 
 public boolean isAdmin(String GroupUin, String UserUin) {
+    if (GroupUin == null || UserUin == null) return false;
     ArrayList groupList = getGroupList();
     ArrayList groupListCopy = safeCopyList(groupList);
     for (int i = 0; i < groupListCopy.size(); i++) {
         Object groupInfo = groupListCopy.get(i);
-        if (groupInfo.GroupUin.equals(GroupUin)) {
-            return groupInfo.GroupOwner.equals(UserUin) || 
+        if (groupInfo != null && groupInfo.GroupUin != null && groupInfo.GroupUin.equals(GroupUin)) {
+            return groupInfo.GroupOwner != null && groupInfo.GroupOwner.equals(UserUin) || 
                 (groupInfo.AdminList != null && groupInfo.AdminList.contains(UserUin));
         }
     }
@@ -1634,6 +1652,7 @@ public boolean isAdmin(String GroupUin, String UserUin) {
 public int get_time_int(Object msg,int time){
     if (msg == null || msg.MessageContent == null) return 0;
     int datu = msg.MessageContent.lastIndexOf(" ");
+    if (datu == -1) return 0;
     String date=msg.MessageContent.substring(datu +1); 
     if(date.contains("天")){
         return time*60*60*24;
@@ -1650,6 +1669,7 @@ public int get_time_int(Object msg,int time){
 public int get_time_int(String msg,int time){
     if (msg == null) return 0;
     int datu = msg.lastIndexOf(" ");
+    if (datu == -1) return 0;
     String date = msg.substring(datu +1); 
     if(date.contains("天")){
         return time*60*60*24;
@@ -1666,6 +1686,7 @@ public int get_time_int(String msg,int time){
 public int get_time(String msg){
     if (msg == null) return 0;
     int datu = msg.lastIndexOf(" ");
+    if (datu == -1) return 0;
     String date=msg.substring(datu +1);
     date=date.trim();
     String t="";
@@ -1693,6 +1714,7 @@ public int get_time(String msg){
 public int get_time(Object msg){
     if (msg == null || msg.MessageContent == null) return 0;
     int datu = msg.MessageContent.lastIndexOf(" ");
+    if (datu == -1) return 0;
     String date=msg.MessageContent.substring(datu +1);
     date=date.trim();
     String t="";
@@ -1835,7 +1857,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                 ArrayList 成员列表副本 = safeCopyList(成员列表);
                 for (int i = 0; i < 成员列表副本.size(); i++) {
                     Object 成员 = 成员列表副本.get(i);
-                    if (成员.UserUin.equals(myUin)) {
+                    if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(myUin)) {
                         有权限 = 成员.IsOwner || 成员.IsAdmin;
                         break;
                     }
@@ -1847,6 +1869,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
                 StringBuilder 踢出列表 = new StringBuilder();
                 for (int i = 0; i < 成员列表副本.size(); i++) {
                     Object 成员 = 成员列表副本.get(i);
+                    if (成员 == null || 成员.UserUin == null) continue;
                     String 成员QQ = 成员.UserUin;
                     if (黑名单列表.contains(成员QQ)) {
                         kick(groupUin, 成员QQ, true);
@@ -1942,6 +1965,7 @@ void 检测黑名单方法(String groupUin, String uin, int chatType) {
 }
 
 public boolean 是代管(String groupUin, String userUin) {
+    if (userUin == null) return false;
     try {
         File 代管文件 = 获取代管文件();
         if (!代管文件.exists()) {
@@ -1955,6 +1979,7 @@ public boolean 是代管(String groupUin, String userUin) {
 }
 
 public boolean 有权限操作(String groupUin, String operatorUin, String targetUin) {
+    if (operatorUin == null || targetUin == null) return false;
     if (operatorUin.equals(myUin)) {
         return true;
     }
@@ -2046,7 +2071,7 @@ public void 添加封禁用户(String userUin, String reason) {
         boolean 已存在 = false;
         for (int i = 0; i < 当前封禁.size(); i++) {
             String 记录 = (String)当前封禁.get(i);
-            if (记录.startsWith(userUin + "|")) {
+            if (记录 != null && 记录.startsWith(userUin + "|")) {
                 当前封禁.set(i, 封禁记录);
                 已存在 = true;
                 break;
@@ -2057,7 +2082,10 @@ public void 添加封禁用户(String userUin, String reason) {
         } else {
             全弃(封禁列表文件);
             for (int i = 0; i < 当前封禁.size(); i++) {
-                简写(封禁列表文件, (String)当前封禁.get(i));
+                Object item = 当前封禁.get(i);
+                if (item != null) {
+                    简写(封禁列表文件, item.toString());
+                }
             }
         }
         
@@ -2122,7 +2150,10 @@ public void 移除封禁用户(String userUin) {
         }
         全弃(封禁列表文件);
         for (int i = 0; i < 新列表.size(); i++) {
-            简写(封禁列表文件, (String)新列表.get(i));
+            Object item = 新列表.get(i);
+            if (item != null) {
+                简写(封禁列表文件, item.toString());
+            }
         }
     } catch (Exception e) {}
 }
@@ -2273,7 +2304,7 @@ public void onMsg(Object msg) {
                 return;
             }
 
-            boolean isMyUin = userUin.equals(myUin);
+            boolean isMyUin = userUin != null && userUin.equals(myUin);
             boolean isAdminUser = isMyUin;
             if (!isAdminUser) {
                 try {
@@ -2418,7 +2449,9 @@ public void onMsg(Object msg) {
                 } else {
                     StringBuilder sb = new StringBuilder("本群黑名单:\n");
                     for (int i = 0; i < blackList.size(); i++) {
-                        String u = blackList.get(i).toString();
+                        Object item = blackList.get(i);
+                        if (item == null) continue;
+                        String u = item.toString();
                         sb.append(i + 1).append(". ").append(名(u)).append("(").append(u).append(")\n");
                     }
                     sendMsg(groupUin, "", sb.toString());
@@ -2428,7 +2461,9 @@ public void onMsg(Object msg) {
 
             if (msgContent.startsWith("移除黑名单@") && !mAtListCopy.isEmpty()) {
                 for (Object uin : mAtListCopy) {
-                    移除黑名单(groupUin, (String) uin);
+                    if (uin != null) {
+                        移除黑名单(groupUin, (String) uin);
+                    }
                 }
                 sendMsg(groupUin, "", "已删黑该用户");
                 return;
@@ -2473,7 +2508,8 @@ public void onMsg(Object msg) {
                                     try {
                                         java.lang.reflect.Field uinField = member.getClass().getDeclaredField("UserUin"); 
                                         uinField.setAccessible(true);
-                                        if (uinField.get(member).equals(replyTo)) {
+                                        Object uinObj = uinField.get(member);
+                                        if (uinObj != null && uinObj.equals(replyTo)) {
                                             unifiedKick(groupUin, replyTo, true);
                                             break;
                                         }
@@ -2547,7 +2583,11 @@ public void onMsg(Object msg) {
 
             if (!mAtListCopy.isEmpty()) {
                 if (msgContent.startsWith("解")) {
-                    for (Object uin : mAtListCopy) unifiedForbidden(groupUin, (String) uin, 0);
+                    for (Object uin : mAtListCopy) {
+                        if (uin != null) {
+                            unifiedForbidden(groupUin, (String) uin, 0);
+                        }
+                    }
                     return;
                 }
 
@@ -2555,6 +2595,7 @@ public void onMsg(Object msg) {
                     boolean kicked = false;
                     for (Object uin : mAtListCopy) {
                         String u = (String) uin;
+                        if (u == null) continue;
                         if (检查代管保护(groupUin, u, "踢黑")) continue;
                         if (有权限操作(groupUin, userUin, u)) {
                             unifiedKick(groupUin, u, true);
@@ -2569,6 +2610,7 @@ public void onMsg(Object msg) {
                     boolean kicked = false;
                     for (Object uin : mAtListCopy) {
                         String u = (String) uin;
+                        if (u == null) continue;
                         if (检查代管保护(groupUin, u, "踢出")) continue;
                         if (有权限操作(groupUin, userUin, u)) {
                             unifiedKick(groupUin, u, false);
@@ -2581,7 +2623,11 @@ public void onMsg(Object msg) {
 
                 if (msgContent.startsWith("头衔@")) {
                     String title = msgContent.substring(msgContent.lastIndexOf(" ") + 1);
-                    for (Object uin : mAtListCopy) setTitle(groupUin, (String) uin, title);
+                    for (Object uin : mAtListCopy) {
+                        if (uin != null) {
+                            setTitle(groupUin, (String) uin, title);
+                        }
+                    }
                     return;
                 }
                 
@@ -2615,6 +2661,7 @@ public void onMsg(Object msg) {
                     } else if (banTime > 0) {
                         for (Object uin : mAtListCopy) {
                             String u = (String) uin;
+                            if (u == null) continue;
                             if (检查代管保护(groupUin, u, "禁言")) continue;
                             unifiedForbidden(groupUin, u, banTime);
                         }
@@ -2634,6 +2681,7 @@ public void onMsg(Object msg) {
                         StringBuilder sb = new StringBuilder();
                         for (Object uin : mAtListCopy) {
                             String u = (String) uin;
+                            if (u == null) continue;
                             if (!jiandu(u, current)) {
                                 简写(f, u);
                                 sb.append(u).append(" ");
@@ -2650,6 +2698,7 @@ public void onMsg(Object msg) {
                             ArrayList current = 简取(f);
                             for (Object uin : mAtListCopy) {
                                 String u = (String) uin;
+                                if (u == null) continue;
                                 if (jiandu(u, current)) {
                                     简弃(f, u);
                                     sb.append(u).append(" ");
@@ -2664,7 +2713,9 @@ public void onMsg(Object msg) {
                 if (是联盟群组(groupUin)) {
                      if (msgContent.startsWith("/fban") || msgContent.startsWith("!fban")) {
                         if (mAtListCopy.isEmpty()) return;
-                        String uin = (String)mAtListCopy.get(0);
+                        Object uinObj = mAtListCopy.get(0);
+                        if (uinObj == null) return;
+                        String uin = uinObj.toString();
                         if (检查代管保护(groupUin, uin, "联盟封禁")) return;
                         if (有权限操作(groupUin, userUin, uin)) {
                             String reason = null;
@@ -2681,7 +2732,9 @@ public void onMsg(Object msg) {
                      }
                      if (msgContent.startsWith("/unfban") || msgContent.startsWith("!unfban")) {
                         if (mAtListCopy.isEmpty()) return;
-                        String uin = (String)mAtListCopy.get(0);
+                        Object uinObj = mAtListCopy.get(0);
+                        if (uinObj == null) return;
+                        String uin = uinObj.toString();
                          if (!是封禁用户(uin)) {
                              sendReply(groupUin, msg, "该用户未被联盟封禁");
                              return;
@@ -2719,7 +2772,12 @@ public void onMsg(Object msg) {
             if (msgContent.matches("^解禁? ?[1-9][0-9]*$")) {
                 int index = Integer.parseInt(msgContent.replaceAll(" |解|禁", "")) - 1;
                 ArrayList list = 禁言组(groupUin);
-                if (index >= 0 && index < list.size()) unifiedForbidden(groupUin, (String) list.get(index), 0);
+                if (index >= 0 && index < list.size()) {
+                    Object item = list.get(index);
+                    if (item != null) {
+                        unifiedForbidden(groupUin, item.toString(), 0);
+                    }
+                }
                 return;
             }
             if (msgContent.matches("^解禁? ?[0-9]{5,11}$")) {
@@ -2732,7 +2790,9 @@ public void onMsg(Object msg) {
                 int index = Integer.parseInt(msgContent.replaceAll(" |踢|黑", "")) - 1;
                 ArrayList list = 禁言组(groupUin);
                 if (index >= 0 && index < list.size()) {
-                    String target = (String) list.get(index);
+                    Object item = list.get(index);
+                    if (item == null) return;
+                    String target = item.toString();
                     if (!检查代管保护(groupUin, target, isBlack ? "踢黑" : "踢出") && 有权限操作(groupUin, userUin, target)) {
                         unifiedKick(groupUin, target, isBlack);
                         sendMsg(groupUin, "", "已" + (isBlack ? "踢出并拉黑" : "踢出") + target + "\n权限使用人：" + 名(userUin));
@@ -2750,7 +2810,9 @@ public void onMsg(Object msg) {
                         try {
                             java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
                             f.setAccessible(true);
-                            String u = f.get(item).toString();
+                            Object uinObj = f.get(item);
+                            if (uinObj == null) continue;
+                            String u = uinObj.toString();
                             if (!检查代管保护(groupUin, u, "踢出") && 有权限操作(groupUin, userUin, u)) {
                                 sb.append("\n").append(u);
                                 unifiedKick(groupUin, u, false);
@@ -2772,7 +2834,9 @@ public void onMsg(Object msg) {
                         try {
                             java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
                             f.setAccessible(true);
-                            String u = f.get(item).toString();
+                            Object uinObj = f.get(item);
+                            if (uinObj == null) continue;
+                            String u = uinObj.toString();
                             if (!检查代管保护(groupUin, u, "禁言") && 有权限操作(groupUin, userUin, u)) {
                                 unifiedForbidden(groupUin, u, 2592000);
                             }
@@ -2793,7 +2857,10 @@ public void onMsg(Object msg) {
                         try {
                             java.lang.reflect.Field f = item.getClass().getDeclaredField("UserUin");
                             f.setAccessible(true);
-                            unifiedForbidden(groupUin, f.get(item).toString(), 0);
+                            Object uinObj = f.get(item);
+                            if (uinObj != null) {
+                                unifiedForbidden(groupUin, uinObj.toString(), 0);
+                            }
                         } catch (Exception e) {}
                     }
                     sendReply(groupUin, msg, "禁言列表已解禁");
