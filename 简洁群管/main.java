@@ -213,8 +213,10 @@ public void quickManageMenuItem(final Object msg) {
                 GradientDrawable bg = new GradientDrawable();
                 bg.setColor(Color.argb(230, 255, 255, 255));
                 bg.setCornerRadius(dp2px(18));
+                int textColor = Color.BLACK;
                 if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                     bg.setColor(Color.argb(220, 40, 40, 40));
+                    textColor = Color.WHITE;
                 }
                 dialogLayout.setBackground(bg);
                 
@@ -278,6 +280,7 @@ public void quickManageMenuItem(final Object msg) {
                     TextView tv = new TextView(getActivity());
                     tv.setText((String)items.get(i));
                     tv.setTextSize(16);
+                    tv.setTextColor(textColor);
                     tv.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                     tv.setGravity(Gravity.CENTER);
                     
@@ -363,20 +366,26 @@ public void allianceBanMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
+            int hintTextColor = Color.GRAY;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
+                hintTextColor = Color.LTGRAY;
             }
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
+            hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入封禁理由，如果不填可以直接点击确定");
-            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setHintTextColor(hintTextColor);
+            inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
             etBg.setColor(Color.argb(50, 0, 0, 0));
@@ -422,8 +431,8 @@ public void allianceBanMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -449,14 +458,17 @@ public void addToBlacklistMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
             }
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("确定要将 " + 名(targetUin) + "(" + targetUin + ") 加入黑名单并踢出吗？\n\n加入黑名单后，该用户再次入群时会被自动踢出。");
             message.setTextSize(15);
+            message.setTextColor(textColor);
             message.setLineSpacing(dp2px(4), 1);
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
@@ -490,8 +502,8 @@ public void addToBlacklistMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -517,14 +529,17 @@ public void kickMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
             }
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
             message.setTextSize(16);
+            message.setTextColor(textColor);
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
             
@@ -540,8 +555,8 @@ public void kickMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -567,14 +582,17 @@ public void kickBlackMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
             }
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？");
             message.setTextSize(16);
+            message.setTextColor(textColor);
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
             
@@ -590,8 +608,8 @@ public void kickBlackMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -619,21 +637,27 @@ public void forbiddenMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
+            int hintTextColor = Color.GRAY;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
+                hintTextColor = Color.LTGRAY;
             }
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
+            hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入禁言时间（秒）");
             inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setHintTextColor(hintTextColor);
+            inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
             etBg.setColor(Color.argb(50, 0, 0, 0));
@@ -690,8 +714,8 @@ public void forbiddenMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -717,20 +741,26 @@ public void setTitleMenuItem(Object msg) {
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.argb(230, 255, 255, 255));
             bg.setCornerRadius(dp2px(18));
+            int textColor = Color.BLACK;
+            int hintTextColor = Color.GRAY;
             if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                 bg.setColor(Color.argb(220, 40, 40, 40));
+                textColor = Color.WHITE;
+                hintTextColor = Color.LTGRAY;
             }
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
+            hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入头衔内容");
-            inputEditText.setHintTextColor(Color.GRAY);
+            inputEditText.setHintTextColor(hintTextColor);
+            inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
             etBg.setColor(Color.argb(50, 0, 0, 0));
@@ -762,8 +792,8 @@ public void setTitleMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -859,20 +889,26 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 GradientDrawable bg = new GradientDrawable();
                 bg.setColor(Color.argb(230, 255, 255, 255));
                 bg.setCornerRadius(dp2px(18));
+                int textColor = Color.BLACK;
+                int hintTextColor = Color.GRAY;
                 if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                     bg.setColor(Color.argb(220, 40, 40, 40));
+                    textColor = Color.WHITE;
+                    hintTextColor = Color.LTGRAY;
                 }
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
                 hint.setText("当前艾特禁言时间: " + 艾特禁言时间 + "秒 (" + (艾特禁言时间/86400) + "天)");
+                hint.setTextColor(textColor);
                 hint.setPadding(0, 0, 0, dp2px(15));
                 layout.addView(hint);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("请输入禁言时间(秒)");
                 inputEditText.setText(String.valueOf(艾特禁言时间));
-                inputEditText.setHintTextColor(Color.GRAY);
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
                 etBg.setColor(Color.argb(50, 0, 0, 0));
@@ -1300,6 +1336,11 @@ public void showUpdateLog(String g, String u, int t) {
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
                 textView.setTextIsSelectable(true);
+                int textColor = Color.BLACK;
+                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                    textColor = Color.WHITE;
+                }
+                textView.setTextColor(textColor);
                 textView.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
                 
                 ScrollView scrollView = new ScrollView(activity);
@@ -1373,6 +1414,11 @@ public void showGroupManageDialog() {
                     textView.setTextSize(14);
                     textView.setTextIsSelectable(true);
                     textView.setLineSpacing(dp2px(4), 1);
+                    int textColor = Color.BLACK;
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        textColor = Color.WHITE;
+                    }
+                    textView.setTextColor(textColor);
                     textView.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
 
                     ScrollView scrollView = new ScrollView(activity);
@@ -1432,14 +1478,19 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 GradientDrawable bg = new GradientDrawable();
                 bg.setColor(Color.argb(230, 255, 255, 255));
                 bg.setCornerRadius(dp2px(18));
+                int textColor = Color.BLACK;
+                int hintTextColor = Color.GRAY;
                 if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                     bg.setColor(Color.argb(220, 40, 40, 40));
+                    textColor = Color.WHITE;
+                    hintTextColor = Color.LTGRAY;
                 }
                 layout.setBackground(bg);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("输入QQ号，多个用逗号分隔");
-                inputEditText.setHintTextColor(Color.GRAY);
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
                 etBg.setColor(Color.argb(50, 0, 0, 0));
@@ -1548,14 +1599,19 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 GradientDrawable bg = new GradientDrawable();
                 bg.setColor(Color.argb(230, 255, 255, 255));
                 bg.setCornerRadius(dp2px(18));
+                int textColor = Color.BLACK;
+                int hintTextColor = Color.GRAY;
                 if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
                     bg.setColor(Color.argb(220, 40, 40, 40));
+                    textColor = Color.WHITE;
+                    hintTextColor = Color.LTGRAY;
                 }
                 layout.setBackground(bg);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("输入QQ号，多个用逗号分隔");
-                inputEditText.setHintTextColor(Color.GRAY);
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
                 etBg.setColor(Color.argb(50, 0, 0, 0));
