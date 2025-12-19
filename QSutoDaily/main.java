@@ -17,6 +17,7 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,7 +32,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import android.view.ViewGroup.LayoutParams;
+import java.lang.reflect.Field;
 
 ArrayList selectedFriendsForLike = new ArrayList();
 String lastLikeDate = "";
@@ -62,9 +63,18 @@ String timeConfigPath = appPath + "/执行时间";
 
 Handler mainHandler;
 
+public Object getFieldValue(Object obj, String fieldName) {
+    try {
+        Field field = obj.getClass().getField(fieldName);
+        return field.get(obj);
+    } catch (Exception e) {
+        return null;
+    }
+}
+
 public boolean isDarkMode() {
-    int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-    return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+    int nightModeFlags = context.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+    return nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
 }
 
 public String getBackgroundColor() {
@@ -73,6 +83,14 @@ public String getBackgroundColor() {
 
 public String getTextColor() {
     return isDarkMode() ? "#E0E0E0" : "#333333";
+}
+
+public String getCardColor() {
+    return isDarkMode() ? "#252525" : "#F8F9FA";
+}
+
+public String getAccentColor() {
+    return "#4CAF50";
 }
 
 public int c(float f) {
@@ -87,6 +105,17 @@ public GradientDrawable getShape(String color, int cornerRadius) {
     return shape;
 }
 
+public GradientDrawable getGlassShape(String baseColor, int cornerRadius) {
+    GradientDrawable shape = new GradientDrawable();
+    int color = Color.parseColor(baseColor);
+    int alpha = isDarkMode() ? 220 : 230;
+    shape.setColor(Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color)));
+    shape.setCornerRadius(cornerRadius);
+    shape.setStroke(c(1), Color.parseColor(isDarkMode() ? "#404040" : "#E0E0E0"));
+    shape.setShape(GradientDrawable.RECTANGLE);
+    return shape;
+}
+
 public void Toasts(String text) {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
         public void run() {
@@ -96,17 +125,17 @@ public void Toasts(String text) {
                     String textColor = getTextColor();
                     
                     LinearLayout linearLayout = new LinearLayout(context);
-                    linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    linearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     linearLayout.setOrientation(LinearLayout.VERTICAL);
                     
                     int paddingHorizontal = c(18);
                     int paddingVertical = c(12);
                     linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
                     
-                    linearLayout.setBackground(getShape(bgColor, c(12)));
+                    linearLayout.setBackground(getGlassShape(bgColor, c(12)));
                     
                     TextView textView = new TextView(context);
-                    textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                    textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                     textView.setTextColor(Color.parseColor(textColor));
                     textView.setTextSize(14.5f);
                     textView.setText(text);
@@ -412,117 +441,358 @@ addItem("配置续火语录(也可以不用配置，脚本自带六百个语录�
 addItem("配置执行时间(不配置时间就是默认00:00)", "showTimeConfigMenu");
 addItem("立即执行任务(一键执行当前所有任务)", "showExecuteMenu");
 
-public void showExecuteMenu(String groupUin, String userUin, int chatType) {
+public void showExecuteMenu(String s) {
     final Activity activity = getActivity();
     if (activity == null) return;
 
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            String[] items = {"立即点赞好友", "立即续火好友", "立即续火群组", "执行全部任务"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("立即执行任务");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) confirmAndRun(activity, "立即点赞好友", "确定要立即执行好友点赞任务吗？", new Runnable() { public void run() { immediateLike(groupUin, userUin, chatType); }});
-                    else if (which == 1) confirmAndRun(activity, "立即续火好友", "确定要立即执行好友续火任务吗？", new Runnable() { public void run() { immediateFriendFire(groupUin, userUin, chatType); }});
-                    else if (which == 2) confirmAndRun(activity, "立即续火群组", "确定要立即执行群组续火任务吗？", new Runnable() { public void run() { immediateGroupFire(groupUin, userUin, chatType); }});
-                    else if (which == 3) confirmAndRun(activity, "执行全部任务", "确定要立即执行所有任务吗？", new Runnable() { public void run() { executeAllTasks(); }});
+            LinearLayout layout = new LinearLayout(activity);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(c(20), c(15), c(20), c(15));
+            layout.setBackground(getGlassShape(getCardColor(), c(18)));
+            
+            TextView titleView = new TextView(activity);
+            titleView.setText("立即执行任务");
+            titleView.setTextSize(18);
+            titleView.setTextColor(Color.parseColor(getTextColor()));
+            titleView.setGravity(Gravity.CENTER);
+            titleView.setPadding(0, 0, 0, c(15));
+            layout.addView(titleView);
+            
+            Button btnLike = new Button(activity);
+            btnLike.setText("立即点赞好友");
+            btnLike.setTextColor(Color.WHITE);
+            btnLike.setBackground(getGlassShape(getAccentColor(), c(10)));
+            btnLike.setPadding(c(20), c(12), c(20), c(12));
+            
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, 0, c(8));
+            btnLike.setLayoutParams(params);
+            
+            btnLike.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    immediateLike("", "", 0);
                 }
             });
-            builder.show();
+            
+            Button btnFriendFire = new Button(activity);
+            btnFriendFire.setText("立即续火好友");
+            btnFriendFire.setTextColor(Color.WHITE);
+            btnFriendFire.setBackground(getGlassShape(getAccentColor(), c(10)));
+            btnFriendFire.setPadding(c(20), c(12), c(20), c(12));
+            btnFriendFire.setLayoutParams(params);
+            
+            btnFriendFire.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    immediateFriendFire("", "", 0);
+                }
+            });
+            
+            Button btnGroupFire = new Button(activity);
+            btnGroupFire.setText("立即续火群组");
+            btnGroupFire.setTextColor(Color.WHITE);
+            btnGroupFire.setBackground(getGlassShape(getAccentColor(), c(10)));
+            btnGroupFire.setPadding(c(20), c(12), c(20), c(12));
+            btnGroupFire.setLayoutParams(params);
+            
+            btnGroupFire.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    immediateGroupFire("", "", 0);
+                }
+            });
+            
+            Button btnAll = new Button(activity);
+            btnAll.setText("执行全部任务");
+            btnAll.setTextColor(Color.WHITE);
+            btnAll.setBackground(getGlassShape(getAccentColor(), c(10)));
+            btnAll.setPadding(c(20), c(12), c(20), c(12));
+            btnAll.setLayoutParams(params);
+            
+            btnAll.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    executeAllTasks();
+                }
+            });
+            
+            layout.addView(btnLike);
+            layout.addView(btnFriendFire);
+            layout.addView(btnGroupFire);
+            layout.addView(btnAll);
+            
+            builder.setView(layout);
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
 
-public void showTargetConfigMenu(String groupUin, String userUin, int chatType) {
+public void showTargetConfigMenu(String s) {
     final Activity activity = getActivity();
     if (activity == null) return;
 
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            String[] items = {"配置点赞好友", "配置续火好友", "配置续火群组"};
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("配置执行任务");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) configLikeFriends(groupUin, userUin, chatType);
-                    else if (which == 1) configFireFriends(groupUin, userUin, chatType);
-                    else if (which == 2) configFireGroups(groupUin, userUin, chatType);
-                }
-            });
-            builder.show();
-        }
-    });
-}
-
-public void showWordConfigMenu(String groupUin, String userUin, int chatType) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            String[] items = {"配置好友续火语录", "配置群组续火语录"};
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("配置续火语录");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) configFriendFireWords(groupUin, userUin, chatType);
-                    else if (which == 1) configGroupFireWords(groupUin, userUin, chatType);
-                }
-            });
-            builder.show();
-        }
-    });
-}
-
-public void showTimeConfigMenu(String groupUin, String userUin, int chatType) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            String[] items = {"配置好友点赞时间", "配置好友续火时间", "配置群组续火时间"};
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-            builder.setTitle("配置执行时间");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) configLikeTime(groupUin, userUin, chatType);
-                    else if (which == 1) configFriendFireTime(groupUin, userUin, chatType);
-                    else if (which == 2) configGroupFireTime(groupUin, userUin, chatType);
-                }
-            });
-            builder.show();
-        }
-    });
-}
-
-private void confirmAndRun(Activity activity, String title, String message, final Runnable action) {
-    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-    
-    new AlertDialog.Builder(activity, theme)
-        .setTitle(title)
-        .setMessage(message)
-        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                action.run();
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(c(20), c(15), c(20), c(15));
+                layout.setBackground(getGlassShape(getCardColor(), c(18)));
+                
+                TextView titleView = new TextView(activity);
+                titleView.setText("配置执行任务");
+                titleView.setTextSize(18);
+                titleView.setTextColor(Color.parseColor(getTextColor()));
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setPadding(0, 0, 0, c(15));
+                layout.addView(titleView);
+                
+                Button btnLikeFriends = new Button(activity);
+                btnLikeFriends.setText("配置点赞好友");
+                btnLikeFriends.setTextColor(Color.WHITE);
+                btnLikeFriends.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnLikeFriends.setPadding(c(20), c(12), c(20), c(12));
+                
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 0, 0, c(8));
+                btnLikeFriends.setLayoutParams(params);
+                
+                btnLikeFriends.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configLikeFriends("", "", 0);
+                    }
+                });
+                
+                Button btnFireFriends = new Button(activity);
+                btnFireFriends.setText("配置续火好友");
+                btnFireFriends.setTextColor(Color.WHITE);
+                btnFireFriends.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnFireFriends.setPadding(c(20), c(12), c(20), c(12));
+                btnFireFriends.setLayoutParams(params);
+                
+                btnFireFriends.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configFireFriends("", "", 0);
+                    }
+                });
+                
+                Button btnFireGroups = new Button(activity);
+                btnFireGroups.setText("配置续火群组");
+                btnFireGroups.setTextColor(Color.WHITE);
+                btnFireGroups.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnFireGroups.setPadding(c(20), c(12), c(20), c(12));
+                btnFireGroups.setLayoutParams(params);
+                
+                btnFireGroups.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configFireGroups("", "", 0);
+                    }
+                });
+                
+                layout.addView(btnLikeFriends);
+                layout.addView(btnFireFriends);
+                layout.addView(btnFireGroups);
+                
+                builder.setView(layout);
+                builder.setCancelable(true);
+                
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            } catch (Exception e) {
+                Toasts("显示配置菜单失败: " + e.getMessage());
             }
-        })
-        .setNegativeButton("取消", null)
-        .show();
+        }
+    });
+}
+
+public void showWordConfigMenu(String s) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(c(20), c(15), c(20), c(15));
+                layout.setBackground(getGlassShape(getCardColor(), c(18)));
+                
+                TextView titleView = new TextView(activity);
+                titleView.setText("配置续火语录");
+                titleView.setTextSize(18);
+                titleView.setTextColor(Color.parseColor(getTextColor()));
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setPadding(0, 0, 0, c(15));
+                layout.addView(titleView);
+                
+                Button btnFriendWords = new Button(activity);
+                btnFriendWords.setText("配置好友续火语录");
+                btnFriendWords.setTextColor(Color.WHITE);
+                btnFriendWords.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnFriendWords.setPadding(c(20), c(12), c(20), c(12));
+                
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 0, 0, c(8));
+                btnFriendWords.setLayoutParams(params);
+                
+                btnFriendWords.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configFriendFireWords("", "", 0);
+                    }
+                });
+                
+                Button btnGroupWords = new Button(activity);
+                btnGroupWords.setText("配置群组续火语录");
+                btnGroupWords.setTextColor(Color.WHITE);
+                btnGroupWords.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnGroupWords.setPadding(c(20), c(12), c(20), c(12));
+                btnGroupWords.setLayoutParams(params);
+                
+                btnGroupWords.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configGroupFireWords("", "", 0);
+                    }
+                });
+                
+                layout.addView(btnFriendWords);
+                layout.addView(btnGroupWords);
+                
+                builder.setView(layout);
+                builder.setCancelable(true);
+                
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            } catch (Exception e) {
+                Toasts("显示语录配置菜单失败: " + e.getMessage());
+            }
+        }
+    });
+}
+
+public void showTimeConfigMenu(String s) {
+    final Activity activity = getActivity();
+    if (activity == null) return;
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(c(20), c(15), c(20), c(15));
+                layout.setBackground(getGlassShape(getCardColor(), c(18)));
+                
+                TextView titleView = new TextView(activity);
+                titleView.setText("配置执行时间");
+                titleView.setTextSize(18);
+                titleView.setTextColor(Color.parseColor(getTextColor()));
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setPadding(0, 0, 0, c(15));
+                layout.addView(titleView);
+                
+                Button btnLikeTime = new Button(activity);
+                btnLikeTime.setText("配置好友点赞时间");
+                btnLikeTime.setTextColor(Color.WHITE);
+                btnLikeTime.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnLikeTime.setPadding(c(20), c(12), c(20), c(12));
+                
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 0, 0, c(8));
+                btnLikeTime.setLayoutParams(params);
+                
+                btnLikeTime.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configLikeTime("", "", 0);
+                    }
+                });
+                
+                Button btnFriendFireTime = new Button(activity);
+                btnFriendFireTime.setText("配置好友续火时间");
+                btnFriendFireTime.setTextColor(Color.WHITE);
+                btnFriendFireTime.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnFriendFireTime.setPadding(c(20), c(12), c(20), c(12));
+                btnFriendFireTime.setLayoutParams(params);
+                
+                btnFriendFireTime.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configFriendFireTime("", "", 0);
+                    }
+                });
+                
+                Button btnGroupFireTime = new Button(activity);
+                btnGroupFireTime.setText("配置群组续火时间");
+                btnGroupFireTime.setTextColor(Color.WHITE);
+                btnGroupFireTime.setBackground(getGlassShape(getAccentColor(), c(10)));
+                btnGroupFireTime.setPadding(c(20), c(12), c(20), c(12));
+                btnGroupFireTime.setLayoutParams(params);
+                
+                btnGroupFireTime.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        configGroupFireTime("", "", 0);
+                    }
+                });
+                
+                layout.addView(btnLikeTime);
+                layout.addView(btnFriendFireTime);
+                layout.addView(btnGroupFireTime);
+                
+                builder.setView(layout);
+                builder.setCancelable(true);
+                
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+            } catch (Exception e) {
+                Toasts("显示时间配置菜单失败: " + e.getMessage());
+            }
+        }
+    });
 }
 
 public void executeAllTasks() {
@@ -625,9 +895,13 @@ public void configLikeFriends(String groupUin, String userUin, int chatType){
                     String remark = "";
                     
                     try {
-                        uin = friend.uin;
-                        name = friend.name;
-                        remark = friend.remark;
+                        Object uinObj = getFieldValue(friend, "uin");
+                        Object nameObj = getFieldValue(friend, "name");
+                        Object remarkObj = getFieldValue(friend, "remark");
+                        
+                        if (uinObj != null) uin = uinObj.toString();
+                        if (nameObj != null) name = nameObj.toString();
+                        if (remarkObj != null) remark = remarkObj.toString();
                     } catch (Exception e) {
                         continue;
                     }
@@ -672,9 +946,13 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
                     String remark = "";
                     
                     try {
-                        uin = friend.uin;
-                        name = friend.name;
-                        remark = friend.remark;
+                        Object uinObj = getFieldValue(friend, "uin");
+                        Object nameObj = getFieldValue(friend, "name");
+                        Object remarkObj = getFieldValue(friend, "remark");
+                        
+                        if (uinObj != null) uin = uinObj.toString();
+                        if (nameObj != null) name = nameObj.toString();
+                        if (remarkObj != null) remark = remarkObj.toString();
                     } catch (Exception e) {
                         continue;
                     }
@@ -698,10 +976,7 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
 
 private void showFriendSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList, 
                                      ArrayList selectedList, String taskName, String configType) {
-    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-    
-    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
     dialogBuilder.setTitle("选择" + taskName + "好友");
     dialogBuilder.setCancelable(true);
     
@@ -709,35 +984,48 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
 
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(20, 10, 20, 10);
+    layout.setPadding(c(20), c(15), c(20), c(15));
+    layout.setBackground(getGlassShape(getCardColor(), c(18)));
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索好友QQ号、好友名、备注");
-    searchEditText.setTextColor(Color.BLACK);
-    searchEditText.setHintTextColor(Color.GRAY);
+    searchEditText.setTextColor(Color.parseColor(getTextColor()));
+    searchEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+    searchEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+    searchEditText.setPadding(c(12), c(10), c(12), c(10));
     layout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
     selectAllButton.setText("全选(当前显示)");
     selectAllButton.setTextColor(Color.WHITE);
-    selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
-    selectAllButton.setPadding(20, 10, 20, 10);
+    selectAllButton.setBackground(getGlassShape(getAccentColor(), c(8)));
+    selectAllButton.setPadding(c(20), c(10), c(20), c(10));
     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
     );
     params.gravity = Gravity.END;
-    params.setMargins(0, 10, 0, 10);
+    params.setMargins(0, c(10), 0, c(10));
     selectAllButton.setLayoutParams(params);
     layout.addView(selectAllButton);
     
     final ListView listView = new ListView(activity);
+    listView.setBackground(getGlassShape(isDarkMode() ? "#2A2A2A" : "#F5F5F5", c(8)));
+    listView.setDividerHeight(c(1));
     layout.addView(listView);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
     
-    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            TextView textView = (TextView) view;
+            textView.setTextColor(Color.parseColor(getTextColor()));
+            textView.setPadding(c(15), c(10), c(15), c(10));
+            return view;
+        }
+    };
     listView.setAdapter(adapter);
     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     
@@ -822,7 +1110,10 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     });
     
     dialogBuilder.setNegativeButton("取消", null);
-    dialogBuilder.show();
+    
+    AlertDialog dialog = dialogBuilder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    dialog.show();
 }
 
 public void configFireGroups(String groupUin, String userUin, int chatType){
@@ -845,8 +1136,11 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
                     String groupName = "";
                     String groupUinStr = "";
                     try {
-                        groupName = group.GroupName;
-                        groupUinStr = group.GroupUin;
+                        Object nameObj = getFieldValue(group, "GroupName");
+                        Object uinObj = getFieldValue(group, "GroupUin");
+                        
+                        if (nameObj != null) groupName = nameObj.toString();
+                        if (uinObj != null) groupUinStr = uinObj.toString();
                     } catch (Exception e) {
                         continue;
                     }
@@ -869,10 +1163,7 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
 }
 
 private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
-    int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-    int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-    
-    final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
     dialogBuilder.setTitle("选择续火群组");
     dialogBuilder.setCancelable(true);
 
@@ -880,35 +1171,48 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(20, 10, 20, 10);
+    layout.setPadding(c(20), c(15), c(20), c(15));
+    layout.setBackground(getGlassShape(getCardColor(), c(18)));
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索群号、群名");
-    searchEditText.setTextColor(Color.BLACK);
-    searchEditText.setHintTextColor(Color.GRAY);
+    searchEditText.setTextColor(Color.parseColor(getTextColor()));
+    searchEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+    searchEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+    searchEditText.setPadding(c(12), c(10), c(12), c(10));
     layout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
     selectAllButton.setText("全选(当前显示)");
     selectAllButton.setTextColor(Color.WHITE);
-    selectAllButton.setBackgroundColor(Color.parseColor("#2196F3"));
-    selectAllButton.setPadding(20, 10, 20, 10);
+    selectAllButton.setBackground(getGlassShape(getAccentColor(), c(8)));
+    selectAllButton.setPadding(c(20), c(10), c(20), c(10));
     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
     );
     params.gravity = Gravity.END;
-    params.setMargins(0, 10, 0, 10);
+    params.setMargins(0, c(10), 0, c(10));
     selectAllButton.setLayoutParams(params);
     layout.addView(selectAllButton);
     
     final ListView listView = new ListView(activity);
+    listView.setBackground(getGlassShape(isDarkMode() ? "#2A2A2A" : "#F5F5F5", c(8)));
+    listView.setDividerHeight(c(1));
     layout.addView(listView);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
     
-    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            TextView textView = (TextView) view;
+            textView.setTextColor(Color.parseColor(getTextColor()));
+            textView.setPadding(c(15), c(10), c(15), c(10));
+            return view;
+        }
+    };
     listView.setAdapter(adapter);
     listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     
@@ -989,7 +1293,9 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     
     dialogBuilder.setNegativeButton("取消", null);
     
-    dialogBuilder.show();
+    AlertDialog dialog = dialogBuilder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    dialog.show();
 }
 
 public void configFriendFireWords(String groupUin, String userUin, int chatType){
@@ -1008,39 +1314,41 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                     wordsBuilder.append((String)friendFireWords.get(i));
                 }
                 
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(c(25), c(20), c(25), c(20));
+                layout.setBackground(getGlassShape(getCardColor(), c(18)));
+                
                 TextView titleView = new TextView(activity);
-                titleView.setText("配置好友续火语录，多个请另起一行");
-                titleView.setTextColor(Color.BLACK);
+                titleView.setText("配置好友续火语录");
+                titleView.setTextColor(Color.parseColor(getTextColor()));
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
                 titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 10, 0, 20);
+                titleView.setPadding(0, c(10), 0, c(20));
+                layout.addView(titleView);
                 
                 final EditText wordsEditText = new EditText(activity);
                 wordsEditText.setText(wordsBuilder.toString());
                 wordsEditText.setHint("输入好友续火语录，每行一个");
-                wordsEditText.setTextColor(Color.BLACK);
+                wordsEditText.setTextColor(Color.parseColor(getTextColor()));
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                wordsEditText.setHintTextColor(Color.parseColor("#888888"));
+                wordsEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
                 wordsEditText.setMinLines(5);
                 wordsEditText.setGravity(Gravity.TOP);
+                wordsEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+                wordsEditText.setPadding(c(12), c(10), c(12), c(10));
+                
+                layout.addView(wordsEditText);
                 
                 TextView hintView = new TextView(activity);
                 hintView.setText("注意：输入多个续火语录时，每行一个");
-                hintView.setTextColor(Color.BLACK);
+                hintView.setTextColor(Color.parseColor(getTextColor()));
                 hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                hintView.setPadding(0, 20, 0, 0);
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 20, 30, 20);
-                layout.addView(titleView);
-                layout.addView(wordsEditText);
+                hintView.setPadding(0, c(20), 0, 0);
                 layout.addView(hintView);
                 
-                int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-                int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 dialogBuilder.setView(layout);
                 dialogBuilder.setCancelable(true);
                 
@@ -1074,14 +1382,13 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 dialogBuilder.setNegativeButton("取消", null);
                 
                 AlertDialog dialog = dialogBuilder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
             } catch (Exception e) {
             }
         }
     });
 }
-
-sendLike("2133115301",20);
 
 public void configGroupFireWords(String groupUin, String userUin, int chatType){
     final Activity activity = getActivity();
@@ -1099,39 +1406,41 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                     wordsBuilder.append((String)groupFireWords.get(i));
                 }
                 
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(c(25), c(20), c(25), c(20));
+                layout.setBackground(getGlassShape(getCardColor(), c(18)));
+                
                 TextView titleView = new TextView(activity);
-                titleView.setText("配置群组续火语录，多个请另起一行");
-                titleView.setTextColor(Color.BLACK);
+                titleView.setText("配置群组续火语录");
+                titleView.setTextColor(Color.parseColor(getTextColor()));
                 titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                 titleView.setTypeface(null, android.graphics.Typeface.BOLD);
                 titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 10, 0, 20);
+                titleView.setPadding(0, c(10), 0, c(20));
+                layout.addView(titleView);
                 
                 final EditText wordsEditText = new EditText(activity);
                 wordsEditText.setText(wordsBuilder.toString());
                 wordsEditText.setHint("输入群组续火语录，每行一个");
-                wordsEditText.setTextColor(Color.BLACK);
+                wordsEditText.setTextColor(Color.parseColor(getTextColor()));
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                wordsEditText.setHintTextColor(Color.parseColor("#888888"));
+                wordsEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
                 wordsEditText.setMinLines(5);
                 wordsEditText.setGravity(Gravity.TOP);
+                wordsEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+                wordsEditText.setPadding(c(12), c(10), c(12), c(10));
+                
+                layout.addView(wordsEditText);
                 
                 TextView hintView = new TextView(activity);
                 hintView.setText("注意：输入多个续火语录时，每行一个");
-                hintView.setTextColor(Color.BLACK);
+                hintView.setTextColor(Color.parseColor(getTextColor()));
                 hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                hintView.setPadding(0, 20, 0, 0);
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(30, 20, 30, 20);
-                layout.addView(titleView);
-                layout.addView(wordsEditText);
+                hintView.setPadding(0, c(20), 0, 0);
                 layout.addView(hintView);
                 
-                int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-                int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                 dialogBuilder.setView(layout);
                 dialogBuilder.setCancelable(true);
                 
@@ -1165,6 +1474,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 dialogBuilder.setNegativeButton("取消", null);
                 
                 AlertDialog dialog = dialogBuilder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
             } catch (Exception e) {
             }
@@ -1178,21 +1488,28 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("设置点赞时间 (HH:mm)");
-            dialogBuilder.setCancelable(true);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(30, 30, 30, 30);
+            layout.setPadding(c(25), c(20), c(25), c(20));
+            layout.setBackground(getGlassShape(getCardColor(), c(18)));
+            
+            TextView titleView = new TextView(activity);
+            titleView.setText("设置点赞时间 (HH:mm)");
+            titleView.setTextColor(Color.parseColor(getTextColor()));
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            titleView.setGravity(Gravity.CENTER);
+            titleView.setPadding(0, 0, 0, c(15));
+            layout.addView(titleView);
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(likeTime);
             timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.BLACK);
-            timeEditText.setHintTextColor(Color.GRAY);
+            timeEditText.setTextColor(Color.parseColor(getTextColor()));
+            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
             dialogBuilder.setView(layout);
@@ -1211,7 +1528,10 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             });
             
             dialogBuilder.setNegativeButton("取消", null);
-            dialogBuilder.show();
+            
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -1222,21 +1542,28 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("设置好友续火时间 (HH:mm)");
-            dialogBuilder.setCancelable(true);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(30, 30, 30, 30);
+            layout.setPadding(c(25), c(20), c(25), c(20));
+            layout.setBackground(getGlassShape(getCardColor(), c(18)));
+            
+            TextView titleView = new TextView(activity);
+            titleView.setText("设置好友续火时间 (HH:mm)");
+            titleView.setTextColor(Color.parseColor(getTextColor()));
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            titleView.setGravity(Gravity.CENTER);
+            titleView.setPadding(0, 0, 0, c(15));
+            layout.addView(titleView);
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(friendFireTime);
             timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.BLACK);
-            timeEditText.setHintTextColor(Color.GRAY);
+            timeEditText.setTextColor(Color.parseColor(getTextColor()));
+            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
             dialogBuilder.setView(layout);
@@ -1255,7 +1582,10 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             });
             
             dialogBuilder.setNegativeButton("取消", null);
-            dialogBuilder.show();
+            
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -1266,21 +1596,28 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            int uiMode = activity.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-            int theme = android.content.res.Configuration.UI_MODE_NIGHT_YES == uiMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-            dialogBuilder.setTitle("设置群组续火时间 (HH:mm)");
-            dialogBuilder.setCancelable(true);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, isDarkMode() ? AlertDialog.THEME_DEVICE_DEFAULT_DARK : AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(30, 30, 30, 30);
+            layout.setPadding(c(25), c(20), c(25), c(20));
+            layout.setBackground(getGlassShape(getCardColor(), c(18)));
+            
+            TextView titleView = new TextView(activity);
+            titleView.setText("设置群组续火时间 (HH:mm)");
+            titleView.setTextColor(Color.parseColor(getTextColor()));
+            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            titleView.setGravity(Gravity.CENTER);
+            titleView.setPadding(0, 0, 0, c(15));
+            layout.addView(titleView);
             
             final EditText timeEditText = new EditText(activity);
             timeEditText.setText(groupFireTime);
             timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.BLACK);
-            timeEditText.setHintTextColor(Color.GRAY);
+            timeEditText.setTextColor(Color.parseColor(getTextColor()));
+            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
             dialogBuilder.setView(layout);
@@ -1299,9 +1636,10 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             });
             
             dialogBuilder.setNegativeButton("取消", null);
-            dialogBuilder.show();
+            
+            AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
-
-Toasts("自动点赞续火脚本加载成功\n有问题入群反馈：325031618");
