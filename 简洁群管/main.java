@@ -1056,8 +1056,6 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n" +
                         "————————\n" +
                         "简洁群管_100.0_更新日志\n" +
-                        "- [新增] 快捷菜单封禁联盟 前提是该群组属于联盟群组\n" +
-                        "- [新增] 如果 这个用户已经被封禁，再次封禁会提示\n" +
                         "- [修复] bsh.BlockNameSpace.getInstance\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
