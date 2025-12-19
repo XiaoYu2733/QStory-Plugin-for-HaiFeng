@@ -323,9 +323,27 @@ public void allianceBanMenuItem(Object msg) {
             
             builder.setPositiveButton("确定封禁", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
-                    String reason = inputEditText.getText().toString().trim();
-                    添加封禁用户(targetUin, reason);
-                    toast("已联盟封禁 " + 名(targetUin) + "(" + targetUin + ")");
+                    final String reason = inputEditText.getText().toString().trim();
+                    toast("正在执行联盟封禁...");
+                    
+                    new Thread(new Runnable() {
+                        public void run() {
+                            try {
+                                添加封禁用户(targetUin, reason);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        toast("已联盟封禁 " + 名(targetUin) + "(" + targetUin + ")");
+                                    }
+                                });
+                            } catch (Exception e) {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        toast("联盟封禁失败: " + e.getMessage());
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
                 }
             });
             
@@ -1056,11 +1074,13 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n" +
                         "————————\n" +
                         "简洁群管_100.0_更新日志\n" +
+                        "- [新增] 快捷菜单封禁联盟 前提是该群组属于联盟群组\n" +
+                        "- [新增] 如果 这个用户已经被封禁，再次封禁会提示\n" +
                         "- [修复] bsh.BlockNameSpace.getInstance\n" +
                         "————————\n" +
                         "简洁群管_101.0_更新日志\n" +
                         "- [优化] 快捷群管封禁联盟的弹窗效果，已防止过于卡顿\n" +
-                        "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁...的提示\n\n" +
+                        "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁... 的提示\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
@@ -2136,77 +2156,81 @@ public boolean 是联盟群组(String groupUin) {
 }
 
 public void 添加封禁用户(String userUin, String reason) {
-    try {
-        if (userUin == null || userUin.isEmpty()) return;
-        String 封禁记录 = userUin + "|" + (reason == null ? "" : reason);
-        ArrayList 当前封禁 = 简取(封禁列表文件);
-        boolean 已存在 = false;
-        for (int i = 0; i < 当前封禁.size(); i++) {
-            String 记录 = (String)当前封禁.get(i);
-            if (记录 != null && 记录.startsWith(userUin + "|")) {
-                当前封禁.set(i, 封禁记录);
-                已存在 = true;
-                break;
-            }
-        }
-        if (!已存在) {
-            简写(封禁列表文件, 封禁记录);
-        } else {
-            全弃(封禁列表文件);
-            for (int i = 0; i < 当前封禁.size(); i++) {
-                Object item = 当前封禁.get(i);
-                if (item != null) {
-                    简写(封禁列表文件, item.toString());
-                }
-            }
-        }
-        
-        String 当前群组 = getCurrentGroupUin();
-        if (当前群组 != null && !当前群组.isEmpty()) {
-            ArrayList 成员列表 = getGroupMemberList(当前群组);
-            if (成员列表 != null) {
-                ArrayList 成员列表副本 = safeCopyList(成员列表);
-                for (int j = 0; j < 成员列表副本.size(); j++) {
-                    Object 成员 = 成员列表副本.get(j);
-                    if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
-                        unifiedKick(当前群组, userUin, true);
+    new Thread(new Runnable() {
+        public void run() {
+            try {
+                if (userUin == null || userUin.isEmpty()) return;
+                String 封禁记录 = userUin + "|" + (reason == null ? "" : reason);
+                ArrayList 当前封禁 = 简取(封禁列表文件);
+                boolean 已存在 = false;
+                for (int i = 0; i < 当前封禁.size(); i++) {
+                    String 记录 = (String)当前封禁.get(i);
+                    if (记录 != null && 记录.startsWith(userUin + "|")) {
+                        当前封禁.set(i, 封禁记录);
+                        已存在 = true;
                         break;
                     }
                 }
-            }
-        }
-        
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    ArrayList 联盟群组列表 = 简取(联盟群组文件);
-                    if (联盟群组列表 == null || 联盟群组列表.isEmpty()) return;
-                    
-                    ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
-                    for (int i = 0; i < 联盟群组列表副本.size(); i++) {
-                        String 群号 = (String)联盟群组列表副本.get(i);
-                        if (群号 == null || 群号.isEmpty()) continue;
-                        
-                        ArrayList 成员列表 = getGroupMemberList(群号);
-                        if (成员列表 != null) {
-                            ArrayList 成员列表副本 = safeCopyList(成员列表);
-                            for (int j = 0; j < 成员列表副本.size(); j++) {
-                                Object 成员 = 成员列表副本.get(j);
-                                if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
-                                    unifiedKick(群号, userUin, true);
-                                    Thread.sleep(100);
-                                    break;
-                                }
+                if (!已存在) {
+                    简写(封禁列表文件, 封禁记录);
+                } else {
+                    全弃(封禁列表文件);
+                    for (int i = 0; i < 当前封禁.size(); i++) {
+                        Object item = 当前封禁.get(i);
+                        if (item != null) {
+                            简写(封禁列表文件, item.toString());
+                        }
+                    }
+                }
+                
+                String 当前群组 = getCurrentGroupUin();
+                if (当前群组 != null && !当前群组.isEmpty()) {
+                    ArrayList 成员列表 = getGroupMemberList(当前群组);
+                    if (成员列表 != null) {
+                        ArrayList 成员列表副本 = safeCopyList(成员列表);
+                        for (int j = 0; j < 成员列表副本.size(); j++) {
+                            Object 成员 = 成员列表副本.get(j);
+                            if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
+                                unifiedKick(当前群组, userUin, true);
+                                break;
                             }
                         }
                     }
-                } catch (Exception e) {
-                    
                 }
-            }
-        }).start();
-        
-    } catch (Exception e) {}
+                
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            ArrayList 联盟群组列表 = 简取(联盟群组文件);
+                            if (联盟群组列表 == null || 联盟群组列表.isEmpty()) return;
+                            
+                            ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
+                            for (int i = 0; i < 联盟群组列表副本.size(); i++) {
+                                String 群号 = (String)联盟群组列表副本.get(i);
+                                if (群号 == null || 群号.isEmpty()) continue;
+                                
+                                ArrayList 成员列表 = getGroupMemberList(群号);
+                                if (成员列表 != null) {
+                                    ArrayList 成员列表副本 = safeCopyList(成员列表);
+                                    for (int j = 0; j < 成员列表副本.size(); j++) {
+                                        Object 成员 = 成员列表副本.get(j);
+                                        if (成员 != null && 成员.UserUin != null && 成员.UserUin.equals(userUin)) {
+                                            unifiedKick(群号, userUin, true);
+                                            Thread.sleep(100);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            
+                        }
+                    }
+                }).start();
+                
+            } catch (Exception e) {}
+        }
+    }).start();
 }
 
 public void 移除封禁用户(String userUin) {
