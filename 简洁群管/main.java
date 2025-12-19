@@ -1056,7 +1056,11 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 错误处理，在可能出现异常的地方添加了 try-catch\n" +
                         "————————\n" +
                         "简洁群管_100.0_更新日志\n" +
-                        "- [修复] bsh.BlockNameSpace.getInstance\n\n" +
+                        "- [修复] bsh.BlockNameSpace.getInstance\n" +
+                        "————————\n" +
+                        "简洁群管_101.0_更新日志\n" +
+                        "- [优化] 快捷群管封禁联盟的弹窗效果，已防止过于卡顿\n" +
+                        "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁...的提示\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 builder.setPositiveButton("确定", null);
