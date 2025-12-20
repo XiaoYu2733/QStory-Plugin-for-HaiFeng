@@ -1043,15 +1043,24 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
 private void showFriendSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList, 
                                      ArrayList selectedList, String taskName, String configType) {
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-    dialogBuilder.setTitle("选择" + taskName + "好友");
-    dialogBuilder.setCancelable(true);
+    
+    LinearLayout mainLayout = new LinearLayout(activity);
+    mainLayout.setOrientation(LinearLayout.VERTICAL);
+    mainLayout.setBackground(getGlassShape(getCardColor(), c(18)));
+    
+    TextView titleView = new TextView(activity);
+    titleView.setText("选择" + taskName + "好友");
+    titleView.setTextColor(Color.parseColor(getTextColor()));
+    titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+    titleView.setGravity(Gravity.CENTER);
+    titleView.setPadding(c(20), c(15), c(20), c(15));
+    mainLayout.addView(titleView);
     
     final ArrayList currentSessionSelected = new ArrayList(selectedList);
 
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(c(20), c(15), c(20), c(15));
-    layout.setBackground(getGlassShape(getCardColor(), c(18)));
+    layout.setPadding(c(20), 0, c(20), c(15));
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索好友QQ号、好友名、备注");
@@ -1085,6 +1094,8 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     listParams.weight = 1;
     listView.setLayoutParams(listParams);
     layout.addView(listView);
+    
+    mainLayout.addView(layout);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
@@ -1156,7 +1167,7 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
         }
     });
     
-    dialogBuilder.setView(layout);
+    dialogBuilder.setView(mainLayout);
     
     dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
@@ -1244,15 +1255,24 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
 
 private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
-    dialogBuilder.setTitle("选择续火群组");
-    dialogBuilder.setCancelable(true);
-
+    
+    LinearLayout mainLayout = new LinearLayout(activity);
+    mainLayout.setOrientation(LinearLayout.VERTICAL);
+    mainLayout.setBackground(getGlassShape(getCardColor(), c(18)));
+    
+    TextView titleView = new TextView(activity);
+    titleView.setText("选择续火群组");
+    titleView.setTextColor(Color.parseColor(getTextColor()));
+    titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+    titleView.setGravity(Gravity.CENTER);
+    titleView.setPadding(c(20), c(15), c(20), c(15));
+    mainLayout.addView(titleView);
+    
     final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
     
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(c(20), c(15), c(20), c(15));
-    layout.setBackground(getGlassShape(getCardColor(), c(18)));
+    layout.setPadding(c(20), 0, c(20), c(15));
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索群号、群名");
@@ -1286,6 +1306,8 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     listParams.weight = 1;
     listView.setLayoutParams(listParams);
     layout.addView(listView);
+    
+    mainLayout.addView(layout);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
@@ -1357,7 +1379,7 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
         }
     });
     
-    dialogBuilder.setView(layout);
+    dialogBuilder.setView(mainLayout);
     
     dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
