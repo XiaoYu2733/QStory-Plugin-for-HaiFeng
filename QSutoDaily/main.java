@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
@@ -72,21 +73,34 @@ public Object getFieldValue(Object obj, String fieldName) {
     }
 }
 
-public boolean isDarkMode() {
-    int nightModeFlags = context.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
-    return nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+public int getCurrentTheme() {
+    try {
+        Context context = getActivity();
+        if (context == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+        } else {
+            return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        }
+    } catch (Exception e) {
+        return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    }
 }
 
 public String getBackgroundColor() {
-    return isDarkMode() ? "#1E1E1E" : "#FFFFFF";
+    int theme = getCurrentTheme();
+    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#1E1E1E" : "#FFFFFF";
 }
 
 public String getTextColor() {
-    return isDarkMode() ? "#E0E0E0" : "#333333";
+    int theme = getCurrentTheme();
+    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#E0E0E0" : "#333333";
 }
 
 public String getCardColor() {
-    return isDarkMode() ? "#252525" : "#F8F9FA";
+    int theme = getCurrentTheme();
+    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#252525" : "#F8F9FA";
 }
 
 public String getAccentColor() {
@@ -108,10 +122,11 @@ public GradientDrawable getShape(String color, int cornerRadius) {
 public GradientDrawable getGlassShape(String baseColor, int cornerRadius) {
     GradientDrawable shape = new GradientDrawable();
     int color = Color.parseColor(baseColor);
-    int alpha = isDarkMode() ? 220 : 230;
+    int theme = getCurrentTheme();
+    int alpha = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? 220 : 230;
     shape.setColor(Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color)));
     shape.setCornerRadius(cornerRadius);
-    shape.setStroke(c(1), Color.parseColor(isDarkMode() ? "#404040" : "#E0E0E0"));
+    shape.setStroke(c(1), Color.parseColor(theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#404040" : "#E0E0E0"));
     shape.setShape(GradientDrawable.RECTANGLE);
     return shape;
 }
@@ -543,7 +558,7 @@ void showMainMenu(final Activity activity) {
                 layout.addView(btnFireFriends);
                 layout.addView(btnFireGroups);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setView(layout);
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -552,6 +567,7 @@ void showMainMenu(final Activity activity) {
                 });
                 
                 AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -559,8 +575,6 @@ void showMainMenu(final Activity activity) {
                 lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(lp);
-                
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -625,7 +639,7 @@ void showWordsMenu(final Activity activity) {
                 layout.addView(btnFriendWords);
                 layout.addView(btnGroupWords);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setView(layout);
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -634,6 +648,7 @@ void showWordsMenu(final Activity activity) {
                 });
                 
                 AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -641,8 +656,6 @@ void showWordsMenu(final Activity activity) {
                 lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(lp);
-                
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -721,7 +734,7 @@ void showTimeMenu(final Activity activity) {
                 layout.addView(btnFriendFireTime);
                 layout.addView(btnGroupFireTime);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setView(layout);
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -730,6 +743,7 @@ void showTimeMenu(final Activity activity) {
                 });
                 
                 AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -737,8 +751,6 @@ void showTimeMenu(final Activity activity) {
                 lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(lp);
-                
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -831,7 +843,7 @@ void showExecuteMenu(final Activity activity) {
                 layout.addView(btnGroupFire);
                 layout.addView(btnAll);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setView(layout);
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -840,6 +852,7 @@ void showExecuteMenu(final Activity activity) {
                 });
                 
                 AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -847,8 +860,6 @@ void showExecuteMenu(final Activity activity) {
                 lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(lp);
-                
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -1042,33 +1053,34 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
 
 private void showFriendSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList, 
                                      ArrayList selectedList, String taskName, String configType) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
     
     LinearLayout mainLayout = new LinearLayout(activity);
     mainLayout.setOrientation(LinearLayout.VERTICAL);
-    mainLayout.setBackground(getGlassShape(getCardColor(), c(18)));
+    mainLayout.setPadding(c(5), c(5), c(5), c(5));
+    
+    final ArrayList currentSessionSelected = new ArrayList(selectedList);
+
+    LinearLayout contentLayout = new LinearLayout(activity);
+    contentLayout.setOrientation(LinearLayout.VERTICAL);
+    contentLayout.setPadding(c(15), c(15), c(15), c(15));
+    contentLayout.setBackground(getGlassShape(getCardColor(), c(18)));
     
     TextView titleView = new TextView(activity);
     titleView.setText("选择" + taskName + "好友");
     titleView.setTextColor(Color.parseColor(getTextColor()));
     titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
     titleView.setGravity(Gravity.CENTER);
-    titleView.setPadding(c(20), c(15), c(20), c(15));
-    mainLayout.addView(titleView);
-    
-    final ArrayList currentSessionSelected = new ArrayList(selectedList);
-
-    LinearLayout layout = new LinearLayout(activity);
-    layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(c(20), 0, c(20), c(15));
+    titleView.setPadding(0, 0, 0, c(15));
+    contentLayout.addView(titleView);
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索好友QQ号、好友名、备注");
     searchEditText.setTextColor(Color.parseColor(getTextColor()));
-    searchEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
-    searchEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+    searchEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
+    searchEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
     searchEditText.setPadding(c(12), c(10), c(12), c(10));
-    layout.addView(searchEditText);
+    contentLayout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
     selectAllButton.setText("全选(当前显示)");
@@ -1082,10 +1094,10 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     params.gravity = Gravity.END;
     params.setMargins(0, c(10), 0, c(10));
     selectAllButton.setLayoutParams(params);
-    layout.addView(selectAllButton);
+    contentLayout.addView(selectAllButton);
     
     final ListView listView = new ListView(activity);
-    listView.setBackground(getGlassShape(isDarkMode() ? "#2A2A2A" : "#F5F5F5", c(8)));
+    listView.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2A2A2A" : "#F5F5F5", c(8)));
     listView.setDividerHeight(c(1));
     LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -1093,9 +1105,9 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     );
     listParams.weight = 1;
     listView.setLayoutParams(listParams);
-    layout.addView(listView);
+    contentLayout.addView(listView);
     
-    mainLayout.addView(layout);
+    mainLayout.addView(contentLayout);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
@@ -1187,6 +1199,7 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     dialogBuilder.setNegativeButton("取消", null);
     
     AlertDialog dialog = dialogBuilder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     dialog.show();
     
     WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1194,8 +1207,6 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
     lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
     dialog.getWindow().setAttributes(lp);
-    
-    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     
     Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
     if (positiveButton != null) {
@@ -1254,33 +1265,34 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
 }
 
 private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
     
     LinearLayout mainLayout = new LinearLayout(activity);
     mainLayout.setOrientation(LinearLayout.VERTICAL);
-    mainLayout.setBackground(getGlassShape(getCardColor(), c(18)));
+    mainLayout.setPadding(c(5), c(5), c(5), c(5));
+    
+    final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
+    
+    LinearLayout contentLayout = new LinearLayout(activity);
+    contentLayout.setOrientation(LinearLayout.VERTICAL);
+    contentLayout.setPadding(c(15), c(15), c(15), c(15));
+    contentLayout.setBackground(getGlassShape(getCardColor(), c(18)));
     
     TextView titleView = new TextView(activity);
     titleView.setText("选择续火群组");
     titleView.setTextColor(Color.parseColor(getTextColor()));
     titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
     titleView.setGravity(Gravity.CENTER);
-    titleView.setPadding(c(20), c(15), c(20), c(15));
-    mainLayout.addView(titleView);
-    
-    final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
-    
-    LinearLayout layout = new LinearLayout(activity);
-    layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(c(20), 0, c(20), c(15));
+    titleView.setPadding(0, 0, 0, c(15));
+    contentLayout.addView(titleView);
     
     final EditText searchEditText = new EditText(activity);
     searchEditText.setHint("搜索群号、群名");
     searchEditText.setTextColor(Color.parseColor(getTextColor()));
-    searchEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
-    searchEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+    searchEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
+    searchEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
     searchEditText.setPadding(c(12), c(10), c(12), c(10));
-    layout.addView(searchEditText);
+    contentLayout.addView(searchEditText);
     
     Button selectAllButton = new Button(activity);
     selectAllButton.setText("全选(当前显示)");
@@ -1294,10 +1306,10 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     params.gravity = Gravity.END;
     params.setMargins(0, c(10), 0, c(10));
     selectAllButton.setLayoutParams(params);
-    layout.addView(selectAllButton);
+    contentLayout.addView(selectAllButton);
     
     final ListView listView = new ListView(activity);
-    listView.setBackground(getGlassShape(isDarkMode() ? "#2A2A2A" : "#F5F5F5", c(8)));
+    listView.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2A2A2A" : "#F5F5F5", c(8)));
     listView.setDividerHeight(c(1));
     LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -1305,9 +1317,9 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     );
     listParams.weight = 1;
     listView.setLayoutParams(listParams);
-    layout.addView(listView);
+    contentLayout.addView(listView);
     
-    mainLayout.addView(layout);
+    mainLayout.addView(contentLayout);
     
     final ArrayList filteredDisplayList = new ArrayList(displayList);
     final ArrayList filteredUinList = new ArrayList(uinList);
@@ -1394,6 +1406,7 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     dialogBuilder.setNegativeButton("取消", null);
     
     AlertDialog dialog = dialogBuilder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     dialog.show();
     
     WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1401,8 +1414,6 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
     lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
     dialog.getWindow().setAttributes(lp);
-    
-    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
     
     Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
     if (positiveButton != null) {
@@ -1449,10 +1460,10 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 wordsEditText.setHint("输入好友续火语录，每行一个");
                 wordsEditText.setTextColor(Color.parseColor(getTextColor()));
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                wordsEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+                wordsEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
                 wordsEditText.setMinLines(5);
                 wordsEditText.setGravity(Gravity.TOP);
-                wordsEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+                wordsEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
                 wordsEditText.setPadding(c(12), c(10), c(12), c(10));
                 
                 layout.addView(wordsEditText);
@@ -1464,7 +1475,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 hintView.setPadding(0, c(20), 0, 0);
                 layout.addView(hintView);
                 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
                 dialogBuilder.setView(layout);
                 dialogBuilder.setCancelable(true);
                 
@@ -1498,6 +1509,7 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 dialogBuilder.setNegativeButton("取消", null);
                 
                 AlertDialog dialog = dialogBuilder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1505,8 +1517,6 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setAttributes(lp);
-                
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 
                 Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                 if (positiveButton != null) {
@@ -1557,10 +1567,10 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 wordsEditText.setHint("输入群组续火语录，每行一个");
                 wordsEditText.setTextColor(Color.parseColor(getTextColor()));
                 wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                wordsEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
+                wordsEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
                 wordsEditText.setMinLines(5);
                 wordsEditText.setGravity(Gravity.TOP);
-                wordsEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+                wordsEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
                 wordsEditText.setPadding(c(12), c(10), c(12), c(10));
                 
                 layout.addView(wordsEditText);
@@ -1572,7 +1582,7 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 hintView.setPadding(0, c(20), 0, 0);
                 layout.addView(hintView);
                 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
                 dialogBuilder.setView(layout);
                 dialogBuilder.setCancelable(true);
                 
@@ -1606,15 +1616,8 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
                 dialogBuilder.setNegativeButton("取消", null);
                 
                 AlertDialog dialog = dialogBuilder.create();
-                dialog.show();
-                
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
-                
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
     
                 Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                 if (positiveButton != null) {
@@ -1636,7 +1639,7 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -1655,8 +1658,8 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             timeEditText.setText(likeTime);
             timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
-            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
             timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
@@ -1678,6 +1681,7 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             dialogBuilder.setNegativeButton("取消", null);
             
             AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1685,8 +1689,6 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
             lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(lp);
-            
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
@@ -1706,7 +1708,7 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -1725,8 +1727,8 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             timeEditText.setText(friendFireTime);
             timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
-            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
             timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
@@ -1748,6 +1750,7 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             dialogBuilder.setNegativeButton("取消", null);
     
             AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1755,8 +1758,6 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
             lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(lp);
-            
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
@@ -1776,7 +1777,7 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
             
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -1795,8 +1796,8 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             timeEditText.setText(groupFireTime);
             timeEditText.setHint("例如: 00:00");
             timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(isDarkMode() ? "#888888" : "#666666"));
-            timeEditText.setBackground(getGlassShape(isDarkMode() ? "#333333" : "#F0F0F0", c(8)));
+            timeEditText.setHintTextColor(Color.parseColor(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#888888" : "#666666"));
+            timeEditText.setBackground(getGlassShape(getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#F0F0F0", c(8)));
             timeEditText.setPadding(c(12), c(10), c(12), c(10));
             layout.addView(timeEditText);
             
@@ -1818,6 +1819,7 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             dialogBuilder.setNegativeButton("取消", null);
             
             AlertDialog dialog = dialogBuilder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
@@ -1825,8 +1827,6 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
             lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(lp);
-            
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
