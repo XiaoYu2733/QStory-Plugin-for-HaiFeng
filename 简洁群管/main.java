@@ -940,6 +940,19 @@ public int getCurrentTheme() {
     }
 }
 
+/*
+该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
+*/
+/*接口说明 
+
+显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
+显示群员头衔 SetTroopShowTitle(qun,myUin,getSkey(),getey("clt.qq.com"),1);
+
+隐藏就是最后1改成0
+
+*/
+
 private Set processingUnforbidden = Collections.synchronizedSet(new HashSet());
 
 public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
