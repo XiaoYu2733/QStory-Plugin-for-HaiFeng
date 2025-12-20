@@ -45,6 +45,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.ViewGroup;
 import android.view.Gravity;
 import android.util.DisplayMetrics;
+import android.view.View;
 
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
@@ -179,7 +180,10 @@ void onCreateMenu(Object msg) {
                 }
             }
             
-            if (groupInfo.IsOwnerOrAdmin) {
+            Object myInfo = getMemberInfo(groupUin, myUin);
+            if (myInfo == null) return;
+            
+            if (myInfo.IsOwner || myInfo.IsAdmin) {
                 addMenuItem("快捷群管", "quickManageMenuItem");
             }
             
@@ -220,98 +224,203 @@ public void quickManageMenuItem(final Object msg) {
                 }
                 dialogLayout.setBackground(bg);
                 
-                final List items = new CopyOnWriteArrayList();
-                final List actions = new CopyOnWriteArrayList();
+                boolean isOwner = false;
+                boolean isAdmin = false;
+                try {
+                    isOwner = myInfo.IsOwner;
+                    isAdmin = myInfo.IsAdmin;
+                } catch (Exception e) {
+                }
                 
-                if (myInfo.IsOwner || myInfo.IsAdmin) {
-                    items.add("踢出");
-                    actions.add(new Runnable() {
-                        public void run() {
-                            kickMenuItem(msg);
-                        }
-                    });
+                if (isOwner || isAdmin) {
+                    TextView banBtn = new TextView(getActivity());
+                    banBtn.setText("禁言");
+                    banBtn.setTextSize(18);
+                    banBtn.setTextColor(textColor);
+                    banBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    banBtn.setGravity(Gravity.CENTER);
                     
-                    items.add("踢黑");
-                    actions.add(new Runnable() {
-                        public void run() {
-                            kickBlackMenuItem(msg);
-                        }
-                    });
+                    GradientDrawable banBg = new GradientDrawable();
+                    banBg.setColor(Color.argb(30, 0, 0, 0));
+                    banBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        banBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    banBtn.setBackground(banBg);
                     
-                    items.add("禁言");
-                    actions.add(new Runnable() {
-                        public void run() {
+                    banBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
                             forbiddenMenuItem(msg);
                         }
                     });
                     
-                    items.add("加入黑名单");
-                    actions.add(new Runnable() {
-                        public void run() {
+                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    banBtn.setLayoutParams(params1);
+                    
+                    dialogLayout.addView(banBtn);
+                }
+                
+                if (isOwner || isAdmin) {
+                    TextView kickBtn = new TextView(getActivity());
+                    kickBtn.setText("踢出");
+                    kickBtn.setTextSize(18);
+                    kickBtn.setTextColor(textColor);
+                    kickBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    kickBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable kickBg = new GradientDrawable();
+                    kickBg.setColor(Color.argb(30, 0, 0, 0));
+                    kickBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        kickBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    kickBtn.setBackground(kickBg);
+                    
+                    LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params2.topMargin = dp2px(10);
+                    kickBtn.setLayoutParams(params2);
+                    
+                    kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
+                            kickMenuItem(msg);
+                        }
+                    });
+                    
+                    dialogLayout.addView(kickBtn);
+                }
+                
+                if (isOwner || isAdmin) {
+                    TextView kickBlackBtn = new TextView(getActivity());
+                    kickBlackBtn.setText("踢黑");
+                    kickBlackBtn.setTextSize(18);
+                    kickBlackBtn.setTextColor(textColor);
+                    kickBlackBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    kickBlackBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable kickBlackBg = new GradientDrawable();
+                    kickBlackBg.setColor(Color.argb(30, 0, 0, 0));
+                    kickBlackBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        kickBlackBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    kickBlackBtn.setBackground(kickBlackBg);
+                    
+                    LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params3.topMargin = dp2px(10);
+                    kickBlackBtn.setLayoutParams(params3);
+                    
+                    kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
+                            kickBlackMenuItem(msg);
+                        }
+                    });
+                    
+                    dialogLayout.addView(kickBlackBtn);
+                }
+                
+                if (isOwner || isAdmin) {
+                    TextView blacklistBtn = new TextView(getActivity());
+                    blacklistBtn.setText("加入黑名单");
+                    blacklistBtn.setTextSize(18);
+                    blacklistBtn.setTextColor(textColor);
+                    blacklistBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    blacklistBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable blacklistBg = new GradientDrawable();
+                    blacklistBg.setColor(Color.argb(30, 0, 0, 0));
+                    blacklistBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        blacklistBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    blacklistBtn.setBackground(blacklistBg);
+                    
+                    LinearLayout.LayoutParams params4 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params4.topMargin = dp2px(10);
+                    blacklistBtn.setLayoutParams(params4);
+                    
+                    blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
                             addToBlacklistMenuItem(msg);
                         }
                     });
                     
-                    if (是联盟群组(groupUin)) {
-                        items.add("联盟封禁");
-                        actions.add(new Runnable() {
-                            public void run() {
-                                allianceBanMenuItem(msg);
-                            }
-                        });
-                    }
+                    dialogLayout.addView(blacklistBtn);
                 }
                 
-                if (myInfo.IsOwner) {
-                    items.add("设置头衔");
-                    actions.add(new Runnable() {
-                        public void run() {
+                if (isOwner) {
+                    TextView titleBtn = new TextView(getActivity());
+                    titleBtn.setText("设置头衔");
+                    titleBtn.setTextSize(18);
+                    titleBtn.setTextColor(textColor);
+                    titleBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    titleBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable titleBg = new GradientDrawable();
+                    titleBg.setColor(Color.argb(30, 0, 0, 0));
+                    titleBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        titleBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    titleBtn.setBackground(titleBg);
+                    
+                    LinearLayout.LayoutParams params5 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params5.topMargin = dp2px(10);
+                    titleBtn.setLayoutParams(params5);
+                    
+                    titleBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
                             setTitleMenuItem(msg);
                         }
                     });
-                }
-                
-                if (items.isEmpty()) {
-                    toast("无管理权限");
-                    return;
-                }
-                
-                for (int i = 0; i < items.size(); i++) {
-                    TextView tv = new TextView(getActivity());
-                    tv.setText((String)items.get(i));
-                    tv.setTextSize(16);
-                    tv.setTextColor(textColor);
-                    tv.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
-                    tv.setGravity(Gravity.CENTER);
                     
-                    GradientDrawable itemBg = new GradientDrawable();
-                    itemBg.setColor(Color.argb(30, 0, 0, 0));
-                    itemBg.setCornerRadius(dp2px(10));
+                    dialogLayout.addView(titleBtn);
+                }
+                
+                if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
+                    TextView allianceBanBtn = new TextView(getActivity());
+                    allianceBanBtn.setText("联盟封禁");
+                    allianceBanBtn.setTextSize(18);
+                    allianceBanBtn.setTextColor(textColor);
+                    allianceBanBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    allianceBanBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable allianceBanBg = new GradientDrawable();
+                    allianceBanBg.setColor(Color.argb(30, 0, 0, 0));
+                    allianceBanBg.setCornerRadius(dp2px(12));
                     if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        itemBg.setColor(Color.argb(50, 255, 255, 255));
+                        allianceBanBg.setColor(Color.argb(50, 255, 255, 255));
                     }
-                    tv.setBackground(itemBg);
+                    allianceBanBtn.setBackground(allianceBanBg);
                     
-                    final int index = i;
-                    tv.setOnClickListener(new android.view.View.OnClickListener() {
+                    LinearLayout.LayoutParams params6 = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    params6.topMargin = dp2px(10);
+                    allianceBanBtn.setLayoutParams(params6);
+                    
+                    allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
-                            if (index >= 0 && index < actions.size()) {
-                                actions.get(index).run();
-                            }
+                            allianceBanMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(tv);
-                    
-                    if (i < items.size() - 1) {
-                        android.view.View divider = new android.view.View(getActivity());
-                        divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(1)));
-                        divider.setBackgroundColor(Color.argb(30, 0, 0, 0));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            divider.setBackgroundColor(Color.argb(50, 255, 255, 255));
-                        }
-                        dialogLayout.addView(divider);
-                    }
+                    dialogLayout.addView(allianceBanBtn);
                 }
                 
                 ScrollView scrollView = new ScrollView(getActivity());
@@ -431,8 +540,8 @@ public void allianceBanMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -502,8 +611,8 @@ public void addToBlacklistMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -555,8 +664,8 @@ public void kickMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -608,8 +717,8 @@ public void kickBlackMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -714,8 +823,8 @@ public void forbiddenMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -792,8 +901,8 @@ public void setTitleMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
         }
     });
 }
@@ -1330,7 +1439,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "简洁群管_101.0_更新日志\n" +
                         "- [优化] 脚本所有dialog弹窗的显示效果也使现在浅色模式部分功能弹窗也能正常显示了\n" +
                         "- [优化] 快捷群管封禁联盟的弹窗效果，已防止过于卡顿\n" +
-                        "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁... 的提示\n\n" +
+                        "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁... 的提示\n" +
+                        "————————\n" +
+                        "简洁群管_102.0_更新日志\n" +
+                        "- [修复] 快捷群管按钮错乱的问题\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
@@ -1745,7 +1857,6 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
-// 检测退群拉黑文件夹是否存在，不存在则创建
 String 退群拉黑目录 = appPath + "/退群拉黑/";
 File 退群拉黑文件夹 = new File(退群拉黑目录);
 
@@ -1755,8 +1866,6 @@ if (!退群拉黑文件夹.exists()) {
 
 int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
-// 检测代管文件夹是否存在 不存在则创建
-// 代管.tx只在用户发送添加代管时创建 以防止简洁群管更新会覆盖掉你的代管
 public File 获取代管文件() {
     String 代管目录 = appPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
@@ -2476,19 +2585,6 @@ public boolean 检查代管保护(String groupUin, String targetUin, String oper
     }
     return false;
 }
-
-/*
-该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
-*/
-/*接口说明 
-
-显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
-显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
-显示群员头衔 SetTroopShowTitle(qun,myUin,getSkey(),getey("clt.qq.com"),1);
-
-隐藏就是最后1改成0
-
-*/
 
 public String isGN(String groupUin, String key) {
     try {
