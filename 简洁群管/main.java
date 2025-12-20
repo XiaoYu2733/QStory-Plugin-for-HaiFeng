@@ -208,7 +208,7 @@ public void quickManageMenuItem(final Object msg) {
                 if (myInfo == null) return;
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
-                builder.setTitle("快捷群管 - " + 名(targetUin) + "(" + targetUin + ")");
+                builder.setTitle("快捷群管 —— " + 名(targetUin) + "(" + targetUin + ")");
                 
                 LinearLayout dialogLayout = new LinearLayout(getActivity());
                 dialogLayout.setOrientation(LinearLayout.VERTICAL);
@@ -232,12 +232,15 @@ public void quickManageMenuItem(final Object msg) {
                 } catch (Exception e) {
                 }
                 
+                // 存储所有按钮的列表
+                List<TextView> buttonList = new ArrayList<>();
+                
                 if (isOwner || isAdmin) {
                     TextView banBtn = new TextView(getActivity());
                     banBtn.setText("禁言");
                     banBtn.setTextSize(18);
                     banBtn.setTextColor(textColor);
-                    banBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    banBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     banBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable banBg = new GradientDrawable();
@@ -254,13 +257,7 @@ public void quickManageMenuItem(final Object msg) {
                         }
                     });
                     
-                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    banBtn.setLayoutParams(params1);
-                    
-                    dialogLayout.addView(banBtn);
+                    buttonList.add(banBtn);
                 }
                 
                 if (isOwner || isAdmin) {
@@ -268,7 +265,7 @@ public void quickManageMenuItem(final Object msg) {
                     kickBtn.setText("踢出");
                     kickBtn.setTextSize(18);
                     kickBtn.setTextColor(textColor);
-                    kickBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    kickBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     kickBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable kickBg = new GradientDrawable();
@@ -279,20 +276,13 @@ public void quickManageMenuItem(final Object msg) {
                     }
                     kickBtn.setBackground(kickBg);
                     
-                    LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    params2.topMargin = dp2px(10);
-                    kickBtn.setLayoutParams(params2);
-                    
                     kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
                             kickMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(kickBtn);
+                    buttonList.add(kickBtn);
                 }
                 
                 if (isOwner || isAdmin) {
@@ -300,7 +290,7 @@ public void quickManageMenuItem(final Object msg) {
                     kickBlackBtn.setText("踢黑");
                     kickBlackBtn.setTextSize(18);
                     kickBlackBtn.setTextColor(textColor);
-                    kickBlackBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    kickBlackBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     kickBlackBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable kickBlackBg = new GradientDrawable();
@@ -311,20 +301,13 @@ public void quickManageMenuItem(final Object msg) {
                     }
                     kickBlackBtn.setBackground(kickBlackBg);
                     
-                    LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    params3.topMargin = dp2px(10);
-                    kickBlackBtn.setLayoutParams(params3);
-                    
                     kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
                             kickBlackMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(kickBlackBtn);
+                    buttonList.add(kickBlackBtn);
                 }
                 
                 if (isOwner || isAdmin) {
@@ -332,7 +315,7 @@ public void quickManageMenuItem(final Object msg) {
                     blacklistBtn.setText("加入黑名单");
                     blacklistBtn.setTextSize(18);
                     blacklistBtn.setTextColor(textColor);
-                    blacklistBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    blacklistBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     blacklistBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable blacklistBg = new GradientDrawable();
@@ -343,20 +326,13 @@ public void quickManageMenuItem(final Object msg) {
                     }
                     blacklistBtn.setBackground(blacklistBg);
                     
-                    LinearLayout.LayoutParams params4 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    params4.topMargin = dp2px(10);
-                    blacklistBtn.setLayoutParams(params4);
-                    
                     blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
                             addToBlacklistMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(blacklistBtn);
+                    buttonList.add(blacklistBtn);
                 }
                 
                 if (isOwner) {
@@ -364,7 +340,7 @@ public void quickManageMenuItem(final Object msg) {
                     titleBtn.setText("设置头衔");
                     titleBtn.setTextSize(18);
                     titleBtn.setTextColor(textColor);
-                    titleBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    titleBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     titleBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable titleBg = new GradientDrawable();
@@ -375,20 +351,13 @@ public void quickManageMenuItem(final Object msg) {
                     }
                     titleBtn.setBackground(titleBg);
                     
-                    LinearLayout.LayoutParams params5 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    params5.topMargin = dp2px(10);
-                    titleBtn.setLayoutParams(params5);
-                    
                     titleBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
                             setTitleMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(titleBtn);
+                    buttonList.add(titleBtn);
                 }
                 
                 if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
@@ -396,7 +365,7 @@ public void quickManageMenuItem(final Object msg) {
                     allianceBanBtn.setText("联盟封禁");
                     allianceBanBtn.setTextSize(18);
                     allianceBanBtn.setTextColor(textColor);
-                    allianceBanBtn.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                    allianceBanBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
                     allianceBanBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable allianceBanBg = new GradientDrawable();
@@ -407,20 +376,51 @@ public void quickManageMenuItem(final Object msg) {
                     }
                     allianceBanBtn.setBackground(allianceBanBg);
                     
-                    LinearLayout.LayoutParams params6 = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    params6.topMargin = dp2px(10);
-                    allianceBanBtn.setLayoutParams(params6);
-                    
                     allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
                         public void onClick(android.view.View v) {
                             allianceBanMenuItem(msg);
                         }
                     });
                     
-                    dialogLayout.addView(allianceBanBtn);
+                    buttonList.add(allianceBanBtn);
+                }
+                
+                for (int i = 0; i < buttonList.size(); i += 2) {
+                    LinearLayout rowLayout = new LinearLayout(getActivity());
+                    rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ));
+                    
+                    TextView btn1 = buttonList.get(i);
+                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1.0f
+                    );
+                    params1.setMargins(0, 0, dp2px(5), dp2px(5));
+                    btn1.setLayoutParams(params1);
+                    rowLayout.addView(btn1);
+                    
+                    if (i + 1 < buttonList.size()) {
+                        TextView btn2 = buttonList.get(i + 1);
+                        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1.0f
+                        );
+                        params2.setMargins(dp2px(5), 0, 0, dp2px(5));
+                        btn2.setLayoutParams(params2);
+                        rowLayout.addView(btn2);
+                    } else {
+                        btn1.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ));
+                    }
+                    
+                    dialogLayout.addView(rowLayout);
                 }
                 
                 ScrollView scrollView = new ScrollView(getActivity());
@@ -1455,7 +1455,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 在执行联盟封禁时，显示 正在执行联盟封禁... 的提示\n" +
                         "————————\n" +
                         "简洁群管_102.0_更新日志\n" +
-                        "- [优化] 快捷群管的按钮，以后版本将会优化成正方形按钮\n" +
+                        "- [优化] 快捷群管的按钮，现在更好看了\n" +
                         "- [修复] 快捷群管按钮错乱的问题\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
