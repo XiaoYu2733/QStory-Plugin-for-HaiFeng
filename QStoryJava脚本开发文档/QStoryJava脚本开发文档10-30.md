@@ -2,7 +2,7 @@
 
 ### 有bug 维护方面的问题 请前往有我的地方向我反馈
 
-最近一次文档更新日期 2025-11-15
+最近一次文档更新日期 2025-12-15
 
 适配新版本QStory指南
 
@@ -24,20 +24,34 @@
 
 ### main.java // 文件在点击加载时加载
 desc.txt // 脚本描述文件，用于在列表中显示
-info.prop // 脚本信息，采用 key = value 格式，需要的 key 如下：
+info.prop // 脚本信息，采用 key=value 格式，需要的 key 如下：
 
 <aside>
 💡
 
-name = 脚本名称
-type = 1 (直接写入即可)
-version = 1.0 (版本号)
-author = 作者名
-id = 脚本ID（确保唯一性)
+name=脚本名称
+type=1 (直接写入即可)
+version=1.0 (版本号)
+author=作者名
+id=脚本ID（确保唯一性)
 
-time = 2025-8-1(格式2025-8-1) 以确保脚本的更新时间没有很落后,太旧的脚本无法加载
+date=2025-12-1(格式2025-12-1) 以确保脚本的更新时间没有很落后,太旧的脚本无法加载,服务器依赖此日期进行判断更新
+
+tags=群聊辅助,娱乐功能(脚本标签，目前支持的标签有`群聊辅助`,`娱乐功能`,`功能扩展`,`综合脚本` ,`官方脚本`)当然你也可以自定义
 
 </aside>
+
+支持预览图 结构为在脚本目录下的images文件夹，icon.png为图标，其他图片则为预览图，预览图按照A-z,0-9排序,后缀名随意
+
+```markdown
+├── info.prop
+├── desc.txt
+├── main.java
+└── images/
+    ├── icon.png
+    ├── preview1.png
+    └── preview2.png
+```
 
 ---
 
@@ -148,6 +162,10 @@ void onMsg(Object msg) {
 ### `sendLike(String UserUin, int count)` //点赞 参数一为QQ，次数二为点赞数
 
 ### `sendPai(String group, String uin)` //拍一拍对方 参数一为群号 参数二为对方QQ  私聊戳一戳参数一留空
+
+### **`void replyEmoji(Object msg, String emojiId)` //发送表情回应,参数一为消息，参数二为表情id**
+
+### `void sendProto(String cmd, String jsonBody)` //发送ProtoBuf消息，实验性方法
 
 ---
 
