@@ -455,7 +455,7 @@ public void allianceBanMenuItem(Object msg) {
     }
     
     if (是封禁用户(targetUin)) {
-        toast("该用户已经被封禁，请勿再次封禁！");
+        toast("该用户已经被封禁，请勿再次封禁");
         return;
     }
     
@@ -491,7 +491,7 @@ public void allianceBanMenuItem(Object msg) {
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
-            inputEditText.setHint("请输入封禁理由，如果不填可以直接点击确定");
+            inputEditText.setHint("请输入封禁原因，可填可不填");
             inputEditText.setHintTextColor(hintTextColor);
             inputEditText.setTextColor(textColor);
             
@@ -645,7 +645,7 @@ public void kickMenuItem(Object msg) {
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
-            message.setText("确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
+            message.setText("真的确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
             message.setTextSize(16);
             message.setTextColor(textColor);
             message.setPadding(0, 0, 0, dp2px(20));
@@ -698,7 +698,7 @@ public void kickBlackMenuItem(Object msg) {
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
-            message.setText("确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？");
+            message.setText("真的确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？\n确定后，该用户无法再次加入该群聊");
             message.setTextSize(16);
             message.setTextColor(textColor);
             message.setPadding(0, 0, 0, dp2px(20));
@@ -709,7 +709,7 @@ public void kickBlackMenuItem(Object msg) {
             builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
                 public void onClick(android.content.DialogInterface dialog, int which) {
                     unifiedKick(groupUin, targetUin, true);
-                    toast("踢黑成功");
+                    toast("踢黑成功，该用户不会再次入群");
                 }
             });
             
@@ -890,7 +890,7 @@ public void setTitleMenuItem(Object msg) {
                     String input = inputEditText.getText().toString().trim();
                     if (!input.isEmpty()) {
                         setTitle(groupUin, targetUin, input);
-                        toast("已为 " + 名(targetUin) + " 设置头衔: " + input);
+                        toast("已经为 " + 名(targetUin) + " 设置了头衔: " + input);
                     } else {
                         toast("请输入头衔内容");
                     }
@@ -1458,6 +1458,9 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 快捷群管按钮错乱的问题\n" +
                         "——————————————————————————\n" +
                         "简洁群管_103.0_更新日志\n" +
+                        "- [更改] 部分文本\n" +
+                        "- [修复] 夜七不是猫娘的问题\n" +
+                        "- [修复] 打不死夜七的问题\n" +
                         "- [修复] 夜七不听话的问题\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
@@ -1616,7 +1619,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 layout.setBackground(bg);
                 
                 EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号，多个用逗号分隔");
+                inputEditText.setHint("输入QQ号添加，多个用逗号分开");
                 inputEditText.setHintTextColor(hintTextColor);
                 inputEditText.setTextColor(textColor);
                 
@@ -1674,7 +1677,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
+                builder.setNegativeButton("删除选中用户", new android.content.DialogInterface.OnClickListener() {
                     public void onClick(android.content.DialogInterface dialog, int which) {
                         ArrayList 代管列表副本 = safeCopyList(代管列表);
                         for (int i = 0; i < listView.getCount(); i++) {
@@ -1685,7 +1688,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                                 } catch (Exception e) {}
                             }
                         }
-                            toast("已删除选中代管");
+                            toast("已删除选中用户");
                     }
                 });
                 
@@ -1737,7 +1740,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 layout.setBackground(bg);
                 
                 EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号，多个用逗号分隔");
+                inputEditText.setHint("输入QQ号，多个用逗号分开");
                 inputEditText.setHintTextColor(hintTextColor);
                 inputEditText.setTextColor(textColor);
                 
@@ -1795,7 +1798,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                builder.setNegativeButton("删除选中", new android.content.DialogInterface.OnClickListener() {
+                builder.setNegativeButton("删除选中用户", new android.content.DialogInterface.OnClickListener() {
                     public void onClick(android.content.DialogInterface dialog, int which) {
                         ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
                         for (int i = 0; i < listView.getCount(); i++) {
@@ -1806,7 +1809,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                                 } catch (Exception e) {}
                             }
                         }
-                        toast("已删除选中黑名单");
+                        toast("已删除选中用户黑名单");
                     }
                 });
                 
