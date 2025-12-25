@@ -1461,10 +1461,12 @@ public void showUpdateLog(String g, String u, int t) {
                         "简洁群管_103.0_更新日志\n" +
                         "- [更改] quickManageMenuItem为haifeng520\n" +
                         "- [更改] 部分文本\n" +
-                        "- [修复] 夜七不是猫娘的问题\n" +
-                        "- [修复] 打不死夜七的问题\n" +
                         "- [添加] 群管功能以及弹窗添加版本号\n" +
-                        "- [修复] 夜七不听话的问题\n\n" +
+                        "- [修复] 退群拉黑只写入黑名单不监听入群事件踢出\n" +
+                        "- [修复] 一些已知问题\n" +
+                        "- [修复] 夜七不是猫娘\n" +
+                        "- [修复] 打不死夜七\n" +
+                        "- [修复] 夜七不听话\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
@@ -2431,14 +2433,14 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
                 if (userUin.equals(myUin)) return;
                 if (!检查黑名单(groupUin, userUin)) {
                     添加黑名单(groupUin, userUin);
-                    String log = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
-                    toast(log);
+                    String message = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
+                    toast(message);
                 }
             } else if (type == 2) {
                 if (检查黑名单(groupUin, userUin)) {
                     unifiedKick(groupUin, userUin, true);
-                    String log = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
-                    toast(log);
+                    String message = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
+                    toast(message);
                 }
             }
         }
