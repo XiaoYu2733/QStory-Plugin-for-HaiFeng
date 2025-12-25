@@ -184,7 +184,7 @@ void onCreateMenu(Object msg) {
             if (myInfo == null) return;
             
             if (myInfo.IsOwner || myInfo.IsAdmin) {
-                addMenuItem("快捷群管", "quickManageMenuItem");
+                addMenuItem("快捷群管", "haifeng520");
             }
             
         }
@@ -192,7 +192,7 @@ void onCreateMenu(Object msg) {
     }
 }
 
-public void quickManageMenuItem(final Object msg) {
+public void haifeng520(final Object msg) {
     if (msg == null || !msg.IsGroup) return;
     
     final String groupUin = msg.GroupUin;
@@ -1341,7 +1341,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 在所有访问 msg.MessageContent 的地方都添加了空值检查\n" +
                         "- [更改] 将 groupInfoCache 从 HashMap 改为 ConcurrentHashMap 以避免并发访问问题\n" +
                         "- [更改] Map改为ConcurrentHashMap：groupInfoCache,Arab2Chinese,UnitMap\n" +
-                        "- [更改] List改为CopyOnWriteArrayList：在quickManageMenuItem方法中的items和actions\n" +
+                        "- [更改] List改为CopyOnWriteArrayList：在haifeng520方法中的items和actions\n" +
                         "- [添加] 在 onMsg 方法中为 mAtList 添加了同步块，确保线程安全\n" +
                         "- [添加] import java.util.concurrent.ConcurrentHashMap;\n" +
                         "- [添加] 在初始化代码中也使用safeCopyList确保线程安全\n" +
@@ -1353,7 +1353,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "简洁群管_82.0_更新日志\n" +
                         "- [更改] 将 groupInfoCache 从 HashMap 改为 ConcurrentHashMap 以避免并发访问问题\n" +
                         "- [更改] Map改为ConcurrentHashMap：groupInfoCache,Arab2Chinese,UnitMap\n" +
-                        "- [更改] List改为CopyOnWriteArrayList：在quickManageMenuItem方法中的items和actions\n" +
+                        "- [更改] List改为CopyOnWriteArrayList：在haifeng520方法中的items和actions\n" +
                         "- [添加] 在 onMsg 方法中为 mAtList 添加了同步块，确保线程安全\n" +
                         "- [添加] import java.util.concurrent.ConcurrentHashMap;\n" +
                         "- [添加] 在初始化代码中也使用safeCopyList确保线程安全\n" +
@@ -1459,6 +1459,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 快捷群管按钮错乱的问题\n" +
                         "——————————————————————————\n" +
                         "简洁群管_103.0_更新日志\n" +
+                        "- [更改] quickManageMenuItem为haifeng520\n" +
                         "- [更改] 部分文本\n" +
                         "- [修复] 夜七不是猫娘的问题\n" +
                         "- [修复] 打不死夜七的问题\n" +
