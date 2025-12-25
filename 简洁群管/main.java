@@ -4,7 +4,7 @@
 // 部分接口 卑微萌新
 // 部分写法源码 秩河 尹志平 群鹅 天啦噜
 
-// 你说你讨厌被骗 可你骗我的时候也没有心软
+//你说你讨厌被骗 可你骗我的时候也没有心软
 
 // 如果你不会动的话最好别乱动下面的东西
 import android.app.Activity;
@@ -698,7 +698,7 @@ public void kickBlackMenuItem(Object msg) {
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
-            message.setText("真的确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？\n确定后，该用户无法再次加入该群聊");
+            message.setText("真的确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？\n\n确定后，该用户无法再次加入该群聊");
             message.setTextSize(16);
             message.setTextColor(textColor);
             message.setPadding(0, 0, 0, dp2px(20));
@@ -1077,6 +1077,7 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     });
 }
 
+// 我什么都不要的时候 也没得到真心
 public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -1461,6 +1462,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [更改] 部分文本\n" +
                         "- [修复] 夜七不是猫娘的问题\n" +
                         "- [修复] 打不死夜七的问题\n" +
+                        "- [添加] 群管功能以及弹窗添加版本号\n" +
                         "- [修复] 夜七不听话的问题\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
@@ -1505,6 +1507,13 @@ public void showUpdateLog(String g, String u, int t) {
 
 public void showGroupManageDialog() {
     try {
+        String qqVersion = "未知";
+        try {
+            qqVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (Exception e) {
+        
+        }
+        
         String dialogContent = "简洁群管使用方法，可能不太完整 更多指令可能需要自行探索：\n\n" +
                 "1. @ 时间 - 禁言指定成员（例：@ 1天/一天）\n" +
                 "2. 解@ - 解除成员禁言，回复也可以解\n" +
@@ -1570,7 +1579,7 @@ public void showGroupManageDialog() {
                     container.addView(scrollView);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                    builder.setTitle("群管功能说明")
+                    builder.setTitle("群管功能(QQ Version：" + qqVersion + ")")
                         .setView(container)
                         .setNegativeButton("关闭", null);
                     
@@ -2881,6 +2890,8 @@ public void 处理联盟指令(Object msg) {
     }
 }
 
+
+// 你站的太远了 是不会听到我心里那片海的
 private final Object msgLock = new Object();
 
 public void onMsg(Object msg) {
@@ -2919,7 +2930,14 @@ public void onMsg(Object msg) {
             if (!isAdminUser) return;
 
             if (msgContent.equals("群管功能")) {
-                String menu = "群管功能:\n" +
+                String qqVersion = "未知";
+                try {
+                    qqVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+                } catch (Exception e) {
+                
+                }
+                
+                String menu = "群管功能(version：" + qqVersion + "):\n" +
                         "禁@ 禁言@ 头衔@\n" +
                         "@+时间+天|分|秒\n" +
                         "解@ 踢@ 踢黑@\n" +
@@ -3569,3 +3587,5 @@ public int dp2px(float dp) {
     } catch (Exception e) {}
     return (int) (dp * 3 + 0.5f);
 }
+
+// 希望有人懂你的言外之意 更懂你的欲言又止
