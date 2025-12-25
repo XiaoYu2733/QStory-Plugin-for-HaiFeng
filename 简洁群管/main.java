@@ -4,7 +4,7 @@
 // 部分接口 卑微萌新
 // 部分写法源码 秩河 尹志平 群鹅 天啦噜
 
-//你说你讨厌被骗 可你骗我的时候也没有心软
+// 你说你讨厌被骗 可你骗我的时候也没有心软
 
 // 如果你不会动的话最好别乱动下面的东西
 import android.app.Activity;
@@ -1507,7 +1507,7 @@ public void showUpdateLog(String g, String u, int t) {
 
 public void showGroupManageDialog() {
     try {
-        String qqVersion = "未知";
+        String qqVersion = "QQVersion未知";
         try {
             qqVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
         } catch (Exception e) {
@@ -1579,7 +1579,7 @@ public void showGroupManageDialog() {
                     container.addView(scrollView);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                    builder.setTitle("群管功能(QQ Version：" + qqVersion + ")")
+                    builder.setTitle("群管功能(QQVersion：" + qqVersion + ")")
                         .setView(container)
                         .setNegativeButton("关闭", null);
                     
@@ -2930,14 +2930,14 @@ public void onMsg(Object msg) {
             if (!isAdminUser) return;
 
             if (msgContent.equals("群管功能")) {
-                String qqVersion = "未知";
+                String qqVersion = "QQVersion未知";
                 try {
                     qqVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
                 } catch (Exception e) {
                 
                 }
                 
-                String menu = "群管功能(version：" + qqVersion + "):\n" +
+                String menu = "群管功能(QQVersion：" + qqVersion + "):\n" +
                         "禁@ 禁言@ 头衔@\n" +
                         "@+时间+天|分|秒\n" +
                         "解@ 踢@ 踢黑@\n" +
