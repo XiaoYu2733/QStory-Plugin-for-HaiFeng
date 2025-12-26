@@ -1466,7 +1466,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 一些已知问题\n" +
                         "- [修复] 夜七不是猫娘\n" +
                         "- [修复] 打不死夜七\n" +
-                        "- [修复] 夜七不听话\n\n" +
+                        "- [修复] 夜七不听话\n" +
+                                                "——————————————————————————\n" +
+                        "简洁群管_104.0_更新日志\n" +
+                        "- [优化] 代管管理弹窗 黑名单管理弹窗\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
@@ -1601,127 +1604,6 @@ public void 群管功能弹窗(String groupUin, String uin, int chatType) {
     showGroupManageDialog();
 }
 
-public void 代管管理弹窗(String groupUin, String uin, int chat) {
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("代管管理");
-                
-                final File 代管文件 = 获取代管文件();
-                final ArrayList 代管列表 = 简取(代管文件);
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
-                
-                GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.argb(230, 255, 255, 255));
-                bg.setCornerRadius(dp2px(18));
-                int textColor = Color.BLACK;
-                int hintTextColor = Color.GRAY;
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    bg.setColor(Color.argb(220, 40, 40, 40));
-                    textColor = Color.WHITE;
-                    hintTextColor = Color.LTGRAY;
-                }
-                layout.setBackground(bg);
-                
-                EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号添加，多个用逗号分开");
-                inputEditText.setHintTextColor(hintTextColor);
-                inputEditText.setTextColor(textColor);
-                
-                GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(Color.argb(50, 0, 0, 0));
-                etBg.setCornerRadius(dp2px(10));
-                etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    etBg.setColor(Color.argb(30, 255, 255, 255));
-                    etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
-                }
-                inputEditText.setBackground(etBg);
-                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-                inputEditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                
-                layout.addView(inputEditText);
-                
-                android.view.View spacer = new android.view.View(activity);
-                spacer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(15)));
-                layout.addView(spacer);
-                
-                ListView listView = new ListView(activity);
-                ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 代管列表);
-                listView.setAdapter(adapter);
-                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                listView.setDividerHeight(dp2px(1));
-                listView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(200)));
-                
-                GradientDrawable listBg = new GradientDrawable();
-                listBg.setColor(Color.argb(30, 0, 0, 0));
-                listBg.setCornerRadius(dp2px(10));
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    listBg.setColor(Color.argb(50, 255, 255, 255));
-                }
-                listView.setBackground(listBg);
-                
-                layout.addView(listView);
-                
-                builder.setView(layout);
-                
-                builder.setPositiveButton("添加代管", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
-                            for (String qq : qqs) {
-                                if (!代管列表.contains(qq)) {
-                                    try {
-                                        简写(代管文件, qq);
-                                    } catch (Exception e) {}
-                                }
-                            }
-                            toast("已添加代管");
-                        }
-                    }
-                });
-                
-                builder.setNegativeButton("删除选中用户", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        ArrayList 代管列表副本 = safeCopyList(代管列表);
-                        for (int i = 0; i < listView.getCount(); i++) {
-                            if (listView.isItemChecked(i)) {
-                                String qq = (String)代管列表副本.get(i);
-                                try {
-                                    简弃(代管文件, qq);
-                                } catch (Exception e) {}
-                            }
-                        }
-                            toast("已删除选中用户");
-                    }
-                });
-                
-                builder.setNeutralButton("清空代管", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        try {
-                            全弃(代管文件);
-                        } catch (Exception e) {}
-                        toast("已清空代管");
-                    }
-                });
-                
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
-            } catch (Exception e) {
-            }
-        }
-    });
-}
-
 public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     Activity activity = getActivity();
     if (activity == null) return;
@@ -1751,8 +1633,15 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 }
                 layout.setBackground(bg);
                 
+                TextView hint = new TextView(activity);
+                hint.setText("当前黑名单数量: " + 黑名单列表.size() + " 人");
+                hint.setTextSize(14);
+                hint.setTextColor(textColor);
+                hint.setPadding(0, 0, 0, dp2px(10));
+                layout.addView(hint);
+                
                 EditText inputEditText = new EditText(activity);
-                inputEditText.setHint("输入QQ号，多个用逗号分开");
+                inputEditText.setHint("输入QQ号添加，多个用逗号分开");
                 inputEditText.setHintTextColor(hintTextColor);
                 inputEditText.setTextColor(textColor);
                 
@@ -1766,20 +1655,179 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 }
                 inputEditText.setBackground(etBg);
                 inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-                inputEditText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                inputEditText.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
                 
                 layout.addView(inputEditText);
                 
                 android.view.View spacer = new android.view.View(activity);
-                spacer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(15)));
+                spacer.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(15)
+                ));
                 layout.addView(spacer);
                 
+                LinearLayout buttonLayout = new LinearLayout(activity);
+                buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+                buttonLayout.setGravity(Gravity.CENTER);
+                buttonLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+                
+                TextView addBtn = new TextView(activity);
+                addBtn.setText("添加用户");
+                addBtn.setTextSize(16);
+                addBtn.setTextColor(Color.WHITE);
+                addBtn.setGravity(Gravity.CENTER);
+                addBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable addBg = new GradientDrawable();
+                addBg.setColor(Color.parseColor("#9C27B0")); // 紫色
+                addBg.setCornerRadius(dp2px(10));
+                addBtn.setBackground(addBg);
+                
+                addBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        String input = inputEditText.getText().toString().trim();
+                        if (!input.isEmpty()) {
+                            String[] qqs = input.split("[,\\s]+");
+                            int addedCount = 0;
+                            for (String qq : qqs) {
+                                if (qq.matches("[0-9]{4,11}")) {
+                                    if (!黑名单列表.contains(qq)) {
+                                        try {
+                                            简写(黑名单文件, qq);
+                                            addedCount++;
+                                        } catch (Exception e) {}
+                                    }
+                                }
+                            }
+                            if (addedCount > 0) {
+                                toast("已添加 " + addedCount + " 个黑名单");
+                                
+                                黑名单列表.clear();
+                                黑名单列表.addAll(简取(黑名单文件));
+                                adapter.clear();
+                                adapter.addAll(黑名单列表);
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                toast("没有添加新的黑名单");
+                            }
+                        } else {
+                            toast("请输入QQ号");
+                        }
+                    }
+                });
+                
+                TextView removeSelectedBtn = new TextView(activity);
+                removeSelectedBtn.setText("删除选中");
+                removeSelectedBtn.setTextSize(16);
+                removeSelectedBtn.setTextColor(Color.WHITE);
+                removeSelectedBtn.setGravity(Gravity.CENTER);
+                removeSelectedBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable removeBg = new GradientDrawable();
+                removeBg.setColor(Color.parseColor("#FF9800")); // 橙色
+                removeBg.setCornerRadius(dp2px(10));
+                removeSelectedBtn.setBackground(removeBg);
+                
+                removeSelectedBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        int removedCount = 0;
+                        ArrayList<String> 黑名单列表副本 = safeCopyList(黑名单列表);
+                        for (int i = 0; i < listView.getCount(); i++) {
+                            if (listView.isItemChecked(i)) {
+                                String qq = (String)黑名单列表副本.get(i);
+                                try {
+                                    简弃(黑名单文件, qq);
+                                    removedCount++;
+                                } catch (Exception e) {}
+                            }
+                        }
+                        if (removedCount > 0) {
+                            toast("已删除 " + removedCount + " 个黑名单");
+                            
+                            黑名单列表.clear();
+                            黑名单列表.addAll(简取(黑名单文件));
+                            adapter.clear();
+                            adapter.addAll(黑名单列表);
+                            adapter.notifyDataSetChanged();
+                            
+                            for (int i = 0; i < listView.getCount(); i++) {
+                                listView.setItemChecked(i, false);
+                            }
+                        } else {
+                            toast("请先选择要删除的黑名单");
+                        }
+                    }
+                });
+                
+                TextView clearAllBtn = new TextView(activity);
+                clearAllBtn.setText("清空全部");
+                clearAllBtn.setTextSize(16);
+                clearAllBtn.setTextColor(Color.WHITE);
+                clearAllBtn.setGravity(Gravity.CENTER);
+                clearAllBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable clearBg = new GradientDrawable();
+                clearBg.setColor(Color.parseColor("#F44336")); // 红色
+                clearBg.setCornerRadius(dp2px(10));
+                clearAllBtn.setBackground(clearBg);
+                
+                clearAllBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        try {
+                            全弃(黑名单文件);
+                            toast("已清空所有黑名单");
+                            
+                            黑名单列表.clear();
+                            adapter.clear();
+                            adapter.notifyDataSetChanged();
+                        } catch (Exception e) {
+                            toast("清空失败: " + e.getMessage());
+                        }
+                    }
+                });
+                
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                    0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1.0f
+                );
+                buttonParams.setMargins(dp2px(5), 0, dp2px(5), 0);
+                
+                addBtn.setLayoutParams(buttonParams);
+                removeSelectedBtn.setLayoutParams(buttonParams);
+                clearAllBtn.setLayoutParams(buttonParams);
+                
+                buttonLayout.addView(addBtn);
+                buttonLayout.addView(removeSelectedBtn);
+                buttonLayout.addView(clearAllBtn);
+                
+                layout.addView(buttonLayout);
+                
+                android.view.View spacer2 = new android.view.View(activity);
+                spacer2.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(15)
+                ));
+                layout.addView(spacer2);
+                
                 ListView listView = new ListView(activity);
-                ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, 黑名单列表);
+                final ArrayAdapter adapter = new ArrayAdapter(activity, 
+                    android.R.layout.simple_list_item_multiple_choice, 
+                    黑名单列表
+                );
                 listView.setAdapter(adapter);
                 listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                 listView.setDividerHeight(dp2px(1));
-                listView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(200)));
+                listView.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(200)
+                ));
                 
                 GradientDrawable listBg = new GradientDrawable();
                 listBg.setColor(Color.argb(30, 0, 0, 0));
@@ -1791,53 +1839,286 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 
                 layout.addView(listView);
                 
-                builder.setView(layout);
+                TextView bottomHint = new TextView(activity);
+                bottomHint.setText("共 " + 黑名单列表.size() + " 个黑名单用户");
+                bottomHint.setTextSize(12);
+                bottomHint.setTextColor(hintTextColor);
+                bottomHint.setGravity(Gravity.CENTER);
+                bottomHint.setPadding(0, dp2px(10), 0, 0);
+                layout.addView(bottomHint);
                 
-                builder.setPositiveButton("添加黑名单", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        String input = inputEditText.getText().toString().trim();
-                        if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
-                            for (String qq : qqs) {
-                                if (!黑名单列表.contains(qq)) {
-                                    try {
-                                        简写(黑名单文件, qq);
-                                    } catch (Exception e) {}
-                                }
-                            }
-                            toast("已添加黑名单");
-                        }
-                    }
-                });
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
                 
-                builder.setNegativeButton("删除选中用户", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        ArrayList 黑名单列表副本 = safeCopyList(黑名单列表);
-                        for (int i = 0; i < listView.getCount(); i++) {
-                            if (listView.isItemChecked(i)) {
-                                String qq = (String)黑名单列表副本.get(i);
-                                try {
-                                    简弃(黑名单文件, qq);
-                                } catch (Exception e) {}
-                            }
-                        }
-                        toast("已删除选中用户黑名单");
-                    }
-                });
-                
-                builder.setNeutralButton("清空黑名单", new android.content.DialogInterface.OnClickListener() {
-                    public void onClick(android.content.DialogInterface dialog, int which) {
-                        try {
-                            全弃(黑名单文件);
-                        } catch (Exception e) {}
-                        toast("已清空黑名单");
-                    }
-                });
+                builder.setView(scrollView);
+                builder.setNegativeButton("关闭", null);
                 
                 AlertDialog dialog = builder.create();
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
+                
             } catch (Exception e) {
+                toast("打开黑名单管理失败: " + e.getMessage());
+            }
+        }
+    });
+}
+
+public void 代管管理弹窗(String groupUin, String uin, int chat) {
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                builder.setTitle("代管管理");
+                
+                final File 代管文件 = 获取代管文件();
+                final ArrayList 代管列表 = 简取(代管文件);
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
+                
+                GradientDrawable bg = new GradientDrawable();
+                bg.setColor(Color.argb(230, 255, 255, 255));
+                bg.setCornerRadius(dp2px(18));
+                int textColor = Color.BLACK;
+                int hintTextColor = Color.GRAY;
+                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                    bg.setColor(Color.argb(220, 40, 40, 40));
+                    textColor = Color.WHITE;
+                    hintTextColor = Color.LTGRAY;
+                }
+                layout.setBackground(bg);
+                
+                TextView hint = new TextView(activity);
+                hint.setText("当前代管数量: " + 代管列表.size() + " 人");
+                hint.setTextSize(14);
+                hint.setTextColor(textColor);
+                hint.setPadding(0, 0, 0, dp2px(10));
+                layout.addView(hint);
+                
+                EditText inputEditText = new EditText(activity);
+                inputEditText.setHint("输入QQ号添加，多个用逗号分开");
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
+                
+                GradientDrawable etBg = new GradientDrawable();
+                etBg.setColor(Color.argb(50, 0, 0, 0));
+                etBg.setCornerRadius(dp2px(10));
+                etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
+                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                    etBg.setColor(Color.argb(30, 255, 255, 255));
+                    etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
+                }
+                inputEditText.setBackground(etBg);
+                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                inputEditText.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+                
+                layout.addView(inputEditText);
+                
+                android.view.View spacer = new android.view.View(activity);
+                spacer.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(15)
+                ));
+                layout.addView(spacer);
+                
+                LinearLayout buttonLayout = new LinearLayout(activity);
+                buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+                buttonLayout.setGravity(Gravity.CENTER);
+                buttonLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+                
+                TextView addBtn = new TextView(activity);
+                addBtn.setText("添加用户");
+                addBtn.setTextSize(16);
+                addBtn.setTextColor(Color.WHITE);
+                addBtn.setGravity(Gravity.CENTER);
+                addBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable addBg = new GradientDrawable();
+                addBg.setColor(Color.parseColor("#2196F3")); // 蓝色
+                addBg.setCornerRadius(dp2px(10));
+                addBtn.setBackground(addBg);
+                
+                addBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        String input = inputEditText.getText().toString().trim();
+                        if (!input.isEmpty()) {
+                            String[] qqs = input.split("[,\\s]+");
+                            int addedCount = 0;
+                            for (String qq : qqs) {
+                                if (qq.matches("[0-9]{4,11}")) {
+                                    if (!代管列表.contains(qq)) {
+                                        try {
+                                            简写(代管文件, qq);
+                                            addedCount++;
+                                        } catch (Exception e) {}
+                                    }
+                                }
+                            }
+                            if (addedCount > 0) {
+                                toast("已添加 " + addedCount + " 个代管");
+                                
+                                代管列表.clear();
+                                代管列表.addAll(简取(代管文件));
+                                adapter.clear();
+                                adapter.addAll(代管列表);
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                toast("没有添加新的代管");
+                            }
+                        } else {
+                            toast("请输入QQ号");
+                        }
+                    }
+                });
+                
+                TextView removeSelectedBtn = new TextView(activity);
+                removeSelectedBtn.setText("删除选中");
+                removeSelectedBtn.setTextSize(16);
+                removeSelectedBtn.setTextColor(Color.WHITE);
+                removeSelectedBtn.setGravity(Gravity.CENTER);
+                removeSelectedBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable removeBg = new GradientDrawable();
+                removeBg.setColor(Color.parseColor("#4CAF50")); // 绿色
+                removeBg.setCornerRadius(dp2px(10));
+                removeSelectedBtn.setBackground(removeBg);
+                
+                removeSelectedBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        int removedCount = 0;
+                        ArrayList<String> 代管列表副本 = safeCopyList(代管列表);
+                        for (int i = 0; i < listView.getCount(); i++) {
+                            if (listView.isItemChecked(i)) {
+                                String qq = (String)代管列表副本.get(i);
+                                try {
+                                    简弃(代管文件, qq);
+                                    removedCount++;
+                                } catch (Exception e) {}
+                            }
+                        }
+                        if (removedCount > 0) {
+                            toast("已删除 " + removedCount + " 个代管");
+                            
+                            代管列表.clear();
+                            代管列表.addAll(简取(代管文件));
+                            adapter.clear();
+                            adapter.addAll(代管列表);
+                            adapter.notifyDataSetChanged();
+                            
+                            for (int i = 0; i < listView.getCount(); i++) {
+                                listView.setItemChecked(i, false);
+                            }
+                        } else {
+                            toast("请先选择要删除的代管");
+                        }
+                    }
+                });
+                
+                TextView clearAllBtn = new TextView(activity);
+                clearAllBtn.setText("清空全部");
+                clearAllBtn.setTextSize(16);
+                clearAllBtn.setTextColor(Color.WHITE);
+                clearAllBtn.setGravity(Gravity.CENTER);
+                clearAllBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable clearBg = new GradientDrawable();
+                clearBg.setColor(Color.parseColor("#D32F2F")); // 深红色
+                clearBg.setCornerRadius(dp2px(10));
+                clearAllBtn.setBackground(clearBg);
+                
+                clearAllBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        try {
+                            全弃(代管文件);
+                            toast("已清空所有代管");
+                            
+                            代管列表.clear();
+                            adapter.clear();
+                            adapter.notifyDataSetChanged();
+                        } catch (Exception e) {
+                            toast("清空失败: " + e.getMessage());
+                        }
+                    }
+                });
+                
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                    0,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1.0f
+                );
+                buttonParams.setMargins(dp2px(5), 0, dp2px(5), 0);
+                
+                addBtn.setLayoutParams(buttonParams);
+                removeSelectedBtn.setLayoutParams(buttonParams);
+                clearAllBtn.setLayoutParams(buttonParams);
+                
+                buttonLayout.addView(addBtn);
+                buttonLayout.addView(removeSelectedBtn);
+                buttonLayout.addView(clearAllBtn);
+                
+                layout.addView(buttonLayout);
+                
+                android.view.View spacer2 = new android.view.View(activity);
+                spacer2.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(15)
+                ));
+                layout.addView(spacer2);
+                
+                ListView listView = new ListView(activity);
+                final ArrayAdapter adapter = new ArrayAdapter(activity, 
+                    android.R.layout.simple_list_item_multiple_choice, 
+                    代管列表
+                );
+                listView.setAdapter(adapter);
+                listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                listView.setDividerHeight(dp2px(1));
+                listView.setLayoutParams(new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    dp2px(200)
+                ));
+                
+                GradientDrawable listBg = new GradientDrawable();
+                listBg.setColor(Color.argb(30, 0, 0, 0));
+                listBg.setCornerRadius(dp2px(10));
+                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                    listBg.setColor(Color.argb(50, 255, 255, 255));
+                }
+                listView.setBackground(listBg);
+                
+                layout.addView(listView);
+                
+                TextView bottomHint = new TextView(activity);
+                bottomHint.setText("共 " + 代管列表.size() + " 个代管");
+                bottomHint.setTextSize(12);
+                bottomHint.setTextColor(hintTextColor);
+                bottomHint.setGravity(Gravity.CENTER);
+                bottomHint.setPadding(0, dp2px(10), 0, 0);
+                layout.addView(bottomHint);
+                
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
+                
+                builder.setView(scrollView);
+                builder.setNegativeButton("关闭", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                toast("打开代管管理失败: " + e.getMessage());
             }
         }
     });
