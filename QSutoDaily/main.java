@@ -93,62 +93,62 @@ public int getCurrentTheme() {
 public String getBackgroundColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#0F1C2D";
+        return "#1C1C1C";
     } else {
-        return "#F8FAFF";
+        return "#F7F9FC";
     }
 }
 
 public String getTextColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#E6F1FF";
+        return "#E8E8E8";
     } else {
-        return "#1A2B4D";
+        return "#2C2C2C";
     }
 }
 
 public String getSubTextColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#7A9BC8";
+        return "#A0A0A0";
     } else {
-        return "#5A7AB8";
+        return "#666666";
     }
 }
 
 public String getCardColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#1A2B4D";
+        return "#2A2A2A";
     } else {
         return "#FFFFFF";
     }
 }
 
 public String getAccentColor() {
-    return "#6C63FF";
+    return "#6750A4";
 }
 
 public String getAccentColorDark() {
-    return "#5149E0";
+    return "#51408C";
 }
 
 public String getSurfaceColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#243B5E";
+        return "#363636";
     } else {
-        return "#F0F4FF";
+        return "#F0F3F9";
     }
 }
 
 public String getBorderColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#2A4373";
+        return "#404040";
     } else {
-        return "#D6E0FF";
+        return "#E1E8F0";
     }
 }
 
@@ -179,7 +179,7 @@ public void Toasts(String text) {
             try {
                 if (getActivity() != null) {
                     int theme = getCurrentTheme();
-                    String bgColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#1A2B4D" : "#6C63FF";
+                    String bgColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2A2A2A" : "#6750A4";
                     String textColor = "#FFFFFF";
                     
                     LinearLayout linearLayout = new LinearLayout(context);
@@ -1366,7 +1366,7 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
         final ArrayList filteredDisplayList = new ArrayList(displayList);
         final ArrayList filteredUinList = new ArrayList(uinList);
         
-        ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+        final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
         
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -1592,7 +1592,7 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
         final ArrayList filteredDisplayList = new ArrayList(displayList);
         final ArrayList filteredUinList = new ArrayList(uinList);
         
-        ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+        final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         
