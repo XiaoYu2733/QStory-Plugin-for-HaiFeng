@@ -92,40 +92,64 @@ public int getCurrentTheme() {
 
 public String getBackgroundColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#121212" : "#FAFAFA";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#0F1C2D";
+    } else {
+        return "#F8FAFF";
+    }
 }
 
 public String getTextColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#E8E8E8" : "#1A1A1A";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#E6F1FF";
+    } else {
+        return "#1A2B4D";
+    }
 }
 
 public String getSubTextColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#AAAAAA" : "#666666";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#7A9BC8";
+    } else {
+        return "#5A7AB8";
+    }
 }
 
 public String getCardColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#1E1E1E" : "#FFFFFF";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#1A2B4D";
+    } else {
+        return "#FFFFFF";
+    }
 }
 
 public String getAccentColor() {
-    return "#007AFF";
+    return "#6C63FF";
 }
 
 public String getAccentColorDark() {
-    return "#0056CC";
+    return "#5149E0";
 }
 
 public String getSurfaceColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2C2C2C" : "#F5F5F5";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#243B5E";
+    } else {
+        return "#F0F4FF";
+    }
 }
 
 public String getBorderColor() {
     int theme = getCurrentTheme();
-    return theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#333333" : "#E0E0E0";
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#2A4373";
+    } else {
+        return "#D6E0FF";
+    }
 }
 
 public int c(float f) {
@@ -142,10 +166,7 @@ public GradientDrawable getShape(String color, int cornerRadius) {
 
 public GradientDrawable getGlassShape(String baseColor, int cornerRadius) {
     GradientDrawable shape = new GradientDrawable();
-    int color = Color.parseColor(baseColor);
-    int theme = getCurrentTheme();
-    int alpha = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? 220 : 230;
-    shape.setColor(Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color)));
+    shape.setColor(Color.parseColor(baseColor));
     shape.setCornerRadius(cornerRadius);
     shape.setStroke(c(1), Color.parseColor(getBorderColor()));
     shape.setShape(GradientDrawable.RECTANGLE);
@@ -158,8 +179,8 @@ public void Toasts(String text) {
             try {
                 if (getActivity() != null) {
                     int theme = getCurrentTheme();
-                    String bgColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2C2C2C" : "#333333";
-                    String textColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#FFFFFF" : "#FFFFFF";
+                    String bgColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#1A2B4D" : "#6C63FF";
+                    String textColor = "#FFFFFF";
                     
                     LinearLayout linearLayout = new LinearLayout(context);
                     linearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -518,7 +539,8 @@ void showMainMenu(final Activity activity) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
+                int theme = getCurrentTheme();
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
                 builder.setTitle("配置执行任务");
                 
                 LinearLayout layout = new LinearLayout(activity);
@@ -526,21 +548,15 @@ void showMainMenu(final Activity activity) {
                 layout.setPadding(c(20), c(15), c(20), c(15));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.argb(230, 255, 255, 255));
+                bg.setColor(Color.parseColor(getCardColor()));
                 bg.setCornerRadius(c(18));
-                int textColor = Color.BLACK;
-                int hintTextColor = Color.GRAY;
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    bg.setColor(Color.argb(220, 40, 40, 40));
-                    textColor = Color.WHITE;
-                    hintTextColor = Color.LTGRAY;
-                }
+                bg.setStroke(c(1), Color.parseColor(getBorderColor()));
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
                 hint.setText("当前配置:\n点赞好友: " + selectedFriendsForLike.size() + " 人\n续火好友: " + selectedFriendsForFire.size() + " 人\n续火群组: " + selectedGroupsForFire.size() + " 个");
                 hint.setTextSize(14);
-                hint.setTextColor(textColor);
+                hint.setTextColor(Color.parseColor(getTextColor()));
                 hint.setPadding(0, 0, 0, c(10));
                 layout.addView(hint);
                 
@@ -557,7 +573,7 @@ void showMainMenu(final Activity activity) {
                 );
                 buttonParams.setMargins(0, 0, 0, c(8));
                 
-                String accentColor = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
                 Button btnLikeFriends = new Button(activity);
                 btnLikeFriends.setText("配置点赞好友");
@@ -609,7 +625,7 @@ void showMainMenu(final Activity activity) {
                 TextView quickTitle = new TextView(activity);
                 quickTitle.setText("快速操作");
                 quickTitle.setTextSize(16);
-                quickTitle.setTextColor(textColor);
+                quickTitle.setTextColor(Color.parseColor(getTextColor()));
                 quickTitle.setTypeface(null, Typeface.BOLD);
                 quickTitle.setPadding(0, 0, 0, c(10));
                 layout.addView(quickTitle);
@@ -678,7 +694,8 @@ void showMainMenu(final Activity activity) {
 }
 
 void showConfigDetails(final Activity activity) {
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, getCurrentTheme());
+    int theme = getCurrentTheme();
+    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
     
     LinearLayout layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
@@ -872,10 +889,10 @@ void showWordsMenu(final Activity activity) {
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                dialog.getWindow().setAttributes(lp);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -970,10 +987,10 @@ void showTimeMenu(final Activity activity) {
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                dialog.getWindow().setAttributes(lp);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -1082,10 +1099,10 @@ void showExecuteMenu(final Activity activity) {
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                dialog.getWindow().setAttributes(lp);
                 
                 Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
                 if (negativeButton != null) {
@@ -1349,7 +1366,8 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
         final ArrayList filteredDisplayList = new ArrayList(displayList);
         final ArrayList filteredUinList = new ArrayList(uinList);
         
-        final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+        ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+        
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         
@@ -1506,173 +1524,176 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
 }
 
 private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
-    int theme = getCurrentTheme();
-    String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-    
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-    
-    LinearLayout mainLayout = new LinearLayout(activity);
-    mainLayout.setOrientation(LinearLayout.VERTICAL);
-    mainLayout.setPadding(c(5), c(5), c(5), c(5));
-    
-    final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
-    
-    LinearLayout contentLayout = new LinearLayout(activity);
-    contentLayout.setOrientation(LinearLayout.VERTICAL);
-    contentLayout.setPadding(c(15), c(15), c(15), c(15));
-    contentLayout.setBackground(getGlassShape(getCardColor(), c(18)));
-    
-    TextView titleView = new TextView(activity);
-    titleView.setText("选择续火群组");
-    titleView.setTextColor(Color.parseColor(getTextColor()));
-    titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-    titleView.setGravity(Gravity.CENTER);
-    titleView.setPadding(0, 0, 0, c(15));
-    contentLayout.addView(titleView);
-    
-    final EditText searchEditText = new EditText(activity);
-    searchEditText.setHint("搜索群号、群名");
-    searchEditText.setTextColor(Color.parseColor(getTextColor()));
-    searchEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-    searchEditText.setBackground(getGlassShape(getSurfaceColor(), c(8)));
-    searchEditText.setPadding(c(12), c(10), c(12), c(10));
-    contentLayout.addView(searchEditText);
-    
-    Button selectAllButton = new Button(activity);
-    selectAllButton.setText("全选(当前显示)");
-    selectAllButton.setTextColor(Color.WHITE);
-    selectAllButton.setBackground(getShape(accentColor, c(8)));
-    selectAllButton.setPadding(c(20), c(10), c(20), c(10));
-    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.WRAP_CONTENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    );
-    params.gravity = Gravity.END;
-    params.setMargins(0, c(10), 0, c(10));
-    selectAllButton.setLayoutParams(params);
-    contentLayout.addView(selectAllButton);
-    
-    final ListView listView = new ListView(activity);
-    listView.setBackground(getGlassShape(getSurfaceColor(), c(8)));
-    listView.setDividerHeight(c(1));
-    LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.MATCH_PARENT
-    );
-    listParams.weight = 1;
-    listView.setLayoutParams(listParams);
-    contentLayout.addView(listView);
-    
-    mainLayout.addView(contentLayout);
-    
-    final ArrayList filteredDisplayList = new ArrayList(displayList);
-    final ArrayList filteredUinList = new ArrayList(uinList);
-    
-    final ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList) {
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
-            textView.setTextColor(Color.parseColor(getTextColor()));
-            return view;
-        }
-    };
-    listView.setAdapter(adapter);
-    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-    
-    for (int i = 0; i < filteredUinList.size(); i++) {
-        String uin = (String)filteredUinList.get(i);
-        listView.setItemChecked(i, currentSessionSelected.contains(uin));
+    if (activity == null || activity.isFinishing()) {
+        Toasts("无法获取有效的Activity");
+        return;
     }
-
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            String uin = (String) filteredUinList.get(position);
-            boolean isChecked = listView.isItemChecked(position);
-            if (isChecked) {
-                if (!currentSessionSelected.contains(uin)) {
-                    currentSessionSelected.add(uin);
-                }
-            } else {
-                currentSessionSelected.remove(uin);
-            }
-        }
-    });
     
-    searchEditText.addTextChangedListener(new TextWatcher() {
-        public void afterTextChanged(Editable s) {}
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            String searchText = s.toString().toLowerCase().trim();
-            filteredDisplayList.clear();
-            filteredUinList.clear();
-            
-            if (searchText.isEmpty()) {
-                filteredDisplayList.addAll(displayList);
-                filteredUinList.addAll(uinList);
-            } else {
-                for (int i = 0; i < displayList.size(); i++) {
-                    String displayName = ((String)displayList.get(i)).toLowerCase();
-                    String uin = (String)uinList.get(i);
-                    
-                    if (displayName.contains(searchText) || uin.contains(searchText)) {
-                        filteredDisplayList.add(displayList.get(i));
-                        filteredUinList.add(uinList.get(i));
+    try {
+        int theme = getCurrentTheme();
+        String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+        
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+        
+        LinearLayout mainLayout = new LinearLayout(activity);
+        mainLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLayout.setPadding(c(5), c(5), c(5), c(5));
+        
+        final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
+        
+        LinearLayout contentLayout = new LinearLayout(activity);
+        contentLayout.setOrientation(LinearLayout.VERTICAL);
+        contentLayout.setPadding(c(15), c(15), c(15), c(15));
+        contentLayout.setBackground(getGlassShape(getCardColor(), c(18)));
+        
+        TextView titleView = new TextView(activity);
+        titleView.setText("选择续火群组");
+        titleView.setTextColor(Color.parseColor(getTextColor()));
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        titleView.setGravity(Gravity.CENTER);
+        titleView.setPadding(0, 0, 0, c(15));
+        contentLayout.addView(titleView);
+        
+        final EditText searchEditText = new EditText(activity);
+        searchEditText.setHint("搜索群号、群名");
+        searchEditText.setTextColor(Color.parseColor(getTextColor()));
+        searchEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
+        searchEditText.setBackground(getGlassShape(getSurfaceColor(), c(8)));
+        searchEditText.setPadding(c(12), c(10), c(12), c(10));
+        contentLayout.addView(searchEditText);
+        
+        Button selectAllButton = new Button(activity);
+        selectAllButton.setText("全选(当前显示)");
+        selectAllButton.setTextColor(Color.WHITE);
+        selectAllButton.setBackground(getShape(accentColor, c(8)));
+        selectAllButton.setPadding(c(20), c(10), c(20), c(10));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.gravity = Gravity.END;
+        params.setMargins(0, c(10), 0, c(10));
+        selectAllButton.setLayoutParams(params);
+        contentLayout.addView(selectAllButton);
+        
+        final ListView listView = new ListView(activity);
+        listView.setBackground(getGlassShape(getSurfaceColor(), c(8)));
+        listView.setDividerHeight(c(1));
+        LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        listParams.weight = 1;
+        listView.setLayoutParams(listParams);
+        contentLayout.addView(listView);
+        
+        mainLayout.addView(contentLayout);
+        
+        final ArrayList filteredDisplayList = new ArrayList(displayList);
+        final ArrayList filteredUinList = new ArrayList(uinList);
+        
+        ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        
+        for (int i = 0; i < filteredUinList.size(); i++) {
+            String uin = (String)filteredUinList.get(i);
+            listView.setItemChecked(i, currentSessionSelected.contains(uin));
+        }
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                String uin = (String) filteredUinList.get(position);
+                boolean isChecked = listView.isItemChecked(position);
+                if (isChecked) {
+                    if (!currentSessionSelected.contains(uin)) {
+                        currentSessionSelected.add(uin);
+                    }
+                } else {
+                    currentSessionSelected.remove(uin);
+                }
+            }
+        });
+        
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String searchText = s.toString().toLowerCase().trim();
+                filteredDisplayList.clear();
+                filteredUinList.clear();
+                
+                if (searchText.isEmpty()) {
+                    filteredDisplayList.addAll(displayList);
+                    filteredUinList.addAll(uinList);
+                } else {
+                    for (int i = 0; i < displayList.size(); i++) {
+                        String displayName = ((String)displayList.get(i)).toLowerCase();
+                        String uin = (String)uinList.get(i);
+                        
+                        if (displayName.contains(searchText) || uin.contains(searchText)) {
+                            filteredDisplayList.add(displayList.get(i));
+                            filteredUinList.add(uinList.get(i));
+                        }
+                    }
+                }
+                
+                adapter.notifyDataSetChanged();
+                
+                for (int i = 0; i < filteredUinList.size(); i++) {
+                    String uin = (String)filteredUinList.get(i);
+                    listView.setItemChecked(i, currentSessionSelected.contains(uin));
+                }
+            }
+        });
+        
+        selectAllButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                for (int i = 0; i < filteredUinList.size(); i++) {
+                    listView.setItemChecked(i, true);
+                    String uin = (String) filteredUinList.get(i);
+                    if (!currentSessionSelected.contains(uin)) {
+                        currentSessionSelected.add(uin);
                     }
                 }
             }
-            
-            adapter.notifyDataSetChanged();
-            
-            for (int i = 0; i < filteredUinList.size(); i++) {
-                String uin = (String)filteredUinList.get(i);
-                listView.setItemChecked(i, currentSessionSelected.contains(uin));
+        });
+        
+        dialogBuilder.setView(mainLayout);
+        
+        dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                selectedGroupsForFire.clear();
+                selectedGroupsForFire.addAll(currentSessionSelected);
+                
+                saveFireGroups();
+                Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
             }
+        });
+        
+        dialogBuilder.setNegativeButton("取消", null);
+        
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.show();
+        
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
+        dialog.getWindow().setAttributes(lp);
+        
+        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor(accentColor));
         }
-    });
-    
-    selectAllButton.setOnClickListener(new View.OnClickListener() {
-        public void onClick(View v) {
-            for (int i = 0; i < filteredUinList.size(); i++) {
-                listView.setItemChecked(i, true);
-                String uin = (String) filteredUinList.get(i);
-                if (!currentSessionSelected.contains(uin)) {
-                    currentSessionSelected.add(uin);
-                }
-            }
+        Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+        if (negativeButton != null) {
+            negativeButton.setTextColor(Color.parseColor(accentColor));
         }
-    });
-    
-    dialogBuilder.setView(mainLayout);
-    
-    dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            selectedGroupsForFire.clear();
-            selectedGroupsForFire.addAll(currentSessionSelected);
-            
-            saveFireGroups();
-            Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
-        }
-    });
-    
-    dialogBuilder.setNegativeButton("取消", null);
-    
-    AlertDialog dialog = dialogBuilder.create();
-    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-    dialog.show();
-    
-    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
-    dialog.getWindow().setAttributes(lp);
-    
-    Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-    if (positiveButton != null) {
-        positiveButton.setTextColor(Color.parseColor(accentColor));
-    }
-    Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-    if (negativeButton != null) {
-        negativeButton.setTextColor(Color.parseColor(accentColor));
+        
+    } catch (Exception e) {
+        Toasts("打开选择对话框失败: " + e.getMessage());
     }
 }
 
@@ -1767,10 +1788,10 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
                 dialog.show();
                 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                dialog.getWindow().setAttributes(lp);
                 
                 Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                 if (positiveButton != null) {
@@ -1945,10 +1966,10 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+            lp.copyFrom(dialog.getWindow().getAttributes());
+            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
@@ -2017,10 +2038,10 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+            lp.copyFrom(dialog.getWindow().getAttributes());
+            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
@@ -2089,10 +2110,10 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             dialog.show();
             
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+            lp.copyFrom(dialog.getWindow().getAttributes());
+            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
             
             Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             if (positiveButton != null) {
