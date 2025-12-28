@@ -414,42 +414,53 @@ public void haifeng520(final Object msg) {
                     buttonList.add(allianceBanBtn);
                 }
                 
-                for (int i = 0; i < buttonList.size(); i += 2) {
-                    LinearLayout rowLayout = new LinearLayout(getActivity());
-                    rowLayout.setOrientation(LinearLayout.HORIZONTAL);
-                    rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ));
+                if (buttonList.isEmpty()) {
+                    TextView noPermissionText = new TextView(getActivity());
+                    noPermissionText.setText("暂无权限");
+                    noPermissionText.setTextSize(18);
+                    noPermissionText.setTextColor(textColor);
+                    noPermissionText.setGravity(Gravity.CENTER);
+                    noPermissionText.setPadding(dp2px(15), dp2px(30), dp2px(15), dp2px(30));
                     
-                    TextView btn1 = buttonList.get(i);
-                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        1.0f
-                    );
-                    params1.setMargins(0, 0, dp2px(5), dp2px(5));
-                    btn1.setLayoutParams(params1);
-                    rowLayout.addView(btn1);
-                    
-                    if (i + 1 < buttonList.size()) {
-                        TextView btn2 = buttonList.get(i + 1);
-                        LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+                    dialogLayout.addView(noPermissionText);
+                } else {
+                    for (int i = 0; i < buttonList.size(); i += 2) {
+                        LinearLayout rowLayout = new LinearLayout(getActivity());
+                        rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+                        rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ));
+                        
+                        TextView btn1 = buttonList.get(i);
+                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
                             0,
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             1.0f
                         );
-                        params2.setMargins(dp2px(5), 0, 0, dp2px(5));
-                        btn2.setLayoutParams(params2);
-                        rowLayout.addView(btn2);
-                    } else {
-                        btn1.setLayoutParams(new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                        ));
+                        params1.setMargins(0, 0, dp2px(5), dp2px(5));
+                        btn1.setLayoutParams(params1);
+                        rowLayout.addView(btn1);
+                        
+                        if (i + 1 < buttonList.size()) {
+                            TextView btn2 = buttonList.get(i + 1);
+                            LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+                                0,
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                1.0f
+                            );
+                            params2.setMargins(dp2px(5), 0, 0, dp2px(5));
+                            btn2.setLayoutParams(params2);
+                            rowLayout.addView(btn2);
+                        } else {
+                            btn1.setLayoutParams(new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ));
+                        }
+                        
+                        dialogLayout.addView(rowLayout);
                     }
-                    
-                    dialogLayout.addView(rowLayout);
                 }
                 
                 ScrollView scrollView = new ScrollView(getActivity());
@@ -1499,6 +1510,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 夜七不听话\n" +
                                                 "——————————————————————————\n" +
                         "简洁群管_104.0_更新日志\n" +
+                        "- [添加] 为快捷群管添加更多ui，当你在没有权限的群聊，长按快捷群管会显示暂无权限而不是空白\n" +
                         "- [添加] 快捷群管添加撤回功能，画个大饼：以后可能会支持设置精华，设置群待办等\n" +
                         "- [优化] 代管管理弹窗 黑名单管理弹窗\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
