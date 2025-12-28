@@ -260,6 +260,36 @@ public void haifeng520(final Object msg) {
                 }
                 
                 if (isOwner || isAdmin) {
+                    TextView revokeBtn = new TextView(getActivity());
+                    revokeBtn.setText("撤回");
+                    revokeBtn.setTextSize(18);
+                    revokeBtn.setTextColor(textColor);
+                    revokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                    revokeBtn.setGravity(Gravity.CENTER);
+                    
+                    GradientDrawable revokeBg = new GradientDrawable();
+                    revokeBg.setColor(Color.argb(30, 0, 0, 0));
+                    revokeBg.setCornerRadius(dp2px(12));
+                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                        revokeBg.setColor(Color.argb(50, 255, 255, 255));
+                    }
+                    revokeBtn.setBackground(revokeBg);
+                    
+                    revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
+                            try {
+                                revokeMsg(msg);
+                                toast("已撤回消息");
+                            } catch (Exception e) {
+                                toast("撤回失败: " + e.getMessage());
+                            }
+                        }
+                    });
+                    
+                    buttonList.add(revokeBtn);
+                }
+                
+                if (isOwner || isAdmin) {
                     TextView kickBtn = new TextView(getActivity());
                     kickBtn.setText("踢出");
                     kickBtn.setTextSize(18);
@@ -1469,6 +1499,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 夜七不听话\n" +
                                                 "——————————————————————————\n" +
                         "简洁群管_104.0_更新日志\n" +
+                        "- [添加] 快捷群管添加撤回功能，画个大饼：以后可能会支持设置精华，设置群待办等\n" +
                         "- [优化] 代管管理弹窗 黑名单管理弹窗\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
