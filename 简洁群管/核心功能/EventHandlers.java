@@ -964,10 +964,10 @@ public void 检测黑名单方法(String groupUin, String uin, int chatType) {
                 ArrayList 封禁列表 = null;
                 
                 try {
-                    if (联盟群组文件.exists()) {
+                    if (联盟群组文件 != null && 联盟群组文件.exists()) {
                         联盟群组列表 = 简取(联盟群组文件);
                     }
-                    if (封禁列表文件.exists()) {
+                    if (封禁列表文件 != null && 封禁列表文件.exists()) {
                         封禁列表 = 简取(封禁列表文件);
                     }
                 } catch (Exception e) {

@@ -23,7 +23,7 @@ public void 移除联盟群组(String groupUin) {
 public boolean 是联盟群组(String groupUin) {
     try {
         if (groupUin == null || groupUin.isEmpty()) return false;
-        if (!联盟群组文件.exists()) return false;
+        if (联盟群组文件 == null || !联盟群组文件.exists()) return false;
         ArrayList 联盟群组 = 简取(联盟群组文件);
         return 联盟群组.contains(groupUin);
     } catch (Exception e) {
@@ -133,7 +133,7 @@ public void 移除封禁用户(String userUin) {
 public boolean 是封禁用户(String userUin) {
     try {
         if (userUin == null || userUin.isEmpty()) return false;
-        if (!封禁列表文件.exists()) return false;
+        if (封禁列表文件 == null || !封禁列表文件.exists()) return false;
         ArrayList 封禁列表 = 简取(封禁列表文件);
         for (int i = 0; i < 封禁列表.size(); i++) {
             String 记录 = (String)封禁列表.get(i);
@@ -150,7 +150,7 @@ public boolean 是封禁用户(String userUin) {
 public String 获取封禁理由(String userUin) {
     try {
         if (userUin == null || userUin.isEmpty()) return null;
-        if (!封禁列表文件.exists()) return null;
+        if (封禁列表文件 == null || !封禁列表文件.exists()) return null;
         ArrayList 封禁列表 = 简取(封禁列表文件);
         for (int i = 0; i < 封禁列表.size(); i++) {
             String 记录 = (String)封禁列表.get(i);
