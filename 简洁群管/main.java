@@ -235,133 +235,172 @@ public void haifeng520(final Object msg) {
                 List<TextView> buttonList = new ArrayList<>();
                 
                 if (isOwner || isAdmin) {
-                    TextView banBtn = new TextView(getActivity());
-                    banBtn.setText("禁言");
-                    banBtn.setTextSize(18);
-                    banBtn.setTextColor(textColor);
-                    banBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    banBtn.setGravity(Gravity.CENTER);
+                    boolean canOperateTarget = true;
                     
-                    GradientDrawable banBg = new GradientDrawable();
-                    banBg.setColor(Color.argb(30, 0, 0, 0));
-                    banBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        banBg.setColor(Color.argb(50, 255, 255, 255));
-                    }
-                    banBtn.setBackground(banBg);
-                    
-                    banBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
-                            forbiddenMenuItem(msg);
-                        }
-                    });
-                    
-                    buttonList.add(banBtn);
-                }
-                
-                if (isOwner || isAdmin) {
-                    TextView revokeBtn = new TextView(getActivity());
-                    revokeBtn.setText("撤回");
-                    revokeBtn.setTextSize(18);
-                    revokeBtn.setTextColor(textColor);
-                    revokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    revokeBtn.setGravity(Gravity.CENTER);
-                    
-                    GradientDrawable revokeBg = new GradientDrawable();
-                    revokeBg.setColor(Color.argb(30, 0, 0, 0));
-                    revokeBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        revokeBg.setColor(Color.argb(50, 255, 255, 255));
-                    }
-                    revokeBtn.setBackground(revokeBg);
-                    
-                    revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
+                    try {
+                        Object targetInfo = getMemberInfo(groupUin, targetUin);
+                        if (targetInfo != null) {
+                            boolean targetIsOwner = false;
+                            boolean targetIsAdmin = false;
                             try {
-                                revokeMsg(msg);
-                                toast("已撤回消息");
+                                targetIsOwner = targetInfo.IsOwner;
+                                targetIsAdmin = targetInfo.IsAdmin;
                             } catch (Exception e) {
-                                toast("撤回失败: " + e.getMessage());
+                            }
+                            
+                            if (isAdmin && (targetIsOwner || targetIsAdmin)) {
+                                canOperateTarget = false;
                             }
                         }
-                    });
-                    
-                    buttonList.add(revokeBtn);
-                }
-                
-                if (isOwner || isAdmin) {
-                    TextView kickBtn = new TextView(getActivity());
-                    kickBtn.setText("踢出");
-                    kickBtn.setTextSize(18);
-                    kickBtn.setTextColor(textColor);
-                    kickBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    kickBtn.setGravity(Gravity.CENTER);
-                    
-                    GradientDrawable kickBg = new GradientDrawable();
-                    kickBg.setColor(Color.argb(30, 0, 0, 0));
-                    kickBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        kickBg.setColor(Color.argb(50, 255, 255, 255));
+                    } catch (Exception e) {
                     }
-                    kickBtn.setBackground(kickBg);
                     
-                    kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
-                            kickMenuItem(msg);
+                    if (canOperateTarget) {
+                        TextView banBtn = new TextView(getActivity());
+                        banBtn.setText("禁言");
+                        banBtn.setTextSize(18);
+                        banBtn.setTextColor(textColor);
+                        banBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        banBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable banBg = new GradientDrawable();
+                        banBg.setColor(Color.argb(30, 0, 0, 0));
+                        banBg.setCornerRadius(dp2px(12));
+                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                            banBg.setColor(Color.argb(50, 255, 255, 255));
                         }
-                    });
-                    
-                    buttonList.add(kickBtn);
-                }
-                
-                if (isOwner || isAdmin) {
-                    TextView kickBlackBtn = new TextView(getActivity());
-                    kickBlackBtn.setText("踢黑");
-                    kickBlackBtn.setTextSize(18);
-                    kickBlackBtn.setTextColor(textColor);
-                    kickBlackBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    kickBlackBtn.setGravity(Gravity.CENTER);
-                    
-                    GradientDrawable kickBlackBg = new GradientDrawable();
-                    kickBlackBg.setColor(Color.argb(30, 0, 0, 0));
-                    kickBlackBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        kickBlackBg.setColor(Color.argb(50, 255, 255, 255));
+                        banBtn.setBackground(banBg);
+                        
+                        banBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                forbiddenMenuItem(msg);
+                            }
+                        });
+                        
+                        buttonList.add(banBtn);
+                        
+                        TextView revokeBtn = new TextView(getActivity());
+                        revokeBtn.setText("撤回");
+                        revokeBtn.setTextSize(18);
+                        revokeBtn.setTextColor(textColor);
+                        revokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        revokeBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable revokeBg = new GradientDrawable();
+                        revokeBg.setColor(Color.argb(30, 0, 0, 0));
+                        revokeBg.setCornerRadius(dp2px(12));
+                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                            revokeBg.setColor(Color.argb(50, 255, 255, 255));
+                        }
+                        revokeBtn.setBackground(revokeBg);
+                        
+                        revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                try {
+                                    revokeMsg(msg);
+                                    toast("已撤回消息");
+                                } catch (Exception e) {
+                                    toast("撤回失败: " + e.getMessage());
+                                }
+                            }
+                        });
+                        
+                        buttonList.add(revokeBtn);
+                        
+                        TextView kickBtn = new TextView(getActivity());
+                        kickBtn.setText("踢出");
+                        kickBtn.setTextSize(18);
+                        kickBtn.setTextColor(textColor);
+                        kickBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        kickBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable kickBg = new GradientDrawable();
+                        kickBg.setColor(Color.argb(30, 0, 0, 0));
+                        kickBg.setCornerRadius(dp2px(12));
+                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                            kickBg.setColor(Color.argb(50, 255, 255, 255));
+                        }
+                        kickBtn.setBackground(kickBg);
+                        
+                        kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                kickMenuItem(msg);
+                            }
+                        });
+                        
+                        buttonList.add(kickBtn);
+                        
+                        TextView kickBlackBtn = new TextView(getActivity());
+                        kickBlackBtn.setText("踢黑");
+                        kickBlackBtn.setTextSize(18);
+                        kickBlackBtn.setTextColor(textColor);
+                        kickBlackBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        kickBlackBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable kickBlackBg = new GradientDrawable();
+                        kickBlackBg.setColor(Color.argb(30, 0, 0, 0));
+                        kickBlackBg.setCornerRadius(dp2px(12));
+                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                            kickBlackBg.setColor(Color.argb(50, 255, 255, 255));
+                        }
+                        kickBlackBtn.setBackground(kickBlackBg);
+                        
+                        kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                kickBlackMenuItem(msg);
+                            }
+                        });
+                        
+                        buttonList.add(kickBlackBtn);
+                        
+                        TextView blacklistBtn = new TextView(getActivity());
+                        blacklistBtn.setText("加入黑名单");
+                        blacklistBtn.setTextSize(18);
+                        blacklistBtn.setTextColor(textColor);
+                        blacklistBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        blacklistBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable blacklistBg = new GradientDrawable();
+                        blacklistBg.setColor(Color.argb(30, 0, 0, 0));
+                        blacklistBg.setCornerRadius(dp2px(12));
+                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                            blacklistBg.setColor(Color.argb(50, 255, 255, 255));
+                        }
+                        blacklistBtn.setBackground(blacklistBg);
+                        
+                        blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                addToBlacklistMenuItem(msg);
+                            }
+                        });
+                        
+                        buttonList.add(blacklistBtn);
+                        
+                        if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
+                            TextView allianceBanBtn = new TextView(getActivity());
+                            allianceBanBtn.setText("联盟封禁");
+                            allianceBanBtn.setTextSize(18);
+                            allianceBanBtn.setTextColor(textColor);
+                            allianceBanBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                            allianceBanBtn.setGravity(Gravity.CENTER);
+                            
+                            GradientDrawable allianceBanBg = new GradientDrawable();
+                            allianceBanBg.setColor(Color.argb(30, 0, 0, 0));
+                            allianceBanBg.setCornerRadius(dp2px(12));
+                            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                                allianceBanBg.setColor(Color.argb(50, 255, 255, 255));
+                            }
+                            allianceBanBtn.setBackground(allianceBanBg);
+                            
+                            allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                                public void onClick(android.view.View v) {
+                                    allianceBanMenuItem(msg);
+                                }
+                            });
+                            
+                            buttonList.add(allianceBanBtn);
+                        }
                     }
-                    kickBlackBtn.setBackground(kickBlackBg);
-                    
-                    kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
-                            kickBlackMenuItem(msg);
-                        }
-                    });
-                    
-                    buttonList.add(kickBlackBtn);
-                }
-                
-                if (isOwner || isAdmin) {
-                    TextView blacklistBtn = new TextView(getActivity());
-                    blacklistBtn.setText("加入黑名单");
-                    blacklistBtn.setTextSize(18);
-                    blacklistBtn.setTextColor(textColor);
-                    blacklistBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    blacklistBtn.setGravity(Gravity.CENTER);
-                    
-                    GradientDrawable blacklistBg = new GradientDrawable();
-                    blacklistBg.setColor(Color.argb(30, 0, 0, 0));
-                    blacklistBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        blacklistBg.setColor(Color.argb(50, 255, 255, 255));
-                    }
-                    blacklistBtn.setBackground(blacklistBg);
-                    
-                    blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
-                            addToBlacklistMenuItem(msg);
-                        }
-                    });
-                    
-                    buttonList.add(blacklistBtn);
                 }
                 
                 if (isOwner) {
@@ -389,34 +428,9 @@ public void haifeng520(final Object msg) {
                     buttonList.add(titleBtn);
                 }
                 
-                if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
-                    TextView allianceBanBtn = new TextView(getActivity());
-                    allianceBanBtn.setText("联盟封禁");
-                    allianceBanBtn.setTextSize(18);
-                    allianceBanBtn.setTextColor(textColor);
-                    allianceBanBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
-                    allianceBanBtn.setGravity(Gravity.CENTER);
-                    
-                    GradientDrawable allianceBanBg = new GradientDrawable();
-                    allianceBanBg.setColor(Color.argb(30, 0, 0, 0));
-                    allianceBanBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        allianceBanBg.setColor(Color.argb(50, 255, 255, 255));
-                    }
-                    allianceBanBtn.setBackground(allianceBanBg);
-                    
-                    allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                        public void onClick(android.view.View v) {
-                            allianceBanMenuItem(msg);
-                        }
-                    });
-                    
-                    buttonList.add(allianceBanBtn);
-                }
-                
                 if (buttonList.isEmpty()) {
                     TextView noPermissionText = new TextView(getActivity());
-                    noPermissionText.setText("暂无权限");
+                    noPermissionText.setText("没有权限操作该用户……");
                     noPermissionText.setTextSize(18);
                     noPermissionText.setTextColor(textColor);
                     noPermissionText.setGravity(Gravity.CENTER);
@@ -1382,7 +1396,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [添加] 在所有访问 msg.MessageContent 的地方都添加了空值检查\n" +
                         "- [更改] 将 groupInfoCache 从 HashMap 改为 ConcurrentHashMap 以避免并发访问问题\n" +
                         "- [更改] Map改为ConcurrentHashMap：groupInfoCache,Arab2Chinese,UnitMap\n" +
-                        "- [更改] List改为CopyOnWriteArrayList：在haifeng520方法中的items和actions\n" +
+                        "- [更改] List改为CopyOnWriteArrayList：在快捷群管方法中的items和actions\n" +
                         "- [添加] 在 onMsg 方法中为 mAtList 添加了同步块，确保线程安全\n" +
                         "- [添加] import java.util.concurrent.ConcurrentHashMap;\n" +
                         "- [添加] 在初始化代码中也使用safeCopyList确保线程安全\n" +
@@ -1394,7 +1408,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "简洁群管_82.0_更新日志\n" +
                         "- [更改] 将 groupInfoCache 从 HashMap 改为 ConcurrentHashMap 以避免并发访问问题\n" +
                         "- [更改] Map改为ConcurrentHashMap：groupInfoCache,Arab2Chinese,UnitMap\n" +
-                        "- [更改] List改为CopyOnWriteArrayList：在haifeng520方法中的items和actions\n" +
+                        "- [更改] List改为CopyOnWriteArrayList：在快捷群管方法中的items和actions\n" +
                         "- [添加] 在 onMsg 方法中为 mAtList 添加了同步块，确保线程安全\n" +
                         "- [添加] import java.util.concurrent.ConcurrentHashMap;\n" +
                         "- [添加] 在初始化代码中也使用safeCopyList确保线程安全\n" +
@@ -1508,11 +1522,15 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 夜七不是猫娘\n" +
                         "- [修复] 打不死夜七\n" +
                         "- [修复] 夜七不听话\n" +
-                                                "——————————————————————————\n" +
+                        "——————————————————————————\n" +
                         "简洁群管_104.0_更新日志\n" +
-                        "- [添加] 为快捷群管添加更多ui，当你在没有权限的群聊，长按快捷群管会显示暂无权限而不是空白\n" +
+                        "- [添加] 为快捷群管添加更多ui，当你在没有权限的群聊，长按快捷群管会显示没有权限操作该用户而不是空白\n" +
                         "- [添加] 快捷群管添加撤回功能，画个大饼：以后可能会支持设置精华，设置群待办等\n" +
-                        "- [优化] 代管管理弹窗 黑名单管理弹窗\n\n" +
+                        "- [优化] 代管管理弹窗 黑名单管理弹窗\n" +
+                        "——————————————————————————\n" +
+                        "简洁群管_105.0_更新日志\n" +
+                        "- [添加] 为快捷群管添加没有权限操作该用户 触发条件是你必须是管理操作群主 管理操作管理 没有群管权限\n" +
+                        "- [修复] 夜七不是猫娘的问题\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
