@@ -1,3 +1,6 @@
+
+// 是我想要的太多 又或是从未得到过
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -411,6 +414,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "——————————————————————————\n" +
                         "简洁群管_105.0_更新日志\n" +
                         "- [添加] 为快捷群管添加没有权限操作该用户 触发条件是你必须是管理操作群主 管理操作管理 没有群管权限\n" +
+                        "- [添加] 为快捷群管撤回功能添加二次确认\n" +
                         "- [修复] 设置艾特禁言时间生效\n" +
                         "- [修复] 无论是否代管都可以触发指令\n" +
                         "- [调整] 现在代管不可以清空代管了 只可以使用者清空\n" +

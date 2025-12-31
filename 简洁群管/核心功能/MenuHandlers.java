@@ -1,3 +1,6 @@
+
+// 你应该像欣赏花一样 欣赏自己
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -183,12 +186,55 @@ public void haifeng520(final Object msg) {
                         
                         revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
                             public void onClick(android.view.View v) {
-                                try {
-                                    revokeMsg(msg);
-                                    toast("已撤回消息");
-                                } catch (Exception e) {
-                                    toast("撤回失败: " + e.getMessage());
-                                }
+                                Activity activity = getActivity();
+                                if (activity == null) return;
+                                
+                                activity.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                                        builder.setTitle("确认撤回");
+                                        
+                                        LinearLayout layout = new LinearLayout(getActivity());
+                                        layout.setOrientation(LinearLayout.VERTICAL);
+                                        layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                                        
+                                        GradientDrawable bg = new GradientDrawable();
+                                        bg.setColor(Color.argb(230, 255, 255, 255));
+                                        bg.setCornerRadius(dp2px(18));
+                                        int textColor = Color.BLACK;
+                                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+                                            bg.setColor(Color.argb(220, 40, 40, 40));
+                                            textColor = Color.WHITE;
+                                        }
+                                        layout.setBackground(bg);
+                                        
+                                        TextView message = new TextView(getActivity());
+                                        message.setText("确定要撤回这条消息吗？");
+                                        message.setTextSize(16);
+                                        message.setTextColor(textColor);
+                                        message.setPadding(0, 0, 0, dp2px(20));
+                                        layout.addView(message);
+                                        
+                                        builder.setView(layout);
+                                        
+                                        builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                                            public void onClick(android.content.DialogInterface dialog, int which) {
+                                                try {
+                                                    revokeMsg(msg);
+                                                    toast("已撤回消息");
+                                                } catch (Exception e) {
+                                                    toast("撤回失败: " + e.getMessage());
+                                                }
+                                            }
+                                        });
+                                        
+                                        builder.setNegativeButton("取消", null);
+                                        
+                                        AlertDialog dialog = builder.create();
+                                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                                        dialog.show();
+                                    }
+                                });
                             }
                         });
                         
