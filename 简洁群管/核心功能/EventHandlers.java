@@ -645,7 +645,7 @@ public void onMsg(Object msg) {
                             }
                         } catch (Exception e) {}
                     }
-                    sendReply(groupUin, msg, "禁言列表已解禁");
+                    sendReply(groupUin, msg, "已解禁禁言列表用户");
                 } else {
                     sendMsg(groupUin, "", "当前没有人被禁言");
                 }
@@ -807,6 +807,8 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
+                int 当前艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
+                
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("设置艾特禁言时间");
                 
@@ -827,14 +829,14 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
-                hint.setText("当前艾特禁言时间: " + 艾特禁言时间 + "秒 (" + (艾特禁言时间/86400) + "天)");
+                hint.setText("当前艾特禁言时间: " + 当前艾特禁言时间 + "秒 (" + (当前艾特禁言时间/86400) + "天)");
                 hint.setTextColor(textColor);
                 hint.setPadding(0, 0, 0, dp2px(15));
                 layout.addView(hint);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("请输入禁言时间(秒)");
-                inputEditText.setText(String.valueOf(艾特禁言时间));
+                inputEditText.setText(String.valueOf(当前艾特禁言时间));
                 inputEditText.setHintTextColor(hintTextColor);
                 inputEditText.setTextColor(textColor);
                 
@@ -860,7 +862,6 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                             try {
                                 int newTime = Integer.parseInt(input);
                                 if (newTime > 0) {
-                                    艾特禁言时间 = newTime;
                                     putInt("艾特禁言时间配置", "时间", newTime);
                                     toast("已设置艾特禁言时间为: " + newTime + "秒");
                                 } else {
