@@ -35,25 +35,16 @@ public void onMsg(Object msg) {
             }
 
             boolean isMyUin = userUin != null && userUin.equals(myUin);
-            boolean isAdminUser = isMyUin;
-            if (!isAdminUser) {
-                try {
-                    File delegateFile = 获取代管文件();
-                    if (delegateFile.exists()) {
-                        isAdminUser = 简取(delegateFile).contains(userUin);
-                    }
-                } catch (Exception e) {}
-            }
-
-            if (!isAdminUser) return;
+            boolean isDelegate = 是代管(groupUin, userUin);
+            
+            if (!msg.IsGroup) return;
 
             if (msgContent.equals("群管功能")) {
+                if (!isMyUin && !isDelegate) return;
                 String qqVersion = "QQVersion未知";
                 try {
                     qqVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-                } catch (Exception e) {
-                
-                }
+                } catch (Exception e) {}
                 
                 String menu = "群管功能(QQVersion：" + qqVersion + "):\n" +
                         "禁@ 禁言@ 头衔@\n" +
@@ -74,6 +65,7 @@ public void onMsg(Object msg) {
             }
 
             if (msgContent.equals("显示标识")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -84,6 +76,7 @@ public void onMsg(Object msg) {
                 }).start();
                 return;
             } else if (msgContent.equals("隐藏标识")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -94,6 +87,7 @@ public void onMsg(Object msg) {
                 }).start();
                 return;
             } else if (msgContent.equals("显示等级")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -104,6 +98,7 @@ public void onMsg(Object msg) {
                 }).start();
                 return;
             } else if (msgContent.equals("隐藏等级")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -114,6 +109,7 @@ public void onMsg(Object msg) {
                 }).start();
                 return;
             } else if (msgContent.equals("显示头衔")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -124,6 +120,7 @@ public void onMsg(Object msg) {
                 }).start();
                 return;
             } else if (msgContent.equals("隐藏头衔")) {
+                if (!isMyUin && !isDelegate) return;
                 new Thread(new Runnable() {
                     public void run() {
                         try {
@@ -136,7 +133,7 @@ public void onMsg(Object msg) {
             }
 
             if (msgContent.equals("开启自动解禁代管")) {
-                if (!isMyUin && !是代管(groupUin, userUin)) return;
+                if (!isMyUin && !isDelegate) return;
                 if ("开".equals(getString("自动解禁代管配置", "开关"))) {
                     sendMsg(groupUin, "", "已经打开了");
                 } else {
@@ -145,7 +142,7 @@ public void onMsg(Object msg) {
                 }
                 return;
             } else if (msgContent.equals("关闭自动解禁代管")) {
-                if (!isMyUin && !是代管(groupUin, userUin)) return;
+                if (!isMyUin && !isDelegate) return;
                 if ("开".equals(getString("自动解禁代管配置", "开关"))) {
                     putString("自动解禁代管配置", "开关", null);
                     sendMsg(groupUin, "", "已关闭自动解禁代管");
@@ -156,10 +153,12 @@ public void onMsg(Object msg) {
             }
 
             if (msgContent.equals("开启自助头衔")) {
+                if (!isMyUin && !isDelegate) return;
                 putString(groupUin, "自助头衔", "开");
                 sendMsg(groupUin, "", "自助头衔已开启 大家可以发送 我要头衔xxx来获取头衔");
                 return;
             } else if (msgContent.equals("关闭自助头衔")) {
+                if (!isMyUin && !isDelegate) return;
                 if ("开".equals(getString(groupUin, "自助头衔"))) {
                     putString(groupUin, "自助头衔", null);
                     sendMsg(groupUin, "", "自助头衔已关闭");
@@ -170,16 +169,19 @@ public void onMsg(Object msg) {
             }
 
             if (msgContent.equals("开启退群拉黑")) {
+                if (!isMyUin && !isDelegate) return;
                 putString(groupUin, "退群拉黑", "开");
                 sendMsg(groupUin, "", "退群拉黑已开启");
                 return;
             } else if (msgContent.equals("关闭退群拉黑")) {
+                if (!isMyUin && !isDelegate) return;
                 putString(groupUin, "退群拉黑", null);
                 sendMsg(groupUin, "", "退群拉黑已关闭");
                 return;
             }
 
             if (msgContent.equals("查看黑名单")) {
+                if (!isMyUin && !isDelegate) return;
                 ArrayList blackList = 获取黑名单列表(groupUin);
                 if (blackList.isEmpty()) {
                     sendMsg(groupUin, "", "本群黑名单为空");
@@ -197,6 +199,7 @@ public void onMsg(Object msg) {
             }
 
             if (msgContent.startsWith("移除黑名单@") && !mAtListCopy.isEmpty()) {
+                if (!isMyUin && !isDelegate) return;
                 for (Object uin : mAtListCopy) {
                     if (uin != null) {
                         移除黑名单(groupUin, (String) uin);
@@ -206,15 +209,28 @@ public void onMsg(Object msg) {
                 return;
             }
 
+            if (msgContent.equals("查看代管")) {
+                if (!isMyUin && !isDelegate) return;
+                File f = 获取代管文件();
+                if (!f.exists()) sendMsg(groupUin, "", "当前没有代管");
+                else {
+                    String text = 组名(简取(f)).replace("]", "").replace("[", " ");
+                    sendMsg(groupUin, "", "当前的代管如下:\n" + text);
+                }
+                return;
+            }
+
             if (msg.MessageType == 6) { 
                 String replyTo = msg.ReplyTo;
                 if (replyTo != null && !replyTo.isEmpty()) {
                     if ("解".equals(msgContent) || "解禁".equals(msgContent)) {
+                        if (!isMyUin && !isDelegate) return;
                         unifiedForbidden(groupUin, replyTo, 0);
                         return;
                     }
 
                     if (msgContent.startsWith("/dban") || msgContent.startsWith("!dban") || msgContent.startsWith("/ban") || msgContent.startsWith("!ban")) {
+                        if (!isMyUin && !isDelegate) return;
                         if (检查代管保护(groupUin, replyTo, "踢黑")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             unifiedKick(groupUin, replyTo, true);
@@ -224,6 +240,7 @@ public void onMsg(Object msg) {
                     }
 
                     if (msgContent.startsWith("/kick") || msgContent.startsWith("!kick")) {
+                        if (!isMyUin && !isDelegate) return;
                         if (检查代管保护(groupUin, replyTo, "踢出")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             unifiedKick(groupUin, replyTo, false);
@@ -233,6 +250,7 @@ public void onMsg(Object msg) {
                     }
 
                     if (msgContent.startsWith("/fban") || msgContent.startsWith("!fban")) {
+                        if (!isMyUin && !isDelegate) return;
                         if (检查代管保护(groupUin, replyTo, "联盟封禁")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             String reason = null;
@@ -267,6 +285,7 @@ public void onMsg(Object msg) {
                     }
 
                     if (msgContent.startsWith("/unfban") || msgContent.startsWith("!unfban")) {
+                        if (!isMyUin && !isDelegate) return;
                         if (!是封禁用户(replyTo)) {
                             sendReply(groupUin, msg, "该用户未被联盟封禁");
                             return;
@@ -286,6 +305,7 @@ public void onMsg(Object msg) {
 
                     boolean isBanCmd = msgContent.startsWith("禁") || msgContent.startsWith("禁言");
                     if (isBanCmd) {
+                        if (!isMyUin && !isDelegate) return;
                         if (检查代管保护(groupUin, replyTo, "禁言")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             int banTime = 0;
@@ -325,6 +345,7 @@ public void onMsg(Object msg) {
 
             if (!mAtListCopy.isEmpty()) {
                 if (msgContent.startsWith("解")) {
+                    if (!isMyUin && !isDelegate) return;
                     for (Object uin : mAtListCopy) {
                         if (uin != null) {
                             unifiedForbidden(groupUin, (String) uin, 0);
@@ -334,6 +355,7 @@ public void onMsg(Object msg) {
                 }
 
                 if (msgContent.startsWith("踢黑")) {
+                    if (!isMyUin && !isDelegate) return;
                     boolean kicked = false;
                     for (Object uin : mAtListCopy) {
                         String u = (String) uin;
@@ -349,6 +371,7 @@ public void onMsg(Object msg) {
                 }
 
                 if (msgContent.startsWith("踢")) {
+                    if (!isMyUin && !isDelegate) return;
                     boolean kicked = false;
                     for (Object uin : mAtListCopy) {
                         String u = (String) uin;
@@ -364,6 +387,7 @@ public void onMsg(Object msg) {
                 }
 
                 if (msgContent.startsWith("头衔@")) {
+                    if (!isMyUin && !isDelegate) return;
                     String title = msgContent.substring(msgContent.lastIndexOf(" ") + 1);
                     for (Object uin : mAtListCopy) {
                         if (uin != null) {
@@ -376,6 +400,7 @@ public void onMsg(Object msg) {
                 boolean isBan = msgContent.startsWith("禁");
                 boolean isBanYan = msgContent.startsWith("禁言");
                 if (isBan || isBanYan || msgContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$") || msgContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")) {
+                    if (!isMyUin && !isDelegate) return;
                     int banTime = 0;
                     if (msgContent.matches(".*[零一二三四五六七八九十].*")) {
                         String str = msgContent.substring(msgContent.lastIndexOf(" ") + 1);
@@ -458,6 +483,7 @@ public void onMsg(Object msg) {
                         Object uinObj = mAtListCopy.get(0);
                         if (uinObj == null) return;
                         String uin = uinObj.toString();
+                        if (!isMyUin && !isDelegate) return;
                         if (检查代管保护(groupUin, uin, "联盟封禁")) return;
                         if (是封禁用户(uin)) {
                             sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
@@ -485,6 +511,7 @@ public void onMsg(Object msg) {
                              sendReply(groupUin, msg, "该用户未被联盟封禁");
                              return;
                          }
+                        if (!isMyUin && !isDelegate) return;
                         if (有权限操作(groupUin, userUin, uin)) {
                             String reason = null;
                             String[] parts = msgContent.split(" ", 2);
@@ -501,21 +528,25 @@ public void onMsg(Object msg) {
             }
 
             if ("禁".equals(msgContent) && mAtListCopy.isEmpty()) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, "", 1);
                 return;
             }
             if (msg.MessageType == 1 && "解".equals(msgContent) && mAtListCopy.isEmpty()) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, "", 0);
                 return;
             }
 
             if ("查看禁言列表".equals(msgContent)) {
+                if (!isMyUin && !isDelegate) return;
                 ArrayList list = 禁言组(groupUin);
                 sendReply(groupUin, msg, list.isEmpty() ? "当前没有人被禁言" : 禁言组文本(groupUin));
                 return;
             }
 
             if (msgContent.matches("^解禁? ?[1-9][0-9]*$")) {
+                if (!isMyUin && !isDelegate) return;
                 int index = Integer.parseInt(msgContent.replaceAll(" |解|禁", "")) - 1;
                 ArrayList list = 禁言组(groupUin);
                 if (index >= 0 && index < list.size()) {
@@ -527,11 +558,13 @@ public void onMsg(Object msg) {
                 return;
             }
             if (msgContent.matches("^解禁? ?[0-9]{5,11}$")) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, msgContent.replaceAll(" |解|禁", ""), 0);
                 return;
             }
 
             if (msgContent.matches("^(踢|踢黑) ?[1-9][0-9]*$")) {
+                if (!isMyUin && !isDelegate) return;
                 boolean isBlack = msgContent.contains("黑");
                 int index = Integer.parseInt(msgContent.replaceAll(" |踢|黑", "")) - 1;
                 ArrayList list = 禁言组(groupUin);
@@ -548,6 +581,7 @@ public void onMsg(Object msg) {
             }
 
             if ("#踢禁言".equals(msgContent)) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, "", 0);
                 ArrayList list = unifiedGetForbiddenList(groupUin);
                 if (list != null && !list.isEmpty()) {
@@ -573,6 +607,7 @@ public void onMsg(Object msg) {
             }
 
             if ("全禁".equals(msgContent)) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, "", 0);
                 ArrayList list = unifiedGetForbiddenList(groupUin);
                 if (list != null && !list.isEmpty()) {
@@ -596,6 +631,7 @@ public void onMsg(Object msg) {
             }
 
             if ("全解".equals(msgContent)) {
+                if (!isMyUin && !isDelegate) return;
                 unifiedForbidden(groupUin, "", 0);
                 ArrayList list = unifiedGetForbiddenList(groupUin);
                 if (list != null && !list.isEmpty()) {
@@ -616,50 +652,46 @@ public void onMsg(Object msg) {
                 return;
             }
 
-            if (isMyUin) {
-                 if (msgContent.startsWith("删除代管") || msgContent.startsWith("删除管理员")) {
-                     String text = msgContent.substring(4).replaceAll("[^0-9]", "");
-                     File f = 获取代管文件();
-                     if (f.exists() && text.matches("[0-9]+")) {
-                         if (jiandu(text, 简取(f))) {
-                             简弃(f, text);
-                             sendMsg(groupUin, "", "已删除管理员:\n" + text);
-                         } else {
-                             sendReply(groupUin, msg, "此人并不是代管");
-                         }
-                     } else {
-                         sendReply(groupUin, msg, "代管列表为空或格式错误");
-                     }
-                     return;
-                 }
-                 if ("查看代管".equals(msgContent)) {
-                     File f = 获取代管文件();
-                     if (!f.exists()) sendMsg(groupUin, "", "当前没有代管");
-                     else {
-                         String text = 组名(简取(f)).replace("]", "").replace("[", " ");
-                         sendMsg(groupUin, "", "当前的代管如下:\n" + text);
-                     }
-                     return;
-                 }
-                 if ("清空代管".equals(msgContent)) {
-                     全弃(获取代管文件());
-                     sendReply(groupUin, msg, "代管列表已清空");
-                     return;
-                 }
-                 if (msgContent.startsWith("/addgroup") || msgContent.startsWith("!addgroup")) {
-                    添加联盟群组(groupUin);
-                    sendReply(groupUin, msg, "已添加该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
-                    return;
+            if (msgContent.startsWith("删除代管") || msgContent.startsWith("删除管理员")) {
+                if (!isMyUin) return;
+                String text = msgContent.substring(4).replaceAll("[^0-9]", "");
+                File f = 获取代管文件();
+                if (f.exists() && text.matches("[0-9]+")) {
+                    if (jiandu(text, 简取(f))) {
+                        简弃(f, text);
+                        sendMsg(groupUin, "", "已删除管理员:\n" + text);
+                    } else {
+                        sendReply(groupUin, msg, "此人并不是代管");
+                    }
+                } else {
+                    sendReply(groupUin, msg, "代管列表为空或格式错误");
                 }
-                if (msgContent.startsWith("/ungroup") || msgContent.startsWith("!ungroup")) {
-                    移除联盟群组(groupUin);
-                    sendReply(groupUin, msg, "已取消该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
-                    return;
-                }
+                return;
+            }
+
+            if ("清空代管".equals(msgContent)) {
+                if (!isMyUin) return;
+                全弃(获取代管文件());
+                sendReply(groupUin, msg, "代管列表已清空");
+                return;
+            }
+
+            if (msgContent.startsWith("/addgroup") || msgContent.startsWith("!addgroup")) {
+                if (!isMyUin) return;
+                添加联盟群组(groupUin);
+                sendReply(groupUin, msg, "已添加该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
+                return;
+            }
+            if (msgContent.startsWith("/ungroup") || msgContent.startsWith("!ungroup")) {
+                if (!isMyUin) return;
+                移除联盟群组(groupUin);
+                sendReply(groupUin, msg, "已取消该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
+                return;
             }
 
             if (是联盟群组(groupUin)) {
                  if (msgContent.startsWith("/fban") || msgContent.startsWith("!fban")) {
+                    if (!isMyUin && !isDelegate) return;
                     String[] parts = msgContent.split("\\s+", 3);
                     if (parts.length >= 2) {
                         String target = parts[1];
@@ -675,6 +707,7 @@ public void onMsg(Object msg) {
                     return;
                  }
                  if (msgContent.startsWith("/unfban") || msgContent.startsWith("!unfban")) {
+                    if (!isMyUin && !isDelegate) return;
                     String[] parts = msgContent.split("\\s+", 3);
                     if (parts.length >= 2) {
                         String target = parts[1];
@@ -891,7 +924,7 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
             putString(groupUin,"退群拉黑","开");
             toast("已开启退群拉黑");
         }
-    } catch (Exception e) {
+   } catch (Exception e) {
         toast("操作失败: " + e.getMessage());
     }
 }

@@ -112,11 +112,19 @@ public File 获取代管文件() {
     if (!代管文件夹.exists()) {
         代管文件夹.mkdirs();
     }
-    return new File(代管目录, "代管.txt");
+    File 代管文件 = new File(代管目录, "代管.txt");
+    if (!代管文件.exists()) {
+        try {
+            代管文件.createNewFile();
+        } catch (Exception e) {}
+    }
+    return 代管文件;
 }
 
 public boolean 是代管(String groupUin, String userUin) {
     if (userUin == null) return false;
+    if (userUin.equals(myUin)) return true;
+    
     try {
         File 代管文件 = 获取代管文件();
         if (!代管文件.exists()) {
