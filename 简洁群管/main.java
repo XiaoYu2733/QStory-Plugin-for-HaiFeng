@@ -16,14 +16,6 @@ File 联盟群组文件;
 File 封禁列表文件;
 
 public void onLoad() {
-    load(appPath + "/核心功能/Utils.java");
-    load(appPath + "/核心功能/DialogUtils.java");
-    load(appPath + "/核心功能/MenuHandlers.java");
-    load(appPath + "/核心功能/EventHandlers.java");
-    load(appPath + "/核心功能/AllianceManager.java");
-    load(appPath + "/核心功能/FileOperations.java");
-    load(appPath + "/核心功能/QQInterface.java");
-    
     退群拉黑目录 = appPath + "/退群拉黑/";
     File 退群拉黑文件夹 = new File(退群拉黑目录);
     if (!退群拉黑文件夹.exists()) {
@@ -40,6 +32,14 @@ public void onLoad() {
     封禁列表文件 = new File(联盟目录, "封禁联盟.txt");
     
     int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
+
+    load(appPath + "/核心功能/Utils.java");
+    load(appPath + "/核心功能/DialogUtils.java");
+    load(appPath + "/核心功能/MenuHandlers.java");
+    load(appPath + "/核心功能/EventHandlers.java");
+    load(appPath + "/核心功能/AllianceManager.java");
+    load(appPath + "/核心功能/FileOperations.java");
+    load(appPath + "/核心功能/QQInterface.java");
 }
 
 public void onUnLoad() {
