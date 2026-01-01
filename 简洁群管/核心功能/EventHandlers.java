@@ -1,3 +1,6 @@
+
+// 如果我们不能在一起 那就喜欢到不喜欢你为止
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +12,7 @@ import android.graphics.Color;
 import android.widget.LinearLayout;
 import android.graphics.drawable.GradientDrawable;
 
-private final Object msgLock = new Object();
+Object msgLock = new Object();
 
 public void onMsg(Object msg) {
     if (msg == null) return;

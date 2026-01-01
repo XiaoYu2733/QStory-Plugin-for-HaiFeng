@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-private Map groupInfoCache = new ConcurrentHashMap();
+Map groupInfoCache = new ConcurrentHashMap();
 
 {
     try {
