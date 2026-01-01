@@ -20,31 +20,8 @@ String configName = "VerifyConfig";
 String switchKey = "VerifySwitch";
 
 addItem("开启/关闭入群验证", "toggleVerify");
-addItem("脚本本次更新日志","showUpdateLogCallback");
 
 ArrayList questionBank = new ArrayList();
-
-public void showUpdateLog() {
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("更新日志");
-            builder.setMessage(" \n\n" +
-                    "- [适配] 最新版QStory脚本\n" +
-                    "- [修复] 非验证者回答题目的判断逻辑\n" +
-                    "- [新增] 更新弹窗 如果你看到这条消息 那么这就是弹窗\n" +
-                    "- [新增] 如果验证者在验证流程被踢出/退群 验证流程自动结束\n" +
-                    "- [更改] 现在更改了脚本的所有useruin 更改为atqq\n" +
-                    "- [其他] 打倒hd\n\n" +
-                    "反馈交流群：https://t.me/XiaoYu_Chat");
-            builder.setPositiveButton("确定", null);
-            builder.show();
-        }
-    });
-}
 
 public void showUpdateLogCallback(String group, String admin, int type) {
     showUpdateLog();
