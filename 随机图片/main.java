@@ -1,4 +1,5 @@
 
+
 // 作 海枫
 
 // 认清一个人三件事就够了 吵架后的态度 回消息的速度 包容你的程度
@@ -108,7 +109,6 @@ addItem("开启/关闭随机手机壁纸", "switchMpWallpaper");
 addItem("开启/关闭随机1080p", "switch1080p");
 addItem("开启/关闭随机兽耳", "switchFurry");
 addItem("开启/关闭随机三次元", "switchRealistic");
-addItem("脚本本次更新日志","showUpdateLog");
 
 public void switchPcWallpaper(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
@@ -213,25 +213,6 @@ public void switchRealistic(String groupUin, String uin, int chatType) {
     boolean current = getBoolean("realistic_switch", groupUin, false);
     putBoolean("realistic_switch", groupUin, !current);
     toast("本群随机三次元" + (!current ? "已开启" : "已关闭"));
-}
-
-public void showUpdateLog(String g, String u, int t) {
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
-                    "- [声明] 如果发不出来就是接口问题，年久失修，等站长恢复，不恢复就不用即可\n" +
-                    "- [声明] 该脚本作者并非我 原作者未知 以及该脚本时长较久 这个脚本我觉得挺不错 但是问题很多 我进行了维护 接口并非本人 随时可能会失效 还请谅解\n" +
-                    " - [其他] 嘻嘻 但是大部分代码都是我写的了\n" +
-                    "反馈交流群：https://t.me/XiaoYu_Chat");
-            builder.setPositiveButton("确定", null);
-            builder.show();
-        }
-    });
 }
 
 // 幸福来之不易 我珍惜你 希望你也珍惜我
