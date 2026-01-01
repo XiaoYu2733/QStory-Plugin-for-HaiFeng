@@ -43,7 +43,7 @@ public void onLoad() {
 }
 
 public void onUnLoad() {
-    Toast.makeText(context, "简洁群管已卸载", Toast.LENGTH_SHORT).show();
+    toast("简洁群管已卸载");
 }
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
