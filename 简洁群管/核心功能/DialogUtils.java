@@ -1,6 +1,8 @@
 
 // 是我想要的太多 又或是从未得到过
 
+// 如果看不懂你最好不要动 可能导致dialog弹窗显示失败
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -419,7 +421,9 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 无论是否代管都可以触发指令\n" +
                         "- [调整] 现在代管不可以清空代管了 只可以使用者清空\n" +
                         "- [更改] 脚本代码被拆开为好几个Java，具体自己看\n" +
-                        "- [修复] 夜七不是猫娘的问题\n\n" +
+                        "——————————————————————————\n" +
+                        "简洁群管_106.0_更新日志\n" +
+                        "- [修复] Toast .LENGTH_SHORT\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);

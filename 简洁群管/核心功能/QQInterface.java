@@ -1,6 +1,8 @@
 
 // 时间可以把人拉近 也可以把人推得更远
 
+// QQ内部接口 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。
+
 import org.json.JSONObject;
 import java.net.*;
 import java.io.*;
@@ -14,7 +16,7 @@ import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
 */
-/*接口说明 
+/*接口说明
 
 显示群互动标识 SetTroopShowHonour(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);
 显示群聊等级 SetTroopShowLevel(qun,myUin,getSkey(),getPskey("clt.qq.com"),1);

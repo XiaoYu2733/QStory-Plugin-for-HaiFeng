@@ -1,6 +1,8 @@
 
 // 我也知道跟你没有结果 但想想能陪你一点时光也不错
 
+// 联盟 简洁群管最强大的功能
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
