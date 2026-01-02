@@ -1,16 +1,106 @@
-load(appPath + "/库/import.java");
+//可能用到的库
+import android.text.*;
+import android.app.*;
+import android.os.*;
+import android.view.*;
+import java.lang.*;
+import android.content.*;
+import android.webkit.*;
+import android.widget.*;
+import android.media.*;
+import java.text.*;
+import android.net.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import android.app.Dialog;
+import android.view.Window;
+import android.app.Activity;
+import android.graphics.*;
+import android.content.DialogInterface;
+import android.view.KeyEvent;
+import android.widget.LinearLayout;
+import android.graphics.drawable.*;
+import android.view.Gravity;
+import android.widget.ScrollView;
+import android.widget.ProgressBar;
+import java.text.SimpleDateFormat;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.view.animation.AlphaAnimation;
+import android.widget.SeekBar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.io.*;
+import java.net.HttpURLConnection;
+import android.graphics.drawable.Drawable;
+import java.io.File;
+import java.io.IOException;
+import android.media.MediaPlayer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import android.view.LayoutInflater;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+import android.view.View;
+import android.view.ViewGroup;
+import java.io.*;
+import java.util.zip.*;
+import android.os.Bundle;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.widget.Button;
+import android.widget.LinearLayout;
+private ScrollView mScrollView;
+private ScrollView mScrollView2;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.File;
+import java.io.MultipartFile;
+import android.graphics.drawable.*;
+import android.view.Gravity;
+import android.widget.ScrollView;
+import android.widget.ProgressBar;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.content.Intent;
+import android.net.Uri;
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.text.TextWatcher;
+import android.text.Editable;
+import java.text.DecimalFormat;
+import android.os.Handler;
+import android.os.Looper;
 
 addItem("构造聊天记录", "tiaoshi");
-addItem("说明", "ceshikuang");
 
 int type;
 String qq = "";
 String groupuin = "";
 JSONArray datamasge = new JSONArray();
-
-public void ceshikuang(String groupUin, String uin, int chatType) {
-    showNativeDialog("说明","注意：填写聊天对象构建消息体在写完“QQ”，“内容”，“类型”之后，需要点击添加对象，添加到“消息体显示框”里面展示出才算有效计入内容\n\n构造聊天记录\n\n构造卡片：\n\n聊天记录卡片的外显，标题，副标题（中间部分），最下面小字，（中间部分只支持添加显示一行，多行以及特殊符号会发生未知错误。）\n\n聊天记录内容：QQ号，消息，消息类型（“wz”：文字，“ark”：卡片，“md”：Markdown）\n\n“消息体显示”为输入框，可粘贴结构体进行快速构建\n\n构造成功发送的卡片自己不可见，其他人正常打开。\n\n如有疑问可进入qs官方群\n\n临江QQ群：634941583");
-}
 
 public void tiaoshi(String groupUin, String uin, int chatType) {
     type = chatType;
@@ -32,13 +122,13 @@ public void showCustomDialog() {
             LinearLayout layout = new LinearLayout(activity);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(30, 20, 30, 20);
-            
+
             LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
             );
             contentParams.setMargins(16, 16, 16, 16); 
-            
+
             LinearLayout.LayoutParams ctextParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
@@ -51,7 +141,7 @@ public void showCustomDialog() {
             tishi.setTextColor(Color.GRAY);
             tishi.setLayoutParams(ctextParams);
             layout.addView(tishi);
-            
+
             final EditText extField = new EditText(activity);
             extField.setText("聊天记录");
             extField.setPadding(10, 16, 10, 16);
@@ -64,7 +154,7 @@ public void showCustomDialog() {
             bt.setLayoutParams(ctextParams);
             bt.setTextColor(Color.GRAY);
             layout.addView(bt);
-            
+
             final EditText titleField = new EditText(activity);
             titleField.setText("群聊的聊天记录");
             titleField.setPadding(10, 16, 10, 16);
@@ -77,7 +167,7 @@ public void showCustomDialog() {
             xz.setLayoutParams(ctextParams);
             xz.setTextColor(Color.GRAY);
             layout.addView(xz);
-            
+
             final EditText descField = new EditText(activity);
             descField.setText("聊天记录");
             descField.setPadding(10, 16, 10, 16);
@@ -90,7 +180,7 @@ public void showCustomDialog() {
             zj.setLayoutParams(ctextParams);
             zj.setTextColor(Color.GRAY);
             layout.addView(zj);
-            
+
             final EditText contentField = new EditText(activity);
             contentField.setText("...");
             contentField.setPadding(10, 16, 10, 16);
@@ -101,8 +191,8 @@ public void showCustomDialog() {
             ViewGroup.LayoutParams.MATCH_PARENT,
              150, 1f);
             neirong.setMargins(16, 16, 16, 16);
-            
-            
+
+
             final EditText messageContent = new EditText(activity);
             messageContent.setHint("消息体显示");
             messageContent.setLayoutParams(neirong);    
@@ -119,21 +209,21 @@ public void showCustomDialog() {
             qqField.setPadding(10, 16, 10, 16);
             qqField.setLayoutParams(contentParams);
             layout.addView(qqField);
-            
+
             final EditText nrField = new EditText(activity);
             nrField.setPadding(10, 16, 10, 0);
             nrField.setHint("内容");
-            
+
             nrField.setLayoutParams(neirong);    
             layout.addView(nrField);
-            
+
             TextView contentLabel = new TextView(activity);
             contentLabel.setText("消息内容，消息类型可填入'wz'（文字）'ark'（卡片）'md'Markdown");
             contentLabel.setTextColor(Color.GRAY);
             contentLabel.setLayoutParams(contentParams);
             layout.addView(contentLabel);
 
-                                
+
             final EditText typeField = new EditText(activity);
             typeField.setHint("消息类型");
             typeField.setPadding(10, 0, 10, 16);
@@ -141,7 +231,7 @@ public void showCustomDialog() {
             typeField.setText("wz");
             layout.addView(typeField);
 
-            
+
 
             Button addBtn = new Button(activity);
             LinearLayout.LayoutParams addParams = new LinearLayout.LayoutParams(
@@ -162,7 +252,7 @@ public void showCustomDialog() {
             cancelParams.weight = 1;
             cancelParams.setMargins(16, 16, 8, 16);
             cancelBtn.setLayoutParams(cancelParams);
-            
+
             Button confirmBtn = new Button(activity);
             confirmBtn.setText("确定");
             LinearLayout.LayoutParams okParams = new LinearLayout.LayoutParams(
@@ -195,12 +285,12 @@ public void showCustomDialog() {
                         Toast.makeText(activity, "请填写完整消息信息", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    
+
                     String liex = "";
                     if ("wz".equals(typeStr)) liex = "文本";
                     else if ("ark".equals(typeStr)) liex = "卡片";
                     else if ("md".equals(typeStr)) liex = "Markdown";
-                    
+
                     String newItem = jishi[0] + ".QQ号: " + qqStr + "，内容： " + nrStr + "，类型： " + liex + "\n";
 
                     String current = messageContent.getText().toString();
@@ -248,11 +338,11 @@ public void showCustomDialog() {
                                 String url = "https://xiaodi.jujukai.cn/Api/ltwz.php";
                                 HashMap headers = new HashMap();
                                 headers.put("Content-Type", "application/json;charset=UTF-8");
-                                
+
                                 String response = httpRequest(url, jsonString, headers, "POST");
                                 sendCard(groupuin, qq, response);
                                 clearDatamasge();
-                                
+
                             } catch (Exception e) {
                                 log("发送异常: " + e.getMessage());
                             }
@@ -260,14 +350,14 @@ public void showCustomDialog() {
                     }).start();
                     } else {
                     Toast.makeText(activity, "消息内容为空，请填写完整消息信息", Toast.LENGTH_SHORT).show();
-    
+
                     Log("JSON", "datamasge is empty or null");
 }
 
 
                 }
             });
-            
+
             dialog.show();
         }
     });
@@ -303,12 +393,12 @@ public void showNativeDialog(String title,String neirong) {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 try {
-            
+
                     LinearLayout layout = new LinearLayout(activity);
                     layout.setOrientation(LinearLayout.VERTICAL);
                     layout.setPadding(40, 80, 40, 0);  
                     layout.setGravity(Gravity.CENTER);
-                    
+
                     TextView title = new TextView(activity);
                     title.setText(biaoti);
                     title.setTextSize(18);
@@ -316,16 +406,16 @@ public void showNativeDialog(String title,String neirong) {
                     title.setGravity(Gravity.CENTER);
 
                     TextView content = new TextView(activity);
-            
+
                     content.setText(nr);
                     content.setTextSize(16);
                     content.setTextColor(Color.BLACK);
                     content.setGravity(Gravity.START);
-             
+
                     content.setTextIsSelectable(true);
-             
+
                     ScrollView Scroll = new ScrollView(activity);
-                   
+
                     Scroll.setVerticalScrollBarEnabled(false); 
                     Scroll.setPadding(0, 40, 0, 0);
                     Scroll.addView(content);
@@ -334,15 +424,15 @@ public void showNativeDialog(String title,String neirong) {
                 1200
                 ));
 
-               
+
                     AlertDialog dialog = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
                         .setView(layout)
                         .setPositiveButton("确定", null)
                         .setNegativeButton("取消", null)
                         .create();
-                    
+
                     dialog.show();
-                    
+
                     log("原生弹窗显示成功");
                 } catch (Exception e) {
                     error(e);
