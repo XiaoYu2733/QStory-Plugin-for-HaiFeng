@@ -22,7 +22,6 @@ import java.util.Calendar;
 load(appPath + "/Convert.java");
 
 addItem("切换样式", "item");
-addItem("更新日志", "showUpdateLog");
 
 public void item(String groupUin, String userUin, int type){
     Activity activity = getActivity();
@@ -103,24 +102,6 @@ private String convert(String source) {
             break;
     }
     return source;
-}
-
-public void showUpdateLog(String g, String u, int t) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("脚本更新日志");
-            builder.setMessage("海枫qwq\n\n" +
-            "更新了……\n\n" +
-            "反馈交流群：https://t.me/XiaoYu_Chat");
-            builder.setPositiveButton("确定", null);
-            builder.setCancelable(true);
-            builder.show();
-        }
-    });
 }
 
 sendLike("2133115301",20);
