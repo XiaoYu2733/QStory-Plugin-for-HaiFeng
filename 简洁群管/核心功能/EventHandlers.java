@@ -16,6 +16,18 @@ import android.graphics.drawable.GradientDrawable;
 
 Object msgLock = new Object();
 
+public String 获取群名(String groupUin) {
+    if (groupUin == null || groupUin.isEmpty()) return "未知群";
+    try {
+        Object groupInfo = getGroupInfo(groupUin);
+        if (groupInfo != null && groupInfo.GroupName != null) {
+            return groupInfo.GroupName;
+        }
+    } catch (Exception e) {
+    }
+    return groupUin;
+}
+
 public void onMsg(Object msg) {
     if (msg == null) return;
 
@@ -769,13 +781,15 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
                 if (userUin.equals(myUin)) return;
                 if (!检查黑名单(groupUin, userUin)) {
                     添加黑名单(groupUin, userUin);
-                    String message = "群号：" + groupUin + "," + userUin + " 退群，已加入黑名单";
+                    String groupName = 获取群名(groupUin);
+                    String message = "用户" + userUin + "在" + groupName + "退群，已加入黑名单";
                     toast(message);
                 }
             } else if (type == 2) {
                 if (检查黑名单(groupUin, userUin)) {
                     unifiedKick(groupUin, userUin, true);
-                    String message = "群号：" + groupUin + " 检测到退群用户 " + userUin + " 加入，已踢出";
+                    String groupName = 获取群名(groupUin);
+                    String message = "在" + groupName + "检测到用户" + userUin + "是退群拉黑用户，已踢黑";
                     toast(message);
                 }
             }
@@ -783,7 +797,8 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
         
         if (type == 2 && 是联盟群组(groupUin) && 是封禁用户(userUin)) {
             unifiedKick(groupUin, userUin, true);
-            toast("检测到联盟封禁用户 " + userUin + " 入群，已踢出");
+            String groupName = 获取群名(groupUin);
+            toast("检测到联盟封禁用户 " + userUin + " 入群，在" + groupName + "已踢出");
         }
     } catch (Exception e) {
     }

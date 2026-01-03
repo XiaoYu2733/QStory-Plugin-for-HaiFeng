@@ -423,6 +423,7 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [更改] 脚本代码被拆开为好几个Java，具体自己看\n" +
                         "——————————————————————————\n" +
                         "简洁群管_106.0_更新日志\n" +
+                        "- [更改] 退群拉黑提示文本\n" +
                         "- [修复] Toast .LENGTH_SHORT\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
