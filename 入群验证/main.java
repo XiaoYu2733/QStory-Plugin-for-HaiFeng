@@ -3,8 +3,6 @@
 
 // 时间可以把人拉近 也可以把人推得更远
 
-// QStory精选脚本系列 入群验证
-
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +16,25 @@ import java.util.Calendar;
 
 String configName = "VerifyConfig";
 String switchKey = "VerifySwitch";
+String kickModeKey = "KickModeConfig";
 
 addItem("开启/关闭入群验证", "toggleVerify");
+addItem("切换踢出/踢黑模式","toggleKickModeCallback");
 
 ArrayList questionBank = new ArrayList();
 
-public void showUpdateLogCallback(String group, String admin, int type) {
-    showUpdateLog();
+public void toggleKickModeCallback(String groupUin, String uin, int chatType) {
+    if (chatType != 2) {
+        toast("请在群聊中使用此功能");
+        return;
+    }
+    
+    boolean currentMode = getBoolean(kickModeKey, groupUin, true);
+    boolean newMode = !currentMode;
+    putBoolean(kickModeKey, groupUin, newMode);
+    
+    String modeText = newMode ? "踢黑模式" : "踢出模式";
+    toast("群 " + groupUin + " 已切换为 " + modeText);
 }
 
 void initQuestionBank() {
@@ -1499,10 +1509,16 @@ void handleVerificationFailure(String stateKey, String reason) {
     if ((Boolean)state.get("handled")) return;
     state.put("handled", true);
     try {
-        kick((String)state.get("groupUin"), (String)state.get("userUin"), true);
-        sendMsg((String)state.get("groupUin"), "", "[AtQQ=" + state.get("userUin") + "] 入群中途被踢出 验证流程结束");
+        String groupUin = (String)state.get("groupUin");
+        String userUin = (String)state.get("userUin");
+        boolean isKickBlack = getBoolean(kickModeKey, groupUin, true);
+        
+        kick(groupUin, userUin, isKickBlack);
+        
+        String modeText = isKickBlack ? "永久封禁" : "踢出";
+        sendMsg(groupUin, "", "[AtQQ=" + userUin + "] 由于" + reason + "，未完成入群验证，已被" + modeText);
     } catch (Exception e) {
-        sendMsg((String)state.get("groupUin"), "", "[AtQQ=" + state.get("userUin") + "] 由于" + reason + "，未完成入群验证，已被永久封禁。");
+        sendMsg((String)state.get("groupUin"), "", "[AtQQ=" + state.get("userUin") + "] 由于" + reason + "，未完成入群验证，处理失败");
     }
     verifyStates.remove(stateKey);
 }
