@@ -424,7 +424,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "——————————————————————————\n" +
                         "简洁群管_106.0_更新日志\n" +
                         "- [更改] 退群拉黑提示文本\n" +
-                        "- [修复] Toast .LENGTH_SHORT\n\n" +
+                        "- [修复] Toast .LENGTH_SHORT\n" +
+                                                "——————————————————————————\n" +
+                        "简洁群管_107.0_更新日志\n" +
+                        "- [优化] 代码底层逻辑\n\n" +
                         "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
