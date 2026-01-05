@@ -164,7 +164,7 @@ public void showUpdateLog(String g, String u, int t) {
         public void run() {
             try {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("简洁群管更新日志\n临江、海枫 平安喜乐 (>_<)");
+                builder.setTitle("简洁群管更新日志");
                 
                 TextView textView = new TextView(activity);
                 textView.setText("QStory精选脚本系列\n\n" +
@@ -564,11 +564,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] Toast .LENGTH_SHORT\n" +
                                                 "——————————\n" +
                         "简洁群管_107.0_更新日志\n" +
-                        "- [优化] 代码底层逻辑\n\n" +
+                        "- [优化] 代码底层逻辑\n" +
                         "——————————\n" +
                         "简洁群管_108.0_更新日志\n" +
                         "- [优化] 使用Material Design 3.0风格弹窗主题优化显示效果\n\n" +
-                        "临江、海枫 平安喜乐 (>_<)\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
