@@ -454,14 +454,6 @@ void showConfigDetails(final Activity activity) {
     dialog.getWindow().setAttributes(lp);
 }
 
-void importConfig(final Activity activity) {
-    Toasts("导入功能开发中...");
-}
-
-void exportConfig(final Activity activity) {
-    Toasts("导出功能开发中...");
-}
-
 void showWordsMenu(final Activity activity) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
@@ -1730,4 +1722,788 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
             }
         }
     });
+}
+
+void showAdvancedImportExportMenu(final Activity activity) {
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+                builder.setTitle("导入导出配置");
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                
+                TextView hint = new TextView(activity);
+                hint.setText("选择导入或导出配置文件：");
+                hint.setTextSize(14);
+                hint.setTextColor(Color.parseColor(getTextColor()));
+                hint.setPadding(0, 0, 0, dp2px(16));
+                layout.addView(hint);
+                
+                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp2px(44)
+                );
+                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                
+                Button btnExport = new Button(activity);
+                btnExport.setText("导出配置到下载目录");
+                btnExport.setTextColor(Color.WHITE);
+                btnExport.setBackground(getShape(accentColor, dp2px(6)));
+                btnExport.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                btnExport.setLayoutParams(buttonParams);
+                btnExport.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        showExportOptions(activity);
+                    }
+                });
+                
+                Button btnImport = new Button(activity);
+                btnImport.setText("从下载目录导入配置");
+                btnImport.setTextColor(Color.WHITE);
+                btnImport.setBackground(getShape(accentColor, dp2px(6)));
+                btnImport.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                btnImport.setLayoutParams(buttonParams);
+                btnImport.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        showImportFromDownload(activity);
+                    }
+                });
+                
+                Button btnQuickBackup = new Button(activity);
+                btnQuickBackup.setText("快速备份到脚本目录");
+                btnQuickBackup.setTextColor(Color.WHITE);
+                btnQuickBackup.setBackground(getShape("#4CAF50", dp2px(6)));
+                btnQuickBackup.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                btnQuickBackup.setLayoutParams(buttonParams);
+                btnQuickBackup.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        quickBackupToScriptDir(activity);
+                    }
+                });
+                
+                layout.addView(btnExport);
+                layout.addView(btnImport);
+                layout.addView(btnQuickBackup);
+                
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
+                
+                builder.setView(scrollView);
+                builder.setNegativeButton("关闭", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                Toasts("显示菜单失败: " + e.getMessage());
+            }
+        }
+    });
+}
+
+void showExportOptions(final Activity activity) {
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                
+                TextView titleView = new TextView(activity);
+                titleView.setText("选择导出格式");
+                titleView.setTextSize(17);
+                titleView.setTextColor(Color.parseColor(getTextColor()));
+                titleView.setGravity(Gravity.CENTER);
+                titleView.setPadding(0, 0, 0, dp2px(16));
+                layout.addView(titleView);
+                
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp2px(44)
+                );
+                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                
+                Button btnExportJSON = new Button(activity);
+                btnExportJSON.setText("导出为JSON格式");
+                btnExportJSON.setTextColor(Color.WHITE);
+                btnExportJSON.setBackground(getShape(accentColor, dp2px(6)));
+                btnExportJSON.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                btnExportJSON.setLayoutParams(buttonParams);
+                btnExportJSON.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        exportToJSON(activity);
+                    }
+                });
+                
+                Button btnExportTxt = new Button(activity);
+                btnExportTxt.setText("导出为文本格式");
+                btnExportTxt.setTextColor(Color.WHITE);
+                btnExportTxt.setBackground(getShape(accentColor, dp2px(6)));
+                btnExportTxt.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                btnExportTxt.setLayoutParams(buttonParams);
+                btnExportTxt.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        exportToText(activity);
+                    }
+                });
+                
+                layout.addView(btnExportJSON);
+                layout.addView(btnExportTxt);
+                
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+                builder.setView(layout);
+                builder.setNegativeButton("取消", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                Toasts("显示导出选项失败");
+            }
+        }
+    });
+}
+
+void exportToJSON(final Activity activity) {
+    try {
+        String configJSON = buildConfigJSON();
+        
+        String fileName = "任务配置_" + getCurrentDate().replace("-", "") + 
+                         "_" + getCurrentTime().replace(":", "") + ".json";
+        String downloadPath = "/storage/emulated/0/Download/" + fileName;
+        
+        writeTextToFile(downloadPath, configJSON);
+        
+        String scriptBackupPath = appPath + "/配置备份/" + fileName;
+        File scriptBackupDir = new File(appPath + "/配置备份");
+        if (!scriptBackupDir.exists()) {
+            scriptBackupDir.mkdirs();
+        }
+        writeTextToFile(scriptBackupPath, configJSON);
+        
+        showExportSuccessDialog(activity, downloadPath, scriptBackupPath, "JSON格式");
+        
+    } catch (Exception e) {
+        Toasts("导出JSON失败: " + e.getMessage());
+    }
+}
+
+void exportToText(final Activity activity) {
+    try {
+        String configText = buildConfigText();
+        
+        String fileName = "任务配置_" + getCurrentDate().replace("-", "") + 
+                         "_" + getCurrentTime().replace(":", "") + ".txt";
+        String downloadPath = "/storage/emulated/0/Download/" + fileName;
+        
+        writeTextToFile(downloadPath, configText);
+        
+        String scriptBackupPath = appPath + "/配置备份/" + fileName;
+        File scriptBackupDir = new File(appPath + "/配置备份");
+        if (!scriptBackupDir.exists()) {
+            scriptBackupDir.mkdirs();
+        }
+        writeTextToFile(scriptBackupPath, configText);
+        
+        showExportSuccessDialog(activity, downloadPath, scriptBackupPath, "文本格式");
+        
+    } catch (Exception e) {
+        Toasts("导出文本失败: " + e.getMessage());
+    }
+}
+
+String buildConfigJSON() {
+    try {
+        StringBuilder json = new StringBuilder();
+        json.append("{\n");
+        json.append("  \"configVersion\": \"1.0\",\n");
+        json.append("  \"exportTime\": \"").append(getCurrentDate()).append(" ").append(getCurrentTime()).append("\",\n");
+        
+        json.append("  \"likeFriends\": [\n");
+        for (int i = 0; i < selectedFriendsForLike.size(); i++) {
+            json.append("    \"").append(selectedFriendsForLike.get(i)).append("\"");
+            if (i < selectedFriendsForLike.size() - 1) json.append(",");
+            json.append("\n");
+        }
+        json.append("  ],\n");
+        
+        json.append("  \"fireFriends\": [\n");
+        for (int i = 0; i < selectedFriendsForFire.size(); i++) {
+            json.append("    \"").append(selectedFriendsForFire.get(i)).append("\"");
+            if (i < selectedFriendsForFire.size() - 1) json.append(",");
+            json.append("\n");
+        }
+        json.append("  ],\n");
+        
+        json.append("  \"fireGroups\": [\n");
+        for (int i = 0; i < selectedGroupsForFire.size(); i++) {
+            json.append("    \"").append(selectedGroupsForFire.get(i)).append("\"");
+            if (i < selectedGroupsForFire.size() - 1) json.append(",");
+            json.append("\n");
+        }
+        json.append("  ],\n");
+        
+        json.append("  \"friendWords\": [\n");
+        for (int i = 0; i < friendFireWords.size(); i++) {
+            json.append("    \"").append(escapeJSON((String)friendFireWords.get(i))).append("\"");
+            if (i < friendFireWords.size() - 1) json.append(",");
+            json.append("\n");
+        }
+        json.append("  ],\n");
+        
+        json.append("  \"groupWords\": [\n");
+        for (int i = 0; i < groupFireWords.size(); i++) {
+            json.append("    \"").append(escapeJSON((String)groupFireWords.get(i))).append("\"");
+            if (i < groupFireWords.size() - 1) json.append(",");
+            json.append("\n");
+        }
+        json.append("  ],\n");
+        
+        json.append("  \"likeTime\": \"").append(likeTime).append("\",\n");
+        json.append("  \"friendFireTime\": \"").append(friendFireTime).append("\",\n");
+        json.append("  \"groupFireTime\": \"").append(groupFireTime).append("\"\n");
+        
+        json.append("}");
+        
+        return json.toString();
+    } catch (Exception e) {
+        return "{}";
+    }
+}
+
+String escapeJSON(String text) {
+    if (text == null) return "";
+    return text.replace("\\", "\\\\")
+               .replace("\"", "\\\"")
+               .replace("\n", "\\n")
+               .replace("\r", "\\r")
+               .replace("\t", "\\t");
+}
+
+String buildConfigText() {
+    StringBuilder text = new StringBuilder();
+    text.append("=== 任务配置备份 ===\n");
+    text.append("备份时间: ").append(getCurrentDate()).append(" ").append(getCurrentTime()).append("\n");
+    text.append("格式: 文本格式\n\n");
+    
+    text.append("[点赞好友]\n");
+    for (int i = 0; i < selectedFriendsForLike.size(); i++) {
+        text.append(selectedFriendsForLike.get(i)).append("\n");
+    }
+    text.append("\n");
+    
+    text.append("[续火好友]\n");
+    for (int i = 0; i < selectedFriendsForFire.size(); i++) {
+        text.append(selectedFriendsForFire.get(i)).append("\n");
+    }
+    text.append("\n");
+    
+    text.append("[续火群组]\n");
+    for (int i = 0; i < selectedGroupsForFire.size(); i++) {
+        text.append(selectedGroupsForFire.get(i)).append("\n");
+    }
+    text.append("\n");
+    
+    text.append("[好友续火语录]\n");
+    for (int i = 0; i < friendFireWords.size(); i++) {
+        text.append(friendFireWords.get(i)).append("\n");
+    }
+    text.append("\n");
+    
+    text.append("[群组续火语录]\n");
+    for (int i = 0; i < groupFireWords.size(); i++) {
+        text.append(groupFireWords.get(i)).append("\n");
+    }
+    text.append("\n");
+    
+    text.append("[执行时间]\n");
+    text.append("点赞时间=").append(likeTime).append("\n");
+    text.append("好友续火时间=").append(friendFireTime).append("\n");
+    text.append("群组续火时间=").append(groupFireTime).append("\n");
+    
+    text.append("\n=== 备份结束 ===");
+    
+    return text.toString();
+}
+
+void showExportSuccessDialog(final Activity activity, final String downloadPath, 
+                            final String backupPath, final String format) {
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+                builder.setTitle("导出成功");
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                
+                TextView title = new TextView(activity);
+                title.setText("配置已成功导出 (" + format + ")");
+                title.setTextSize(16);
+                title.setTextColor(Color.parseColor(getTextColor()));
+                title.setGravity(Gravity.CENTER);
+                title.setPadding(0, 0, 0, dp2px(16));
+                layout.addView(title);
+                
+                TextView path1 = new TextView(activity);
+                path1.setText("主要位置:\n" + downloadPath);
+                path1.setTextSize(14);
+                path1.setTextColor(Color.parseColor(getTextColor()));
+                path1.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(8));
+                layout.addView(path1);
+                
+                TextView path2 = new TextView(activity);
+                path2.setText("备份位置:\n" + backupPath);
+                path2.setTextSize(14);
+                path2.setTextColor(Color.parseColor(getSubTextColor()));
+                path2.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(16));
+                layout.addView(path2);
+                
+                TextView hint = new TextView(activity);
+                hint.setText("提示: 文件已保存到下载目录，您可以通过文件管理器访问");
+                hint.setTextSize(12);
+                hint.setTextColor(Color.parseColor("#4CAF50"));
+                hint.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(8));
+                layout.addView(hint);
+                
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
+                
+                builder.setView(scrollView);
+                builder.setPositiveButton("确定", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                Toasts("显示导出信息失败");
+            }
+        }
+    });
+}
+
+void showImportFromDownload(final Activity activity) {
+    String downloadDir = "/storage/emulated/0/Download";
+    File downloadFolder = new File(downloadDir);
+    
+    if (!downloadFolder.exists() || !downloadFolder.isDirectory()) {
+        Toasts("无法访问下载目录");
+        return;
+    }
+    
+    File[] files = downloadFolder.listFiles(new FilenameFilter() {
+        public boolean accept(File dir, String name) {
+            return name.toLowerCase().contains("配置") && 
+                   (name.toLowerCase().endsWith(".txt") || 
+                    name.toLowerCase().endsWith(".json"));
+        }
+    });
+    
+    if (files == null || files.length == 0) {
+        Toasts("下载目录中没有找到配置文件");
+        return;
+    }
+    
+    showFileSelectionDialog(activity, files, "从下载目录导入");
+}
+
+void showFileSelectionDialog(final Activity activity, final File[] files, String title) {
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+                builder.setTitle(title);
+                
+                final ArrayList<String> fileNames = new ArrayList<String>();
+                final ArrayList<String> filePaths = new ArrayList<String>();
+                
+                for (File file : files) {
+                    if (file.isFile()) {
+                        String size = formatFileSize(file.length());
+                        String modified = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+                            .format(new java.util.Date(file.lastModified()));
+                        
+                        fileNames.add(file.getName() + "\n大小: " + size + " | 修改: " + modified);
+                        filePaths.add(file.getAbsolutePath());
+                    }
+                }
+                
+                if (fileNames.isEmpty()) {
+                    Toasts("没有找到可用的配置文件");
+                    return;
+                }
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                
+                final EditText searchEdit = new EditText(activity);
+                searchEdit.setHint("搜索文件名...");
+                searchEdit.setTextColor(Color.parseColor(getTextColor()));
+                searchEdit.setHintTextColor(Color.parseColor(getSubTextColor()));
+                searchEdit.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                searchEdit.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                LinearLayout.LayoutParams searchParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                searchParams.setMargins(dp2px(8), dp2px(8), dp2px(8), dp2px(8));
+                searchEdit.setLayoutParams(searchParams);
+                layout.addView(searchEdit);
+                
+                final ListView listView = new ListView(activity);
+                listView.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                listView.setDividerHeight(dp2px(1));
+                LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp2px(300)
+                );
+                listParams.setMargins(dp2px(8), 0, dp2px(8), dp2px(8));
+                listView.setLayoutParams(listParams);
+                layout.addView(listView);
+                
+                final CustomArrayAdapter adapter = new CustomArrayAdapter(
+                    activity, 
+                    android.R.layout.simple_list_item_1, 
+                    fileNames,
+                    getTextColor()
+                );
+                
+                listView.setAdapter(adapter);
+                
+                searchEdit.addTextChangedListener(new TextWatcher() {
+                    public void afterTextChanged(Editable s) {}
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        String query = s.toString().toLowerCase();
+                        ArrayList<String> filteredNames = new ArrayList<String>();
+                        final ArrayList<String> filteredPaths = new ArrayList<String>();
+                        
+                        for (int i = 0; i < fileNames.size(); i++) {
+                            if (fileNames.get(i).toLowerCase().contains(query)) {
+                                filteredNames.add(fileNames.get(i));
+                                filteredPaths.add(filePaths.get(i));
+                            }
+                        }
+                        
+                        final CustomArrayAdapter filteredAdapter = new CustomArrayAdapter(
+                            activity, 
+                            android.R.layout.simple_list_item_1, 
+                            filteredNames,
+                            getTextColor()
+                        );
+                        
+                        listView.setAdapter(filteredAdapter);
+                        
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                                String selectedPath = filteredPaths.get(position);
+                                previewAndImportFile(activity, selectedPath);
+                            }
+                        });
+                    }
+                });
+                
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView parent, View view, int position, long id) {
+                        String selectedPath = filePaths.get(position);
+                        previewAndImportFile(activity, selectedPath);
+                    }
+                });
+                
+                builder.setView(layout);
+                builder.setNegativeButton("取消", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                Toasts("显示文件选择对话框失败");
+            }
+        }
+    });
+}
+
+String formatFileSize(long size) {
+    if (size < 1024) {
+        return size + " B";
+    } else if (size < 1024 * 1024) {
+        return String.format("%.1f KB", size / 1024.0);
+    } else {
+        return String.format("%.1f MB", size / (1024.0 * 1024.0));
+    }
+}
+
+void previewAndImportFile(final Activity activity, final String filePath) {
+    try {
+        
+        String content = readFileText(filePath);
+        if (content == null || content.trim().isEmpty()) {
+            Toasts("无法读取文件内容");
+            return;
+        }
+        
+        final HashMap<String, Object> config = parseConfigFile(content, filePath);
+        
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                showImportPreviewDialog(activity, config, new File(filePath).getName());
+            }
+        });
+        
+    } catch (Exception e) {
+        Toasts("读取配置文件失败: " + e.getMessage());
+    }
+}
+
+HashMap<String, Object> parseConfigFile(String content, String filePath) {
+    HashMap<String, Object> config = new HashMap<String, Object>();
+    
+    if (filePath.toLowerCase().endsWith(".json")) {
+        
+        try {
+            
+            config = parseSimpleJSON(content);
+        } catch (Exception e) {
+            
+            config = parseTextConfig(content);
+        }
+    } else {
+        
+        config = parseTextConfig(content);
+    }
+    
+    return config;
+}
+
+HashMap<String, Object> parseSimpleJSON(String json) {
+    HashMap<String, Object> config = new HashMap<String, Object>();
+    
+    try {
+        
+        String[] lines = json.split("\n");
+        String currentKey = null;
+        StringBuilder currentArray = new StringBuilder();
+        boolean inArray = false;
+        
+        for (String line : lines) {
+            line = line.trim();
+            
+            if (line.startsWith("\"") && line.contains(":")) {
+                
+                String key = line.substring(1, line.indexOf("\"", 1));
+                String value = line.substring(line.indexOf(":") + 1).trim();
+                
+                if (value.startsWith("[")) {
+                    
+                    inArray = true;
+                    currentKey = key;
+                    currentArray = new StringBuilder();
+                    
+                    String arrayContent = value.substring(1);
+                    if (arrayContent.endsWith("],")) {
+                        arrayContent = arrayContent.substring(0, arrayContent.length() - 2);
+                        config.put(currentKey, parseJSONArray(arrayContent));
+                        inArray = false;
+                    } else if (arrayContent.endsWith("]")) {
+                        arrayContent = arrayContent.substring(0, arrayContent.length() - 1);
+                        config.put(currentKey, parseJSONArray(arrayContent));
+                        inArray = false;
+                    } else {
+                        currentArray.append(arrayContent);
+                    }
+                } else if (value.startsWith("\"")) {
+                    
+                    String strValue = value.substring(1, value.lastIndexOf("\""));
+                    config.put(key, strValue);
+                }
+            } else if (inArray && currentKey != null) {
+                
+                if (line.endsWith("],") || line.endsWith("]")) {
+                    line = line.substring(0, line.length() - (line.endsWith("],") ? 2 : 1));
+                    currentArray.append(line);
+                    config.put(currentKey, parseJSONArray(currentArray.toString()));
+                    inArray = false;
+                } else {
+                    currentArray.append(line);
+                }
+            }
+        }
+    } catch (Exception e) {
+        
+    }
+    
+    return config;
+}
+
+ArrayList<String> parseJSONArray(String arrayContent) {
+    ArrayList<String> list = new ArrayList<String>();
+    
+    try {
+        String[] items = arrayContent.split(",");
+        for (String item : items) {
+            item = item.trim();
+            if (item.startsWith("\"") && item.endsWith("\"")) {
+                list.add(item.substring(1, item.length() - 1));
+            } else {
+                list.add(item);
+            }
+        }
+    } catch (Exception e) {
+        
+    }
+    
+    return list;
+}
+
+HashMap<String, Object> parseTextConfig(String content) {
+    HashMap<String, Object> config = new HashMap<String, Object>();
+    
+    try {
+        String[] lines = content.split("\n");
+        String currentSection = null;
+        ArrayList<String> currentList = new ArrayList<String>();
+        
+        for (String line : lines) {
+            line = line.trim();
+            
+            if (line.startsWith("[")) {
+                
+                if (currentSection != null && !currentList.isEmpty()) {
+                    config.put(currentSection, new ArrayList<String>(currentList));
+                    currentList.clear();
+                }
+                
+                if (line.contains("]")) {
+                    currentSection = line.substring(1, line.indexOf("]"));
+                }
+            } else if (line.contains("=") && currentSection == null) {
+                
+                int eqIndex = line.indexOf("=");
+                if (eqIndex > 0) {
+                    String key = line.substring(0, eqIndex).trim();
+                    String value = line.substring(eqIndex + 1).trim();
+                    config.put(key, value);
+                }
+            } else if (currentSection != null && !line.isEmpty() && 
+                      !line.startsWith("===") && !line.startsWith("备份时间") && 
+                      !line.startsWith("格式:")) {
+                
+                currentList.add(line);
+            }
+        }
+        
+        if (currentSection != null && !currentList.isEmpty()) {
+            config.put(currentSection, new ArrayList<String>(currentList));
+        }
+        
+    } catch (Exception e) {
+        
+    }
+    
+    return config;
+}
+
+void showImportPreviewDialog(final Activity activity, final HashMap<String, Object> config, final String fileName) {
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+                builder.setTitle("导入预览 - " + fileName);
+                
+                LinearLayout layout = new LinearLayout(activity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                
+                String summary = buildConfigSummary(config);
+                
+                TextView summaryView = new TextView(activity);
+                summaryView.setText(summary);
+                summaryView.setTextSize(14);
+                summaryView.setTextColor(Color.parseColor(getTextColor()));
+                summaryView.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(16));
+                layout.addView(summaryView);
+                
+                TextView optionsTitle = new TextView(activity);
+                optionsTitle.setText("导入选项:");
+                optionsTitle.setTextSize(15);
+                optionsTitle.setTextColor(Color.parseColor(getTextColor()));
+                optionsTitle.setPadding(0, dp2px(8), 0, dp2px(8));
+                layout.addView(optionsTitle);
+                
+                ScrollView scrollView = new ScrollView(activity);
+                scrollView.addView(layout);
+                
+                builder.setView(scrollView);
+                
+                builder.setPositiveButton("确认导入", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        applyImportedConfig(config);
+                        Toasts("配置导入成功");
+                    }
+                });
+                
+                builder.setNegativeButton("取消", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+            } catch (Exception e) {
+                Toasts("显示导入预览失败");
+            }
+        }
+    });
+}
+
+void quickBackupToScriptDir(final Activity activity) {
+    try {
+        String backupName = "快速备份_" + getCurrentDate().replace("-", "") + 
+                          "_" + getCurrentTime().replace(":", "") + ".txt";
+        String backupPath = appPath + "/快速备份/" + backupName;
+        
+        File backupDir = new File(appPath + "/快速备份");
+        if (!backupDir.exists()) {
+            backupDir.mkdirs();
+        }
+        
+        String backupContent = buildConfigText();
+        writeTextToFile(backupPath, backupContent);
+        
+        Toasts("快速备份完成: " + backupName);
+        
+    } catch (Exception e) {
+        Toasts("快速备份失败: " + e.getMessage());
+    }
+}
+
+void importConfig(final Activity activity) {
+    showAdvancedImportExportMenu(activity);
+}
+
+void exportConfig(final Activity activity) {
+    showAdvancedImportExportMenu(activity);
 }
