@@ -18,6 +18,143 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.ViewGroup;
 import android.view.Gravity;
 import android.view.View;
+import android.content.DialogInterface;
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.util.TypedValue;
+import android.widget.AdapterView;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Button;
+import java.lang.reflect.Field;
+
+public int getCurrentTheme() {
+    try {
+        Context context = getActivity();
+        if (context == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+        } else {
+            return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        }
+    } catch (Exception e) {
+        return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+    }
+}
+
+public String getBackgroundColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#1E1E1E";
+    } else {
+        return "#F8F9FA";
+    }
+}
+
+public String getTextColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#E9ECEF";
+    } else {
+        return "#212529";
+    }
+}
+
+public String getSubTextColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#ADB5BD";
+    } else {
+        return "#6C757D";
+    }
+}
+
+public String getCardColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#2D2D2D";
+    } else {
+        return "#FFFFFF";
+    }
+}
+
+public String getAccentColor() {
+    return "#4285F4";
+}
+
+public String getAccentColorDark() {
+    return "#3367D6";
+}
+
+public String getSurfaceColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#3C3C3C";
+    } else {
+        return "#E9ECEF";
+    }
+}
+
+public String getBorderColor() {
+    int theme = getCurrentTheme();
+    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#404040";
+    } else {
+        return "#DEE2E6";
+    }
+}
+
+public int c(float f) {
+    return dp2px(f);
+}
+
+public int dp2px(float dp) {
+    try {
+        DisplayMetrics metrics = new DisplayMetrics();
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            return (int) (dp * metrics.density + 0.5f);
+        }
+    } catch (Exception e) {}
+    return (int) (dp * 3 + 0.5f);
+}
+
+public GradientDrawable getShape(String color, int cornerRadius) {
+    GradientDrawable shape = new GradientDrawable();
+    shape.setColor(Color.parseColor(color));
+    shape.setCornerRadius(cornerRadius);
+    shape.setShape(GradientDrawable.RECTANGLE);
+    return shape;
+}
+
+public GradientDrawable getWebShape(String baseColor, int cornerRadius) {
+    GradientDrawable shape = new GradientDrawable();
+    shape.setColor(Color.parseColor(baseColor));
+    shape.setCornerRadius(cornerRadius);
+    shape.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+    shape.setShape(GradientDrawable.RECTANGLE);
+    return shape;
+}
+
+class CustomArrayAdapter extends ArrayAdapter {
+    private String textColor;
+    
+    public CustomArrayAdapter(Context context, int resource, ArrayList<String> objects, String textColor) {
+        super(context, resource, objects);
+        this.textColor = textColor;
+    }
+    
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view = super.getView(position, convertView, parent);
+        TextView textView = (TextView) view.findViewById(android.R.id.text1);
+        textView.setTextColor(Color.parseColor(textColor));
+        return view;
+    }
+}
 
 public void showUpdateLog(String g, String u, int t) {
     Activity activity = getActivity();
@@ -437,8 +574,7 @@ public void showUpdateLog(String g, String u, int t) {
                 textView.setLineSpacing(dp2px(4), 1);
                 textView.setTextIsSelectable(true);
                 
-                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                int textColor = Color.parseColor(getTextColor());
                 textView.setTextColor(textColor);
                 textView.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
                 
@@ -449,10 +585,7 @@ public void showUpdateLog(String g, String u, int t) {
                 container.setOrientation(LinearLayout.VERTICAL);
                 container.setPadding(dp2px(5), dp2px(5), dp2px(5), dp2px(5));
                 
-                GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                GradientDrawable bg = getWebShape(getCardColor(), dp2px(8));
                 scrollView.setBackground(bg);
                 
                 container.addView(scrollView);
@@ -513,14 +646,12 @@ public void showGroupManageDialog() {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 try {
-                    boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-                    
                     TextView textView = new TextView(activity);
                     textView.setText(dialogContent);
                     textView.setTextSize(14);
                     textView.setTextIsSelectable(true);
                     textView.setLineSpacing(dp2px(4), 1);
-                    int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                    int textColor = Color.parseColor(getTextColor());
                     textView.setTextColor(textColor);
                     textView.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
 
@@ -531,10 +662,7 @@ public void showGroupManageDialog() {
                     container.setOrientation(LinearLayout.VERTICAL);
                     container.setPadding(dp2px(5), dp2px(5), dp2px(5), dp2px(5));
                     
-                    GradientDrawable bg = new GradientDrawable();
-                    bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                    bg.setCornerRadius(dp2px(8));
-                    bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                    GradientDrawable bg = getWebShape(getCardColor(), dp2px(8));
                     scrollView.setBackground(bg);
                     
                     container.addView(scrollView);
@@ -566,41 +694,37 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("黑名单管理");
                 
                 final File 黑名单文件 = 获取黑名单文件(groupUin);
                 final ArrayList 黑名单列表 = 简取(黑名单文件);
                 
+                LinearLayout mainLayout = new LinearLayout(activity);
+                mainLayout.setOrientation(LinearLayout.VERTICAL);
+                mainLayout.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
+                
                 LinearLayout layout = new LinearLayout(activity);
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
+                layout.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
-                layout.setBackground(bg);
+                int theme = getCurrentTheme();
+                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
                 TextView hint = new TextView(activity);
                 hint.setText("当前黑名单数量: " + 黑名单列表.size() + " 人");
                 hint.setTextSize(14);
-                hint.setTextColor(textColor);
+                hint.setTextColor(Color.parseColor(getTextColor()));
                 hint.setPadding(0, 0, 0, dp2px(10));
                 layout.addView(hint);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("输入QQ号添加，多个用逗号分开");
-                inputEditText.setHintTextColor(hintTextColor);
-                inputEditText.setTextColor(textColor);
+                inputEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
+                inputEditText.setTextColor(Color.parseColor(getTextColor()));
                 
-                GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                etBg.setCornerRadius(dp2px(6));
-                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+                GradientDrawable etBg = getWebShape(getSurfaceColor(), dp2px(6));
                 inputEditText.setBackground(etBg);
                 inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 inputEditText.setLayoutParams(new LinearLayout.LayoutParams(
@@ -610,7 +734,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 
                 layout.addView(inputEditText);
                 
-                android.view.View spacer = new android.view.View(activity);
+                View spacer = new View(activity);
                 spacer.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(15)
@@ -625,20 +749,18 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 ));
                 
-                TextView addBtn = new TextView(activity);
+                Button addBtn = new Button(activity);
                 addBtn.setText("添加用户");
                 addBtn.setTextSize(16);
                 addBtn.setTextColor(Color.WHITE);
                 addBtn.setGravity(Gravity.CENTER);
                 addBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable addBg = new GradientDrawable();
-                addBg.setColor(Color.parseColor("#4285F4"));
-                addBg.setCornerRadius(dp2px(6));
+                GradientDrawable addBg = getShape(accentColor, dp2px(6));
                 addBtn.setBackground(addBg);
                 
-                addBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                addBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         String input = inputEditText.getText().toString().trim();
                         if (!input.isEmpty()) {
                             String[] qqs = input.split("[,\\s]+");
@@ -670,20 +792,18 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                TextView removeSelectedBtn = new TextView(activity);
+                Button removeSelectedBtn = new Button(activity);
                 removeSelectedBtn.setText("删除选中");
                 removeSelectedBtn.setTextSize(16);
                 removeSelectedBtn.setTextColor(Color.WHITE);
                 removeSelectedBtn.setGravity(Gravity.CENTER);
                 removeSelectedBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable removeBg = new GradientDrawable();
-                removeBg.setColor(Color.parseColor("#34A853"));
-                removeBg.setCornerRadius(dp2px(6));
+                GradientDrawable removeBg = getShape("#34A853", dp2px(6));
                 removeSelectedBtn.setBackground(removeBg);
                 
-                removeSelectedBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                removeSelectedBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         int removedCount = 0;
                         ArrayList<String> 黑名单列表副本 = safeCopyList(黑名单列表);
                         for (int i = 0; i < listView.getCount(); i++) {
@@ -713,20 +833,18 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                TextView clearAllBtn = new TextView(activity);
+                Button clearAllBtn = new Button(activity);
                 clearAllBtn.setText("清空全部");
                 clearAllBtn.setTextSize(16);
                 clearAllBtn.setTextColor(Color.WHITE);
                 clearAllBtn.setGravity(Gravity.CENTER);
                 clearAllBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable clearBg = new GradientDrawable();
-                clearBg.setColor(Color.parseColor("#EA4335"));
-                clearBg.setCornerRadius(dp2px(6));
+                GradientDrawable clearBg = getShape("#EA4335", dp2px(6));
                 clearAllBtn.setBackground(clearBg);
                 
-                clearAllBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                clearAllBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         try {
                             全弃(黑名单文件);
                             toast("已清空所有黑名单");
@@ -757,17 +875,18 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 
                 layout.addView(buttonLayout);
                 
-                android.view.View spacer2 = new android.view.View(activity);
+                View spacer2 = new View(activity);
                 spacer2.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(15)
                 ));
                 layout.addView(spacer2);
                 
-                ListView listView = new ListView(activity);
-                final ArrayAdapter adapter = new ArrayAdapter(activity, 
+                final ListView listView = new ListView(activity);
+                final CustomArrayAdapter adapter = new CustomArrayAdapter(activity, 
                     android.R.layout.simple_list_item_multiple_choice, 
-                    黑名单列表
+                    黑名单列表,
+                    getTextColor()
                 );
                 listView.setAdapter(adapter);
                 listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -777,10 +896,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     dp2px(200)
                 ));
                 
-                GradientDrawable listBg = new GradientDrawable();
-                listBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                listBg.setCornerRadius(dp2px(6));
-                listBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                GradientDrawable listBg = getWebShape(getSurfaceColor(), dp2px(6));
                 listView.setBackground(listBg);
                 
                 layout.addView(listView);
@@ -788,15 +904,14 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 TextView bottomHint = new TextView(activity);
                 bottomHint.setText("共 " + 黑名单列表.size() + " 个黑名单用户");
                 bottomHint.setTextSize(12);
-                bottomHint.setTextColor(hintTextColor);
+                bottomHint.setTextColor(Color.parseColor(getSubTextColor()));
                 bottomHint.setGravity(Gravity.CENTER);
                 bottomHint.setPadding(0, dp2px(10), 0, 0);
                 layout.addView(bottomHint);
                 
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(layout);
+                mainLayout.addView(layout);
                 
-                builder.setView(scrollView);
+                builder.setView(mainLayout);
                 builder.setNegativeButton("关闭", null);
                 
                 AlertDialog dialog = builder.create();
@@ -817,41 +932,37 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("代管管理");
                 
                 final File 代管文件 = 获取代管文件();
                 final ArrayList 代管列表 = 简取(代管文件);
                 
+                LinearLayout mainLayout = new LinearLayout(activity);
+                mainLayout.setOrientation(LinearLayout.VERTICAL);
+                mainLayout.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
+                
                 LinearLayout layout = new LinearLayout(activity);
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
+                layout.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
-                layout.setBackground(bg);
+                int theme = getCurrentTheme();
+                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
                 TextView hint = new TextView(activity);
-                hint.setText("当前代管数量: " + 代管列表.size() + " 人");
+                hint.setText("当代管数量: " + 代管列表.size() + " 人");
                 hint.setTextSize(14);
-                hint.setTextColor(textColor);
+                hint.setTextColor(Color.parseColor(getTextColor()));
                 hint.setPadding(0, 0, 0, dp2px(10));
                 layout.addView(hint);
                 
                 EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("输入QQ号添加，多个用逗号分开");
-                inputEditText.setHintTextColor(hintTextColor);
-                inputEditText.setTextColor(textColor);
+                inputEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
+                inputEditText.setTextColor(Color.parseColor(getTextColor()));
                 
-                GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                etBg.setCornerRadius(dp2px(6));
-                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+                GradientDrawable etBg = getWebShape(getSurfaceColor(), dp2px(6));
                 inputEditText.setBackground(etBg);
                 inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 inputEditText.setLayoutParams(new LinearLayout.LayoutParams(
@@ -861,7 +972,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 
                 layout.addView(inputEditText);
                 
-                android.view.View spacer = new android.view.View(activity);
+                View spacer = new View(activity);
                 spacer.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(15)
@@ -876,20 +987,18 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 ));
                 
-                TextView addBtn = new TextView(activity);
+                Button addBtn = new Button(activity);
                 addBtn.setText("添加用户");
                 addBtn.setTextSize(16);
                 addBtn.setTextColor(Color.WHITE);
                 addBtn.setGravity(Gravity.CENTER);
                 addBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable addBg = new GradientDrawable();
-                addBg.setColor(Color.parseColor("#4285F4"));
-                addBg.setCornerRadius(dp2px(6));
+                GradientDrawable addBg = getShape(accentColor, dp2px(6));
                 addBtn.setBackground(addBg);
                 
-                addBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                addBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         String input = inputEditText.getText().toString().trim();
                         if (!input.isEmpty()) {
                             String[] qqs = input.split("[,\\s]+");
@@ -921,20 +1030,18 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                TextView removeSelectedBtn = new TextView(activity);
+                Button removeSelectedBtn = new Button(activity);
                 removeSelectedBtn.setText("删除选中");
                 removeSelectedBtn.setTextSize(16);
                 removeSelectedBtn.setTextColor(Color.WHITE);
                 removeSelectedBtn.setGravity(Gravity.CENTER);
                 removeSelectedBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable removeBg = new GradientDrawable();
-                removeBg.setColor(Color.parseColor("#34A853"));
-                removeBg.setCornerRadius(dp2px(6));
+                GradientDrawable removeBg = getShape("#34A853", dp2px(6));
                 removeSelectedBtn.setBackground(removeBg);
                 
-                removeSelectedBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                removeSelectedBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         int removedCount = 0;
                         ArrayList<String> 代管列表副本 = safeCopyList(代管列表);
                         for (int i = 0; i < listView.getCount(); i++) {
@@ -964,20 +1071,18 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     }
                 });
                 
-                TextView clearAllBtn = new TextView(activity);
+                Button clearAllBtn = new Button(activity);
                 clearAllBtn.setText("清空全部");
                 clearAllBtn.setTextSize(16);
                 clearAllBtn.setTextColor(Color.WHITE);
                 clearAllBtn.setGravity(Gravity.CENTER);
                 clearAllBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
                 
-                GradientDrawable clearBg = new GradientDrawable();
-                clearBg.setColor(Color.parseColor("#EA4335"));
-                clearBg.setCornerRadius(dp2px(6));
+                GradientDrawable clearBg = getShape("#EA4335", dp2px(6));
                 clearAllBtn.setBackground(clearBg);
                 
-                clearAllBtn.setOnClickListener(new android.view.View.OnClickListener() {
-                    public void onClick(android.view.View v) {
+                clearAllBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
                         try {
                             全弃(代管文件);
                             toast("已清空所有代管");
@@ -1008,17 +1113,18 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 
                 layout.addView(buttonLayout);
                 
-                android.view.View spacer2 = new android.view.View(activity);
+                View spacer2 = new View(activity);
                 spacer2.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(15)
                 ));
                 layout.addView(spacer2);
                 
-                ListView listView = new ListView(activity);
-                final ArrayAdapter adapter = new ArrayAdapter(activity, 
+                final ListView listView = new ListView(activity);
+                final CustomArrayAdapter adapter = new CustomArrayAdapter(activity, 
                     android.R.layout.simple_list_item_multiple_choice, 
-                    代管列表
+                    代管列表,
+                    getTextColor()
                 );
                 listView.setAdapter(adapter);
                 listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -1028,10 +1134,7 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     dp2px(200)
                 ));
                 
-                GradientDrawable listBg = new GradientDrawable();
-                listBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                listBg.setCornerRadius(dp2px(6));
-                listBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                GradientDrawable listBg = getWebShape(getSurfaceColor(), dp2px(6));
                 listView.setBackground(listBg);
                 
                 layout.addView(listView);
@@ -1039,15 +1142,14 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 TextView bottomHint = new TextView(activity);
                 bottomHint.setText("共 " + 代管列表.size() + " 个代管");
                 bottomHint.setTextSize(12);
-                bottomHint.setTextColor(hintTextColor);
+                bottomHint.setTextColor(Color.parseColor(getSubTextColor()));
                 bottomHint.setGravity(Gravity.CENTER);
                 bottomHint.setPadding(0, dp2px(10), 0, 0);
                 layout.addView(bottomHint);
                 
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(layout);
+                mainLayout.addView(layout);
                 
-                builder.setView(scrollView);
+                builder.setView(mainLayout);
                 builder.setNegativeButton("关闭", null);
                 
                 AlertDialog dialog = builder.create();
