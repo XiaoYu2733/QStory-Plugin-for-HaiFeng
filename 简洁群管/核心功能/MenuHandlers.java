@@ -96,6 +96,7 @@ public void haifeng520(final Object msg) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
+                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 Object myInfo = getMemberInfo(groupUin, myUin);
                 if (myInfo == null) return;
                 
@@ -107,13 +108,10 @@ public void haifeng520(final Object msg) {
                 dialogLayout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.argb(230, 255, 255, 255));
-                bg.setCornerRadius(dp2px(18));
-                int textColor = Color.BLACK;
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    bg.setColor(Color.argb(220, 40, 40, 40));
-                    textColor = Color.WHITE;
-                }
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+                bg.setCornerRadius(dp2px(8));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
                 dialogLayout.setBackground(bg);
                 
                 boolean isOwner = false;
@@ -156,11 +154,9 @@ public void haifeng520(final Object msg) {
                         banBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable banBg = new GradientDrawable();
-                        banBg.setColor(Color.argb(30, 0, 0, 0));
-                        banBg.setCornerRadius(dp2px(12));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            banBg.setColor(Color.argb(50, 255, 255, 255));
-                        }
+                        banBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        banBg.setCornerRadius(dp2px(6));
+                        banBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                         banBtn.setBackground(banBg);
                         
                         banBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -179,11 +175,9 @@ public void haifeng520(final Object msg) {
                         revokeBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable revokeBg = new GradientDrawable();
-                        revokeBg.setColor(Color.argb(30, 0, 0, 0));
-                        revokeBg.setCornerRadius(dp2px(12));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            revokeBg.setColor(Color.argb(50, 255, 255, 255));
-                        }
+                        revokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        revokeBg.setCornerRadius(dp2px(6));
+                        revokeBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                         revokeBtn.setBackground(revokeBg);
                         
                         revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -193,6 +187,7 @@ public void haifeng520(final Object msg) {
                                 
                                 activity.runOnUiThread(new Runnable() {
                                     public void run() {
+                                        boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                                         builder.setTitle("确认撤回");
                                         
@@ -201,13 +196,10 @@ public void haifeng520(final Object msg) {
                                         layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
                                         
                                         GradientDrawable bg = new GradientDrawable();
-                                        bg.setColor(Color.argb(230, 255, 255, 255));
-                                        bg.setCornerRadius(dp2px(18));
-                                        int textColor = Color.BLACK;
-                                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                                            bg.setColor(Color.argb(220, 40, 40, 40));
-                                            textColor = Color.WHITE;
-                                        }
+                                        bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+                                        bg.setCornerRadius(dp2px(8));
+                                        bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                                        int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
                                         layout.setBackground(bg);
                                         
                                         TextView message = new TextView(getActivity());
@@ -250,11 +242,9 @@ public void haifeng520(final Object msg) {
                         kickBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable kickBg = new GradientDrawable();
-                        kickBg.setColor(Color.argb(30, 0, 0, 0));
-                        kickBg.setCornerRadius(dp2px(12));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            kickBg.setColor(Color.argb(50, 255, 255, 255));
-                        }
+                        kickBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        kickBg.setCornerRadius(dp2px(6));
+                        kickBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                         kickBtn.setBackground(kickBg);
                         
                         kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -273,11 +263,9 @@ public void haifeng520(final Object msg) {
                         kickBlackBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable kickBlackBg = new GradientDrawable();
-                        kickBlackBg.setColor(Color.argb(30, 0, 0, 0));
-                        kickBlackBg.setCornerRadius(dp2px(12));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            kickBlackBg.setColor(Color.argb(50, 255, 255, 255));
-                        }
+                        kickBlackBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        kickBlackBg.setCornerRadius(dp2px(6));
+                        kickBlackBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                         kickBlackBtn.setBackground(kickBlackBg);
                         
                         kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -296,11 +284,9 @@ public void haifeng520(final Object msg) {
                         blacklistBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable blacklistBg = new GradientDrawable();
-                        blacklistBg.setColor(Color.argb(30, 0, 0, 0));
-                        blacklistBg.setCornerRadius(dp2px(12));
-                        if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                            blacklistBg.setColor(Color.argb(50, 255, 255, 255));
-                        }
+                        blacklistBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        blacklistBg.setCornerRadius(dp2px(6));
+                        blacklistBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                         blacklistBtn.setBackground(blacklistBg);
                         
                         blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -320,11 +306,9 @@ public void haifeng520(final Object msg) {
                             allianceBanBtn.setGravity(Gravity.CENTER);
                             
                             GradientDrawable allianceBanBg = new GradientDrawable();
-                            allianceBanBg.setColor(Color.argb(30, 0, 0, 0));
-                            allianceBanBg.setCornerRadius(dp2px(12));
-                            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                                allianceBanBg.setColor(Color.argb(50, 255, 255, 255));
-                            }
+                            allianceBanBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                            allianceBanBg.setCornerRadius(dp2px(6));
+                            allianceBanBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                             allianceBanBtn.setBackground(allianceBanBg);
                             
                             allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -347,11 +331,9 @@ public void haifeng520(final Object msg) {
                     titleBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable titleBg = new GradientDrawable();
-                    titleBg.setColor(Color.argb(30, 0, 0, 0));
-                    titleBg.setCornerRadius(dp2px(12));
-                    if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                        titleBg.setColor(Color.argb(50, 255, 255, 255));
-                    }
+                    titleBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                    titleBg.setCornerRadius(dp2px(6));
+                    titleBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
                     titleBtn.setBackground(titleBg);
                     
                     titleBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -454,6 +436,7 @@ public void allianceBanMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("联盟封禁 - " + 名(targetUin) + "(" + targetUin + ")");
             
@@ -462,15 +445,11 @@ public void allianceBanMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            int hintTextColor = Color.GRAY;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-                hintTextColor = Color.LTGRAY;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
@@ -486,13 +465,9 @@ public void allianceBanMenuItem(Object msg) {
             inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(Color.argb(50, 0, 0, 0));
-            etBg.setCornerRadius(dp2px(10));
-            etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                etBg.setColor(Color.argb(30, 255, 255, 255));
-                etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
-            }
+            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+            etBg.setCornerRadius(dp2px(6));
+            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
             inputEditText.setBackground(etBg);
             inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
             
@@ -546,6 +521,7 @@ public void addToBlacklistMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认加入黑名单");
             
@@ -554,13 +530,10 @@ public void addToBlacklistMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
@@ -617,6 +590,7 @@ public void kickMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认踢出");
             
@@ -625,13 +599,10 @@ public void kickMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
@@ -653,8 +624,8 @@ public void kickMenuItem(Object msg) {
             builder.setNegativeButton("取消", null);
             
             AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
         }
     });
 }
@@ -670,6 +641,7 @@ public void kickBlackMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认踢黑");
             
@@ -678,13 +650,10 @@ public void kickBlackMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
@@ -725,6 +694,7 @@ public void forbiddenMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("设置禁言时间");
             
@@ -733,15 +703,11 @@ public void forbiddenMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            int hintTextColor = Color.GRAY;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-                hintTextColor = Color.LTGRAY;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
@@ -758,13 +724,9 @@ public void forbiddenMenuItem(Object msg) {
             inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(Color.argb(50, 0, 0, 0));
-            etBg.setCornerRadius(dp2px(10));
-            etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                etBg.setColor(Color.argb(30, 255, 255, 255));
-                etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
-            }
+            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+            etBg.setCornerRadius(dp2px(6));
+            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
             inputEditText.setBackground(etBg);
             inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
             
@@ -829,6 +791,7 @@ public void setTitleMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
+            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("设置头衔");
             
@@ -837,15 +800,11 @@ public void setTitleMenuItem(Object msg) {
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(Color.argb(230, 255, 255, 255));
-            bg.setCornerRadius(dp2px(18));
-            int textColor = Color.BLACK;
-            int hintTextColor = Color.GRAY;
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                bg.setColor(Color.argb(220, 40, 40, 40));
-                textColor = Color.WHITE;
-                hintTextColor = Color.LTGRAY;
-            }
+            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+            bg.setCornerRadius(dp2px(8));
+            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
@@ -861,13 +820,9 @@ public void setTitleMenuItem(Object msg) {
             inputEditText.setTextColor(textColor);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(Color.argb(50, 0, 0, 0));
-            etBg.setCornerRadius(dp2px(10));
-            etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
-            if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                etBg.setColor(Color.argb(30, 255, 255, 255));
-                etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
-            }
+            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+            etBg.setCornerRadius(dp2px(6));
+            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
             inputEditText.setBackground(etBg);
             inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
             

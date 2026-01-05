@@ -827,6 +827,7 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
+                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 int 当前艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
@@ -837,15 +838,11 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.argb(230, 255, 255, 255));
-                bg.setCornerRadius(dp2px(18));
-                int textColor = Color.BLACK;
-                int hintTextColor = Color.GRAY;
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    bg.setColor(Color.argb(220, 40, 40, 40));
-                    textColor = Color.WHITE;
-                    hintTextColor = Color.LTGRAY;
-                }
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+                bg.setCornerRadius(dp2px(8));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
@@ -861,13 +858,9 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(Color.argb(50, 0, 0, 0));
-                etBg.setCornerRadius(dp2px(10));
-                etBg.setStroke(dp2px(1), Color.argb(80, 0, 0, 0));
-                if (getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-                    etBg.setColor(Color.argb(30, 255, 255, 255));
-                    etBg.setStroke(dp2px(1), Color.argb(60, 255, 255, 255));
-                }
+                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                etBg.setCornerRadius(dp2px(6));
+                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
                 inputEditText.setBackground(etBg);
                 inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
