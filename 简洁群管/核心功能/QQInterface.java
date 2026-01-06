@@ -14,21 +14,6 @@ import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import com.tencent.mobileqq.app.TroopServlet;
 import com.tencent.mobileqq.filemanager.app.FileManagerEngine;
-import com.tencent.mobileqq.troop.api.ITroopInfoService;
-import com.tencent.common.app.BaseApplicationImpl;
-import com.tencent.mobileqq.profilecard.api.IProfileDataService;
-import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
-import android.os.Bundle;
-import android.content.Intent;
-import com.tencent.mobileqq.troop.api.ITroopInfoService;
-import com.tencent.common.app.BaseApplicationImpl;
-import com.tencent.mobileqq.profilecard.api.IProfileDataService;
-import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
-import android.os.Bundle;
-Object app=BaseApplicationImpl.getApplication().getRuntime();
-IProfileDataService ProfileData=app.getRuntimeService(IProfileDataService.class);
-IProfileProtocolService ProtocolService=app.getRuntimeService(IProfileProtocolService.class);
-import com.tencent.common.app.BaseApplicationImpl;
 
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
