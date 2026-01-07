@@ -7,9 +7,9 @@ import java.util.Random;
 import java.net.URLEncoder;
 
 String configName = "haifeng";
-String modeConfigName = "music_mode";
+String modeConfigName = "hchen_mode";
 String privateConfigName = "haifeng_private";
-String privateModeConfigName = "music_mode_private";
+String privateModeConfigName = "hchen_mode_private";
 ArrayList<String> randomTexts = new ArrayList<>();
 String cacheDirPath = "/storage/emulated/0/Download/QQ点歌/";
 
