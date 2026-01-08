@@ -1,5 +1,5 @@
 
-// 海枫
+// 作 海枫
 
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -14,6 +14,8 @@ String haifengConfigName = "haifeng";
 String modeConfigName = "music_mode";
 String privateConfigName = "haifeng_private";
 String privateModeConfigName = "music_mode_private";
+String lyricConfigName = "haifeng_lyric";
+String privateLyricConfigName = "haifeng_lyric_private";
 ArrayList<String> randomTexts = new ArrayList<>();
 String cacheDirPath = "/storage/emulated/0/Download/QQ点歌/";
 
@@ -25,19 +27,20 @@ addItem("开启/关闭随机音乐", "qstory");
 addItem("开启/关闭热评功能", "xiaoyu520");
 addItem("开启/关闭群聊点歌", "haifeng520");
 addItem("切换语音/卡片点歌", "xkong520");
+addItem("开启/关闭本群点歌歌词", "lengbai520");
 
 public void qstory(String groupUin, String uin, int chatType) {
     String contextKey = (chatType == 2) ? groupUin : uin;
     String contextType = (chatType == 2) ? "群聊" : "私聊";
-    
+
     boolean isOpen = getBoolean(configName + "总开关", contextKey, false);
     putBoolean(configName + "总开关", contextKey, !isOpen);
-    
+
     String status = isOpen ? "已关闭" : "已开启";
     String symbol = isOpen ? "❌" : "✅";
-    
+
     String msg = symbol + contextType + "随机音乐功能" + status;
-    
+
     toast(msg);
 }
 
@@ -48,15 +51,15 @@ public boolean isMusicEnabled(String contextKey) {
 public void xiaoyu520(String groupUin, String uin, int chatType) {
     String contextKey = (chatType == 2) ? groupUin : uin;
     String contextType = (chatType == 2) ? "群聊" : "私聊";
-    
+
     boolean isCommentOpen = getBoolean(configName + "热评开关", contextKey, true);
     putBoolean(configName + "热评开关", contextKey, !isCommentOpen);
-    
+
     String status = isCommentOpen ? "已关闭" : "已开启";
     String symbol = isCommentOpen ? "❌" : "✅";
-    
+
     String msg = symbol + contextType + "热评功能" + status;
-    
+
     toast(msg);
 }
 
@@ -104,12 +107,41 @@ public void xkong520(String groupUin, String uin, int chatType) {
     }
 }
 
+public void lengbai520(String groupUin, String uin, int chatType) {
+    if (chatType == 2) {
+        if (getBoolean(lyricConfigName, groupUin, false)) {
+            putBoolean(lyricConfigName, groupUin, false);
+            toast("已关闭本群点歌歌词");
+        } else {
+            putBoolean(lyricConfigName, groupUin, true);
+            toast("已开启本群点歌歌词");
+        }
+    } else if (chatType == 1) {
+        String targetUin = uin;
+        if (getBoolean(privateLyricConfigName, targetUin, false)) {
+            putBoolean(privateLyricConfigName, targetUin, false);
+            toast("已关闭私聊点歌歌词");
+        } else {
+            putBoolean(privateLyricConfigName, targetUin, true);
+            toast("已开启私聊点歌歌词");
+        }
+    }
+}
+
 public boolean isMusicOpen(String groupUin) {
     return getBoolean(haifengConfigName, groupUin, false);
 }
 
 public boolean isPrivateMusicOpen(String uin) {
     return getBoolean(privateConfigName, uin, false);
+}
+
+public boolean isLyricOpen(String groupUin) {
+    return getBoolean(lyricConfigName, groupUin, false);
+}
+
+public boolean isPrivateLyricOpen(String uin) {
+    return getBoolean(privateLyricConfigName, uin, false);
 }
 
 public void onLoad() {
@@ -125,7 +157,7 @@ public void onLoad() {
                 cacheDir.mkdirs();
             }
         }
-        
+
         String path = appPath + "/随机文案/点歌随机文案.txt";
         String content = readFileText(path);
         String[] lines = content.split("\n");
@@ -149,9 +181,9 @@ String getRedirectUrl(String originalUrl) {
         conn.setInstanceFollowRedirects(false);
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
-        
+
         int responseCode = conn.getResponseCode();
-        
+
         if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || 
             responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
             String location = conn.getHeaderField("Location");
@@ -159,7 +191,7 @@ String getRedirectUrl(String originalUrl) {
                 return location;
             }
         }
-        
+
         return originalUrl;
     } catch (Exception e) {
         error(e);
@@ -173,18 +205,18 @@ public boolean sendMusicCard(String targetUin, String title, String singer, Stri
         String encodedCover = URLEncoder.encode(coverUrl, "UTF-8");
         String encodedTitle = URLEncoder.encode(title, "UTF-8");
         String encodedSinger = URLEncoder.encode(singer, "UTF-8");
-        
+
         String apiUrl = "https://oiapi.net/API/QQMusicJSONArk?format=qq&url=" + encodedUrl + 
                        "&song=" + encodedTitle + "&singer=" + encodedSinger + 
                        "&cover=" + encodedCover + "&jump=" + encodedUrl;
-        
+
         String arkResponse = httpGet(apiUrl);
         if (arkResponse == null || arkResponse.trim().isEmpty()) {
             return false;
         }
-        
+
         JSONObject arkJson = new JSONObject(arkResponse);
-        
+
         if (arkJson.getInt("code") == 1) {
             String cardJson = arkJson.getString("message");
             if (isGroup) {
@@ -222,17 +254,17 @@ public String readFileText(String path) {
 
 void onMsg(Object msg) {
     if (msg.IsChannel) return;
-    
+
     String groupUin = msg.GroupUin;
     String userUin = msg.UserUin;
     String content = msg.MessageContent.trim();
     String peerUin = msg.PeerUin;
     boolean isGroup = msg.IsGroup;
-    
+
     if (content.equals("随机音乐")) {
         handleNetEaseMusic(msg, groupUin, userUin, content);
     }
-    
+
     if (content.startsWith("QQ点歌")) {
         if (isGroup) {
             if (!isMusicOpen(groupUin)) {
@@ -257,9 +289,9 @@ void onMsg(Object msg) {
 
         new Thread(() -> {
             try {
-                String url = "https://hb.ley.wang/qq.php?word=" + URLEncoder.encode(songName, "UTF-8");
+                String url = "https://hb.ley.wang/qq.php?word=" + URLEncoder.encode(songName, "UTF-8") + "&n=1";
                 String response = httpGet(url);
-                
+
                 if (response == null || response.trim().isEmpty()) {
                     if (isGroup) {
                         sendMsg(groupUin, "", "点歌失败，请稍后重试");
@@ -268,7 +300,7 @@ void onMsg(Object msg) {
                     }
                     return;
                 }
-                
+
                 JSONObject json = new JSONObject(response);
                 if (json.getInt("code") != 200) {
                     if (isGroup) {
@@ -283,6 +315,7 @@ void onMsg(Object msg) {
                 String singer = json.getString("singer");
                 String coverUrl = json.getString("cover");
                 String musicUrl = json.getString("music_url");
+                String lyric = json.optString("lyric", "");
 
                 String randomText = "";
                 if (randomTexts.size() > 0) {
@@ -312,6 +345,11 @@ void onMsg(Object msg) {
                         sendVoice(groupUin, "", musicPath);
                         new java.io.File(musicPath).delete();
                     }
+                    
+                    if (isLyricOpen(groupUin) && !lyric.trim().isEmpty()) {
+                        String cleanLyric = lyric.replace("\r\n", "\n");
+                        sendMsg(groupUin, "", "歌词：\n" + cleanLyric);
+                    }
                 } else {
                     String targetUin = peerUin;
                     String mode = getString(privateModeConfigName, targetUin, "voice");
@@ -332,6 +370,11 @@ void onMsg(Object msg) {
                         httpDownload(musicUrl, musicPath);
                         sendVoice("", targetUin, musicPath);
                         new java.io.File(musicPath).delete();
+                    }
+                    
+                    if (isPrivateLyricOpen(targetUin) && !lyric.trim().isEmpty()) {
+                        String cleanLyric = lyric.replace("\r\n", "\n");
+                        sendMsg("", targetUin, "歌词：\n" + cleanLyric);
                     }
                 }
             } catch (Exception e) {
@@ -360,15 +403,15 @@ void handleNetEaseMusic(Object msg, String groupUin, String userUin, String cont
     if (!isMusicEnabled(contextKey)) {
         return; 
     }
-    
+
     long currentTime = System.currentTimeMillis();
     Object lastSendTimeObj = neteaseCooldownMap.get(contextKey);
     Long lastSendTime = null;
-    
+
     if (lastSendTimeObj != null) {
         lastSendTime = (Long) lastSendTimeObj;
     }
-    
+
     if (lastSendTime != null && (currentTime - lastSendTime) < cooldownTime) {
         String remainingTime = String.format("%.1f", (cooldownTime - (currentTime - lastSendTime)) / 1000.0);
         toast("⏳ 冷却中，请等待 " + remainingTime + " 秒后再试");
@@ -377,27 +420,27 @@ void handleNetEaseMusic(Object msg, String groupUin, String userUin, String cont
 
     boolean isCardMode = getBoolean(configName + "卡片模式", contextKey, false);
     boolean isCommentOpen = getBoolean(configName + "热评开关", contextKey, true);
-    
+
     try {
         Object lastSongIdObj = lastNetEaseSongIdMap.get(contextKey);
         String lastSongId = lastSongIdObj != null ? (String) lastSongIdObj : "";
-        
+
 
         String normalApiUrl = "http://qs.java.xrvi.top/wyy?t=" + System.currentTimeMillis();
         String normalResponse = httpGet(normalApiUrl);
-        
+
         if (normalResponse == null || normalResponse.isEmpty()) {
             toast("🎵 获取音乐失败: 网络请求无响应");
             return;
         }
-        
+
         JSONObject normalJson = new JSONObject(normalResponse);
-        
+
         if (normalJson.getInt("code") != 1) {
             toast("🎵 获取音乐失败: " + normalJson.getString("message"));
             return;
         }
-        
+
         JSONObject normalData = normalJson.getJSONObject("data");
         String songId = normalData.getString("id");
         String songName = normalData.getString("song");
@@ -407,39 +450,39 @@ void handleNetEaseMusic(Object msg, String groupUin, String userUin, String cont
         JSONObject author = normalData.getJSONObject("author");
         String authorName = author.getString("nick");
         String authorAvatar = author.getString("avatarUrl");
-        
+
         String originalUrl = normalData.getString("url");
         String audioUrl = getRedirectUrl(originalUrl);
-        
+
         if (songId.equals(lastSongId)) {
             toast("🎵 暂时没有新歌曲，请稍后再试");
             return;
         }
-        
+
         if (isCardMode) {
 
             String cardApiUrl = "http://qs.java.xrvi.top/wyy/?ka=1&song_id=" + songId + "&t=" + System.currentTimeMillis();
             String cardResponse = httpGet(cardApiUrl);
-            
+
             boolean cardSuccess = false;
-            
+
             if (cardResponse != null && !cardResponse.isEmpty()) {
                 try {
                     JSONObject cardJson = new JSONObject(cardResponse);
                     if (cardJson.getInt("code") == 1) {
                         JSONObject cardData = cardJson.getJSONObject("data");
-                        
+
                         String cardJsonStr = cardData.toString();
                         if (msg.IsGroup) {
                             sendCard(groupUin, "", cardJsonStr);
                         } else {
                             sendCard("", contextKey, cardJsonStr);
                         }
-                        
+
                         if (isCommentOpen) {
                             String commentMsg = "💬 热评: " + commentContent + "\n" +
                                               "👤 评论者: " + authorName;
-                            
+
                             if (msg.IsGroup) {
                                 sendMsg(groupUin, "", commentMsg);
                             } else {
@@ -459,19 +502,19 @@ void handleNetEaseMusic(Object msg, String groupUin, String userUin, String cont
                 sendNormalMusic(msg, groupUin, contextKey, normalData, audioUrl, isCommentOpen);
                 cardSuccess = true;
             }
-            
+
             if (cardSuccess) {
                 neteaseCooldownMap.put(contextKey, currentTime);
                 lastNetEaseSongIdMap.put(contextKey, songId);
                 return;
             }
         }
-        
+
         sendNormalMusic(msg, groupUin, contextKey, normalData, audioUrl, isCommentOpen);
-        
+
         neteaseCooldownMap.put(contextKey, currentTime);
         lastNetEaseSongIdMap.put(contextKey, songId);
-        
+
     } catch (Exception e) {
         error(e);
         toast("❌ 获取音乐时出现错误: " + e.getMessage());
@@ -489,14 +532,14 @@ void sendNormalMusic(Object msg, String groupUin, String targetUin, JSONObject d
 
         String infoMsg = "🎶 歌曲: " + songName + "\n" +
                         "🎤 歌手: " + singerName + "\n";
-        
+
         if (isCommentOpen) {
             infoMsg += "💬 热评: " + commentContent + "\n" +
                       "👤 评论者: " + authorName + "\n";
         }
-        
+
         infoMsg += "🖼️ [PicUrl=" + coverUrl + "]";
-        
+
         if (msg.IsGroup) {
             sendMsg(groupUin, "", infoMsg);
             sendVoice(groupUin, "", audioUrl);
