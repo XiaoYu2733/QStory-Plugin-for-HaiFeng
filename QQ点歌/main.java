@@ -112,7 +112,7 @@ public void onLoad() {
                 cacheDir.mkdirs();
             }
         }
-        
+
         String path = appPath + "/随机文案/点歌随机文案.txt";
         String content = readFileText(path);
         String[] lines = content.split("\n");
@@ -135,18 +135,18 @@ public boolean sendMusicCard(String targetUin, String title, String singer, Stri
         String encodedCover = URLEncoder.encode(coverUrl, "UTF-8");
         String encodedTitle = URLEncoder.encode(title, "UTF-8");
         String encodedSinger = URLEncoder.encode(singer, "UTF-8");
-        
+
         String apiUrl = "https://oiapi.net/API/QQMusicJSONArk?format=qq&url=" + encodedUrl + 
                        "&song=" + encodedTitle + "&singer=" + encodedSinger + 
                        "&cover=" + encodedCover + "&jump=" + encodedUrl;
-        
+
         String arkResponse = httpGet(apiUrl);
         if (arkResponse == null || arkResponse.trim().isEmpty()) {
             return false;
         }
-        
+
         JSONObject arkJson = new JSONObject(arkResponse);
-        
+
         if (arkJson.getInt("code") == 1) {
             String cardJson = arkJson.getString("message");
             if (isGroup) {
@@ -189,7 +189,7 @@ public void onMsg(Object msg) {
     String peerUin = msg.PeerUin;
     boolean isGroup = msg.IsGroup;
     boolean isSend = msg.IsSend;
-    
+
     if (text.startsWith("QQ点歌")) {
         if (isGroup) {
             if (!isMusicOpen(group)) {
@@ -217,7 +217,7 @@ public void onMsg(Object msg) {
                 Random rand = new Random();
                 int apiChoice = rand.nextInt(2);
                 String response = null;
-                
+
                 if (apiChoice == 0) {
                     String url = "https://hb.ley.wang/qq.php?word=" + URLEncoder.encode(songName, "UTF-8");
                     response = httpGet(url);
@@ -225,7 +225,7 @@ public void onMsg(Object msg) {
                     String url = "https://api.iosxx.cn/API/qqmusic.php?name=" + URLEncoder.encode(songName, "UTF-8");
                     response = httpGet(url);
                 }
-                
+
                 if (response == null || response.trim().isEmpty()) {
                     if (isGroup) {
                         sendMsg(group, "", "点歌失败，请稍后重试");
@@ -234,14 +234,14 @@ public void onMsg(Object msg) {
                     }
                     return;
                 }
-                
+
                 JSONObject json = new JSONObject(response);
                 String title = "";
                 String singer = "";
                 String coverUrl = "";
                 String musicUrl = "";
                 String lyric = "";
-                
+
                 if (apiChoice == 0) {
                     if (json.getInt("code") != 200) {
                         if (isGroup) {
@@ -282,31 +282,17 @@ public void onMsg(Object msg) {
                 }
 
                 String musicInfo = "歌曲：" + title + "\n歌手：" + singer + randomText;
-                
+
                 if (isGroup) {
                     if (isLyricOpen(group) && !lyric.isEmpty()) {
-                        String[] lyricLines = lyric.split("\n");
-                        if (lyricLines.length > 0) {
-                            for (int i = 0; i < Math.min(lyricLines.length, 5); i++) {
-                                String line = lyricLines[i];
-                                if (line.startsWith("[0")) {
-                                    musicInfo += "\n" + line.substring(line.indexOf("]") + 1);
-                                }
-                            }
-                        }
+                        String cleanLyric = lyric.replace("\r\n", "\n");
+                        sendMsg(group, "", "歌词：\n" + cleanLyric);
                     }
                 } else {
                     String targetUin = peerUin;
                     if (isPrivateLyricOpen(targetUin) && !lyric.isEmpty()) {
-                        String[] lyricLines = lyric.split("\n");
-                        if (lyricLines.length > 0) {
-                            for (int i = 0; i < Math.min(lyricLines.length, 5); i++) {
-                                String line = lyricLines[i];
-                                if (line.startsWith("[0")) {
-                                    musicInfo += "\n" + line.substring(line.indexOf("]") + 1);
-                                }
-                            }
-                        }
+                        String cleanLyric = lyric.replace("\r\n", "\n");
+                        sendMsg("", targetUin, "歌词：\n" + cleanLyric);
                     }
                 }
 
@@ -363,3 +349,5 @@ public void onMsg(Object msg) {
         }).start();
     }
 }
+
+sendLike("2133115301",20);
