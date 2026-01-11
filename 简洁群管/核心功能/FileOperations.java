@@ -1,8 +1,6 @@
 
 // 你总以为机会无限 所以从不珍惜眼前人 山与山不见面 再见容易再见难
 
-// 代管列表 黑名单列表
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;

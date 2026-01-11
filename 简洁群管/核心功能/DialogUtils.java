@@ -1,8 +1,6 @@
 
 // 是我想要的太多 又或是从未得到过
 
-// 如果看不懂你最好不要动 可能导致dialog弹窗显示失败
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -567,7 +565,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [优化] 代码底层逻辑\n" +
                         "——————————\n" +
                         "简洁群管_108.0_更新日志\n" +
-                        "- [优化] 使用Material Design 3.0风格弹窗主题优化显示效果\n\n" +
+                        "- [优化] 使用Material Design 3.0风格弹窗主题优化显示效果\n" +
+                        "——————————\n" +
+                        "简洁群管_109.0_更新日志\n" +
+                        "- [新增] 某个神秘功能\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
@@ -627,15 +628,15 @@ public void showGroupManageDialog() {
                 "14. /addgroup 添加该群组为联盟\n" +
                 "15. /unaddgroup 取消这个群为联盟\n" +
                 "16. /fban 封禁联盟用户\n" +
-                "17. /unfban 取消这个封禁联盟用户\n" +
-                "回复操作：\n" +
-                "• 回复消息 /ban - 踢黑\n" +
-                "• 回复消息 /kick - 普通踢出\n" +
-                "• 回复消息 /fban - 封禁联盟用户\n" +
-                "• 回复消息 /unfban - 取消封禁联盟用户\n\n" +
+                "17. /unfban 取消这个封禁联盟用户\n\n" +
+                "回复 禁言+分钟+理由\n" +
+                "回复 /ban - 踢黑\n" +
+                "回复 /kick - 普通踢出\n" +
+                "回复 /fban - 封禁联盟用户\n" +
+                "回复 /unfban - 取消封禁联盟用户\n\n" +
                 "- [提示] 联盟介绍：比如我有三个群 都绑定了联盟 我在其中一个群fban了一个用户 这个用户在另外两个群也会被踢，如果不在，会监听入群事件\n" +
                 "- [提示] 当那个用户被 /fban 所在的其他几个绑定联盟的群组会立即踢黑 如果不在 会监听入群事件精准识别踢黑\n" +
-                "- [提示] 代管高于一切，代管不会被联盟封禁 不会被禁言 踢黑等\n\n" +
+                "- [提示] 代管不会被联盟封禁 不会被禁言 踢黑等\n\n" +
                 "临江：634941583\n" +
                 "海枫：https://t.me/XiaoYu_Chat";
 

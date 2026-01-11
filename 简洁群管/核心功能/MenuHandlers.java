@@ -1,8 +1,6 @@
 
 // 你应该像欣赏花一样 欣赏自己
 
-// 快捷群管弹窗 请不要动
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.widget.ScrollView;
@@ -79,6 +77,7 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
             addTemporaryItem("查看更新日志", "showUpdateLog");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
+            addTemporaryItem("自定义骰子", "自定义骰子方法");
         }
     } catch (Exception e) {
     }
