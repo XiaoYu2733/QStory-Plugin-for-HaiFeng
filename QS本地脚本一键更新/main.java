@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Math;
 import java.lang.reflect.Field;
@@ -188,7 +189,7 @@ public boolean runtimeLock(File directory, byte operation) {
 
 public PluginsUpdatingStatus pluginUpdate(PluginsUpdatingStatus pluginStatus, File basePath) {
     HashMap pluginMap = pluginStatus.pluginMap;
-    String downloadUrl = "https://plugin.sacz.top/plugin/downloadPlugin?id=" + pluginMap.get("cloudId").toString();
+    String downloadUrl = "https://plugin.suzhelan.top/api/plugin/plugins/files/" + pluginMap.get("cloudId").toString();
     String pluginName = pluginStatus.name;
     File zipFile = new File(basePath, pluginName + ".zip");
     try {
@@ -338,27 +339,27 @@ public static int[] parseVersion(String version) {
  *  <插件名, 插件信息HashMap>
  */
 public HashMap getPluginLists(){
-    URL pluginUrl = new URL("https://plugin.sacz.top/plugin/get-online-plugin-list/qq");
-    HttpURLConnection connection = (HttpURLConnection) pluginUrl.openConnection();
-    connection.setRequestMethod("GET");
-    connection.setConnectTimeout(10000);
-    connection.setReadTimeout(10000);
-    connection.connect();
-    InputStream inputStream = connection.getInputStream();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    StringBuilder response = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-        response.append(line);
-    }
-    reader.close();
-    connection.disconnect();
-    String jsonResponse = response.toString();
-    HashMap pluginList = new HashMap();
     try {
+        URL pluginUrl = new URL("https://plugin.suzhelan.top/api/plugin/plugins?sort=time&tag=全部");
+        HttpURLConnection connection = (HttpURLConnection) pluginUrl.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(10000);
+        connection.connect();
+        InputStream inputStream = connection.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+        connection.disconnect();
+        String jsonResponse = response.toString();
+        HashMap pluginList = new HashMap();
         JSONObject jsonObject = new JSONObject(jsonResponse);
         if (jsonObject.getInt("code") == 200) {
-            JSONArray dataArray = jsonObject.getJSONArray("data");
+            JSONArray dataArray = jsonObject.getJSONObject("data").getJSONArray("list");
             for (int i = 0; i < dataArray.length(); i++) {
                 JSONObject pluginObject = dataArray.getJSONObject(i);
                 JSONObject pluginInfo = pluginObject.getJSONObject("pluginInfo");
@@ -375,10 +376,11 @@ public HashMap getPluginLists(){
                 pluginList.put(pluginInfo.getString("pluginName"), pluginMap);
             }
         }
-    } catch (JSONException e) {
+        return pluginList;
+    } catch (Exception e) {
         e.printStackTrace();
+        return null;
     }
-    return pluginList;
 }
 
 
