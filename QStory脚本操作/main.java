@@ -98,6 +98,7 @@ List pluginAuthors = new ArrayList();
 List pluginDescriptions = new ArrayList();
 List pluginVersions = new ArrayList();
 List pluginInfos = new ArrayList();
+List pluginLoaders = new ArrayList();
 
 public boolean isDarkMode() {
     int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -189,16 +190,27 @@ public void getPluginList() {
     pluginDescriptions.clear();
     pluginVersions.clear();
     pluginInfos.clear();
+    pluginLoaders.clear();
     try {
         for(PluginLoader pluginLoader : PluginManager.getAllRunningPluginLoader()) {
-            PluginInfo pluginInfo = pluginLoader.getJavaPluginInfo();
-            String desc = pluginInfo.pluginDesc;
-            if(desc.length() > 200) desc = desc.substring(0, 200) + "...";
-            pluginNames.add(pluginInfo.pluginName);
-            pluginAuthors.add(pluginInfo.pluginAuthor);
-            pluginDescriptions.add(desc);
-            pluginVersions.add(pluginInfo.pluginVersion);
-            pluginInfos.add(pluginInfo);
+            try {
+                PluginInfo pluginInfo = pluginLoader.getJavaPluginInfo();
+                String desc = pluginInfo.pluginDesc;
+                if(desc.length() > 200) desc = desc.substring(0, 200) + "...";
+                pluginNames.add(pluginInfo.pluginName);
+                pluginAuthors.add(pluginInfo.pluginAuthor);
+                pluginDescriptions.add(desc);
+                pluginVersions.add(pluginInfo.pluginVersion);
+                pluginInfos.add(pluginInfo);
+                pluginLoaders.add(pluginLoader);
+            } catch (Exception e) {
+                pluginNames.add("未知");
+                pluginAuthors.add("未知");
+                pluginDescriptions.add("获取失败");
+                pluginVersions.add("0.0");
+                pluginInfos.add(null);
+                pluginLoaders.add(null);
+            }
         }
     } catch (Exception e) {
         Toasts("获取失败: " + e.toString());
@@ -339,6 +351,7 @@ public void refreshPluginContainer() {
     
     for(int i = 0; i < pluginNames.size(); i++) {
         final int index = i;
+        final PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(i);
         
         LinearLayout cardLayout = new LinearLayout(currentActivity);
         cardLayout.setOrientation(1);
@@ -362,7 +375,7 @@ public void refreshPluginContainer() {
         
         LinearLayout expandLayout = new LinearLayout(currentActivity);
         expandLayout.setOrientation(1);
-        expandLayout.setVisibility(View.GONE);
+        expandLayout.setVisibility(View.VISIBLE);
         
         TextView descText = new TextView(currentActivity);
         descText.setTextSize(13);
@@ -378,11 +391,22 @@ public void refreshPluginContainer() {
         LinearLayout buttonContainer = new LinearLayout(currentActivity);
         buttonContainer.setOrientation(0);
         
+        boolean isPluginLoaded = false;
+        if (pluginInfo != null) {
+            try {
+                PluginLoader loader = (PluginLoader)pluginLoaders.get(i);
+                if (loader != null && loader.getJavaPluginInfo() != null) {
+                    isPluginLoaded = PluginManager.isPluginRunning(pluginInfo);
+                }
+            } catch (Exception e) {}
+        }
+        
         View.OnClickListener loadL = new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                    if (pluginInfo == null) return;
                     PluginManager.loadPlugin(null, pluginInfo);
                     Toasts("已加载: " + pluginNames.get(clickedIndex));
                     refreshPluginContainer();
@@ -396,6 +420,7 @@ public void refreshPluginContainer() {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                    if (pluginInfo == null) return;
                     PluginManager.stopPlugin(pluginInfo);
                     Toasts("已停止: " + pluginNames.get(clickedIndex));
                     refreshPluginContainer();
@@ -409,6 +434,7 @@ public void refreshPluginContainer() {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                    if (pluginInfo == null) return;
                     PluginManager.stopPlugin(pluginInfo);
                     PluginManager.loadPlugin(null, pluginInfo);
                     Toasts("已重载: " + pluginNames.get(clickedIndex));
@@ -421,14 +447,21 @@ public void refreshPluginContainer() {
         View.OnClickListener uninstallL = new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
-                showUninstallConfirm(((PluginInfo)pluginInfos.get(clickedIndex)).pluginLocalPath, (String)pluginNames.get(clickedIndex));
+                PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
+                if (pluginInfo == null) return;
+                showUninstallConfirm(pluginInfo.pluginLocalPath, (String)pluginNames.get(clickedIndex));
             }
         };
 
-        View loadBtn = createMaterialButton("加载", getThemeColor("buttonBg"), getThemeColor("buttonText"), i, loadL);
-        View stopBtn = createMaterialButton("停止", getThemeColor("surfaceVariant"), getThemeColor("textPrimary"), i, stopL);
+        View loadBtn = createMaterialButton("加载", isPluginLoaded ? getThemeColor("surfaceVariant") : getThemeColor("buttonBg"), isPluginLoaded ? getThemeColor("textPrimary") : getThemeColor("buttonText"), i, loadL);
+        View stopBtn = createMaterialButton("停止", isPluginLoaded ? getThemeColor("dangerBg") : getThemeColor("surfaceVariant"), isPluginLoaded ? getThemeColor("dangerText") : getThemeColor("textPrimary"), i, stopL);
         View reloadBtn = createMaterialButton("重载", getThemeColor("surfaceVariant"), getThemeColor("textPrimary"), i, reloadL);
         View uninstallBtn = createMaterialButton("卸载", getThemeColor("dangerBg"), getThemeColor("dangerText"), i, uninstallL);
+
+        if (!isPluginLoaded) {
+            stopBtn.setEnabled(false);
+            stopBtn.setAlpha(0.5f);
+        }
 
         LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         btnParams.setMargins(0, 0, c(8), 0);
@@ -443,20 +476,6 @@ public void refreshPluginContainer() {
         expandLayout.addView(descText);
         expandLayout.addView(btnScrollView);
         
-        cardLayout.setTag(i);
-        cardLayout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                LinearLayout container = (LinearLayout) v;
-                View details = container.getChildAt(2);
-                
-                if(details.getVisibility() == View.GONE) {
-                    expandView(details);
-                } else {
-                    collapseView(details);
-                }
-            }
-        });
-
         cardLayout.addView(nameText);
         cardLayout.addView(authorText);
         cardLayout.addView(expandLayout);
