@@ -111,53 +111,31 @@ public String getCurrentTime() {
     return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 }
 
-String fetchWordsFromNetwork(String url) {
+ArrayList getWordsFromNetwork(String url) {
+    ArrayList wordList = new ArrayList();
     try {
         String content = httpGet(url);
-        if (content != null && !content.isEmpty()) {
-            String[] lines = content.split("\n");
-            ArrayList wordList = new ArrayList();
+        if (content != null && !content.trim().isEmpty()) {
+            String[] lines = content.split("\\r?\\n");
             for (String line : lines) {
-                line = line.trim();
-                if (!line.isEmpty()) {
+                String trimmedLine = line.trim();
+                if (!trimmedLine.isEmpty()) {
                     wordList.add(line);
                 }
-            }
-            if (!wordList.isEmpty()) {
-                return joinList(wordList, "\n");
             }
         }
     } catch (Exception e) {
     }
-    return null;
-}
-
-String joinList(ArrayList list, String delimiter) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < list.size(); i++) {
-        if (i > 0) sb.append(delimiter);
-        sb.append(list.get(i));
-    }
-    return sb.toString();
+    return wordList;
 }
 
 void initWordsFile(String filePath) {
     try {
         File file = new File(filePath);
         if (!file.exists()) {
-            String networkWords = fetchWordsFromNetwork("https://qstory.suzhelan.top/qzone_content.txt");
-            if (networkWords != null && !networkWords.trim().isEmpty()) {
-                String[] lines = networkWords.split("\n");
-                ArrayList wordList = new ArrayList();
-                for (String line : lines) {
-                    line = line.trim();
-                    if (!line.isEmpty()) {
-                        wordList.add(line);
-                    }
-                }
-                if (!wordList.isEmpty()) {
-                    saveListToFile(filePath, wordList);
-                }
+            ArrayList wordList = getWordsFromNetwork("https://qstory.suzhelan.top/qzone_content.txt");
+            if (!wordList.isEmpty()) {
+                saveListToFile(filePath, wordList);
             }
         }
     } catch (Exception e) {
