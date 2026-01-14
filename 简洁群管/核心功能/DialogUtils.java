@@ -571,7 +571,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [新增] 某个神秘功能\n" +
                         "——————————\n" +
                         "简洁群管_110.0_更新日志\n" +
-                        "- [修复] 艾特用户禁言无法使用阿拉伯数字的问题\n\n" +
+                        "- [修复] 艾特用户禁言无法使用阿拉伯数字的问题\n
+                        "——————————\n" +
+                        "简洁群管_111.0_更新日志\n" +" +
+                        "- [修复] 脚本文件初始化异常\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
