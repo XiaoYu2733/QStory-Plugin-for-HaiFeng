@@ -333,6 +333,41 @@ public int get_time(Object msg){
     return time;
 }
 
+public int parseBanTime(String timeStr) {
+    if (timeStr == null || timeStr.isEmpty()) return 0;
+    
+    timeStr = timeStr.trim().toLowerCase();
+    
+    Pattern arabicPattern = Pattern.compile("(\\d+)\\s*(天|时|小时|分|分钟|秒)");
+    Matcher arabicMatcher = arabicPattern.matcher(timeStr);
+    
+    if (arabicMatcher.find()) {
+        try {
+            int num = Integer.parseInt(arabicMatcher.group(1));
+            String unit = arabicMatcher.group(2);
+            
+            switch (unit) {
+                case "天":
+                    return num * 24 * 60 * 60;
+                case "时":
+                case "小时":
+                    return num * 60 * 60;
+                case "分":
+                case "分钟":
+                    return num * 60;
+                case "秒":
+                    return num;
+                default:
+                    return num * 60;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+    
+    return get_time_int("禁言 " + timeStr, CN_zh_int(timeStr.replaceAll("[天分时小时分钟秒]", "")));
+}
+
 public int dp2px(float dp) {
     try {
         DisplayMetrics metrics = new DisplayMetrics();

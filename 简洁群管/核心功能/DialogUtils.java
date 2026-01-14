@@ -568,7 +568,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [优化] 使用Material Design 3.0风格弹窗主题优化显示效果\n" +
                         "——————————\n" +
                         "简洁群管_109.0_更新日志\n" +
-                        "- [新增] 某个神秘功能\n\n" +
+                        "- [新增] 某个神秘功能\n" +
+                        "——————————\n" +
+                        "简洁群管_110.0_更新日志\n" +
+                        "- [修复] 艾特用户禁言无法使用阿拉伯数字的问题\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);

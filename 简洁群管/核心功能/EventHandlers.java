@@ -336,14 +336,14 @@ public void onMsg(Object msg) {
                                 }
                             }
                             
-                            if (cleanContent.matches(".*[零一二三四五六七八九十].*")) {
-                                String timePart = cleanContent.substring(cleanContent.indexOf(" ") + 1);
-                                String text = timePart.replaceAll("[^零一二三四五六七八九十百千万]", "");
-                                banTime = get_time_int(cleanContent, CN_zh_int(text));
-                            } else {
-                                banTime = get_time(cleanContent);
+                            String timePart = "";
+                            int spaceIndex = cleanContent.indexOf(" ");
+                            if (spaceIndex != -1) {
+                                timePart = cleanContent.substring(spaceIndex + 1);
                             }
-
+                            
+                            banTime = parseBanTime(timePart);
+                            
                             if (banTime > 2592000) {
                                 sendMsg(groupUin, "", "请控制在30天以内");
                             } else if (banTime > 0) {
@@ -414,28 +414,26 @@ public void onMsg(Object msg) {
                 
                 boolean isBan = msgContent.startsWith("禁");
                 boolean isBanYan = msgContent.startsWith("禁言");
-                if (isBan || isBanYan || msgContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$") || msgContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$")) {
+                boolean isAtWithTime = msgContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$") || 
+                                       msgContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$");
+                
+                if (isBan || isBanYan || isAtWithTime) {
                     if (!isMyUin && !是代管(groupUin, userUin)) return;
+                    
                     int banTime = 0;
-                    if (msgContent.matches(".*[零一二三四五六七八九十].*")) {
-                        String str = msgContent.substring(msgContent.lastIndexOf(" ") + 1);
-                        String text = str.replaceAll("[天分时小时分钟秒]", "");
-                        if (!text.isEmpty()) {
-                            banTime = get_time_int(msgContent, CN_zh_int(text));
-                        }
-                    } else if (msgContent.matches(".*[0-9].*")) {
-                         if (!Character.isDigit(msgContent.charAt(msgContent.length() - 1)) && !msgContent.endsWith("秒") && !msgContent.endsWith("分") && !msgContent.endsWith("时") && !msgContent.endsWith("天")) {
-                             banTime = 2592000; 
-                         } else {
-                            String tStr = msgContent.substring(msgContent.lastIndexOf(" ") + 1);
-                             if (tStr.matches("^[0-9]+$")) {
-                                 banTime = Integer.parseInt(tStr) * 60;
-                             } else {
-                                 banTime = get_time(msgContent);
-                             }
-                         }
-                    } else {
-                         banTime = isBanYan ? 86400 : 2592000; 
+                    String timePart = "";
+                    
+                    int lastSpace = msgContent.lastIndexOf(" ");
+                    if (lastSpace != -1) {
+                        timePart = msgContent.substring(lastSpace + 1).trim();
+                    }
+                    
+                    if (!timePart.isEmpty()) {
+                        banTime = parseBanTime(timePart);
+                    }
+                    
+                    if (banTime == 0) {
+                        banTime = isBanYan ? 86400 : 2592000;
                     }
 
                     if (banTime > 2592000) {
