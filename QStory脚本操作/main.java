@@ -77,7 +77,7 @@ import com.tencent.mobileqq.qroute.QRoute;
 import android.content.ComponentName;
 import java.lang.reflect.Field;
 
-boolean fullScreen = true;
+boolean fullScreen = true;// 是否全屏 false关闭 true开启
 
 Object QSClassLoader;
 Class Clazz = this.getClass();
@@ -458,8 +458,10 @@ public void refreshPluginContainer() {
         View reloadBtn = createMaterialButton("重载", getThemeColor("surfaceVariant"), getThemeColor("textPrimary"), i, reloadL);
         View uninstallBtn = createMaterialButton("卸载", getThemeColor("dangerBg"), getThemeColor("dangerText"), i, uninstallL);
 
+        loadBtn.setEnabled(!isPluginLoaded);
+        stopBtn.setEnabled(isPluginLoaded);
+        
         if (!isPluginLoaded) {
-            stopBtn.setEnabled(false);
             stopBtn.setAlpha(0.5f);
         }
 
