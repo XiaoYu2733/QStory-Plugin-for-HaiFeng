@@ -1,14 +1,6 @@
 
 // 我的世界生病了 连崩溃都要考虑后果
 
-import java.util.ArrayList;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.util.Calendar;
-import java.util.Map;
-
 ArrayList loadListFromFile(String filePath) {
     ArrayList list = new ArrayList();
     try {
@@ -111,37 +103,6 @@ public String getCurrentTime() {
     return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 }
 
-ArrayList getWordsFromNetwork(String url) {
-    ArrayList wordList = new ArrayList();
-    try {
-        String content = httpGet(url);
-        if (content != null && !content.trim().isEmpty()) {
-            String[] lines = content.split("\\r?\\n");
-            for (String line : lines) {
-                String trimmedLine = line.trim();
-                if (!trimmedLine.isEmpty()) {
-                    wordList.add(line);
-                }
-            }
-        }
-    } catch (Exception e) {
-    }
-    return wordList;
-}
-
-void initWordsFile(String filePath) {
-    try {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            ArrayList wordList = getWordsFromNetwork("https://qstory.suzhelan.top/qzone_content.txt");
-            if (!wordList.isEmpty()) {
-                saveListToFile(filePath, wordList);
-            }
-        }
-    } catch (Exception e) {
-    }
-}
-
 void loadConfig() {
     File configDirFile = new File(configDir);
     if (!configDirFile.exists()) {
@@ -152,16 +113,20 @@ void loadConfig() {
     selectedFriendsForFire = loadListFromFile(friendFirePath);
     selectedGroupsForFire = loadListFromFile(groupFirePath);
     
-    initWordsFile(friendFireWordsPath);
     ArrayList loadedFriendWords = loadListFromFile(friendFireWordsPath);
     if (!loadedFriendWords.isEmpty()) {
         friendFireWords = loadedFriendWords;
+    } else {
+        friendFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
+        saveListToFile(friendFireWordsPath, friendFireWords);
     }
     
-    initWordsFile(groupFireWordsPath);
     ArrayList loadedGroupWords = loadListFromFile(groupFireWordsPath);
     if (!loadedGroupWords.isEmpty()) {
         groupFireWords = loadedGroupWords;
+    } else {
+        groupFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
+        saveListToFile(groupFireWordsPath, groupFireWords);
     }
     
     initTimeConfig();
