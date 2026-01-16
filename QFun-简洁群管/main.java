@@ -458,7 +458,7 @@ public void 处理联盟指令(Object msg) {
             return;
         }
     } catch (Exception e) {
-        error(e);
+        log("error.txt", e.toString());
     }
 }
 
@@ -2471,7 +2471,7 @@ public void onMsg(Object msg) {
             }
 
         } catch (Throwable e) {
-            error(e);
+            log("error.txt", e.toString());
         }
     }
 }
@@ -3454,24 +3454,17 @@ void onCreateMenu(Object msg) {
     }
 }
 
-void onClickFloatingWindow(int type, String uin) {
-    try {
-        if (type == 2) {
-            addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
-            addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
-            addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
-            addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
-            addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-            addTemporaryItem("代管管理功能", "代管管理弹窗");
-            addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
-            addTemporaryItem("检测群黑名单", "检测黑名单方法");
-            addTemporaryItem("查看更新日志", "showUpdateLog");
-            addTemporaryItem("查看群管功能", "群管功能弹窗");
-            addTemporaryItem("自定义骰子", "自定义骰子方法");
-        }
-    } catch (Exception e) {
-    }
-}
+addItem("开启/关闭艾特禁言", "开关艾特禁言方法");
+addItem("开启/关闭退群拉黑", "退群拉黑开关方法");
+addItem("开启/关闭自助头衔", "开关自助头衔方法");
+addItem("开启/关闭自动解禁代管", "自动解禁代管方法");
+addItem("设置艾特禁言时间", "设置艾特禁言时间方法");
+addItem("代管管理功能", "代管管理弹窗");
+addItem("群黑名单管理", "黑名单管理弹窗");
+addItem("检测群黑名单", "检测黑名单方法");
+addItem("查看更新日志", "showUpdateLog");
+addItem("查看群管功能", "群管功能弹窗");
+addItem("自定义骰子", "自定义骰子方法");
 
 public void haifeng520(final Object msg) {
     if (msg == null || !msg.IsGroup) return;
