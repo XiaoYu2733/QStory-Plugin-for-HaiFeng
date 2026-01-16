@@ -574,7 +574,10 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 艾特用户禁言无法使用阿拉伯数字的问题\n" +
                         "——————————\n" +
                         "简洁群管_111.0_更新日志\n" +
-                        "- [修复] 脚本文件初始化异常\n\n" +
+                        "- [修复] 脚本文件初始化异常\n" +
+                        "——————————\n" +
+                        "简洁群管_112.0_更新日志\n" +
+                        "- [优化] 代管文件创建逻辑\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
@@ -942,7 +945,13 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                 builder.setTitle("代管管理");
                 
                 final File 代管文件 = 获取代管文件();
-                final ArrayList 代管列表 = 简取(代管文件);
+                final ArrayList 代管列表;
+                
+                if (!代管文件.exists()) {
+                    代管列表 = new ArrayList();
+                } else {
+                    代管列表 = 简取(代管文件);
+                }
                 
                 LinearLayout mainLayout = new LinearLayout(activity);
                 mainLayout.setOrientation(LinearLayout.VERTICAL);
@@ -1013,7 +1022,8 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                                 if (qq.matches("[0-9]{4,11}")) {
                                     if (!代管列表.contains(qq)) {
                                         try {
-                                            简写(代管文件, qq);
+                                            File f = 创建代管文件();
+                                            简写(f, qq);
                                             addedCount++;
                                         } catch (Exception e) {}
                                     }

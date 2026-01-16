@@ -116,6 +116,11 @@ public File 获取代管文件() {
         代管文件夹.mkdirs();
     }
     File 代管文件 = new File(代管目录, "代管.txt");
+    return 代管文件;
+}
+
+public File 创建代管文件() {
+    File 代管文件 = 获取代管文件();
     if (!代管文件.exists()) {
         try {
             代管文件.createNewFile();

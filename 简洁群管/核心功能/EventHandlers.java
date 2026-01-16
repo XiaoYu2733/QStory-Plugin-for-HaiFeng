@@ -227,11 +227,17 @@ public void onMsg(Object msg) {
             if (msgContent.equals("查看代管")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 File f = 获取代管文件();
-                if (!f.exists()) sendMsg(groupUin, "", "当前没有代管");
-                else {
-                    String text = 组名(简取(f)).replace("]", "").replace("[", " ");
-                    sendMsg(groupUin, "", "当前的代管如下:\n" + text);
+                if (!f.exists()) {
+                    sendMsg(groupUin, "", "当前没有代管");
+                    return;
                 }
+                ArrayList 代管列表 = 简取(f);
+                if (代管列表 == null || 代管列表.isEmpty()) {
+                    sendMsg(groupUin, "", "当前没有代管");
+                    return;
+                }
+                String text = 组名(代管列表).replace("]", "").replace("[", " ");
+                sendMsg(groupUin, "", "当前的代管如下:\n" + text);
                 return;
             }
 
@@ -451,12 +457,7 @@ public void onMsg(Object msg) {
 
                 if (isMyUin) {
                     if (msgContent.startsWith("添加代管") || msgContent.startsWith("添加管理员") || msgContent.startsWith("设置代管") || msgContent.startsWith("添加老婆")) {
-                        File f = 获取代管文件();
-                        if (!f.exists()) {
-                            try {
-                                f.createNewFile();
-                            } catch (Exception e) {}
-                        }
+                        File f = 创建代管文件();
                         ArrayList current = 简取(f);
                         StringBuilder sb = new StringBuilder();
                         for (Object uin : mAtListCopy) {
