@@ -2024,7 +2024,7 @@ public void onMsg(Object msg) {
                             if (parts.length > 1 && !parts[1].trim().isEmpty()) reason = parts[1].trim();
                             
                             if (是封禁用户(replyTo)) {
-                                sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                                sendReplyMsg(groupUin, msg.msgId, "该用户已经被封禁，请勿再次封禁！", 2);
                                 return;
                             }
                             
@@ -2043,9 +2043,9 @@ public void onMsg(Object msg) {
                                 }
                             }
                             添加封禁用户(replyTo, reason);
-                            sendReply(groupUin, msg, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(replyTo) + "\n用户 ID：" + replyTo + (reason != null ? "\n理由：" + reason : ""));
+                            sendReplyMsg(groupUin, msg.msgId, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(replyTo) + "\n用户 ID：" + replyTo + (reason != null ? "\n理由：" + reason : ""), 2);
                         } else {
-                            sendReply(groupUin, msg, "你没有权限操作该用户");
+                            sendReplyMsg(groupUin, msg.msgId, "你没有权限操作该用户", 2);
                         }
                         return;
                     }
@@ -2053,7 +2053,7 @@ public void onMsg(Object msg) {
                     if (msgContent.startsWith("/unfban") || msgContent.startsWith("!unfban")) {
                         if (!isMyUin && !是代管(groupUin, userUin)) return;
                         if (!是封禁用户(replyTo)) {
-                            sendReply(groupUin, msg, "该用户未被联盟封禁");
+                            sendReplyMsg(groupUin, msg.msgId, "该用户未被联盟封禁", 2);
                             return;
                         }
                         if (有权限操作(groupUin, userUin, replyTo)) {
@@ -2062,9 +2062,9 @@ public void onMsg(Object msg) {
                             if (parts.length > 1 && !parts[1].trim().isEmpty()) reason = parts[1].trim();
                             
                             移除封禁用户(replyTo);
-                            sendReply(groupUin, msg, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(replyTo) + "\n用户 ID：" + replyTo + (reason != null ? "\n原因：" + reason : ""));
+                            sendReplyMsg(groupUin, msg.msgId, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(replyTo) + "\n用户 ID：" + replyTo + (reason != null ? "\n原因：" + reason : ""), 2);
                         } else {
-                            sendReply(groupUin, msg, "你没有权限操作该用户");
+                            sendReplyMsg(groupUin, msg.msgId, "你没有权限操作该用户", 2);
                         }
                         return;
                     }
@@ -2245,7 +2245,7 @@ public void onMsg(Object msg) {
                         if (!isMyUin && !是代管(groupUin, userUin)) return;
                         if (检查代管保护(groupUin, uin, "联盟封禁")) return;
                         if (是封禁用户(uin)) {
-                            sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                            sendReplyMsg(groupUin, msg.msgId, "该用户已经被封禁，请勿再次封禁！", 2);
                             return;
                         }
                         if (有权限操作(groupUin, userUin, uin)) {
@@ -2255,9 +2255,9 @@ public void onMsg(Object msg) {
                             
                             unifiedKick(groupUin, uin, true);
                             添加封禁用户(uin, reason);
-                            sendReply(groupUin, msg, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(uin) + "\n用户 ID：" + uin + (reason != null ? "\n理由：" + reason : ""));
+                            sendReplyMsg(groupUin, msg.msgId, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(uin) + "\n用户 ID：" + uin + (reason != null ? "\n理由：" + reason : ""), 2);
                         } else {
-                             sendReply(groupUin, msg, "你没有权限操作该用户");
+                             sendReplyMsg(groupUin, msg.msgId, "你没有权限操作该用户", 2);
                         }
                         return;
                      }
@@ -2267,7 +2267,7 @@ public void onMsg(Object msg) {
                         if (uinObj == null) return;
                         String uin = uinObj.toString();
                          if (!是封禁用户(uin)) {
-                             sendReply(groupUin, msg, "该用户未被联盟封禁");
+                             sendReplyMsg(groupUin, msg.msgId, "该用户未被联盟封禁", 2);
                              return;
                          }
                         if (!isMyUin && !是代管(groupUin, userUin)) return;
@@ -2277,9 +2277,9 @@ public void onMsg(Object msg) {
                             if (parts.length > 1 && !parts[1].trim().isEmpty()) reason = parts[1].trim();
                             
                             移除封禁用户(uin);
-                            sendReply(groupUin, msg, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(uin) + "\n用户 ID：" + uin + (reason != null ? "\n原因：" + reason : ""));
+                            sendReplyMsg(groupUin, msg.msgId, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(uin) + "\n用户 ID：" + uin + (reason != null ? "\n原因：" + reason : ""), 2);
                         } else {
-                             sendReply(groupUin, msg, "你没有权限操作该用户");
+                             sendReplyMsg(groupUin, msg.msgId, "你没有权限操作该用户", 2);
                         }
                         return;
                      }
@@ -2300,7 +2300,7 @@ public void onMsg(Object msg) {
             if ("查看禁言列表".equals(msgContent)) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 ArrayList list = 禁言组(groupUin);
-                sendReply(groupUin, msg, list.isEmpty() ? "当前没有人被禁言" : 禁言组文本(groupUin));
+                sendReplyMsg(groupUin, msg.msgId, list.isEmpty() ? "当前没有人被禁言" : 禁言组文本(groupUin), 2);
                 return;
             }
 
@@ -2382,7 +2382,7 @@ public void onMsg(Object msg) {
                             }
                         } catch (Exception e) {}
                     }
-                    sendReply(groupUin, msg, "禁言列表已加倍禁言");
+                    sendReplyMsg(groupUin, msg.msgId, "禁言列表已加倍禁言", 2);
                 } else {
                     sendMsg(groupUin, "当前没有人被禁言", 2);
                 }
@@ -2404,7 +2404,7 @@ public void onMsg(Object msg) {
                             }
                         } catch (Exception e) {}
                     }
-                    sendReply(groupUin, msg, "已解禁禁言列表用户");
+                    sendReplyMsg(groupUin, msg.msgId, "已解禁禁言列表用户", 2);
                 } else {
                     sendMsg(groupUin, "当前没有人被禁言", 2);
                 }
@@ -2420,10 +2420,10 @@ public void onMsg(Object msg) {
                         简弃(f, text);
                         sendMsg(groupUin, "已删除管理员:\n" + text, 2);
                     } else {
-                        sendReply(groupUin, msg, "此人并不是代管");
+                        sendReplyMsg(groupUin, msg.msgId, "此人并不是代管", 2);
                     }
                 } else {
-                    sendReply(groupUin, msg, "代管列表为空或格式错误");
+                    sendReplyMsg(groupUin, msg.msgId, "代管列表为空或格式错误", 2);
                 }
                 return;
             }
@@ -2431,20 +2431,20 @@ public void onMsg(Object msg) {
             if ("清空代管".equals(msgContent)) {
                 if (!isMyUin) return;
                 全弃(获取代管文件());
-                sendReply(groupUin, msg, "代管列表已清空");
+                sendReplyMsg(groupUin, msg.msgId, "代管列表已清空", 2);
                 return;
             }
 
             if (msgContent.startsWith("/addgroup") || msgContent.startsWith("!addgroup")) {
                 if (!isMyUin) return;
                 添加联盟群组(groupUin);
-                sendReply(groupUin, msg, "已添加该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
+                sendReplyMsg(groupUin, msg.msgId, "已添加该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin, 2);
                 return;
             }
             if (msgContent.startsWith("/ungroup") || msgContent.startsWith("!ungroup")) {
                 if (!isMyUin) return;
                 移除联盟群组(groupUin);
-                sendReply(groupUin, msg, "已取消该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin);
+                sendReplyMsg(groupUin, msg.msgId, "已取消该群组为联盟\n联盟：简洁群管\n联盟创建者：" + myUin + "\n群组：" + groupUin, 2);
                 return;
             }
 
@@ -2458,9 +2458,9 @@ public void onMsg(Object msg) {
                         if (target.matches("[0-9]{4,11}") && !是封禁用户(target) && !检查代管保护(groupUin, target, "联盟封禁") && 有权限操作(groupUin, userUin, target)) {
                              unifiedKick(groupUin, target, true);
                              添加封禁用户(target, reason);
-                             sendReply(groupUin, msg, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(target) + "\n用户 ID：" + target + (reason != null ? "\n理由：" + reason : ""));
+                             sendReplyMsg(groupUin, msg.msgId, "新联盟封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(target) + "\n用户 ID：" + target + (reason != null ? "\n理由：" + reason : ""), 2);
                         } else if (是封禁用户(target)) {
-                            sendReply(groupUin, msg, "该用户已经被封禁，请勿再次封禁！");
+                            sendReplyMsg(groupUin, msg.msgId, "该用户已经被封禁，请勿再次封禁！", 2);
                         }
                     }
                     return;
@@ -2473,7 +2473,7 @@ public void onMsg(Object msg) {
                         String reason = parts.length > 2 ? parts[2] : null;
                         if (target.matches("[0-9]{4,11}") && 是封禁用户(target) && 有权限操作(groupUin, userUin, target)) {
                              移除封禁用户(target);
-                             sendReply(groupUin, msg, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(target) + "\n用户 ID：" + target + (reason != null ? "\n原因：" + reason : ""));
+                             sendReplyMsg(groupUin, msg.msgId, "新联盟解除封禁\n联盟：简洁群管\n联盟管理员：" + 名(userUin) + "\n用户：" + 名(target) + "\n用户 ID：" + target + (reason != null ? "\n原因：" + reason : ""), 2);
                         }
                     }
                     return;
