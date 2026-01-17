@@ -114,13 +114,13 @@ private Map UnitMap = new ConcurrentHashMap();
 private Pattern pattern = Pattern.compile("[零一二三四五六七八九十]?[十百千万]?");
 
 public void onLoad() {
-    退群拉黑目录 = appPath + "/退群拉黑/";
+    退群拉黑目录 = pluginPath + "/退群拉黑/";
     File 退群拉黑文件夹 = new File(退群拉黑目录);
     if (!退群拉黑文件夹.exists()) {
         退群拉黑文件夹.mkdirs();
     }
     
-    联盟目录 = appPath + "/封禁联盟/";
+    联盟目录 = pluginPath + "/封禁联盟/";
     File 联盟文件夹 = new File(联盟目录);
     if (!联盟文件夹.exists()) {
         联盟文件夹.mkdirs();
@@ -462,13 +462,13 @@ public void 处理联盟指令(Object msg) {
     }
 }
 
-public void 自定义骰子方法(String groupUin, String userUin, int chatType) {
+public void 自定义骰子方法(int chatType, String peerUin, String name) {
     if (chatType != 2) {
         toast("不支持私聊");
         return;
     }
 
-    final Object act = getActivity();
+    final Object act = getNowActivity();
     if (act == null) return;
 
     act.runOnUiThread(new Runnable() {
@@ -600,7 +600,7 @@ public void executeDice(String point) {
 
 public int getCurrentTheme() {
     try {
-        Context context = getActivity();
+        Context context = getNowActivity();
         if (context == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
         int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -682,7 +682,7 @@ public int c(float f) {
 public int dp2px(float dp) {
     try {
         DisplayMetrics metrics = new DisplayMetrics();
-        Activity activity = getActivity();
+        Activity activity = getNowActivity();
         if (activity != null) {
             activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
             return (int) (dp * metrics.density + 0.5f);
@@ -724,8 +724,8 @@ class CustomArrayAdapter extends ArrayAdapter {
     }
 }
 
-public void showUpdateLog(String g, String u, int t) {
-    Activity activity = getActivity();
+public void showUpdateLog(int chatType, String peerUin, String name) {
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
@@ -1181,6 +1181,10 @@ public void showUpdateLog(String g, String u, int t) {
     });
 }
 
+public void 群管功能弹窗(int chatType, String peerUin, String name) {
+    showGroupManageDialog();
+}
+
 public void showGroupManageDialog() {
     try {
         String qqVersion = "QQVersion未知";
@@ -1219,7 +1223,7 @@ public void showGroupManageDialog() {
                 "临江：634941583\n" +
                 "海枫：https://t.me/XiaoYu_Chat";
 
-        Activity activity = getActivity();
+        Activity activity = getNowActivity();
         if (activity == null) return;
 
         activity.runOnUiThread(new Runnable() {
@@ -1262,12 +1266,8 @@ public void showGroupManageDialog() {
     }
 }
 
-public void 群管功能弹窗(String groupUin, String uin, int chatType) {
-    showGroupManageDialog();
-}
-
-public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
-    Activity activity = getActivity();
+public void 黑名单管理弹窗(int chatType, String peerUin, String name) {
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
@@ -1276,7 +1276,7 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("黑名单管理");
                 
-                final File 黑名单文件 = 获取黑名单文件(groupUin);
+                final File 黑名单文件 = 获取黑名单文件(peerUin);
                 final ArrayList 黑名单列表 = 简取(黑名单文件);
                 
                 LinearLayout mainLayout = new LinearLayout(activity);
@@ -1504,8 +1504,8 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
     });
 }
 
-public void 代管管理弹窗(String groupUin, String uin, int chat) {
-    Activity activity = getActivity();
+public void 代管管理弹窗(int chatType, String peerUin, String name) {
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
@@ -1766,20 +1766,30 @@ public void onMsg(Object msg) {
 
     synchronized (msgLock) {
         try {
-            String msgContent = msg.MessageContent;
-            String userUin = msg.UserUin;
-            String groupUin = msg.GroupUin;
+            String msgContent = null;
+            if (msg != null && msg.msg != null) {
+                msgContent = msg.msg;
+            }
             if (msgContent == null) return;
+            
+            String userUin = null;
+            if (msg != null && msg.userUin != null) {
+                userUin = msg.userUin;
+            }
+            String groupUin = null;
+            if (msg != null && msg.peerUin != null) {
+                groupUin = msg.peerUin;
+            }
+            
+            ArrayList mAtListCopy = (msg != null && msg.atList != null) ? safeCopyList(msg.atList) : new ArrayList();
 
-            ArrayList mAtListCopy = (msg.mAtList != null) ? safeCopyList(msg.mAtList) : new ArrayList();
-
-            if (msgContent.startsWith("我要头衔") && "开".equals(getString(groupUin, "自助头衔"))) {
+            if (msgContent.startsWith("我要头衔") && "开".equals(getString(groupUin, "自助头衔", null))) {
                 setTitle(groupUin, userUin, msgContent.substring(4));
                 return;
             }
 
             int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
-            if ("开".equals(getString(groupUin, "艾特禁言")) && atMe(msg)) {
+            if ("开".equals(getString(groupUin, "艾特禁言", null)) && atMe(msg)) {
                 unifiedForbidden(groupUin, userUin, 艾特禁言时间);
                 return;
             }
@@ -1787,7 +1797,7 @@ public void onMsg(Object msg) {
             boolean isMyUin = userUin != null && userUin.equals(myUin);
             boolean isDelegate = 是代管(groupUin, userUin);
             
-            if (!msg.IsGroup) return;
+            if (msg != null && msg.type != 2) return;
 
             if (msgContent.equals("群管功能")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
@@ -1810,7 +1820,7 @@ public void onMsg(Object msg) {
                         "查看/移除黑名单@\n" +
                         "开启/关闭自动解禁代管\n" +
                         "开启/关闭自助头衔" + (isGN(groupUin, "自助头衔") ? "✅" : "❌");
-                sendMsg(groupUin, "", menu);
+                sendMsg(groupUin, menu, 2);
                 return;
             }
 
@@ -1820,7 +1830,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1831,7 +1841,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowHonour(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1842,7 +1852,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1853,7 +1863,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowLevel(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1864,7 +1874,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 1);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1875,7 +1885,7 @@ public void onMsg(Object msg) {
                     public void run() {
                         try {
                             String result = SetTroopShowTitle(groupUin, myUin, getSkey(), getPskey("clt.qq.com"), 0);
-                            sendMsg(groupUin, "", result);
+                            sendMsg(groupUin, result, 2);
                         } catch (Exception e) {}
                     }
                 }).start();
@@ -1884,20 +1894,20 @@ public void onMsg(Object msg) {
 
             if (msgContent.equals("开启自动解禁代管")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
-                if ("开".equals(getString("自动解禁代管配置", "开关"))) {
-                    sendMsg(groupUin, "", "已经打开了");
+                if ("开".equals(getString("自动解禁代管配置", "开关", null))) {
+                    sendMsg(groupUin, "已经打开了", 2);
                 } else {
                     putString("自动解禁代管配置", "开关", "开");
-                    sendMsg(groupUin, "", "已开启自动解禁代管");
+                    sendMsg(groupUin, "已开启自动解禁代管", 2);
                 }
                 return;
             } else if (msgContent.equals("关闭自动解禁代管")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
-                if ("开".equals(getString("自动解禁代管配置", "开关"))) {
+                if ("开".equals(getString("自动解禁代管配置", "开关", null))) {
                     putString("自动解禁代管配置", "开关", null);
-                    sendMsg(groupUin, "", "已关闭自动解禁代管");
+                    sendMsg(groupUin, "已关闭自动解禁代管", 2);
                 } else {
-                    sendMsg(groupUin, "", "未开启无法关闭");
+                    sendMsg(groupUin, "未开启无法关闭", 2);
                 }
                 return;
             }
@@ -1905,15 +1915,15 @@ public void onMsg(Object msg) {
             if (msgContent.equals("开启自助头衔")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 putString(groupUin, "自助头衔", "开");
-                sendMsg(groupUin, "", "自助头衔已开启 大家可以发送 我要头衔xxx来获取头衔");
+                sendMsg(groupUin, "自助头衔已开启 大家可以发送 我要头衔xxx来获取头衔", 2);
                 return;
             } else if (msgContent.equals("关闭自助头衔")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
-                if ("开".equals(getString(groupUin, "自助头衔"))) {
+                if ("开".equals(getString(groupUin, "自助头衔", null))) {
                     putString(groupUin, "自助头衔", null);
-                    sendMsg(groupUin, "", "自助头衔已关闭");
+                    sendMsg(groupUin, "自助头衔已关闭", 2);
                 } else {
-                    sendMsg(groupUin, "", "未开启无法关闭");
+                    sendMsg(groupUin, "未开启无法关闭", 2);
                 }
                 return;
             }
@@ -1921,12 +1931,12 @@ public void onMsg(Object msg) {
             if (msgContent.equals("开启退群拉黑")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 putString(groupUin, "退群拉黑", "开");
-                sendMsg(groupUin, "", "退群拉黑已开启");
+                sendMsg(groupUin, "退群拉黑已开启", 2);
                 return;
             } else if (msgContent.equals("关闭退群拉黑")) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 putString(groupUin, "退群拉黑", null);
-                sendMsg(groupUin, "", "退群拉黑已关闭");
+                sendMsg(groupUin, "退群拉黑已关闭", 2);
                 return;
             }
 
@@ -1934,7 +1944,7 @@ public void onMsg(Object msg) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 ArrayList blackList = 获取黑名单列表(groupUin);
                 if (blackList.isEmpty()) {
-                    sendMsg(groupUin, "", "本群黑名单为空");
+                    sendMsg(groupUin, "本群黑名单为空", 2);
                 } else {
                     StringBuilder sb = new StringBuilder("本群黑名单:\n");
                     for (int i = 0; i < blackList.size(); i++) {
@@ -1943,7 +1953,7 @@ public void onMsg(Object msg) {
                         String u = item.toString();
                         sb.append(i + 1).append(". ").append(名(u)).append("(").append(u).append(")\n");
                     }
-                    sendMsg(groupUin, "", sb.toString());
+                    sendMsg(groupUin, sb.toString(), 2);
                 }
                 return;
             }
@@ -1955,7 +1965,7 @@ public void onMsg(Object msg) {
                         移除黑名单(groupUin, (String) uin);
                     }
                 }
-                sendMsg(groupUin, "", "已删黑该用户");
+                sendMsg(groupUin, "已删黑该用户", 2);
                 return;
             }
 
@@ -1963,21 +1973,21 @@ public void onMsg(Object msg) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 File f = 获取代管文件();
                 if (!f.exists()) {
-                    sendMsg(groupUin, "", "当前没有代管");
+                    sendMsg(groupUin, "当前没有代管", 2);
                     return;
                 }
                 ArrayList 代管列表 = 简取(f);
                 if (代管列表 == null || 代管列表.isEmpty()) {
-                    sendMsg(groupUin, "", "当前没有代管");
+                    sendMsg(groupUin, "当前没有代管", 2);
                     return;
                 }
                 String text = 组名(代管列表).replace("]", "").replace("[", " ");
-                sendMsg(groupUin, "", "当前的代管如下:\n" + text);
+                sendMsg(groupUin, "当前的代管如下:\n" + text, 2);
                 return;
             }
 
-            if (msg.MessageType == 6) { 
-                String replyTo = msg.ReplyTo;
+            if (msg != null && msg.type == 6) { 
+                String replyTo = msg.replyTo;
                 if (replyTo != null && !replyTo.isEmpty()) {
                     if ("解".equals(msgContent) || "解禁".equals(msgContent)) {
                         if (!isMyUin && !是代管(groupUin, userUin)) return;
@@ -1990,7 +2000,7 @@ public void onMsg(Object msg) {
                         if (检查代管保护(groupUin, replyTo, "踢黑")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             unifiedKick(groupUin, replyTo, true);
-                            sendMsg(groupUin, "", "已踢出" + replyTo + "不会再收到该用户入群申请\n权限使用人：" + 名(userUin));
+                            sendMsg(groupUin, "已踢出" + replyTo + "不会再收到该用户入群申请\n权限使用人：" + 名(userUin), 2);
                         }
                         return;
                     }
@@ -2000,7 +2010,7 @@ public void onMsg(Object msg) {
                         if (检查代管保护(groupUin, replyTo, "踢出")) return;
                         if (有权限操作(groupUin, userUin, replyTo)) {
                             unifiedKick(groupUin, replyTo, false);
-                            sendMsg(groupUin, "", "已踢出" + replyTo + "，此用户还可再次申请入群\n权限使用人：" + 名(userUin));
+                            sendMsg(groupUin, "已踢出" + replyTo + "，此用户还可再次申请入群\n权限使用人：" + 名(userUin), 2);
                         }
                         return;
                     }
@@ -2086,11 +2096,11 @@ public void onMsg(Object msg) {
                             banTime = parseBanTime(timePart);
                             
                             if (banTime > 2592000) {
-                                sendMsg(groupUin, "", "请控制在30天以内");
+                                sendMsg(groupUin, "请控制在30天以内", 2);
                             } else if (banTime > 0) {
                                 unifiedForbidden(groupUin, replyTo, banTime);
                                 if (!cause.isEmpty() || msgContent.startsWith("禁 ")) {
-                                    sendMsg(groupUin, "", "已禁言 时长" + banTime + cause + "\n权限使用人：" + 名(userUin));
+                                    sendMsg(groupUin, "已禁言 时长" + banTime + cause + "\n权限使用人：" + 名(userUin), 2);
                                 }
                             }
                         }
@@ -2122,7 +2132,7 @@ public void onMsg(Object msg) {
                             kicked = true;
                         }
                     }
-                    if (kicked) sendMsg(groupUin, "", "已踢出，不会再收到该用户入群申请\n权限使用人：" + 名(userUin));
+                    if (kicked) sendMsg(groupUin, "已踢出，不会再收到该用户入群申请\n权限使用人：" + 名(userUin), 2);
                     return;
                 }
 
@@ -2138,7 +2148,7 @@ public void onMsg(Object msg) {
                             kicked = true;
                         }
                     }
-                    if (kicked) sendMsg(groupUin, "", "踢出成功\n权限使用人：" + 名(userUin));
+                    if (kicked) sendMsg(groupUin, "踢出成功\n权限使用人：" + 名(userUin), 2);
                     return;
                 }
 
@@ -2178,7 +2188,7 @@ public void onMsg(Object msg) {
                     }
 
                     if (banTime > 2592000) {
-                        sendMsg(groupUin, "", "请控制在30天以内");
+                        sendMsg(groupUin, "请控制在30天以内", 2);
                     } else if (banTime > 0) {
                         for (Object uin : mAtListCopy) {
                             String u = (String) uin;
@@ -2203,8 +2213,8 @@ public void onMsg(Object msg) {
                                 sb.append(u).append(" ");
                             }
                         }
-                        if (sb.length() > 0) sendMsg(groupUin, "", "已添加代管:\n" + sb.toString());
-                        else sendMsg(groupUin, "", "以上代管已经添加过了");
+                        if (sb.length() > 0) sendMsg(groupUin, "已添加代管:\n" + sb.toString(), 2);
+                        else sendMsg(groupUin, "以上代管已经添加过了", 2);
                         return;
                     }
                     if (msgContent.startsWith("删除代管@") || msgContent.startsWith("删除管理员@")) {
@@ -2220,7 +2230,7 @@ public void onMsg(Object msg) {
                                     sb.append(u).append(" ");
                                 }
                             }
-                            sendMsg(groupUin, "", "已删除管理员:\n" + sb.toString());
+                            sendMsg(groupUin, "已删除管理员:\n" + sb.toString(), 2);
                         }
                         return;
                     }
@@ -2281,7 +2291,7 @@ public void onMsg(Object msg) {
                 unifiedForbidden(groupUin, "", 1);
                 return;
             }
-            if (msg.MessageType == 1 && "解".equals(msgContent) && mAtListCopy.isEmpty()) {
+            if (msg != null && msg.type == 1 && "解".equals(msgContent) && mAtListCopy.isEmpty()) {
                 if (!isMyUin && !是代管(groupUin, userUin)) return;
                 unifiedForbidden(groupUin, "", 0);
                 return;
@@ -2323,7 +2333,7 @@ public void onMsg(Object msg) {
                     String target = item.toString();
                     if (!检查代管保护(groupUin, target, isBlack ? "踢黑" : "踢出") && 有权限操作(groupUin, userUin, target)) {
                         unifiedKick(groupUin, target, isBlack);
-                        sendMsg(groupUin, "", "已" + (isBlack ? "踢出并拉黑" : "踢出") + target + "\n权限使用人：" + 名(userUin));
+                        sendMsg(groupUin, "已" + (isBlack ? "踢出并拉黑" : "踢出") + target + "\n权限使用人：" + 名(userUin), 2);
                     }
                 }
                 return;
@@ -2348,9 +2358,9 @@ public void onMsg(Object msg) {
                             }
                         } catch (Exception e) {}
                     }
-                    sendMsg(groupUin, "", "已踢出禁言列表:" + sb.toString());
+                    sendMsg(groupUin, "已踢出禁言列表:" + sb.toString(), 2);
                 } else {
-                    sendMsg(groupUin, "", "当前没有人被禁言");
+                    sendMsg(groupUin, "当前没有人被禁言", 2);
                 }
                 return;
             }
@@ -2374,7 +2384,7 @@ public void onMsg(Object msg) {
                     }
                     sendReply(groupUin, msg, "禁言列表已加倍禁言");
                 } else {
-                    sendMsg(groupUin, "", "当前没有人被禁言");
+                    sendMsg(groupUin, "当前没有人被禁言", 2);
                 }
                 return;
             }
@@ -2396,7 +2406,7 @@ public void onMsg(Object msg) {
                     }
                     sendReply(groupUin, msg, "已解禁禁言列表用户");
                 } else {
-                    sendMsg(groupUin, "", "当前没有人被禁言");
+                    sendMsg(groupUin, "当前没有人被禁言", 2);
                 }
                 return;
             }
@@ -2408,7 +2418,7 @@ public void onMsg(Object msg) {
                 if (f.exists() && text.matches("[0-9]+")) {
                     if (jiandu(text, 简取(f))) {
                         简弃(f, text);
-                        sendMsg(groupUin, "", "已删除管理员:\n" + text);
+                        sendMsg(groupUin, "已删除管理员:\n" + text, 2);
                     } else {
                         sendReply(groupUin, msg, "此人并不是代管");
                     }
@@ -2478,7 +2488,7 @@ public void onMsg(Object msg) {
 
 public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long time) {
     try {
-        if (!"开".equals(getString("自动解禁代管配置", "开关"))) return;
+        if (!"开".equals(getString("自动解禁代管配置", "开关", null))) return;
         
         if (是代管(groupUin, userUin) && time > 0) {
             String key = groupUin + ":" + userUin;
@@ -2507,7 +2517,7 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
             return;
         }
         
-        String switchState = getString(groupUin, "退群拉黑");
+        String switchState = getString(groupUin, "退群拉黑", null);
         if (switchState != null && "开".equals(switchState)) {
             if (type == 1) {
                 if (userUin.equals(myUin)) return;
@@ -2536,11 +2546,11 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
     }
 }
 
-public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
+public void 自动解禁代管方法(int chatType, String peerUin, String name) {
     if (chatType != 2) return;
     
     try {
-        if("开".equals(getString("自动解禁代管配置", "开关"))){
+        if("开".equals(getString("自动解禁代管配置", "开关", null))){
             putString("自动解禁代管配置", "开关", null);
             toast("已关闭自动解禁代管");
         }else{
@@ -2552,8 +2562,8 @@ public void 自动解禁代管方法(String groupUin, String uin, int chatType) 
     }
 }
 
-public void 设置艾特禁言时间方法(String groupUin, String uin, int chatType) {
-    Activity activity = getActivity();
+public void 设置艾特禁言时间方法(int chatType, String peerUin, String name) {
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
@@ -2630,14 +2640,14 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     });
 }
 
-public void 开关自助头衔方法(String groupUin, String uin, int chatType) {
+public void 开关自助头衔方法(int chatType, String peerUin, String name) {
     if (chatType != 2) return;
     try {
-        if("开".equals(getString(groupUin,"自助头衔"))){
-            putString(groupUin,"自助头衔",null);
+        if("开".equals(getString(peerUin,"自助头衔", null))){
+            putString(peerUin,"自助头衔",null);
             toast("已关闭自助头衔");
         }else{
-            putString(groupUin,"自助头衔","开");
+            putString(peerUin,"自助头衔","开");
             toast("已开启自助头衔");
         }
     } catch (Exception e) {
@@ -2645,14 +2655,14 @@ public void 开关自助头衔方法(String groupUin, String uin, int chatType) 
     }
 }
 
-public void 开关艾特禁言方法(String groupUin, String uin, int chatType) {
+public void 开关艾特禁言方法(int chatType, String peerUin, String name) {
     if (chatType != 2) return;
     try {
-        if("开".equals(getString(groupUin,"艾特禁言"))){
-            putString(groupUin,"艾特禁言",null);
+        if("开".equals(getString(peerUin,"艾特禁言", null))){
+            putString(peerUin,"艾特禁言",null);
             toast("已关闭艾特禁言");
         }else{
-            putString(groupUin,"艾特禁言","开");
+            putString(peerUin,"艾特禁言","开");
             toast("已开启艾特禁言");
         }
     } catch (Exception e) {
@@ -2660,14 +2670,14 @@ public void 开关艾特禁言方法(String groupUin, String uin, int chatType) 
     }
 }
 
-public void 退群拉黑开关方法(String groupUin, String uin, int chatType) {
+public void 退群拉黑开关方法(int chatType, String peerUin, String name) {
     if (chatType != 2) return;
     try {
-        if("开".equals(getString(groupUin,"退群拉黑"))){
-            putString(groupUin,"退群拉黑",null);
+        if("开".equals(getString(peerUin,"退群拉黑", null))){
+            putString(peerUin,"退群拉黑",null);
             toast("已关闭退群拉黑");
         }else{
-            putString(groupUin,"退群拉黑","开");
+            putString(peerUin,"退群拉黑","开");
             toast("已开启退群拉黑");
         }
    } catch (Exception e) {
@@ -2675,19 +2685,19 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
-public void 检测黑名单方法(String groupUin, String uin, int chatType) {
+public void 检测黑名单方法(int chatType, String peerUin, String name) {
     if (chatType != 2) {
         return;
     }
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList 黑名单列表 = 获取黑名单列表(groupUin);
+                ArrayList 黑名单列表 = 获取黑名单列表(peerUin);
                 if (黑名单列表.isEmpty()) {
                     toast("本群黑名单为空");
                     return;
                 }
-                ArrayList 成员列表 = getGroupMemberList(groupUin);
+                ArrayList 成员列表 = getGroupMemberList(peerUin);
                 if (成员列表 == null || 成员列表.isEmpty()) {
                     toast("获取成员列表失败");
                     return;
@@ -2711,14 +2721,14 @@ public void 检测黑名单方法(String groupUin, String uin, int chatType) {
                     if (成员 == null || 成员.UserUin == null) continue;
                     String 成员QQ = 成员.UserUin;
                     if (黑名单列表.contains(成员QQ)) {
-                        kick(groupUin, 成员QQ, true);
-                        踢出列表.append(getMemberName(groupUin, 成员QQ)).append("(").append(成员QQ).append(")\n");
+                        kick(peerUin, 成员QQ, true);
+                        踢出列表.append(getMemberName(peerUin, 成员QQ)).append("(").append(成员QQ).append(")\n");
                         Thread.sleep(500);
                     }
                 }
                 if (踢出列表.length() > 0) {
                     final String 结果 = "已踢出以下黑名单成员：\n" + 踢出列表.toString();
-                    getActivity().runOnUiThread(new Runnable() {
+                    getNowActivity().runOnUiThread(new Runnable() {
                         public void run() {
                             toast(结果);
                         }
@@ -2835,7 +2845,7 @@ public synchronized void 简弃(File ff,String a) {
 }
 
 public File 获取代管文件() {
-    String 代管目录 = appPath + "/代管列表/";
+    String 代管目录 = pluginPath + "/代管列表/";
     File 代管文件夹 = new File(代管目录);
     if (!代管文件夹.exists()) {
         代管文件夹.mkdirs();
@@ -2889,7 +2899,7 @@ public boolean 有权限操作(String groupUin, String operatorUin, String targe
 
 public boolean 检查代管保护(String groupUin, String targetUin, String operation) {
     if (是代管(groupUin, targetUin)) {
-        sendMsg(groupUin, "", "检测到QQ号 " + targetUin + " 为代管，无法被" + operation);
+        sendMsg(groupUin, "检测到QQ号 " + targetUin + " 为代管，无法被" + operation, 2);
         return true;
     }
     return false;
@@ -3415,7 +3425,7 @@ public int parseBanTime(String timeStr) {
 public boolean isGN(String groupUin, String key) {
     try {
         if (groupUin == null || key == null) return false;
-        if("开".equals(getString(groupUin, key))) return true;
+        if("开".equals(getString(groupUin, key, null))) return true;
         else return false;
     } catch (Exception e) {
         return false;
@@ -3472,7 +3482,7 @@ public void haifeng520(final Object msg) {
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
@@ -3482,10 +3492,10 @@ public void haifeng520(final Object msg) {
                 Object myInfo = getMemberInfo(groupUin, myUin);
                 if (myInfo == null) return;
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
                 builder.setTitle("快捷群管 —— " + 名(targetUin) + "(" + targetUin + ")");
                 
-                LinearLayout dialogLayout = new LinearLayout(getActivity());
+                LinearLayout dialogLayout = new LinearLayout(getNowActivity());
                 dialogLayout.setOrientation(LinearLayout.VERTICAL);
                 dialogLayout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
                 
@@ -3528,7 +3538,7 @@ public void haifeng520(final Object msg) {
                     }
                     
                     if (canOperateTarget) {
-                        TextView banBtn = new TextView(getActivity());
+                        TextView banBtn = new TextView(getNowActivity());
                         banBtn.setText("禁言");
                         banBtn.setTextSize(18);
                         banBtn.setTextColor(textColor);
@@ -3549,7 +3559,7 @@ public void haifeng520(final Object msg) {
                         
                         buttonList.add(banBtn);
                         
-                        TextView revokeBtn = new TextView(getActivity());
+                        TextView revokeBtn = new TextView(getNowActivity());
                         revokeBtn.setText("撤回");
                         revokeBtn.setTextSize(18);
                         revokeBtn.setTextColor(textColor);
@@ -3564,16 +3574,16 @@ public void haifeng520(final Object msg) {
                         
                         revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
                             public void onClick(android.view.View v) {
-                                Activity activity = getActivity();
+                                Activity activity = getNowActivity();
                                 if (activity == null) return;
                                 
                                 activity.runOnUiThread(new Runnable() {
                                     public void run() {
                                         boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
                                         builder.setTitle("确认撤回");
                                         
-                                        LinearLayout layout = new LinearLayout(getActivity());
+                                        LinearLayout layout = new LinearLayout(getNowActivity());
                                         layout.setOrientation(LinearLayout.VERTICAL);
                                         layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
                                         
@@ -3584,7 +3594,7 @@ public void haifeng520(final Object msg) {
                                         int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
                                         layout.setBackground(bg);
                                         
-                                        TextView message = new TextView(getActivity());
+                                        TextView message = new TextView(getNowActivity());
                                         message.setText("确定要撤回这条消息吗？");
                                         message.setTextSize(16);
                                         message.setTextColor(textColor);
@@ -3616,7 +3626,7 @@ public void haifeng520(final Object msg) {
                         
                         buttonList.add(revokeBtn);
                         
-                        TextView kickBtn = new TextView(getActivity());
+                        TextView kickBtn = new TextView(getNowActivity());
                         kickBtn.setText("踢出");
                         kickBtn.setTextSize(18);
                         kickBtn.setTextColor(textColor);
@@ -3637,7 +3647,7 @@ public void haifeng520(final Object msg) {
                         
                         buttonList.add(kickBtn);
                         
-                        TextView kickBlackBtn = new TextView(getActivity());
+                        TextView kickBlackBtn = new TextView(getNowActivity());
                         kickBlackBtn.setText("踢黑");
                         kickBlackBtn.setTextSize(18);
                         kickBlackBtn.setTextColor(textColor);
@@ -3658,7 +3668,7 @@ public void haifeng520(final Object msg) {
                         
                         buttonList.add(kickBlackBtn);
                         
-                        TextView blacklistBtn = new TextView(getActivity());
+                        TextView blacklistBtn = new TextView(getNowActivity());
                         blacklistBtn.setText("加入黑名单");
                         blacklistBtn.setTextSize(18);
                         blacklistBtn.setTextColor(textColor);
@@ -3680,7 +3690,7 @@ public void haifeng520(final Object msg) {
                         buttonList.add(blacklistBtn);
                         
                         if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
-                            TextView allianceBanBtn = new TextView(getActivity());
+                            TextView allianceBanBtn = new TextView(getNowActivity());
                             allianceBanBtn.setText("联盟封禁");
                             allianceBanBtn.setTextSize(18);
                             allianceBanBtn.setTextColor(textColor);
@@ -3705,7 +3715,7 @@ public void haifeng520(final Object msg) {
                 }
                 
                 if (isOwner) {
-                    TextView titleBtn = new TextView(getActivity());
+                    TextView titleBtn = new TextView(getNowActivity());
                     titleBtn.setText("设置头衔");
                     titleBtn.setTextSize(18);
                     titleBtn.setTextColor(textColor);
@@ -3728,7 +3738,7 @@ public void haifeng520(final Object msg) {
                 }
                 
                 if (buttonList.isEmpty()) {
-                    TextView noPermissionText = new TextView(getActivity());
+                    TextView noPermissionText = new TextView(getNowActivity());
                     noPermissionText.setText("没有权限操作该用户……");
                     noPermissionText.setTextSize(18);
                     noPermissionText.setTextColor(textColor);
@@ -3738,7 +3748,7 @@ public void haifeng520(final Object msg) {
                     dialogLayout.addView(noPermissionText);
                 } else {
                     for (int i = 0; i < buttonList.size(); i += 2) {
-                        LinearLayout rowLayout = new LinearLayout(getActivity());
+                        LinearLayout rowLayout = new LinearLayout(getNowActivity());
                         rowLayout.setOrientation(LinearLayout.HORIZONTAL);
                         rowLayout.setLayoutParams(new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -3776,7 +3786,7 @@ public void haifeng520(final Object msg) {
                     }
                 }
                 
-                ScrollView scrollView = new ScrollView(getActivity());
+                ScrollView scrollView = new ScrollView(getNowActivity());
                 scrollView.addView(dialogLayout);
                 
                 builder.setView(scrollView);
@@ -3813,16 +3823,16 @@ public void allianceBanMenuItem(Object msg) {
         return;
     }
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("联盟封禁 - " + 名(targetUin) + "(" + targetUin + ")");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -3834,14 +3844,14 @@ public void allianceBanMenuItem(Object msg) {
             int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
-            TextView hint = new TextView(getActivity());
+            TextView hint = new TextView(getNowActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
             hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
-            final EditText inputEditText = new EditText(getActivity());
+            final EditText inputEditText = new EditText(getNowActivity());
             inputEditText.setHint("请输入封禁原因，可填可不填");
             inputEditText.setHintTextColor(hintTextColor);
             inputEditText.setTextColor(textColor);
@@ -3866,13 +3876,13 @@ public void allianceBanMenuItem(Object msg) {
                         public void run() {
                             try {
                                 添加封禁用户(targetUin, reason);
-                                getActivity().runOnUiThread(new Runnable() {
+                                getNowActivity().runOnUiThread(new Runnable() {
                                     public void run() {
                                         toast("已联盟封禁 " + 名(targetUin) + "(" + targetUin + ")");
                                     }
                                 });
                             } catch (Exception e) {
-                                getActivity().runOnUiThread(new Runnable() {
+                                getNowActivity().runOnUiThread(new Runnable() {
                                     public void run() {
                                         toast("联盟封禁失败: " + e.getMessage());
                                     }
@@ -3898,16 +3908,16 @@ public void addToBlacklistMenuItem(Object msg) {
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("确认加入黑名单");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -3918,7 +3928,7 @@ public void addToBlacklistMenuItem(Object msg) {
             int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
-            TextView message = new TextView(getActivity());
+            TextView message = new TextView(getNowActivity());
             message.setText("确定要将 " + 名(targetUin) + "(" + targetUin + ") 加入黑名单并踢出吗？\n\n加入黑名单后，该用户再次入群时会被自动踢出。");
             message.setTextSize(15);
             message.setTextColor(textColor);
@@ -3967,16 +3977,16 @@ public void kickMenuItem(Object msg) {
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("确认踢出");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -3987,7 +3997,7 @@ public void kickMenuItem(Object msg) {
             int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
-            TextView message = new TextView(getActivity());
+            TextView message = new TextView(getNowActivity());
             message.setText("真的确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
             message.setTextSize(16);
             message.setTextColor(textColor);
@@ -4018,16 +4028,16 @@ public void kickBlackMenuItem(Object msg) {
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("确认踢黑");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -4038,7 +4048,7 @@ public void kickBlackMenuItem(Object msg) {
             int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
             layout.setBackground(bg);
             
-            TextView message = new TextView(getActivity());
+            TextView message = new TextView(getNowActivity());
             message.setText("真的确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？\n\n确定后，该用户无法再次加入该群聊");
             message.setTextSize(16);
             message.setTextColor(textColor);
@@ -4071,16 +4081,16 @@ public void forbiddenMenuItem(Object msg) {
     
     if (检查代管保护(groupUin, targetUin, "禁言")) return;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("设置禁言时间");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -4092,14 +4102,14 @@ public void forbiddenMenuItem(Object msg) {
             int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
-            TextView hint = new TextView(getActivity());
+            TextView hint = new TextView(getNowActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
             hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
-            final EditText inputEditText = new EditText(getActivity());
+            final EditText inputEditText = new EditText(getNowActivity());
             inputEditText.setHint("请输入禁言时间（秒）");
             inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
             inputEditText.setHintTextColor(hintTextColor);
@@ -4168,16 +4178,16 @@ public void setTitleMenuItem(Object msg) {
     final String groupUin = msg.GroupUin;
     final String targetUin = msg.UserUin;
     
-    Activity activity = getActivity();
+    Activity activity = getNowActivity();
     if (activity == null) return;
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
             boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getNowActivity(), getCurrentTheme());
             builder.setTitle("设置头衔");
             
-            LinearLayout layout = new LinearLayout(getActivity());
+            LinearLayout layout = new LinearLayout(getNowActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
             
@@ -4189,14 +4199,14 @@ public void setTitleMenuItem(Object msg) {
             int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
             layout.setBackground(bg);
             
-            TextView hint = new TextView(getActivity());
+            TextView hint = new TextView(getNowActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
             hint.setTextColor(textColor);
             hint.setPadding(0, 0, 0, dp2px(15));
             layout.addView(hint);
             
-            final EditText inputEditText = new EditText(getActivity());
+            final EditText inputEditText = new EditText(getNowActivity());
             inputEditText.setHint("请输入头衔内容");
             inputEditText.setHintTextColor(hintTextColor);
             inputEditText.setTextColor(textColor);
