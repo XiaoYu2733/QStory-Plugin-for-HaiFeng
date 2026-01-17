@@ -577,7 +577,9 @@ public void showUpdateLog(String g, String u, int t) {
                         "- [修复] 脚本文件初始化异常\n" +
                         "——————————\n" +
                         "简洁群管_112.0_更新日志\n" +
-                        "- [优化] 代管文件创建逻辑\n\n" +
+                        "- [新增] 检测error.txt文件是否存在，存在则删除\n" +
+                        "- [优化] 代管文件创建逻辑\n" +
+                        "- [修复] 艾特禁言用户有点不太正常的问题\n\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);

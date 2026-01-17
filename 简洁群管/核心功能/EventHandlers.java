@@ -418,18 +418,43 @@ public void onMsg(Object msg) {
                     return;
                 }
                 
-                boolean isBan = msgContent.startsWith("禁");
-                boolean isBanYan = msgContent.startsWith("禁言");
-                boolean isAtWithTime = msgContent.matches("^@[\\s\\S]+[0-9]+(天|分|时|小时|分钟|秒)+$") || 
-                                       msgContent.matches("^@?[\\s\\S]+[零一二三四五六七八九十]?[十百千万]?(天|分|时|小时|分钟|秒)+$");
+                boolean isExplicitBanCommand = msgContent.startsWith("禁@") || 
+                                               msgContent.startsWith("禁言@") ||
+                                               msgContent.matches("^禁言?\\s+@[^\\s]+\\s+[0-9]+(天|时|小时|分钟|分|秒)\\s*$") ||
+                                               msgContent.matches("^禁言?\\s+@[^\\s]+\\s+[零一二三四五六七八九十百千万]+(天|时|小时|分钟|分|秒)\\s*$");
                 
-                if (isBan || isBanYan || isAtWithTime) {
+                boolean hasTimeUnitAtEnd = false;
+                String timePart = "";
+                
+                int lastSpace = msgContent.lastIndexOf(" ");
+                if (lastSpace != -1) {
+                    timePart = msgContent.substring(lastSpace + 1).trim();
+                    hasTimeUnitAtEnd = timePart.matches(".*(天|时|小时|分钟|分|秒)$");
+                }
+                
+                boolean isLikelyBanCommand = false;
+                if (!mAtListCopy.isEmpty() && hasTimeUnitAtEnd) {
+                    boolean hasNumber = timePart.matches(".*[0-9零一二三四五六七八九十百千万].*");
+                    boolean isCommonFalsePositive = timePart.matches(".*(分钟|时分|时候|时间|秒杀|分数|分离|分开|分工).*");
+                    
+                    if (hasNumber && !isCommonFalsePositive) {
+                        isLikelyBanCommand = true;
+                    } else {
+                        boolean isPureTimeUnit = timePart.matches("^[零一二三四五六七八九十百千万]+(天|时|小时|分钟|分|秒)$");
+                        if (isPureTimeUnit) {
+                            isLikelyBanCommand = true;
+                        }
+                    }
+                }
+                
+                boolean isBan = msgContent.startsWith("禁") && !msgContent.startsWith("禁@");
+                boolean isBanYan = msgContent.startsWith("禁言") && !msgContent.startsWith("禁言@");
+                
+                if (isExplicitBanCommand || isLikelyBanCommand || (isBan && !isLikelyBanCommand) || (isBanYan && !isLikelyBanCommand)) {
                     if (!isMyUin && !是代管(groupUin, userUin)) return;
                     
                     int banTime = 0;
-                    String timePart = "";
                     
-                    int lastSpace = msgContent.lastIndexOf(" ");
                     if (lastSpace != -1) {
                         timePart = msgContent.substring(lastSpace + 1).trim();
                     }
@@ -940,7 +965,7 @@ public void 退群拉黑开关方法(String groupUin, String uin, int chatType) 
     }
 }
 
-public void 检测黑名单方法(String groupUin, String uin, int chatType) {
+public void 检测黑名单方法(String groupUin, String uin, int chat) {
     if (chatType != 2) {
         return;
     }
