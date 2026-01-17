@@ -6,6 +6,8 @@
 
 // 你说你讨厌被骗 可你骗我的时候也没有心软
 
+// 其实 我的心也想离你近一点
+
 import android.app.Activity;
 import android.widget.Toast;
 import java.io.File;
@@ -117,6 +119,14 @@ public void initEventHandlers() {
 
 public void onUnLoad() {
     toast("简洁群管已卸载");
+}
+
+try {
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists()) {
+        errorFile.delete();
+    }
+} catch (Exception e) {
 }
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
