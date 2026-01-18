@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import android.widget.EditText;
 
 Map groupInfoCache = new ConcurrentHashMap();
 
@@ -77,7 +78,7 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
             addTemporaryItem("查看更新日志", "showUpdateLog");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
-            addTemporaryItem("自定义骰子", "自定义骰子方法");
+            addTemporaryItem("自定骰子功能", "自定义骰子方法");
         }
     } catch (Exception e) {
     }
@@ -145,6 +146,27 @@ public void haifeng520(final Object msg) {
                     }
                     
                     if (canOperateTarget) {
+                        TextView batchRevokeBtn = new TextView(getActivity());
+                        batchRevokeBtn.setText("批量撤回");
+                        batchRevokeBtn.setTextSize(18);
+                        batchRevokeBtn.setTextColor(textColor);
+                        batchRevokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        batchRevokeBtn.setGravity(Gravity.CENTER);
+                        
+                        GradientDrawable batchRevokeBg = new GradientDrawable();
+                        batchRevokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                        batchRevokeBg.setCornerRadius(dp2px(6));
+                        batchRevokeBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        batchRevokeBtn.setBackground(batchRevokeBg);
+                        
+                        batchRevokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                            public void onClick(android.view.View v) {
+                                showBatchRevokeDialog(msg);
+                            }
+                        });
+                        
+                        buttonList.add(batchRevokeBtn);
+                        
                         TextView banBtn = new TextView(getActivity());
                         banBtn.setText("禁言");
                         banBtn.setTextSize(18);
@@ -406,6 +428,259 @@ public void haifeng520(final Object msg) {
             } catch (Exception e) {
                 toast("打开快捷群管失败: " + e.getMessage());
             }
+        }
+    });
+}
+
+public void showBatchRevokeDialog(final Object msg) {
+    if (msg == null || !msg.IsGroup) return;
+    
+    final String groupUin = msg.GroupUin;
+    final long baseSeq = Long.parseLong("" + msg.msg.msgSeq);
+    
+    Activity activity = getActivity();
+    if (activity == null) return;
+    
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                builder.setTitle("批量撤回");
+                
+                LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                
+                GradientDrawable bg = new GradientDrawable();
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+                bg.setCornerRadius(dp2px(8));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+                layout.setBackground(bg);
+                
+                TextView hint = new TextView(getActivity());
+                hint.setText("从当前消息开始，批量撤回多条消息");
+                hint.setTextSize(14);
+                hint.setTextColor(textColor);
+                hint.setPadding(0, 0, 0, dp2px(15));
+                layout.addView(hint);
+                
+                final EditText inputEditText = new EditText(getActivity());
+                inputEditText.setHint("请输入撤回数量");
+                inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+                inputEditText.setText("5");
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
+                
+                GradientDrawable etBg = new GradientDrawable();
+                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                etBg.setCornerRadius(dp2px(6));
+                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+                inputEditText.setBackground(etBg);
+                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                
+                layout.addView(inputEditText);
+                
+                LinearLayout buttonLayout = new LinearLayout(getActivity());
+                buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+                buttonLayout.setGravity(Gravity.CENTER);
+                buttonLayout.setPadding(0, dp2px(15), 0, 0);
+                
+                TextView prevBtn = new TextView(getActivity());
+                prevBtn.setText("撤回前面");
+                prevBtn.setTextSize(16);
+                prevBtn.setTextColor(Color.WHITE);
+                prevBtn.setGravity(Gravity.CENTER);
+                prevBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable prevBg = new GradientDrawable();
+                prevBg.setColor(isDark ? Color.parseColor("#4285F4") : Color.parseColor("#1A73E8"));
+                prevBg.setCornerRadius(dp2px(6));
+                prevBtn.setBackground(prevBg);
+                
+                LinearLayout.LayoutParams prevParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
+                prevParams.setMargins(0, 0, dp2px(5), 0);
+                prevBtn.setLayoutParams(prevParams);
+                
+                TextView nextBtn = new TextView(getActivity());
+                nextBtn.setText("撤回后面");
+                nextBtn.setTextSize(16);
+                nextBtn.setTextColor(Color.WHITE);
+                nextBtn.setGravity(Gravity.CENTER);
+                nextBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                
+                GradientDrawable nextBg = new GradientDrawable();
+                nextBg.setColor(isDark ? Color.parseColor("#34A853") : Color.parseColor("#0D652D"));
+                nextBg.setCornerRadius(dp2px(6));
+                nextBtn.setBackground(nextBg);
+                
+                LinearLayout.LayoutParams nextParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
+                nextParams.setMargins(dp2px(5), 0, 0, 0);
+                nextBtn.setLayoutParams(nextParams);
+                
+                buttonLayout.addView(prevBtn);
+                buttonLayout.addView(nextBtn);
+                layout.addView(buttonLayout);
+                
+                builder.setView(layout);
+                
+                final AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                dialog.show();
+                
+                prevBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        try {
+                            int count = Integer.parseInt(inputEditText.getText().toString());
+                            dialog.dismiss();
+                            executeBatchRevoke(groupUin, baseSeq, count, -1);
+                        } catch (Exception e) {
+                            toast("请输入有效数字");
+                        }
+                    }
+                });
+                
+                nextBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        try {
+                            int count = Integer.parseInt(inputEditText.getText().toString());
+                            dialog.dismiss();
+                            executeBatchRevoke(groupUin, baseSeq, count, 1);
+                        } catch (Exception e) {
+                            toast("请输入有效数字");
+                        }
+                    }
+                });
+                
+            } catch (Exception e) {
+                toast("打开批量撤回失败");
+            }
+        }
+    });
+}
+
+public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
+    getActivity().runOnUiThread(new Runnable() {
+        public void run() {
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            String cardColor = getCardColor();
+            String textColor = getTextColor();
+            String surfaceColor = getSurfaceColor();
+            String accentColor = getAccentColor();
+
+            final android.app.Dialog progressDialog = new android.app.Dialog(getActivity(), getCurrentTheme());
+            progressDialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+            progressDialog.setCancelable(false);
+
+            LinearLayout root = new LinearLayout(getActivity());
+            root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            root.setOrientation(LinearLayout.VERTICAL);
+            root.setBackground(getWebShape(cardColor, dp2px(16)));
+            root.setPadding(dp2px(24), dp2px(24), dp2px(24), dp2px(24));
+
+            TextView title = new TextView(getActivity());
+            title.setText("正在撤回...");
+            title.setTextSize(18);
+            title.setTextColor(Color.parseColor(textColor));
+            title.setPadding(0, 0, 0, dp2px(16));
+
+            LinearLayout progressContainer = new LinearLayout(getActivity());
+            progressContainer.setOrientation(LinearLayout.VERTICAL);
+            
+            LinearLayout progressBg = new LinearLayout(getActivity());
+            progressBg.setBackground(getShape(surfaceColor, dp2px(6)));
+            progressBg.setPadding(1, 1, 1, 1);
+            LinearLayout.LayoutParams bgParams = new LinearLayout.LayoutParams(-1, dp2px(10));
+            bgParams.setMargins(0, 0, 0, dp2px(8));
+            progressBg.setLayoutParams(bgParams);
+            
+            final android.view.View progressFill = new android.view.View(getActivity());
+            progressFill.setBackground(getShape(accentColor, dp2px(5)));
+            LinearLayout.LayoutParams fillParams = new LinearLayout.LayoutParams(0, -1, 0.0f);
+            progressFill.setMinimumHeight(dp2px(8));
+            progressFill.setLayoutParams(fillParams);
+            
+            progressBg.addView(progressFill);
+            progressContainer.addView(progressBg);
+            
+            final TextView progressText = new TextView(getActivity());
+            progressText.setText("0/" + count);
+            progressText.setTextSize(14);
+            progressText.setTextColor(Color.parseColor(textColor));
+            progressText.setGravity(Gravity.CENTER);
+            progressText.setPadding(0, dp2px(4), 0, 0);
+            
+            root.addView(title);
+            root.addView(progressContainer);
+            root.addView(progressText);
+
+            progressDialog.setContentView(root);
+            
+            android.view.Window window = progressDialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+                android.view.WindowManager.LayoutParams params = window.getAttributes();
+                params.width = (int) (getActivity().getResources().getDisplayMetrics().widthPixels * 0.75);
+                params.height = -2;
+                params.gravity = Gravity.CENTER;
+                window.setAttributes(params);
+            }
+
+            progressDialog.show();
+
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        long group = Long.parseLong(gUin);
+                        for (int i = 0; i < count; i++) {
+                            long seq = startSeq + (i * dir);
+                            
+                            org.json.JSONObject body = new org.json.JSONObject();
+                            body.put("1", 1);
+                            body.put("2", group);
+                            org.json.JSONObject msgInfo = new org.json.JSONObject();
+                            msgInfo.put("1", seq);
+                            msgInfo.put("2", 0);
+                            msgInfo.put("3", 0);
+                            body.put("3", msgInfo);
+                            body.put("4", new org.json.JSONObject().put("1", 0));
+
+                            sendProto("trpc.msg.msg_svc.MsgService.SsoGroupRecallMsg", body.toString());
+
+                            final float progress = (float)(i + 1) / count;
+                            final int current = i + 1;
+                            getActivity().runOnUiThread(new Runnable() {
+                                public void run() {
+                                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) progressFill.getLayoutParams();
+                                    params.weight = progress;
+                                    progressFill.setLayoutParams(params);
+                                    progressText.setText(current + "/" + count);
+                                }
+                            });
+                            
+                            Thread.sleep(1000);
+                        }
+                        
+                        getActivity().runOnUiThread(new Runnable() {
+                            public void run() {
+                                progressDialog.dismiss();
+                                toast("批量撤回完成");
+                            }
+                        });
+                        
+                    } catch (Exception e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            public void run() {
+                                progressDialog.dismiss();
+                                toast("撤回过程中出现错误");
+                            }
+                        });
+                    }
+                }
+            }).start();
         }
     });
 }
