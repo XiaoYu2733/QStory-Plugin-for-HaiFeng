@@ -1,4 +1,3 @@
-
 // 作 临江踏雨不返 海枫
 // 发送 群管功能 以查看功能
 // 部分接口 卑微萌新
@@ -7,6 +6,8 @@
 // 你说你讨厌被骗 可你骗我的时候也没有心软
 
 // 其实 我的心也想离你近一点
+
+// 此脚本存在绝大多数中文变量 如果你没有Java基础请勿随意修改 可能造成无法加载或导致QQ频繁闪退
 
 import android.app.Activity;
 import android.widget.Toast;
@@ -17,7 +18,82 @@ String 联盟目录;
 File 联盟群组文件;
 File 封禁列表文件;
 
+public void cleanErrorLogDirectory() {
+    String logDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Log/ErrorLog";
+    File directory = new File(logDir);
+    
+    try {
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && file.getName().toLowerCase().endsWith(".txt")) {
+                        file.delete();
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+    }
+}
+
+public void cleanRunLogDirectory() {
+    String logDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Log/RunLog";
+    File directory = new File(logDir);
+    
+    try {
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    file.delete();
+                }
+            }
+        }
+    } catch (Exception e) {
+    }
+}
+
+public void cleanPluginLogs() {
+    String pluginDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin";
+    File directory = new File(pluginDir);
+    
+    try {
+        if (directory.exists() && directory.isDirectory()) {
+            File[] pluginFolders = directory.listFiles();
+            if (pluginFolders != null) {
+                for (File pluginFolder : pluginFolders) {
+                    if (pluginFolder.isDirectory()) {
+                        File[] files = pluginFolder.listFiles();
+                        if (files != null) {
+                            for (File file : files) {
+                                String fileName = file.getName().toLowerCase();
+                                if (file.isFile() && (fileName.equals("error.txt") || fileName.equals("log.txt") || fileName.endsWith(".bak"))) {
+                                    file.delete();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+    }
+}
+
 public void onLoad() {
+    try {
+        File errorFile = new File(appPath + "/error.txt");
+        if (errorFile.exists()) {
+            errorFile.delete();
+        }
+    } catch (Exception e) {
+    }
+    
+    cleanErrorLogDirectory();
+    cleanRunLogDirectory();
+    cleanPluginLogs();
+    
     退群拉黑目录 = appPath + "/退群拉黑/";
     File 退群拉黑文件夹 = new File(退群拉黑目录);
     if (!退群拉黑文件夹.exists()) {
@@ -119,14 +195,6 @@ public void initEventHandlers() {
 
 public void onUnLoad() {
     toast("简洁群管已卸载");
-}
-
-try {
-    File errorFile = new File(appPath + "/error.txt");
-    if (errorFile.exists()) {
-        errorFile.delete();
-    }
-} catch (Exception e) {
 }
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
