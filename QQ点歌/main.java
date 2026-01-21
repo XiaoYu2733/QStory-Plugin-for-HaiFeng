@@ -214,17 +214,8 @@ public void onMsg(Object msg) {
 
         new Thread(() -> {
             try {
-                Random rand = new Random();
-                int apiChoice = rand.nextInt(2);
-                String response = null;
-
-                if (apiChoice == 0) {
-                    String url = "https://hb.ley.wang/qq.php?word=" + URLEncoder.encode(songName, "UTF-8");
-                    response = httpGet(url);
-                } else {
-                    String url = "https://api.iosxx.cn/API/qqmusic.php?name=" + URLEncoder.encode(songName, "UTF-8");
-                    response = httpGet(url);
-                }
+                String url = "https://api.iosxx.cn/API/qqmusic.php?name=" + URLEncoder.encode(songName, "UTF-8");
+                String response = httpGet(url);
 
                 if (response == null || response.trim().isEmpty()) {
                     if (isGroup) {
@@ -242,40 +233,23 @@ public void onMsg(Object msg) {
                 String musicUrl = "";
                 String lyric = "";
 
-                if (apiChoice == 0) {
-                    if (json.getInt("code") != 200) {
-                        if (isGroup) {
-                            sendMsg(group, "", "点歌失败，请稍后重试");
-                        } else {
-                            sendMsg("", peerUin, "点歌失败，请稍后重试");
-                        }
-                        return;
+                if (json.getInt("code") != 200) {
+                    if (isGroup) {
+                        sendMsg(group, "", "点歌失败，请稍后重试");
+                    } else {
+                        sendMsg("", peerUin, "点歌失败，请稍后重试");
                     }
-                    title = json.getString("title");
-                    singer = json.getString("singer");
-                    coverUrl = json.getString("cover");
-                    musicUrl = json.getString("music_url");
-                    if (json.has("lyric")) {
-                        lyric = json.getString("lyric");
-                    }
-                } else {
-                    if (json.getInt("code") != 200) {
-                        if (isGroup) {
-                            sendMsg(group, "", "点歌失败，请稍后重试");
-                        } else {
-                            sendMsg("", peerUin, "点歌失败，请稍后重试");
-                        }
-                        return;
-                    }
-                    title = json.getString("title");
-                    singer = json.getString("singer");
-                    coverUrl = json.getString("cover");
-                    musicUrl = json.getString("music_url");
-                    if (json.has("lyric")) {
-                        lyric = json.getString("lyric");
-                    }
+                    return;
+                }
+                title = json.getString("title");
+                singer = json.getString("singer");
+                coverUrl = json.getString("cover");
+                musicUrl = json.getString("music_url");
+                if (json.has("lyric")) {
+                    lyric = json.getString("lyric");
                 }
 
+                Random rand = new Random();
                 String randomText = "";
                 if (randomTexts.size() > 0) {
                     randomText = "\n文案：" + randomTexts.get(rand.nextInt(randomTexts.size()));
