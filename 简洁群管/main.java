@@ -1,3 +1,4 @@
+
 // 作 临江踏雨不返 海枫
 // 发送 群管功能 以查看功能
 // 部分接口 卑微萌新
@@ -18,97 +19,22 @@ String 联盟目录;
 File 联盟群组文件;
 File 封禁列表文件;
 
-public void cleanErrorLogDirectory() {
-    String logDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Log/ErrorLog";
-    File directory = new File(logDir);
-    
-    try {
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isFile() && file.getName().toLowerCase().endsWith(".txt")) {
-                        file.delete();
-                    }
-                }
-            }
-        }
-    } catch (Exception e) {
-    }
-}
-
-public void cleanRunLogDirectory() {
-    String logDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Log/RunLog";
-    File directory = new File(logDir);
-    
-    try {
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    file.delete();
-                }
-            }
-        }
-    } catch (Exception e) {
-    }
-}
-
-public void cleanPluginLogs() {
-    String pluginDir = "/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin";
-    File directory = new File(pluginDir);
-    
-    try {
-        if (directory.exists() && directory.isDirectory()) {
-            File[] pluginFolders = directory.listFiles();
-            if (pluginFolders != null) {
-                for (File pluginFolder : pluginFolders) {
-                    if (pluginFolder.isDirectory()) {
-                        File[] files = pluginFolder.listFiles();
-                        if (files != null) {
-                            for (File file : files) {
-                                String fileName = file.getName().toLowerCase();
-                                if (file.isFile() && (fileName.equals("error.txt") || fileName.equals("log.txt") || fileName.endsWith(".bak"))) {
-                                    file.delete();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } catch (Exception e) {
-    }
-}
-
 public void onLoad() {
-    try {
-        File errorFile = new File(appPath + "/error.txt");
-        if (errorFile.exists()) {
-            errorFile.delete();
-        }
-    } catch (Exception e) {
-    }
-    
-    cleanErrorLogDirectory();
-    cleanRunLogDirectory();
-    cleanPluginLogs();
-    
     退群拉黑目录 = appPath + "/退群拉黑/";
     File 退群拉黑文件夹 = new File(退群拉黑目录);
     if (!退群拉黑文件夹.exists()) {
         退群拉黑文件夹.mkdirs();
     }
-    
+
     联盟目录 = appPath + "/封禁联盟/";
     File 联盟文件夹 = new File(联盟目录);
     if (!联盟文件夹.exists()) {
         联盟文件夹.mkdirs();
     }
-    
+
     联盟群组文件 = new File(联盟目录, "联盟群组.txt");
     封禁列表文件 = new File(联盟目录, "封禁联盟.txt");
-    
+
     int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
 
     load(appPath + "/核心功能/Utils.java");
@@ -119,7 +45,7 @@ public void onLoad() {
     load(appPath + "/核心功能/FileOperations.java");
     load(appPath + "/核心功能/QQInterface.java");
     load(appPath + "/核心功能/CustomDice.java");
-    
+
     initEventHandlers();
 }
 
@@ -128,10 +54,10 @@ public void initEventHandlers() {
         public void run() {
             try {
                 Thread.sleep(5000);
-                
+
                 ArrayList 联盟群组列表 = null;
                 ArrayList 封禁列表 = null;
-                
+
                 try {
                     if (联盟群组文件 != null && 联盟群组文件.exists()) {
                         联盟群组列表 = 简取(联盟群组文件);
@@ -142,11 +68,11 @@ public void initEventHandlers() {
                 } catch (Exception e) {
                     return;
                 }
-                
+
                 if (联盟群组列表 == null || 联盟群组列表.isEmpty() || 封禁列表 == null || 封禁列表.isEmpty()) {
                     return;
                 }
-                
+
                 Set 封禁UIN集合 = new HashSet();
                 ArrayList 封禁列表副本 = safeCopyList(封禁列表);
                 for (int k = 0; k < 封禁列表副本.size(); k++) {
@@ -158,16 +84,16 @@ public void initEventHandlers() {
                         }
                     }
                 }
-                
+
                 if (封禁UIN集合.isEmpty()) {
                     return;
                 }
-                
+
                 ArrayList 联盟群组列表副本 = safeCopyList(联盟群组列表);
                 for (int i = 0; i < 联盟群组列表副本.size(); i++) {
                     String 群号 = (String)联盟群组列表副本.get(i);
                     if (群号 == null || 群号.isEmpty()) continue;
-                    
+
                     try {
                         ArrayList 成员列表 = getGroupMemberList(群号);
                         if (成员列表 != null && !成员列表.isEmpty()) {
@@ -183,11 +109,11 @@ public void initEventHandlers() {
                             }
                         }
                     } catch (Exception e) {
-                    
+
                     }
                 }
             } catch (Exception e) {
-                
+
             }
         }
     }).start();
@@ -195,6 +121,14 @@ public void initEventHandlers() {
 
 public void onUnLoad() {
     toast("简洁群管已卸载");
+}
+
+try {
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists()) {
+        errorFile.delete();
+    }
+} catch (Exception e) {
 }
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
