@@ -180,8 +180,7 @@ public void showUpdateLog(String g, String u, int t) {
                 builder.setTitle("简洁群管更新日志");
 
                 TextView textView = new TextView(activity);
-                textView.setText("QStory精选脚本系列\n\n" +
-                        "以下是简洁群管的部分更新日志\n" +
+                textView.setText("以下是简洁群管的部分更新日志\n" +
                         "——————————\n" +
                         "简洁群管_114.0_更新日志\n" +
                         "- [调整] 优化脚本主题，以后会继续优化\n" +
