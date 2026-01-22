@@ -12,17 +12,6 @@ import android.graphics.Color;
 import android.widget.LinearLayout;
 import android.graphics.drawable.GradientDrawable;
 
-String MD3_PRIMARY = "#6750A4";
-String MD3_ON_PRIMARY = "#FFFFFF";
-String MD3_SURFACE = "#FEF7FF";
-String MD3_ON_SURFACE = "#1C1B1F";
-String MD3_SURFACE_VARIANT = "#E7E0EC";
-String MD3_ON_SURFACE_VARIANT = "#49454F";
-String MD3_DARK_SURFACE = "#121212";
-String MD3_DARK_ON_SURFACE = "#E0E0E0";
-String MD3_DARK_SURFACE_VARIANT = "#1E1E1E";
-String MD3_DARK_ON_SURFACE_VARIANT = "#B0B0B0";
-
 Object msgLock = new Object();
 
 public String 获取群名(String groupUin) {
@@ -860,45 +849,42 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                int theme = getCurrentTheme();
-                boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 int 当前艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
-                
-                String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
-                String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
-                String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
-                String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
                 builder.setTitle("设置艾特禁言时间");
                 
                 LinearLayout layout = new LinearLayout(activity);
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+                layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.parseColor(surfaceColor));
-                bg.setCornerRadius(dp2px(12));
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
+                bg.setCornerRadius(dp2px(8));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
+                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
                 hint.setText("当前艾特禁言时间: " + 当前艾特禁言时间 + "秒 (" + (当前艾特禁言时间/86400) + "天)");
-                hint.setTextColor(Color.parseColor(onSurfaceColor));
-                hint.setPadding(0, 0, 0, dp2px(16));
+                hint.setTextColor(textColor);
+                hint.setPadding(0, 0, 0, dp2px(15));
                 layout.addView(hint);
                 
-                final EditText inputEditText = new EditText(activity);
+                EditText inputEditText = new EditText(activity);
                 inputEditText.setHint("请输入禁言时间(秒)");
                 inputEditText.setText(String.valueOf(当前艾特禁言时间));
-                inputEditText.setHintTextColor(Color.parseColor(onSurfaceVariantColor));
-                inputEditText.setTextColor(Color.parseColor(onSurfaceColor));
-                inputEditText.setTextSize(14);
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(Color.parseColor(surfaceVariantColor));
-                etBg.setCornerRadius(dp2px(8));
+                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
+                etBg.setCornerRadius(dp2px(6));
+                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
                 inputEditText.setBackground(etBg);
-                inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
+                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
                 layout.addView(inputEditText);
                 

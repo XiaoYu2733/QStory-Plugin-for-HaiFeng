@@ -12,17 +12,6 @@ import android.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.app.Activity;
 
-String MD3_PRIMARY = "#6750A4";
-String MD3_ON_PRIMARY = "#FFFFFF";
-String MD3_SURFACE = "#FEF7FF";
-String MD3_ON_SURFACE = "#1C1B1F";
-String MD3_SURFACE_VARIANT = "#E7E0EC";
-String MD3_ON_SURFACE_VARIANT = "#49454F";
-String MD3_DARK_SURFACE = "#121212";
-String MD3_DARK_ON_SURFACE = "#E0E0E0";
-String MD3_DARK_SURFACE_VARIANT = "#1E1E1E";
-String MD3_DARK_ON_SURFACE_VARIANT = "#B0B0B0";
-
 public void unifiedForbidden(String groupUin, String userUin, int time) {
     try {
         forbidden(groupUin, userUin, time);
