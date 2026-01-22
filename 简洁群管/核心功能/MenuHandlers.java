@@ -16,6 +16,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import android.widget.EditText;
 
+String MD3_PRIMARY = "#6750A4";
+String MD3_ON_PRIMARY = "#FFFFFF";
+String MD3_SECONDARY = "#625B71";
+String MD3_ON_SECONDARY = "#FFFFFF";
+String MD3_TERTIARY = "#7D5260";
+String MD3_ON_TERTIARY = "#FFFFFF";
+String MD3_SURFACE = "#FEF7FF";
+String MD3_ON_SURFACE = "#1C1B1F";
+String MD3_SURFACE_VARIANT = "#E7E0EC";
+String MD3_ON_SURFACE_VARIANT = "#49454F";
+String MD3_DARK_SURFACE = "#1C1B1F";
+String MD3_DARK_ON_SURFACE = "#F4EFF4";
+String MD3_DARK_SURFACE_VARIANT = "#49454F";
+String MD3_DARK_ON_SURFACE_VARIANT = "#CAC4D0";
+
 Map groupInfoCache = new ConcurrentHashMap();
 
 {
@@ -96,22 +111,26 @@ public void haifeng520(final Object msg) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                int theme = getCurrentTheme();
+                boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 Object myInfo = getMemberInfo(groupUin, myUin);
                 if (myInfo == null) return;
+                
+                String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+                String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+                String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+                String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
                 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                 builder.setTitle("快捷群管 —— " + 名(targetUin) + "(" + targetUin + ")");
                 
                 LinearLayout dialogLayout = new LinearLayout(getActivity());
                 dialogLayout.setOrientation(LinearLayout.VERTICAL);
-                dialogLayout.setPadding(dp2px(20), dp2px(15), dp2px(20), dp2px(15));
+                dialogLayout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                bg.setColor(Color.parseColor(surfaceColor));
+                bg.setCornerRadius(dp2px(12));
                 dialogLayout.setBackground(bg);
                 
                 boolean isOwner = false;
@@ -148,15 +167,15 @@ public void haifeng520(final Object msg) {
                     if (canOperateTarget) {
                         TextView batchRevokeBtn = new TextView(getActivity());
                         batchRevokeBtn.setText("批量撤回");
-                        batchRevokeBtn.setTextSize(18);
-                        batchRevokeBtn.setTextColor(textColor);
-                        batchRevokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        batchRevokeBtn.setTextSize(14);
+                        batchRevokeBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        batchRevokeBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        batchRevokeBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         batchRevokeBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable batchRevokeBg = new GradientDrawable();
-                        batchRevokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        batchRevokeBg.setCornerRadius(dp2px(6));
-                        batchRevokeBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        batchRevokeBg.setColor(Color.parseColor(surfaceVariantColor));
+                        batchRevokeBg.setCornerRadius(dp2px(20));
                         batchRevokeBtn.setBackground(batchRevokeBg);
                         
                         batchRevokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -169,15 +188,15 @@ public void haifeng520(final Object msg) {
                         
                         TextView banBtn = new TextView(getActivity());
                         banBtn.setText("禁言");
-                        banBtn.setTextSize(18);
-                        banBtn.setTextColor(textColor);
-                        banBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        banBtn.setTextSize(14);
+                        banBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        banBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        banBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         banBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable banBg = new GradientDrawable();
-                        banBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        banBg.setCornerRadius(dp2px(6));
-                        banBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        banBg.setColor(Color.parseColor(surfaceVariantColor));
+                        banBg.setCornerRadius(dp2px(20));
                         banBtn.setBackground(banBg);
                         
                         banBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -190,15 +209,15 @@ public void haifeng520(final Object msg) {
                         
                         TextView revokeBtn = new TextView(getActivity());
                         revokeBtn.setText("撤回");
-                        revokeBtn.setTextSize(18);
-                        revokeBtn.setTextColor(textColor);
-                        revokeBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        revokeBtn.setTextSize(14);
+                        revokeBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        revokeBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        revokeBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         revokeBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable revokeBg = new GradientDrawable();
-                        revokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        revokeBg.setCornerRadius(dp2px(6));
-                        revokeBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        revokeBg.setColor(Color.parseColor(surfaceVariantColor));
+                        revokeBg.setCornerRadius(dp2px(20));
                         revokeBtn.setBackground(revokeBg);
                         
                         revokeBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -208,26 +227,29 @@ public void haifeng520(final Object msg) {
                                 
                                 activity.runOnUiThread(new Runnable() {
                                     public void run() {
-                                        boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                                        int theme = getCurrentTheme();
+                                        boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                                         builder.setTitle("确认撤回");
                                         
+                                        String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+                                        String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+                                        String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+                                        
                                         LinearLayout layout = new LinearLayout(getActivity());
                                         layout.setOrientation(LinearLayout.VERTICAL);
-                                        layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                                        layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
                                         
                                         GradientDrawable bg = new GradientDrawable();
-                                        bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                                        bg.setCornerRadius(dp2px(8));
-                                        bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                                        int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+                                        bg.setColor(Color.parseColor(surfaceColor));
+                                        bg.setCornerRadius(dp2px(12));
                                         layout.setBackground(bg);
                                         
                                         TextView message = new TextView(getActivity());
                                         message.setText("确定要撤回这条消息吗？");
                                         message.setTextSize(16);
-                                        message.setTextColor(textColor);
-                                        message.setPadding(0, 0, 0, dp2px(20));
+                                        message.setTextColor(Color.parseColor(onSurfaceColor));
+                                        message.setPadding(0, 0, 0, dp2px(16));
                                         layout.addView(message);
                                         
                                         builder.setView(layout);
@@ -257,15 +279,15 @@ public void haifeng520(final Object msg) {
                         
                         TextView kickBtn = new TextView(getActivity());
                         kickBtn.setText("踢出");
-                        kickBtn.setTextSize(18);
-                        kickBtn.setTextColor(textColor);
-                        kickBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        kickBtn.setTextSize(14);
+                        kickBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        kickBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        kickBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         kickBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable kickBg = new GradientDrawable();
-                        kickBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        kickBg.setCornerRadius(dp2px(6));
-                        kickBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        kickBg.setColor(Color.parseColor(surfaceVariantColor));
+                        kickBg.setCornerRadius(dp2px(20));
                         kickBtn.setBackground(kickBg);
                         
                         kickBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -278,15 +300,15 @@ public void haifeng520(final Object msg) {
                         
                         TextView kickBlackBtn = new TextView(getActivity());
                         kickBlackBtn.setText("踢黑");
-                        kickBlackBtn.setTextSize(18);
-                        kickBlackBtn.setTextColor(textColor);
-                        kickBlackBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        kickBlackBtn.setTextSize(14);
+                        kickBlackBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        kickBlackBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        kickBlackBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         kickBlackBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable kickBlackBg = new GradientDrawable();
-                        kickBlackBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        kickBlackBg.setCornerRadius(dp2px(6));
-                        kickBlackBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        kickBlackBg.setColor(Color.parseColor(surfaceVariantColor));
+                        kickBlackBg.setCornerRadius(dp2px(20));
                         kickBlackBtn.setBackground(kickBlackBg);
                         
                         kickBlackBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -299,15 +321,15 @@ public void haifeng520(final Object msg) {
                         
                         TextView blacklistBtn = new TextView(getActivity());
                         blacklistBtn.setText("加入黑名单");
-                        blacklistBtn.setTextSize(18);
-                        blacklistBtn.setTextColor(textColor);
-                        blacklistBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                        blacklistBtn.setTextSize(14);
+                        blacklistBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                        blacklistBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                        blacklistBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                         blacklistBtn.setGravity(Gravity.CENTER);
                         
                         GradientDrawable blacklistBg = new GradientDrawable();
-                        blacklistBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                        blacklistBg.setCornerRadius(dp2px(6));
-                        blacklistBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                        blacklistBg.setColor(Color.parseColor(surfaceVariantColor));
+                        blacklistBg.setCornerRadius(dp2px(20));
                         blacklistBtn.setBackground(blacklistBg);
                         
                         blacklistBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -321,15 +343,15 @@ public void haifeng520(final Object msg) {
                         if ((isOwner || isAdmin) && 是联盟群组(groupUin)) {
                             TextView allianceBanBtn = new TextView(getActivity());
                             allianceBanBtn.setText("联盟封禁");
-                            allianceBanBtn.setTextSize(18);
-                            allianceBanBtn.setTextColor(textColor);
-                            allianceBanBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                            allianceBanBtn.setTextSize(14);
+                            allianceBanBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                            allianceBanBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                            allianceBanBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                             allianceBanBtn.setGravity(Gravity.CENTER);
                             
                             GradientDrawable allianceBanBg = new GradientDrawable();
-                            allianceBanBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                            allianceBanBg.setCornerRadius(dp2px(6));
-                            allianceBanBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                            allianceBanBg.setColor(Color.parseColor(surfaceVariantColor));
+                            allianceBanBg.setCornerRadius(dp2px(20));
                             allianceBanBtn.setBackground(allianceBanBg);
                             
                             allianceBanBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -346,15 +368,15 @@ public void haifeng520(final Object msg) {
                 if (isOwner) {
                     TextView titleBtn = new TextView(getActivity());
                     titleBtn.setText("设置头衔");
-                    titleBtn.setTextSize(18);
-                    titleBtn.setTextColor(textColor);
-                    titleBtn.setPadding(dp2px(15), dp2px(20), dp2px(15), dp2px(20));
+                    titleBtn.setTextSize(14);
+                    titleBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                    titleBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                    titleBtn.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                     titleBtn.setGravity(Gravity.CENTER);
                     
                     GradientDrawable titleBg = new GradientDrawable();
-                    titleBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                    titleBg.setCornerRadius(dp2px(6));
-                    titleBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#E9ECEF"));
+                    titleBg.setColor(Color.parseColor(surfaceVariantColor));
+                    titleBg.setCornerRadius(dp2px(20));
                     titleBtn.setBackground(titleBg);
                     
                     titleBtn.setOnClickListener(new android.view.View.OnClickListener() {
@@ -369,10 +391,10 @@ public void haifeng520(final Object msg) {
                 if (buttonList.isEmpty()) {
                     TextView noPermissionText = new TextView(getActivity());
                     noPermissionText.setText("没有权限操作该用户……");
-                    noPermissionText.setTextSize(18);
-                    noPermissionText.setTextColor(textColor);
+                    noPermissionText.setTextSize(16);
+                    noPermissionText.setTextColor(Color.parseColor(onSurfaceColor));
                     noPermissionText.setGravity(Gravity.CENTER);
-                    noPermissionText.setPadding(dp2px(15), dp2px(30), dp2px(15), dp2px(30));
+                    noPermissionText.setPadding(dp2px(16), dp2px(24), dp2px(16), dp2px(24));
                     
                     dialogLayout.addView(noPermissionText);
                 } else {
@@ -390,7 +412,7 @@ public void haifeng520(final Object msg) {
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             1.0f
                         );
-                        params1.setMargins(0, 0, dp2px(5), dp2px(5));
+                        params1.setMargins(0, 0, dp2px(6), dp2px(6));
                         btn1.setLayoutParams(params1);
                         rowLayout.addView(btn1);
                         
@@ -401,7 +423,7 @@ public void haifeng520(final Object msg) {
                                 LinearLayout.LayoutParams.WRAP_CONTENT,
                                 1.0f
                             );
-                            params2.setMargins(dp2px(5), 0, 0, dp2px(5));
+                            params2.setMargins(dp2px(6), 0, 0, dp2px(6));
                             btn2.setLayoutParams(params2);
                             rowLayout.addView(btn2);
                         } else {
@@ -444,82 +466,81 @@ public void showBatchRevokeDialog(final Object msg) {
     activity.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                int theme = getCurrentTheme();
+                boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
                 builder.setTitle("批量撤回");
                 
+                String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+                String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+                String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+                String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
+                
                 LinearLayout layout = new LinearLayout(getActivity());
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+                bg.setColor(Color.parseColor(surfaceColor));
+                bg.setCornerRadius(dp2px(12));
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(getActivity());
                 hint.setText("从当前消息开始，批量撤回多条消息");
                 hint.setTextSize(14);
-                hint.setTextColor(textColor);
-                hint.setPadding(0, 0, 0, dp2px(15));
+                hint.setTextColor(Color.parseColor(onSurfaceColor));
+                hint.setPadding(0, 0, 0, dp2px(16));
                 layout.addView(hint);
                 
                 final EditText inputEditText = new EditText(getActivity());
                 inputEditText.setHint("请输入撤回数量");
                 inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
                 inputEditText.setText("5");
-                inputEditText.setHintTextColor(hintTextColor);
-                inputEditText.setTextColor(textColor);
+                inputEditText.setHintTextColor(Color.parseColor(onSurfaceVariantColor));
+                inputEditText.setTextColor(Color.parseColor(onSurfaceColor));
+                inputEditText.setTextSize(14);
                 
                 GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                etBg.setCornerRadius(dp2px(6));
-                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+                etBg.setColor(Color.parseColor(surfaceVariantColor));
+                etBg.setCornerRadius(dp2px(8));
                 inputEditText.setBackground(etBg);
-                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
                 
                 layout.addView(inputEditText);
                 
                 LinearLayout buttonLayout = new LinearLayout(getActivity());
                 buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
-                buttonLayout.setGravity(Gravity.CENTER);
-                buttonLayout.setPadding(0, dp2px(15), 0, 0);
+                buttonLayout.setGravity(Gravity.END);
+                buttonLayout.setPadding(0, dp2px(16), 0, 0);
+                
+                TextView cancelBtn = new TextView(getActivity());
+                cancelBtn.setText("取消");
+                cancelBtn.setTextSize(14);
+                cancelBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                cancelBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
+                cancelBtn.setGravity(Gravity.CENTER);
+                cancelBtn.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+                cancelBtn.setBackgroundResource(android.R.color.transparent);
                 
                 TextView prevBtn = new TextView(getActivity());
                 prevBtn.setText("撤回前面");
-                prevBtn.setTextSize(16);
-                prevBtn.setTextColor(Color.WHITE);
+                prevBtn.setTextSize(14);
+                prevBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                prevBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
                 prevBtn.setGravity(Gravity.CENTER);
-                prevBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
-                
-                GradientDrawable prevBg = new GradientDrawable();
-                prevBg.setColor(isDark ? Color.parseColor("#4285F4") : Color.parseColor("#1A73E8"));
-                prevBg.setCornerRadius(dp2px(6));
-                prevBtn.setBackground(prevBg);
-                
-                LinearLayout.LayoutParams prevParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
-                prevParams.setMargins(0, 0, dp2px(5), 0);
-                prevBtn.setLayoutParams(prevParams);
+                prevBtn.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+                prevBtn.setBackgroundResource(android.R.color.transparent);
                 
                 TextView nextBtn = new TextView(getActivity());
                 nextBtn.setText("撤回后面");
-                nextBtn.setTextSize(16);
-                nextBtn.setTextColor(Color.WHITE);
+                nextBtn.setTextSize(14);
+                nextBtn.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+                nextBtn.setTextColor(Color.parseColor(MD3_PRIMARY));
                 nextBtn.setGravity(Gravity.CENTER);
-                nextBtn.setPadding(dp2px(20), dp2px(12), dp2px(20), dp2px(12));
+                nextBtn.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+                nextBtn.setBackgroundResource(android.R.color.transparent);
                 
-                GradientDrawable nextBg = new GradientDrawable();
-                nextBg.setColor(isDark ? Color.parseColor("#34A853") : Color.parseColor("#0D652D"));
-                nextBg.setCornerRadius(dp2px(6));
-                nextBtn.setBackground(nextBg);
-                
-                LinearLayout.LayoutParams nextParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
-                nextParams.setMargins(dp2px(5), 0, 0, 0);
-                nextBtn.setLayoutParams(nextParams);
-                
+                buttonLayout.addView(cancelBtn);
                 buttonLayout.addView(prevBtn);
                 buttonLayout.addView(nextBtn);
                 layout.addView(buttonLayout);
@@ -529,6 +550,12 @@ public void showBatchRevokeDialog(final Object msg) {
                 final AlertDialog dialog = builder.create();
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                 dialog.show();
+                
+                cancelBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                    public void onClick(android.view.View v) {
+                        dialog.dismiss();
+                    }
+                });
                 
                 prevBtn.setOnClickListener(new android.view.View.OnClickListener() {
                     public void onClick(android.view.View v) {
@@ -566,10 +593,10 @@ public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
         public void run() {
             int theme = getCurrentTheme();
             boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            String cardColor = getCardColor();
-            String textColor = getTextColor();
-            String surfaceColor = getSurfaceColor();
-            String accentColor = getAccentColor();
+            
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
 
             final android.app.Dialog progressDialog = new android.app.Dialog(getActivity(), getCurrentTheme());
             progressDialog.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
@@ -578,29 +605,35 @@ public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
             LinearLayout root = new LinearLayout(getActivity());
             root.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             root.setOrientation(LinearLayout.VERTICAL);
-            root.setBackground(getWebShape(cardColor, dp2px(16)));
+            
+            GradientDrawable bg = new GradientDrawable();
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(16));
+            root.setBackground(bg);
+            
             root.setPadding(dp2px(24), dp2px(24), dp2px(24), dp2px(24));
 
             TextView title = new TextView(getActivity());
             title.setText("正在撤回...");
             title.setTextSize(18);
-            title.setTextColor(Color.parseColor(textColor));
+            title.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+            title.setTextColor(Color.parseColor(onSurfaceColor));
             title.setPadding(0, 0, 0, dp2px(16));
 
             LinearLayout progressContainer = new LinearLayout(getActivity());
             progressContainer.setOrientation(LinearLayout.VERTICAL);
             
             LinearLayout progressBg = new LinearLayout(getActivity());
-            progressBg.setBackground(getShape(surfaceColor, dp2px(6)));
+            progressBg.setBackgroundColor(Color.parseColor(surfaceVariantColor));
             progressBg.setPadding(1, 1, 1, 1);
-            LinearLayout.LayoutParams bgParams = new LinearLayout.LayoutParams(-1, dp2px(10));
+            LinearLayout.LayoutParams bgParams = new LinearLayout.LayoutParams(-1, dp2px(8));
             bgParams.setMargins(0, 0, 0, dp2px(8));
             progressBg.setLayoutParams(bgParams);
             
             final android.view.View progressFill = new android.view.View(getActivity());
-            progressFill.setBackground(getShape(accentColor, dp2px(5)));
+            progressFill.setBackgroundColor(Color.parseColor(MD3_PRIMARY));
             LinearLayout.LayoutParams fillParams = new LinearLayout.LayoutParams(0, -1, 0.0f);
-            progressFill.setMinimumHeight(dp2px(8));
+            progressFill.setMinimumHeight(dp2px(6));
             progressFill.setLayoutParams(fillParams);
             
             progressBg.addView(progressFill);
@@ -609,7 +642,7 @@ public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
             final TextView progressText = new TextView(getActivity());
             progressText.setText("0/" + count);
             progressText.setTextSize(14);
-            progressText.setTextColor(Color.parseColor(textColor));
+            progressText.setTextColor(Color.parseColor(onSurfaceColor));
             progressText.setGravity(Gravity.CENTER);
             progressText.setPadding(0, dp2px(4), 0, 0);
             
@@ -710,40 +743,43 @@ public void allianceBanMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("联盟封禁 - " + 名(targetUin) + "(" + targetUin + ")");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+            String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
-            hint.setTextColor(textColor);
-            hint.setPadding(0, 0, 0, dp2px(15));
+            hint.setTextColor(Color.parseColor(onSurfaceColor));
+            hint.setPadding(0, 0, 0, dp2px(16));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入封禁原因，可填可不填");
-            inputEditText.setHintTextColor(hintTextColor);
-            inputEditText.setTextColor(textColor);
+            inputEditText.setHintTextColor(Color.parseColor(onSurfaceVariantColor));
+            inputEditText.setTextColor(Color.parseColor(onSurfaceColor));
+            inputEditText.setTextSize(14);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-            etBg.setCornerRadius(dp2px(6));
-            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+            etBg.setColor(Color.parseColor(surfaceVariantColor));
+            etBg.setCornerRadius(dp2px(8));
             inputEditText.setBackground(etBg);
-            inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
             
             layout.addView(inputEditText);
             
@@ -795,25 +831,27 @@ public void addToBlacklistMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认加入黑名单");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("确定要将 " + 名(targetUin) + "(" + targetUin + ") 加入黑名单并踢出吗？\n\n加入黑名单后，该用户再次入群时会被自动踢出。");
             message.setTextSize(15);
-            message.setTextColor(textColor);
+            message.setTextColor(Color.parseColor(onSurfaceColor));
             message.setLineSpacing(dp2px(4), 1);
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
@@ -864,25 +902,27 @@ public void kickMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认踢出");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("真的确定要踢出 " + 名(targetUin) + "(" + targetUin + ") 吗？");
             message.setTextSize(16);
-            message.setTextColor(textColor);
+            message.setTextColor(Color.parseColor(onSurfaceColor));
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
             
@@ -915,25 +955,27 @@ public void kickBlackMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("确认踢黑");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView message = new TextView(getActivity());
             message.setText("真的确定要踢出并拉黑 " + 名(targetUin) + "(" + targetUin + ") 吗？\n\n确定后，该用户无法再次加入该群聊");
             message.setTextSize(16);
-            message.setTextColor(textColor);
+            message.setTextColor(Color.parseColor(onSurfaceColor));
             message.setPadding(0, 0, 0, dp2px(20));
             layout.addView(message);
             
@@ -968,41 +1010,44 @@ public void forbiddenMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("设置禁言时间");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+            String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
-            hint.setTextColor(textColor);
-            hint.setPadding(0, 0, 0, dp2px(15));
+            hint.setTextColor(Color.parseColor(onSurfaceColor));
+            hint.setPadding(0, 0, 0, dp2px(16));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入禁言时间（秒）");
             inputEditText.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-            inputEditText.setHintTextColor(hintTextColor);
-            inputEditText.setTextColor(textColor);
+            inputEditText.setHintTextColor(Color.parseColor(onSurfaceVariantColor));
+            inputEditText.setTextColor(Color.parseColor(onSurfaceColor));
+            inputEditText.setTextSize(14);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-            etBg.setCornerRadius(dp2px(6));
-            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+            etBg.setColor(Color.parseColor(surfaceVariantColor));
+            etBg.setCornerRadius(dp2px(8));
             inputEditText.setBackground(etBg);
-            inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
             
             layout.addView(inputEditText);
             
@@ -1065,40 +1110,43 @@ public void setTitleMenuItem(Object msg) {
     
     activity.runOnUiThread(new Runnable() {
         public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+            int theme = getCurrentTheme();
+            boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
             builder.setTitle("设置头衔");
             
+            String surfaceColor = isDark ? MD3_DARK_SURFACE : MD3_SURFACE;
+            String onSurfaceColor = isDark ? MD3_DARK_ON_SURFACE : MD3_ON_SURFACE;
+            String surfaceVariantColor = isDark ? MD3_DARK_SURFACE_VARIANT : MD3_SURFACE_VARIANT;
+            String onSurfaceVariantColor = isDark ? MD3_DARK_ON_SURFACE_VARIANT : MD3_ON_SURFACE_VARIANT;
+            
             LinearLayout layout = new LinearLayout(getActivity());
             layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
             
             GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-            bg.setCornerRadius(dp2px(8));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-            int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-            int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+            bg.setColor(Color.parseColor(surfaceColor));
+            bg.setCornerRadius(dp2px(12));
             layout.setBackground(bg);
             
             TextView hint = new TextView(getActivity());
             hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
             hint.setTextSize(16);
-            hint.setTextColor(textColor);
-            hint.setPadding(0, 0, 0, dp2px(15));
+            hint.setTextColor(Color.parseColor(onSurfaceColor));
+            hint.setPadding(0, 0, 0, dp2px(16));
             layout.addView(hint);
             
             final EditText inputEditText = new EditText(getActivity());
             inputEditText.setHint("请输入头衔内容");
-            inputEditText.setHintTextColor(hintTextColor);
-            inputEditText.setTextColor(textColor);
+            inputEditText.setHintTextColor(Color.parseColor(onSurfaceVariantColor));
+            inputEditText.setTextColor(Color.parseColor(onSurfaceColor));
+            inputEditText.setTextSize(14);
             
             GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-            etBg.setCornerRadius(dp2px(6));
-            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+            etBg.setColor(Color.parseColor(surfaceVariantColor));
+            etBg.setCornerRadius(dp2px(8));
             inputEditText.setBackground(etBg);
-            inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
             
             layout.addView(inputEditText);
             
