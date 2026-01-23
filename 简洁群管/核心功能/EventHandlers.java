@@ -857,20 +857,20 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 
                 LinearLayout layout = new LinearLayout(activity);
                 layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(25), dp2px(20), dp2px(25), dp2px(20));
+                layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
                 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#F8F9FA"));
-                bg.setCornerRadius(dp2px(8));
-                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#343A40") : Color.parseColor("#DEE2E6"));
-                int textColor = isDark ? Color.parseColor("#E9ECEF") : Color.parseColor("#212529");
-                int hintTextColor = isDark ? Color.parseColor("#ADB5BD") : Color.parseColor("#6C757D");
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                bg.setCornerRadius(dp2px(16));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                int textColor = isDark ? Color.parseColor("#E4E6EB") : Color.parseColor("#1A1A1A");
+                int hintTextColor = isDark ? Color.parseColor("#9A9DA3") : Color.parseColor("#666666");
                 layout.setBackground(bg);
                 
                 TextView hint = new TextView(activity);
                 hint.setText("当前艾特禁言时间: " + 当前艾特禁言时间 + "秒 (" + (当前艾特禁言时间/86400) + "天)");
                 hint.setTextColor(textColor);
-                hint.setPadding(0, 0, 0, dp2px(15));
+                hint.setPadding(0, 0, 0, dp2px(16));
                 layout.addView(hint);
                 
                 EditText inputEditText = new EditText(activity);
@@ -880,11 +880,12 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 inputEditText.setTextColor(textColor);
                 
                 GradientDrawable etBg = new GradientDrawable();
-                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#FFFFFF"));
-                etBg.setCornerRadius(dp2px(6));
-                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#495057") : Color.parseColor("#CED4DA"));
+                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
+                etBg.setCornerRadius(dp2px(12));
+                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
                 inputEditText.setBackground(etBg);
-                inputEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
+                inputEditText.setTextSize(16);
                 
                 layout.addView(inputEditText);
                 
@@ -913,6 +914,15 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 
                 AlertDialog dialog = builder.create();
                 dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    GradientDrawable windowBg = new GradientDrawable();
+                    windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                    windowBg.setCornerRadius(dp2px(20));
+                    window.setBackgroundDrawable(windowBg);
+                }
+                
                 dialog.show();
             } catch (Exception e) {
             }

@@ -54,6 +54,7 @@ public void 自定义骰子方法(String groupUin, String userUin, int chatType)
             title.setTextSize(20);
             title.setTypeface(Typeface.DEFAULT_BOLD);
             title.setTextColor(Color.parseColor(textColor));
+            title.setPadding(0, 0, 0, c(20));
             root.addView(title);
 
             final EditText input = new EditText(act);
@@ -68,23 +69,51 @@ public void 自定义骰子方法(String groupUin, String userUin, int chatType)
             input.setBackgroundDrawable(inputBg);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-            lp.setMargins(0, c(20), 0, c(24));
+            lp.setMargins(0, 0, 0, c(24));
             root.addView(input, lp);
 
-            TextView btn = new TextView(act);
-            btn.setText("确 定 发 送");
-            btn.setTextColor(Color.WHITE);
-            btn.setGravity(Gravity.CENTER);
-            btn.setPadding(0, c(12), 0, c(12));
-            GradientDrawable btnBg = new GradientDrawable();
-            btnBg.setColor(Color.parseColor(MD3_PURPLE));
-            btnBg.setCornerRadius(c(100));
-            btn.setBackgroundDrawable(btnBg);
-            root.addView(btn);
+            LinearLayout buttonLayout = new LinearLayout(act);
+            buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+            buttonLayout.setGravity(Gravity.CENTER);
+            
+            TextView cancelBtn = new TextView(act);
+            cancelBtn.setText("取消");
+            cancelBtn.setTextColor(Color.parseColor(textColor));
+            cancelBtn.setGravity(Gravity.CENTER);
+            cancelBtn.setPadding(c(24), c(12), c(24), c(12));
+            GradientDrawable cancelBg = new GradientDrawable();
+            cancelBg.setColor(Color.parseColor(surfaceColor));
+            cancelBg.setCornerRadius(c(100));
+            cancelBtn.setBackgroundDrawable(cancelBg);
+            
+            TextView confirmBtn = new TextView(act);
+            confirmBtn.setText("确定发送");
+            confirmBtn.setTextColor(Color.WHITE);
+            confirmBtn.setGravity(Gravity.CENTER);
+            confirmBtn.setPadding(c(24), c(12), c(24), c(12));
+            GradientDrawable confirmBg = new GradientDrawable();
+            confirmBg.setColor(Color.parseColor(MD3_PURPLE));
+            confirmBg.setCornerRadius(c(100));
+            confirmBtn.setBackgroundDrawable(confirmBg);
+            
+            LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
+            buttonParams.setMargins(c(8), 0, c(8), 0);
+            cancelBtn.setLayoutParams(buttonParams);
+            confirmBtn.setLayoutParams(buttonParams);
+            
+            buttonLayout.addView(cancelBtn);
+            buttonLayout.addView(confirmBtn);
+            root.addView(buttonLayout);
 
             final AlertDialog ad = new AlertDialog.Builder(act, theme).create();
             
-            btn.setOnClickListener(new View.OnClickListener() {
+            cancelBtn.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    ad.dismiss();
+                }
+            });
+            
+            confirmBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     String p = input.getText().toString().trim();
                     if (!p.equals("")) {
@@ -100,11 +129,11 @@ public void 自定义骰子方法(String groupUin, String userUin, int chatType)
                 win.setContentView(root);
                 
                 win.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-                win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                 
                 GradientDrawable winBg = new GradientDrawable();
                 winBg.setColor(Color.parseColor(cardColor));
-                winBg.setCornerRadius(c(28));
+                winBg.setCornerRadius(c(20));
                 win.setBackgroundDrawable(winBg);
                 
                 WindowManager.LayoutParams params = win.getAttributes();
@@ -112,7 +141,6 @@ public void 自定义骰子方法(String groupUin, String userUin, int chatType)
                 win.setAttributes(params);
             }
             
-            input.requestFocus();
         }
     });
 }
