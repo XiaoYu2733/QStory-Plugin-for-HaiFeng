@@ -178,7 +178,8 @@ public void showUpdateLog(String g, String u, int t) {
                 TextView textView = new TextView(activity);
                 textView.setText("以下是简洁群管的更新日志\n\n" +
                         "简洁群管_117.0_更新日志\n" +
-                        "chore:优化脚本主题和ui显示效果，修复自定义骰子输入框存在问题"\n\n" +
+                        "chore:优化脚本主题和ui显示效果，修复自定义骰子输入框存在问题\n\n" +
+                        "交流群：https://t.me/XiaoYu_Chat\n" +
                         "喜欢的人要早点说 有bug及时反馈");
                 textView.setTextSize(14);
                 textView.setLineSpacing(dp2px(4), 1);
@@ -463,7 +464,8 @@ public void 黑名单管理弹窗(String groupUin, String uin, int chat) {
                     public void onClick(View v) {
                         String input = inputEditText.getText().toString().trim();
                         if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
+                            // 修复正则表达式中的反斜杠问题
+                            String[] qqs = input.split("[,，\\s]+");
                             int addedCount = 0;
                             for (String qq : qqs) {
                                 if (qq.matches("[0-9]{4,11}")) {
@@ -726,7 +728,8 @@ public void 代管管理弹窗(String groupUin, String uin, int chat) {
                     public void onClick(View v) {
                         String input = inputEditText.getText().toString().trim();
                         if (!input.isEmpty()) {
-                            String[] qqs = input.split("[,\\s]+");
+                            // 修复正则表达式中的反斜杠问题
+                            String[] qqs = input.split("[,，\\s]+");
                             int addedCount = 0;
                             for (String qq : qqs) {
                                 if (qq.matches("[0-9]{4,11}")) {
