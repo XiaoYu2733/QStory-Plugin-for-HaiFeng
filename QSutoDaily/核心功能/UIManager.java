@@ -1,10 +1,10 @@
 
 // 你当然不会难过 你身边有很多人可以代替我 而我没有
 
-public Object getFieldValue(Object obj, String fieldName) {
+public Object getFieldValue(Object 对象, String 字段名) {
     try {
-        Field field = obj.getClass().getField(fieldName);
-        return field.get(obj);
+        Field 字段 = 对象.getClass().getField(字段名);
+        return 字段.get(对象);
     } catch (Exception e) {
         return null;
     }
@@ -12,10 +12,10 @@ public Object getFieldValue(Object obj, String fieldName) {
 
 public int getCurrentTheme() {
     try {
-        Context context = getActivity();
-        if (context == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
-        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+        Context 上下文 = getActivity();
+        if (上下文 == null) return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+        int 夜间模式 = 上下文.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (夜间模式 == Configuration.UI_MODE_NIGHT_YES) {
             return AlertDialog.THEME_DEVICE_DEFAULT_DARK;
         } else {
             return AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
@@ -26,8 +26,8 @@ public int getCurrentTheme() {
 }
 
 public String getBackgroundColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#1E1E1E";
     } else {
         return "#F8F9FA";
@@ -35,8 +35,8 @@ public String getBackgroundColor() {
 }
 
 public String getTextColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#E9ECEF";
     } else {
         return "#212529";
@@ -44,8 +44,8 @@ public String getTextColor() {
 }
 
 public String getSubTextColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#ADB5BD";
     } else {
         return "#6C757D";
@@ -53,8 +53,8 @@ public String getSubTextColor() {
 }
 
 public String getCardColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#2D2D2D";
     } else {
         return "#FFFFFF";
@@ -70,8 +70,8 @@ public String getAccentColorDark() {
 }
 
 public String getSurfaceColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#3C3C3C";
     } else {
         return "#E9ECEF";
@@ -79,253 +79,253 @@ public String getSurfaceColor() {
 }
 
 public String getBorderColor() {
-    int theme = getCurrentTheme();
-    if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
         return "#404040";
     } else {
         return "#DEE2E6";
     }
 }
 
-public int c(float f) {
-    return dp2px(f);
+public int c(float 值) {
+    return dp2px(值);
 }
 
 public int dp2px(float dp) {
     try {
-        DisplayMetrics metrics = new DisplayMetrics();
-        Activity activity = getActivity();
-        if (activity != null) {
-            activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            return (int) (dp * metrics.density + 0.5f);
+        DisplayMetrics 指标 = new DisplayMetrics();
+        Activity 活动 = getActivity();
+        if (活动 != null) {
+            活动.getWindowManager().getDefaultDisplay().getMetrics(指标);
+            return (int) (dp * 指标.density + 0.5f);
         }
     } catch (Exception e) {}
     return (int) (dp * 3 + 0.5f);
 }
 
-public GradientDrawable getShape(String color, int cornerRadius) {
-    GradientDrawable shape = new GradientDrawable();
-    shape.setColor(Color.parseColor(color));
-    shape.setCornerRadius(cornerRadius);
-    shape.setShape(GradientDrawable.RECTANGLE);
-    return shape;
+public GradientDrawable getShape(String 颜色, int 圆角) {
+    GradientDrawable 形状 = new GradientDrawable();
+    形状.setColor(Color.parseColor(颜色));
+    形状.setCornerRadius(圆角);
+    形状.setShape(GradientDrawable.RECTANGLE);
+    return 形状;
 }
 
-public GradientDrawable getWebShape(String baseColor, int cornerRadius) {
-    GradientDrawable shape = new GradientDrawable();
-    shape.setColor(Color.parseColor(baseColor));
-    shape.setCornerRadius(cornerRadius);
-    shape.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
-    shape.setShape(GradientDrawable.RECTANGLE);
-    return shape;
+public GradientDrawable getWebShape(String 基色, int 圆角) {
+    GradientDrawable 形状 = new GradientDrawable();
+    形状.setColor(Color.parseColor(基色));
+    形状.setCornerRadius(圆角);
+    形状.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+    形状.setShape(GradientDrawable.RECTANGLE);
+    return 形状;
 }
 
-public void Toasts(String text) {
+public void Toasts(String 文本) {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
         public void run() {
             try {
                 if (getActivity() != null) {
-                    int theme = getCurrentTheme();
-                    String bgColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2D2D2D" : "#4285F4";
-                    String textColor = "#FFFFFF";
+                    int 主题 = getCurrentTheme();
+                    String 背景色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2D2D2D" : "#4285F4";
+                    String 文本色 = "#FFFFFF";
                     
-                    LinearLayout linearLayout = new LinearLayout(context);
-                    linearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    LinearLayout 线性布局 = new LinearLayout(context);
+                    线性布局.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    线性布局.setOrientation(LinearLayout.VERTICAL);
                     
-                    int paddingHorizontal = dp2px(16);
-                    int paddingVertical = dp2px(12);
-                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+                    int 水平内边距 = dp2px(16);
+                    int 垂直内边距 = dp2px(12);
+                    线性布局.setPadding(水平内边距, 垂直内边距, 水平内边距, 垂直内边距);
                     
-                    linearLayout.setBackground(getShape(bgColor, dp2px(8)));
+                    线性布局.setBackground(getShape(背景色, dp2px(8)));
                     
-                    TextView textView = new TextView(context);
-                    textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                    textView.setTextColor(Color.parseColor(textColor));
-                    textView.setTextSize(14);
-                    textView.setText(text);
-                    textView.setGravity(Gravity.CENTER);
+                    TextView 文本视图 = new TextView(context);
+                    文本视图.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    文本视图.setTextColor(Color.parseColor(文本色));
+                    文本视图.setTextSize(14);
+                    文本视图.setText(文本);
+                    文本视图.setGravity(Gravity.CENTER);
                     
-                    linearLayout.addView(textView);
-                    linearLayout.setGravity(Gravity.CENTER);
+                    线性布局.addView(文本视图);
+                    线性布局.setGravity(Gravity.CENTER);
                     
-                    Toast toast = new Toast(context);
-                    toast.setGravity(Gravity.TOP, 0, dp2px(80));
-                    toast.setDuration(Toast.LENGTH_LONG);
-                    toast.setView(linearLayout);
-                    toast.show();
+                    Toast 提示 = new Toast(context);
+                    提示.setGravity(Gravity.TOP, 0, dp2px(80));
+                    提示.setDuration(Toast.LENGTH_LONG);
+                    提示.setView(线性布局);
+                    提示.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, 文本, Toast.LENGTH_LONG).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, 文本, Toast.LENGTH_LONG).show();
             }
         }
     });
 }
 
 class CustomArrayAdapter extends ArrayAdapter {
-    private String textColor;
+    private String 文本颜色;
     
-    public CustomArrayAdapter(Context context, int resource, ArrayList<String> objects, String textColor) {
-        super(context, resource, objects);
-        this.textColor = textColor;
+    public CustomArrayAdapter(Context 上下文, int 资源, ArrayList<String> 对象, String 文本颜色) {
+        super(上下文, 资源, 对象);
+        this.文本颜色 = 文本颜色;
     }
     
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View view = super.getView(position, convertView, parent);
-        TextView textView = (TextView) view.findViewById(android.R.id.text1);
-        textView.setTextColor(Color.parseColor(textColor));
-        return view;
+    public View getView(int 位置, View 转换视图, ViewGroup 父视图) {
+        View 视图 = super.getView(位置, 转换视图, 父视图);
+        TextView 文本视图 = (TextView) 视图.findViewById(android.R.id.text1);
+        文本视图.setTextColor(Color.parseColor(文本颜色));
+        return 视图;
     }
 }
 
-void showMainMenu(final Activity activity) {
-    activity.runOnUiThread(new Runnable() {
+void showMainMenu(final Activity 活动) {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                int theme = getCurrentTheme();
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setTitle("配置执行任务");
+                int 主题 = getCurrentTheme();
+                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
+                构建器.setTitle("配置执行任务");
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
                 
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView hint = new TextView(activity);
-                hint.setText("当前配置:\n点赞好友: " + selectedFriendsForLike.size() + " 人\n续火好友: " + selectedFriendsForFire.size() + " 人\n续火群组: " + selectedGroupsForFire.size() + " 个");
-                hint.setTextSize(14);
-                hint.setTextColor(Color.parseColor(getTextColor()));
-                hint.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(hint);
+                TextView 提示文本 = new TextView(活动);
+                提示文本.setText("当前配置:\n点赞好友: " + 落叶叶子叶落子飘.size() + " 人\n续火好友: " + 落言花飘言落言.size() + " 人\n续火群组: " + 飘飘花言飘飘.size() + " 个");
+                提示文本.setTextSize(14);
+                提示文本.setTextColor(Color.parseColor(getTextColor()));
+                提示文本.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(提示文本);
                 
-                View spacer = new View(activity);
-                spacer.setLayoutParams(new LinearLayout.LayoutParams(
+                View 间隔 = new View(活动);
+                间隔.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(16)
                 ));
-                layout.addView(spacer);
+                布局.addView(间隔);
                 
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dp2px(44)
                 );
-                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                Button btnLikeFriends = new Button(activity);
-                btnLikeFriends.setText("配置点赞好友");
-                btnLikeFriends.setTextColor(Color.WHITE);
-                btnLikeFriends.setBackground(getShape(accentColor, dp2px(6)));
-                btnLikeFriends.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnLikeFriends.setLayoutParams(buttonParams);
-                btnLikeFriends.setOnClickListener(new View.OnClickListener() {
+                Button 点赞好友按钮 = new Button(活动);
+                点赞好友按钮.setText("配置点赞好友");
+                点赞好友按钮.setTextColor(Color.WHITE);
+                点赞好友按钮.setBackground(getShape(强调色, dp2px(6)));
+                点赞好友按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞好友按钮.setLayoutParams(按钮参数);
+                点赞好友按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configLikeFriends("", "", 0);
                     }
                 });
                 
-                Button btnFireFriends = new Button(activity);
-                btnFireFriends.setText("配置续火好友");
-                btnFireFriends.setTextColor(Color.WHITE);
-                btnFireFriends.setBackground(getShape(accentColor, dp2px(6)));
-                btnFireFriends.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnFireFriends.setLayoutParams(buttonParams);
-                btnFireFriends.setOnClickListener(new View.OnClickListener() {
+                Button 续火好友按钮 = new Button(活动);
+                续火好友按钮.setText("配置续火好友");
+                续火好友按钮.setTextColor(Color.WHITE);
+                续火好友按钮.setBackground(getShape(强调色, dp2px(6)));
+                续火好友按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                续火好友按钮.setLayoutParams(按钮参数);
+                续火好友按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configFireFriends("", "", 0);
                     }
                 });
                 
-                Button btnFireGroups = new Button(activity);
-                btnFireGroups.setText("配置续火群组");
-                btnFireGroups.setTextColor(Color.WHITE);
-                btnFireGroups.setBackground(getShape(accentColor, dp2px(6)));
-                btnFireGroups.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnFireGroups.setLayoutParams(buttonParams);
-                btnFireGroups.setOnClickListener(new View.OnClickListener() {
+                Button 续火群组按钮 = new Button(活动);
+                续火群组按钮.setText("配置续火群组");
+                续火群组按钮.setTextColor(Color.WHITE);
+                续火群组按钮.setBackground(getShape(强调色, dp2px(6)));
+                续火群组按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                续火群组按钮.setLayoutParams(按钮参数);
+                续火群组按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configFireGroups("", "", 0);
                     }
                 });
                 
-                layout.addView(btnLikeFriends);
-                layout.addView(btnFireFriends);
-                layout.addView(btnFireGroups);
+                布局.addView(点赞好友按钮);
+                布局.addView(续火好友按钮);
+                布局.addView(续火群组按钮);
                 
-                View spacer2 = new View(activity);
-                spacer2.setLayoutParams(new LinearLayout.LayoutParams(
+                View 间隔2 = new View(活动);
+                间隔2.setLayoutParams(new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 
                     dp2px(16)
                 ));
-                layout.addView(spacer2);
+                布局.addView(间隔2);
                 
-                TextView quickTitle = new TextView(activity);
-                quickTitle.setText("快速操作");
-                quickTitle.setTextSize(15);
-                quickTitle.setTextColor(Color.parseColor(getTextColor()));
-                quickTitle.setTypeface(null, Typeface.BOLD);
-                quickTitle.setPadding(0, 0, 0, dp2px(8));
-                layout.addView(quickTitle);
+                TextView 快速标题 = new TextView(活动);
+                快速标题.setText("快速操作");
+                快速标题.setTextSize(15);
+                快速标题.setTextColor(Color.parseColor(getTextColor()));
+                快速标题.setTypeface(null, Typeface.BOLD);
+                快速标题.setPadding(0, 0, 0, dp2px(8));
+                布局.addView(快速标题);
                 
-                LinearLayout.LayoutParams quickButtonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams 快速按钮参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dp2px(40)
                 );
-                quickButtonParams.setMargins(0, 0, 0, dp2px(6));
+                快速按钮参数.setMargins(0, 0, 0, dp2px(6));
                 
-                Button btnViewConfig = new Button(activity);
-                btnViewConfig.setText("查看配置详情");
-                btnViewConfig.setTextColor(Color.WHITE);
-                btnViewConfig.setBackground(getShape(accentColor, dp2px(6)));
-                btnViewConfig.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
-                btnViewConfig.setLayoutParams(quickButtonParams);
-                btnViewConfig.setOnClickListener(new View.OnClickListener() {
+                Button 查看配置按钮 = new Button(活动);
+                查看配置按钮.setText("查看配置详情");
+                查看配置按钮.setTextColor(Color.WHITE);
+                查看配置按钮.setBackground(getShape(强调色, dp2px(6)));
+                查看配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                查看配置按钮.setLayoutParams(快速按钮参数);
+                查看配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        showConfigDetails(activity);
+                        showConfigDetails(活动);
                     }
                 });
                 
-                Button btnImportConfig = new Button(activity);
-                btnImportConfig.setText("导入配置文件");
-                btnImportConfig.setTextColor(Color.WHITE);
-                btnImportConfig.setBackground(getShape(accentColor, dp2px(6)));
-                btnImportConfig.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
-                btnImportConfig.setLayoutParams(quickButtonParams);
-                btnImportConfig.setOnClickListener(new View.OnClickListener() {
+                Button 导入配置按钮 = new Button(活动);
+                导入配置按钮.setText("导入配置文件");
+                导入配置按钮.setTextColor(Color.WHITE);
+                导入配置按钮.setBackground(getShape(强调色, dp2px(6)));
+                导入配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                导入配置按钮.setLayoutParams(快速按钮参数);
+                导入配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        importConfig(activity);
+                        importConfig(活动);
                     }
                 });
                 
-                Button btnExportConfig = new Button(activity);
-                btnExportConfig.setText("导出配置文件");
-                btnExportConfig.setTextColor(Color.WHITE);
-                btnExportConfig.setBackground(getShape(accentColor, dp2px(6)));
-                btnExportConfig.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
-                btnExportConfig.setLayoutParams(quickButtonParams);
-                btnExportConfig.setOnClickListener(new View.OnClickListener() {
+                Button 导出配置按钮 = new Button(活动);
+                导出配置按钮.setText("导出配置文件");
+                导出配置按钮.setTextColor(Color.WHITE);
+                导出配置按钮.setBackground(getShape(强调色, dp2px(6)));
+                导出配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                导出配置按钮.setLayoutParams(快速按钮参数);
+                导出配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        exportConfig(activity);
+                        exportConfig(活动);
                     }
                 });
                 
-                layout.addView(btnViewConfig);
-                layout.addView(btnImportConfig);
-                layout.addView(btnExportConfig);
+                布局.addView(查看配置按钮);
+                布局.addView(导入配置按钮);
+                布局.addView(导出配置按钮);
                 
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(layout);
+                ScrollView 滚动视图 = new ScrollView(活动);
+                滚动视图.addView(布局);
                 
-                builder.setView(scrollView);
-                builder.setNegativeButton("关闭", null);
+                构建器.setView(滚动视图);
+                构建器.setNegativeButton("关闭", null);
                 
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
                 
             } catch (Exception e) {
                 Toasts("显示配置菜单失败: " + e.getMessage());
@@ -334,202 +334,202 @@ void showMainMenu(final Activity activity) {
     });
 }
 
-void showConfigDetails(final Activity activity) {
-    int theme = getCurrentTheme();
-    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+void showConfigDetails(final Activity 活动) {
+    int 主题 = getCurrentTheme();
+    AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
     
-    LinearLayout layout = new LinearLayout(activity);
-    layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-    layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+    LinearLayout 布局 = new LinearLayout(活动);
+    布局.setOrientation(LinearLayout.VERTICAL);
+    布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+    布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
     
-    TextView titleView = new TextView(activity);
-    titleView.setText("配置详情");
-    titleView.setTextSize(17);
-    titleView.setTextColor(Color.parseColor(getTextColor()));
-    titleView.setGravity(Gravity.CENTER);
-    titleView.setPadding(0, 0, 0, dp2px(16));
-    layout.addView(titleView);
+    TextView 标题视图 = new TextView(活动);
+    标题视图.setText("配置详情");
+    标题视图.setTextSize(17);
+    标题视图.setTextColor(Color.parseColor(getTextColor()));
+    标题视图.setGravity(Gravity.CENTER);
+    标题视图.setPadding(0, 0, 0, dp2px(16));
+    布局.addView(标题视图);
     
-    ScrollView scrollView = new ScrollView(activity);
-    LinearLayout contentLayout = new LinearLayout(activity);
-    contentLayout.setOrientation(LinearLayout.VERTICAL);
+    ScrollView 滚动视图 = new ScrollView(活动);
+    LinearLayout 内容布局 = new LinearLayout(活动);
+    内容布局.setOrientation(LinearLayout.VERTICAL);
     
-    TextView likeTitle = new TextView(activity);
-    likeTitle.setText("点赞好友 (" + selectedFriendsForLike.size() + "人):");
-    likeTitle.setTextSize(15);
-    likeTitle.setTextColor(Color.parseColor(getTextColor()));
-    likeTitle.setPadding(0, dp2px(4), 0, dp2px(4));
-    likeTitle.setTypeface(null, Typeface.BOLD);
-    contentLayout.addView(likeTitle);
+    TextView 点赞标题 = new TextView(活动);
+    点赞标题.setText("点赞好友 (" + 落叶叶子叶落子飘.size() + "人):");
+    点赞标题.setTextSize(15);
+    点赞标题.setTextColor(Color.parseColor(getTextColor()));
+    点赞标题.setPadding(0, dp2px(4), 0, dp2px(4));
+    点赞标题.setTypeface(null, Typeface.BOLD);
+    内容布局.addView(点赞标题);
     
-    if (selectedFriendsForLike.isEmpty()) {
-        TextView emptyLike = new TextView(activity);
-        emptyLike.setText("未配置点赞好友");
-        emptyLike.setTextSize(14);
-        emptyLike.setTextColor(Color.parseColor(getSubTextColor()));
-        emptyLike.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
-        contentLayout.addView(emptyLike);
+    if (落叶叶子叶落子飘.isEmpty()) {
+        TextView 空点赞 = new TextView(活动);
+        空点赞.setText("未配置点赞好友");
+        空点赞.setTextSize(14);
+        空点赞.setTextColor(Color.parseColor(getSubTextColor()));
+        空点赞.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
+        内容布局.addView(空点赞);
     } else {
-        for (int i = 0; i < selectedFriendsForLike.size(); i++) {
-            TextView likeItem = new TextView(activity);
-            likeItem.setText((i + 1) + ". " + selectedFriendsForLike.get(i));
-            likeItem.setTextSize(14);
-            likeItem.setTextColor(Color.parseColor(getTextColor()));
-            likeItem.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
-            contentLayout.addView(likeItem);
+        for (int i = 0; i < 落叶叶子叶落子飘.size(); i++) {
+            TextView 点赞项 = new TextView(活动);
+            点赞项.setText((i + 1) + ". " + 落叶叶子叶落子飘.get(i));
+            点赞项.setTextSize(14);
+            点赞项.setTextColor(Color.parseColor(getTextColor()));
+            点赞项.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
+            内容布局.addView(点赞项);
         }
     }
     
-    TextView fireTitle = new TextView(activity);
-    fireTitle.setText("续火好友 (" + selectedFriendsForFire.size() + "人):");
-    fireTitle.setTextSize(15);
-    fireTitle.setTextColor(Color.parseColor(getTextColor()));
-    fireTitle.setPadding(0, dp2px(12), 0, dp2px(4));
-    fireTitle.setTypeface(null, Typeface.BOLD);
-    contentLayout.addView(fireTitle);
+    TextView 续火标题 = new TextView(活动);
+    续火标题.setText("续火好友 (" + 落言花飘言落言.size() + "人):");
+    续火标题.setTextSize(15);
+    续火标题.setTextColor(Color.parseColor(getTextColor()));
+    续火标题.setPadding(0, dp2px(12), 0, dp2px(4));
+    续火标题.setTypeface(null, Typeface.BOLD);
+    内容布局.addView(续火标题);
     
-    if (selectedFriendsForFire.isEmpty()) {
-        TextView emptyFire = new TextView(activity);
-        emptyFire.setText("未配置续火好友");
-        emptyFire.setTextSize(14);
-        emptyFire.setTextColor(Color.parseColor(getSubTextColor()));
-        emptyFire.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
-        contentLayout.addView(emptyFire);
+    if (落言花飘言落言.isEmpty()) {
+        TextView 空续火 = new TextView(活动);
+        空续火.setText("未配置续火好友");
+        空续火.setTextSize(14);
+        空续火.setTextColor(Color.parseColor(getSubTextColor()));
+        空续火.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
+        内容布局.addView(空续火);
     } else {
-        for (int i = 0; i < selectedFriendsForFire.size(); i++) {
-            TextView fireItem = new TextView(activity);
-            fireItem.setText((i + 1) + ". " + selectedFriendsForFire.get(i));
-            fireItem.setTextSize(14);
-            fireItem.setTextColor(Color.parseColor(getTextColor()));
-            fireItem.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
-            contentLayout.addView(fireItem);
+        for (int i = 0; i < 落言花飘言落言.size(); i++) {
+            TextView 续火项 = new TextView(活动);
+            续火项.setText((i + 1) + ". " + 落言花飘言落言.get(i));
+            续火项.setTextSize(14);
+            续火项.setTextColor(Color.parseColor(getTextColor()));
+            续火项.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
+            内容布局.addView(续火项);
         }
     }
     
-    TextView groupTitle = new TextView(activity);
-    groupTitle.setText("续火群组 (" + selectedGroupsForFire.size() + "个):");
-    groupTitle.setTextSize(15);
-    groupTitle.setTextColor(Color.parseColor(getTextColor()));
-    groupTitle.setPadding(0, dp2px(12), 0, dp2px(4));
-    groupTitle.setTypeface(null, Typeface.BOLD);
-    contentLayout.addView(groupTitle);
+    TextView 群组标题 = new TextView(活动);
+    群组标题.setText("续火群组 (" + 飘飘花言飘飘.size() + "个):");
+    群组标题.setTextSize(15);
+    群组标题.setTextColor(Color.parseColor(getTextColor()));
+    群组标题.setPadding(0, dp2px(12), 0, dp2px(4));
+    群组标题.setTypeface(null, Typeface.BOLD);
+    内容布局.addView(群组标题);
     
-    if (selectedGroupsForFire.isEmpty()) {
-        TextView emptyGroup = new TextView(activity);
-        emptyGroup.setText("未配置续火群组");
-        emptyGroup.setTextSize(14);
-        emptyGroup.setTextColor(Color.parseColor(getSubTextColor()));
-        emptyGroup.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
-        contentLayout.addView(emptyGroup);
+    if (飘飘花言飘飘.isEmpty()) {
+        TextView 空群组 = new TextView(活动);
+        空群组.setText("未配置续火群组");
+        空群组.setTextSize(14);
+        空群组.setTextColor(Color.parseColor(getSubTextColor()));
+        空群组.setPadding(dp2px(8), dp2px(2), 0, dp2px(12));
+        内容布局.addView(空群组);
     } else {
-        for (int i = 0; i < selectedGroupsForFire.size(); i++) {
-            TextView groupItem = new TextView(activity);
-            groupItem.setText((i + 1) + ". " + selectedGroupsForFire.get(i));
-            groupItem.setTextSize(14);
-            groupItem.setTextColor(Color.parseColor(getTextColor()));
-            groupItem.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
-            contentLayout.addView(groupItem);
+        for (int i = 0; i < 飘飘花言飘飘.size(); i++) {
+            TextView 群组项 = new TextView(活动);
+            群组项.setText((i + 1) + ". " + 飘飘花言飘飘.get(i));
+            群组项.setTextSize(14);
+            群组项.setTextColor(Color.parseColor(getTextColor()));
+            群组项.setPadding(dp2px(8), dp2px(2), 0, dp2px(2));
+            内容布局.addView(群组项);
         }
     }
     
-    scrollView.addView(contentLayout);
-    layout.addView(scrollView);
+    滚动视图.addView(内容布局);
+    布局.addView(滚动视图);
     
-    dialogBuilder.setView(layout);
-    dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
+    对话框构建器.setView(布局);
+    对话框构建器.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface 对话框, int 选项) {
+            对话框.dismiss();
         }
     });
     
-    AlertDialog dialog = dialogBuilder.create();
-    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-    dialog.show();
+    AlertDialog 对话框 = 对话框构建器.create();
+    对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    对话框.show();
     
-    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.7);
-    dialog.getWindow().setAttributes(lp);
+    WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+    布局参数.copyFrom(对话框.getWindow().getAttributes());
+    布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+    布局参数.height = (int) (活动.getResources().getDisplayMetrics().heightPixels * 0.7);
+    对话框.getWindow().setAttributes(布局参数);
 }
 
-void showWordsMenu(final Activity activity) {
-    activity.runOnUiThread(new Runnable() {
+void showWordsMenu(final Activity 活动) {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                int theme = getCurrentTheme();
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView titleView = new TextView(activity);
-                titleView.setText("配置续火语录");
-                titleView.setTextSize(17);
-                titleView.setTextColor(Color.parseColor(getTextColor()));
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(titleView);
+                TextView 标题视图 = new TextView(活动);
+                标题视图.setText("配置续火语录");
+                标题视图.setTextSize(17);
+                标题视图.setTextColor(Color.parseColor(getTextColor()));
+                标题视图.setGravity(Gravity.CENTER);
+                标题视图.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dp2px(44)
                 );
-                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
-                Button btnFriendWords = new Button(activity);
-                btnFriendWords.setText("配置好友续火语录");
-                btnFriendWords.setTextColor(Color.WHITE);
-                btnFriendWords.setBackground(getShape(accentColor, dp2px(6)));
-                btnFriendWords.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnFriendWords.setLayoutParams(buttonParams);
+                Button 好友语录按钮 = new Button(活动);
+                好友语录按钮.setText("配置好友续火语录");
+                好友语录按钮.setTextColor(Color.WHITE);
+                好友语录按钮.setBackground(getShape(强调色, dp2px(6)));
+                好友语录按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友语录按钮.setLayoutParams(按钮参数);
                 
-                btnFriendWords.setOnClickListener(new View.OnClickListener() {
+                好友语录按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configFriendFireWords("", "", 0);
                     }
                 });
                 
-                Button btnGroupWords = new Button(activity);
-                btnGroupWords.setText("配置群组续火语录");
-                btnGroupWords.setTextColor(Color.WHITE);
-                btnGroupWords.setBackground(getShape(accentColor, dp2px(6)));
-                btnGroupWords.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnGroupWords.setLayoutParams(buttonParams);
+                Button 群组语录按钮 = new Button(活动);
+                群组语录按钮.setText("配置群组续火语录");
+                群组语录按钮.setTextColor(Color.WHITE);
+                群组语录按钮.setBackground(getShape(强调色, dp2px(6)));
+                群组语录按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组语录按钮.setLayoutParams(按钮参数);
                 
-                btnGroupWords.setOnClickListener(new View.OnClickListener() {
+                群组语录按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configGroupFireWords("", "", 0);
                     }
                 });
                 
-                layout.addView(btnFriendWords);
-                layout.addView(btnGroupWords);
+                布局.addView(好友语录按钮);
+                布局.addView(群组语录按钮);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setView(layout);
-                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
+                构建器.setView(布局);
+                构建器.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface 对话框, int 选项) {
+                        对话框.dismiss();
                     }
                 });
                 
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
                 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
+                WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+                布局参数.copyFrom(对话框.getWindow().getAttributes());
+                布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+                布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                对话框.getWindow().setAttributes(布局参数);
                 
-                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                if (negativeButton != null) {
-                    negativeButton.setTextColor(Color.parseColor(accentColor));
+                Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+                if (取消按钮 != null) {
+                    取消按钮.setTextColor(Color.parseColor(强调色));
                 }
             } catch (Exception e) {
                 Toasts("显示语录配置菜单失败: " + e.getMessage());
@@ -538,96 +538,96 @@ void showWordsMenu(final Activity activity) {
     });
 }
 
-void showTimeMenu(final Activity activity) {
-    activity.runOnUiThread(new Runnable() {
+void showTimeMenu(final Activity 活动) {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                int theme = getCurrentTheme();
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView titleView = new TextView(activity);
-                titleView.setText("配置执行时间");
-                titleView.setTextSize(17);
-                titleView.setTextColor(Color.parseColor(getTextColor()));
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(titleView);
+                TextView 标题视图 = new TextView(活动);
+                标题视图.setText("配置执行时间");
+                标题视图.setTextSize(17);
+                标题视图.setTextColor(Color.parseColor(getTextColor()));
+                标题视图.setGravity(Gravity.CENTER);
+                标题视图.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dp2px(44)
                 );
-                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
-                Button btnLikeTime = new Button(activity);
-                btnLikeTime.setText("配置好友点赞时间");
-                btnLikeTime.setTextColor(Color.WHITE);
-                btnLikeTime.setBackground(getShape(accentColor, dp2px(6)));
-                btnLikeTime.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnLikeTime.setLayoutParams(buttonParams);
+                Button 点赞时间按钮 = new Button(活动);
+                点赞时间按钮.setText("配置好友点赞时间");
+                点赞时间按钮.setTextColor(Color.WHITE);
+                点赞时间按钮.setBackground(getShape(强调色, dp2px(6)));
+                点赞时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞时间按钮.setLayoutParams(按钮参数);
                 
-                btnLikeTime.setOnClickListener(new View.OnClickListener() {
+                点赞时间按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configLikeTime("", "", 0);
                     }
                 });
                 
-                Button btnFriendFireTime = new Button(activity);
-                btnFriendFireTime.setText("配置好友续火时间");
-                btnFriendFireTime.setTextColor(Color.WHITE);
-                btnFriendFireTime.setBackground(getShape(accentColor, dp2px(6)));
-                btnFriendFireTime.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnFriendFireTime.setLayoutParams(buttonParams);
+                Button 好友续火时间按钮 = new Button(活动);
+                好友续火时间按钮.setText("配置好友续火时间");
+                好友续火时间按钮.setTextColor(Color.WHITE);
+                好友续火时间按钮.setBackground(getShape(强调色, dp2px(6)));
+                好友续火时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友续火时间按钮.setLayoutParams(按钮参数);
                 
-                btnFriendFireTime.setOnClickListener(new View.OnClickListener() {
+                好友续火时间按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configFriendFireTime("", "", 0);
                     }
                 });
                 
-                Button btnGroupFireTime = new Button(activity);
-                btnGroupFireTime.setText("配置群组续火时间");
-                btnGroupFireTime.setTextColor(Color.WHITE);
-                btnGroupFireTime.setBackground(getShape(accentColor, dp2px(6)));
-                btnGroupFireTime.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnGroupFireTime.setLayoutParams(buttonParams);
+                Button 群组续火时间按钮 = new Button(活动);
+                群组续火时间按钮.setText("配置群组续火时间");
+                群组续火时间按钮.setTextColor(Color.WHITE);
+                群组续火时间按钮.setBackground(getShape(强调色, dp2px(6)));
+                群组续火时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组续火时间按钮.setLayoutParams(按钮参数);
                 
-                btnGroupFireTime.setOnClickListener(new View.OnClickListener() {
+                群组续火时间按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         configGroupFireTime("", "", 0);
                     }
                 });
                 
-                layout.addView(btnLikeTime);
-                layout.addView(btnFriendFireTime);
-                layout.addView(btnGroupFireTime);
+                布局.addView(点赞时间按钮);
+                布局.addView(好友续火时间按钮);
+                布局.addView(群组续火时间按钮);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setView(layout);
-                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
+                构建器.setView(布局);
+                构建器.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface 对话框, int 选项) {
+                        对话框.dismiss();
                     }
                 });
                 
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
                 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
+                WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+                布局参数.copyFrom(对话框.getWindow().getAttributes());
+                布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+                布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                对话框.getWindow().setAttributes(布局参数);
                 
-                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                if (negativeButton != null) {
-                    negativeButton.setTextColor(Color.parseColor(accentColor));
+                Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+                if (取消按钮 != null) {
+                    取消按钮.setTextColor(Color.parseColor(强调色));
                 }
             } catch (Exception e) {
                 Toasts("显示时间配置菜单失败: " + e.getMessage());
@@ -636,111 +636,111 @@ void showTimeMenu(final Activity activity) {
     });
 }
 
-void showExecuteMenu(final Activity activity) {
-    activity.runOnUiThread(new Runnable() {
+void showExecuteMenu(final Activity 活动) {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                int theme = getCurrentTheme();
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView titleView = new TextView(activity);
-                titleView.setText("立即执行任务");
-                titleView.setTextSize(17);
-                titleView.setTextColor(Color.parseColor(getTextColor()));
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(titleView);
+                TextView 标题视图 = new TextView(活动);
+                标题视图.setText("立即执行任务");
+                标题视图.setTextSize(17);
+                标题视图.setTextColor(Color.parseColor(getTextColor()));
+                标题视图.setGravity(Gravity.CENTER);
+                标题视图.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     dp2px(44)
                 );
-                buttonParams.setMargins(0, 0, 0, dp2px(8));
+                按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
-                Button btnLike = new Button(activity);
-                btnLike.setText("立即点赞好友");
-                btnLike.setTextColor(Color.WHITE);
-                btnLike.setBackground(getShape(accentColor, dp2px(6)));
-                btnLike.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnLike.setLayoutParams(buttonParams);
+                Button 点赞按钮 = new Button(活动);
+                点赞按钮.setText("立即点赞好友");
+                点赞按钮.setTextColor(Color.WHITE);
+                点赞按钮.setBackground(getShape(强调色, dp2px(6)));
+                点赞按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞按钮.setLayoutParams(按钮参数);
                 
-                btnLike.setOnClickListener(new View.OnClickListener() {
+                点赞按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         immediateLike("", "", 0);
                     }
                 });
                 
-                Button btnFriendFire = new Button(activity);
-                btnFriendFire.setText("立即续火好友");
-                btnFriendFire.setTextColor(Color.WHITE);
-                btnFriendFire.setBackground(getShape(accentColor, dp2px(6)));
-                btnFriendFire.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnFriendFire.setLayoutParams(buttonParams);
+                Button 好友续火按钮 = new Button(活动);
+                好友续火按钮.setText("立即续火好友");
+                好友续火按钮.setTextColor(Color.WHITE);
+                好友续火按钮.setBackground(getShape(强调色, dp2px(6)));
+                好友续火按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友续火按钮.setLayoutParams(按钮参数);
                 
-                btnFriendFire.setOnClickListener(new View.OnClickListener() {
+                好友续火按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         immediateFriendFire("", "", 0);
                     }
                 });
                 
-                Button btnGroupFire = new Button(activity);
-                btnGroupFire.setText("立即续火群组");
-                btnGroupFire.setTextColor(Color.WHITE);
-                btnGroupFire.setBackground(getShape(accentColor, dp2px(6)));
-                btnGroupFire.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnGroupFire.setLayoutParams(buttonParams);
+                Button 群组续火按钮 = new Button(活动);
+                群组续火按钮.setText("立即续火群组");
+                群组续火按钮.setTextColor(Color.WHITE);
+                群组续火按钮.setBackground(getShape(强调色, dp2px(6)));
+                群组续火按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组续火按钮.setLayoutParams(按钮参数);
                 
-                btnGroupFire.setOnClickListener(new View.OnClickListener() {
+                群组续火按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         immediateGroupFire("", "", 0);
                     }
                 });
                 
-                Button btnAll = new Button(activity);
-                btnAll.setText("执行全部任务");
-                btnAll.setTextColor(Color.WHITE);
-                btnAll.setBackground(getShape(accentColor, dp2px(6)));
-                btnAll.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnAll.setLayoutParams(buttonParams);
+                Button 全部按钮 = new Button(活动);
+                全部按钮.setText("执行全部任务");
+                全部按钮.setTextColor(Color.WHITE);
+                全部按钮.setBackground(getShape(强调色, dp2px(6)));
+                全部按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                全部按钮.setLayoutParams(按钮参数);
                 
-                btnAll.setOnClickListener(new View.OnClickListener() {
+                全部按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         executeAllTasks();
                     }
                 });
                 
-                layout.addView(btnLike);
-                layout.addView(btnFriendFire);
-                layout.addView(btnGroupFire);
-                layout.addView(btnAll);
+                布局.addView(点赞按钮);
+                布局.addView(好友续火按钮);
+                布局.addView(群组续火按钮);
+                布局.addView(全部按钮);
                 
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setView(layout);
-                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
+                构建器.setView(布局);
+                构建器.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface 对话框, int 选项) {
+                        对话框.dismiss();
                     }
                 });
                 
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
                 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-    lp.copyFrom(dialog.getWindow().getAttributes());
-    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-    dialog.getWindow().setAttributes(lp);
+                WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+                布局参数.copyFrom(对话框.getWindow().getAttributes());
+                布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+                布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                对话框.getWindow().setAttributes(布局参数);
     
-    Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-    if (negativeButton != null) {
-        negativeButton.setTextColor(Color.parseColor(accentColor));
-    }
+                Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+                if (取消按钮 != null) {
+                    取消按钮.setTextColor(Color.parseColor(强调色));
+                }
             } catch (Exception e) {
                 Toasts("显示执行菜单失败: " + e.getMessage());
             }
@@ -748,48 +748,48 @@ void showExecuteMenu(final Activity activity) {
     });
 }
 
-public void configLikeFriends(String groupUin, String userUin, int chatType){
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configLikeFriends(String 群号, String 用户, int 类型){
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList friendList = getFriendList();
-                if (friendList == null || friendList.isEmpty()) {
+                ArrayList 好友列表 = getFriendList();
+                if (好友列表 == null || 好友列表.isEmpty()) {
                     Toasts("未添加任何好友");
                     return;
                 }
                 
-                final ArrayList displayList = new ArrayList();
-                final ArrayList uinList = new ArrayList();
+                final ArrayList 显示列表 = new ArrayList();
+                final ArrayList QQ列表 = new ArrayList();
                 
-                for (int i = 0; i < friendList.size(); i++) {
-                    Object friend = friendList.get(i);
-                    String uin = "";
-                    String name = "";
-                    String remark = "";
+                for (int i = 0; i < 好友列表.size(); i++) {
+                    Object 好友 = 好友列表.get(i);
+                    String QQ = "";
+                    String 昵称 = "";
+                    String 备注 = "";
                     
                     try {
-                        Object uinObj = getFieldValue(friend, "uin");
-                        Object nameObj = getFieldValue(friend, "name");
-                        Object remarkObj = getFieldValue(friend, "remark");
+                        Object QQ对象 = getFieldValue(好友, "uin");
+                        Object 昵称对象 = getFieldValue(好友, "name");
+                        Object 备注对象 = getFieldValue(好友, "remark");
                         
-                        if (uinObj != null) uin = uinObj.toString();
-                        if (nameObj != null) name = nameObj.toString();
-                        if (remarkObj != null) remark = remarkObj.toString();
+                        if (QQ对象 != null) QQ = QQ对象.toString();
+                        if (昵称对象 != null) 昵称 = 昵称对象.toString();
+                        if (备注对象 != null) 备注 = 备注对象.toString();
                     } catch (Exception e) {
                         continue;
                     }
                     
-                    String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
-                    displayList.add(displayName);
-                    uinList.add(uin);
+                    String 显示名 = (!备注.isEmpty() ? 备注 : 昵称) + " (" + QQ + ")";
+                    显示列表.add(显示名);
+                    QQ列表.add(QQ);
                 }
                 
-                activity.runOnUiThread(new Runnable() {
+                活动.runOnUiThread(new Runnable() {
                     public void run() {
-                        showFriendSelectionDialog(activity, displayList, uinList, selectedFriendsForLike, "点赞", "like");
+                        showFriendSelectionDialog(活动, 显示列表, QQ列表, 落叶叶子叶落子飘, "点赞", "like");
                     }
                 });
             } catch (Exception e) {
@@ -799,48 +799,48 @@ public void configLikeFriends(String groupUin, String userUin, int chatType){
     }).start();
 }
 
-public void configFireFriends(String groupUin, String userUin, int chatType){
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configFireFriends(String 群号, String 用户, int 类型){
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList friendList = getFriendList();
-                if (friendList == null || friendList.isEmpty()) {
+                ArrayList 好友列表 = getFriendList();
+                if (好友列表 == null || 好友列表.isEmpty()) {
                     Toasts("未添加任何好友");
                     return;
                 }
                 
-                final ArrayList displayList = new ArrayList();
-                final ArrayList uinList = new ArrayList();
+                final ArrayList 显示列表 = new ArrayList();
+                final ArrayList QQ列表 = new ArrayList();
                 
-                for (int i = 0; i < friendList.size(); i++) {
-                    Object friend = friendList.get(i);
-                    String uin = "";
-                    String name = "";
-                    String remark = "";
+                for (int i = 0; i < 好友列表.size(); i++) {
+                    Object 好友 = 好友列表.get(i);
+                    String QQ = "";
+                    String 昵称 = "";
+                    String 备注 = "";
                     
                     try {
-                        Object uinObj = getFieldValue(friend, "uin");
-                        Object nameObj = getFieldValue(friend, "name");
-                        Object remarkObj = getFieldValue(friend, "remark");
+                        Object QQ对象 = getFieldValue(好友, "uin");
+                        Object 昵称对象 = getFieldValue(好友, "name");
+                        Object 备注对象 = getFieldValue(好友, "remark");
                         
-                        if (uinObj != null) uin = uinObj.toString();
-                        if (nameObj != null) name = nameObj.toString();
-                        if (remarkObj != null) remark = remarkObj.toString();
+                        if (QQ对象 != null) QQ = QQ对象.toString();
+                        if (昵称对象 != null) 昵称 = 昵称对象.toString();
+                        if (备注对象 != null) 备注 = 备注对象.toString();
                     } catch (Exception e) {
                         continue;
                     }
                     
-                    String displayName = (!remark.isEmpty() ? remark : name) + " (" + uin + ")";
-                    displayList.add(displayName);
-                    uinList.add(uin);
+                    String 显示名 = (!备注.isEmpty() ? 备注 : 昵称) + " (" + QQ + ")";
+                    显示列表.add(显示名);
+                    QQ列表.add(QQ);
                 }
                 
-                activity.runOnUiThread(new Runnable() {
+                活动.runOnUiThread(new Runnable() {
                     public void run() {
-                        showFriendSelectionDialog(activity, displayList, uinList, selectedFriendsForFire, "续火", "fire");
+                        showFriendSelectionDialog(活动, 显示列表, QQ列表, 落言花飘言落言, "续火", "fire");
                     }
                 });
             } catch (Exception e) {
@@ -850,252 +850,252 @@ public void configFireFriends(String groupUin, String userUin, int chatType){
     }).start();
 }
 
-private void showFriendSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList, 
-                                     ArrayList selectedList, String taskName, String configType) {
+private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, ArrayList QQ列表, 
+                                     ArrayList 选中列表, String 任务名, String 配置类型) {
     
-    if (activity == null || activity.isFinishing()) {
+    if (活动 == null || 活动.isFinishing()) {
         Toasts("无法获取有效的Activity");
         return;
     }
     
     try {
-        int theme = getCurrentTheme();
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+        int 主题 = getCurrentTheme();
+        AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
         
-        LinearLayout mainLayout = new LinearLayout(activity);
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
+        LinearLayout 主布局 = new LinearLayout(活动);
+        主布局.setOrientation(LinearLayout.VERTICAL);
+        主布局.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
         
-        final ArrayList currentSessionSelected = new ArrayList(selectedList);
+        final ArrayList 当前选中 = new ArrayList(选中列表);
 
-        LinearLayout contentLayout = new LinearLayout(activity);
-        contentLayout.setOrientation(LinearLayout.VERTICAL);
-        contentLayout.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
-        contentLayout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+        LinearLayout 内容布局 = new LinearLayout(活动);
+        内容布局.setOrientation(LinearLayout.VERTICAL);
+        内容布局.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+        内容布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
         
-        TextView titleView = new TextView(activity);
-        titleView.setText("选择" + taskName + "好友");
-        titleView.setTextColor(Color.parseColor(getTextColor()));
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 0, 0, dp2px(16));
-        contentLayout.addView(titleView);
+        TextView 标题视图 = new TextView(活动);
+        标题视图.setText("选择" + 任务名 + "好友");
+        标题视图.setTextColor(Color.parseColor(getTextColor()));
+        标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        标题视图.setGravity(Gravity.CENTER);
+        标题视图.setPadding(0, 0, 0, dp2px(16));
+        内容布局.addView(标题视图);
         
-        final EditText searchEditText = new EditText(activity);
-        searchEditText.setHint("搜索好友QQ号、好友名、备注");
-        searchEditText.setTextColor(Color.parseColor(getTextColor()));
-        searchEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-        searchEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-        searchEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-        contentLayout.addView(searchEditText);
+        final EditText 搜索框 = new EditText(活动);
+        搜索框.setHint("搜索好友QQ号、好友名、备注");
+        搜索框.setTextColor(Color.parseColor(getTextColor()));
+        搜索框.setHintTextColor(Color.parseColor(getSubTextColor()));
+        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        搜索框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+        内容布局.addView(搜索框);
         
-        int themeValue = getCurrentTheme();
-        String accentColor = themeValue == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+        int 主题值 = getCurrentTheme();
+        String 强调色 = 主题值 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
         
-        LinearLayout buttonLayout = new LinearLayout(activity);
-        buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
-        buttonLayout.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(
+        LinearLayout 按钮布局 = new LinearLayout(活动);
+        按钮布局.setOrientation(LinearLayout.HORIZONTAL);
+        按钮布局.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams 按钮布局参数 = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        buttonLayoutParams.setMargins(0, dp2px(12), 0, dp2px(12));
-        buttonLayout.setLayoutParams(buttonLayoutParams);
+        按钮布局参数.setMargins(0, dp2px(12), 0, dp2px(12));
+        按钮布局.setLayoutParams(按钮布局参数);
         
-        Button selectAllButton = new Button(activity);
-        selectAllButton.setText("全选");
-        selectAllButton.setTextColor(Color.WHITE);
-        selectAllButton.setBackground(getShape(accentColor, dp2px(6)));
-        selectAllButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams selectAllParams = new LinearLayout.LayoutParams(
+        Button 全选按钮 = new Button(活动);
+        全选按钮.setText("全选");
+        全选按钮.setTextColor(Color.WHITE);
+        全选按钮.setBackground(getShape(强调色, dp2px(6)));
+        全选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        selectAllParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        selectAllButton.setLayoutParams(selectAllParams);
+        全选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        全选按钮.setLayoutParams(全选参数);
         
-        Button selectNoneButton = new Button(activity);
-        selectNoneButton.setText("全不选");
-        selectNoneButton.setTextColor(Color.WHITE);
-        selectNoneButton.setBackground(getShape(accentColor, dp2px(6)));
-        selectNoneButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams selectNoneParams = new LinearLayout.LayoutParams(
+        Button 全不选按钮 = new Button(活动);
+        全不选按钮.setText("全不选");
+        全不选按钮.setTextColor(Color.WHITE);
+        全不选按钮.setBackground(getShape(强调色, dp2px(6)));
+        全不选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        selectNoneParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        selectNoneButton.setLayoutParams(selectNoneParams);
+        全不选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        全不选按钮.setLayoutParams(全不选参数);
         
-        Button invertSelectionButton = new Button(activity);
-        invertSelectionButton.setText("反选");
-        invertSelectionButton.setTextColor(Color.WHITE);
-        invertSelectionButton.setBackground(getShape(accentColor, dp2px(6)));
-        invertSelectionButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams invertSelectionParams = new LinearLayout.LayoutParams(
+        Button 反选按钮 = new Button(活动);
+        反选按钮.setText("反选");
+        反选按钮.setTextColor(Color.WHITE);
+        反选按钮.setBackground(getShape(强调色, dp2px(6)));
+        反选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        invertSelectionParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        invertSelectionButton.setLayoutParams(invertSelectionParams);
+        反选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        反选按钮.setLayoutParams(反选参数);
         
-        buttonLayout.addView(selectAllButton);
-        buttonLayout.addView(selectNoneButton);
-        buttonLayout.addView(invertSelectionButton);
-        contentLayout.addView(buttonLayout);
+        按钮布局.addView(全选按钮);
+        按钮布局.addView(全不选按钮);
+        按钮布局.addView(反选按钮);
+        内容布局.addView(按钮布局);
         
-        final ListView listView = new ListView(activity);
-        listView.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-        listView.setDividerHeight(dp2px(1));
-        LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
+        final ListView 列表视图 = new ListView(活动);
+        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        列表视图.setDividerHeight(dp2px(1));
+        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
         );
-        listParams.weight = 1;
-        listView.setLayoutParams(listParams);
-        contentLayout.addView(listView);
+        列表参数.weight = 1;
+        列表视图.setLayoutParams(列表参数);
+        内容布局.addView(列表视图);
         
-        mainLayout.addView(contentLayout);
+        主布局.addView(内容布局);
         
-        final ArrayList filteredDisplayList = new ArrayList(displayList);
-        final ArrayList filteredUinList = new ArrayList(uinList);
+        final ArrayList 过滤显示列表 = new ArrayList(显示列表);
+        final ArrayList 过滤QQ列表 = new ArrayList(QQ列表);
         
-        final CustomArrayAdapter adapter = new CustomArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList, getTextColor());
+        final CustomArrayAdapter 适配器 = new CustomArrayAdapter(活动, android.R.layout.simple_list_item_multiple_choice, 过滤显示列表, getTextColor());
         
-        listView.setAdapter(adapter);
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        列表视图.setAdapter(适配器);
+        列表视图.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         
-        for (int i = 0; i < filteredUinList.size(); i++) {
-            String uin = (String)filteredUinList.get(i);
-            listView.setItemChecked(i, currentSessionSelected.contains(uin));
+        for (int i = 0; i < 过滤QQ列表.size(); i++) {
+            String QQ = (String)过滤QQ列表.get(i);
+            列表视图.setItemChecked(i, 当前选中.contains(QQ));
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView parent, View view, int position, long id) {
-                String uin = (String) filteredUinList.get(position);
-                boolean isChecked = listView.isItemChecked(position);
-                if (isChecked) {
-                    if (!currentSessionSelected.contains(uin)) {
-                        currentSessionSelected.add(uin);
+        列表视图.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView 父视图, View 视图, int 位置, long id) {
+                String QQ = (String) 过滤QQ列表.get(位置);
+                boolean 选中状态 = 列表视图.isItemChecked(位置);
+                if (选中状态) {
+                    if (!当前选中.contains(QQ)) {
+                        当前选中.add(QQ);
                     }
                 } else {
-                    currentSessionSelected.remove(uin);
+                    当前选中.remove(QQ);
                 }
             }
         });
         
-        searchEditText.addTextChangedListener(new TextWatcher() {
+        搜索框.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {}
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String searchText = s.toString().toLowerCase().trim();
-                filteredDisplayList.clear();
-                filteredUinList.clear();
+            public void beforeTextChanged(CharSequence s, int 开始, int 数量, int 后) {}
+            public void onTextChanged(CharSequence s, int 开始, int 前, int 数量) {
+                String 搜索文本 = s.toString().toLowerCase().trim();
+                过滤显示列表.clear();
+                过滤QQ列表.clear();
                 
-                if (searchText.isEmpty()) {
-                    filteredDisplayList.addAll(displayList);
-                    filteredUinList.addAll(uinList);
+                if (搜索文本.isEmpty()) {
+                    过滤显示列表.addAll(显示列表);
+                    过滤QQ列表.addAll(QQ列表);
                 } else {
-                    for (int i = 0; i < displayList.size(); i++) {
-                        String displayName = ((String)displayList.get(i)).toLowerCase();
-                        String uin = (String)uinList.get(i);
+                    for (int i = 0; i < 显示列表.size(); i++) {
+                        String 显示名 = ((String)显示列表.get(i)).toLowerCase();
+                        String QQ = (String)QQ列表.get(i);
                         
-                        if (displayName.contains(searchText) || uin.contains(searchText)) {
-                            filteredDisplayList.add(displayList.get(i));
-                            filteredUinList.add(uinList.get(i));
+                        if (显示名.contains(搜索文本) || QQ.contains(搜索文本)) {
+                            过滤显示列表.add(显示列表.get(i));
+                            过滤QQ列表.add(QQ列表.get(i));
                         }
                     }
                 }
                 
-                adapter.notifyDataSetChanged();
+                适配器.notifyDataSetChanged();
                 
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    String uin = (String)filteredUinList.get(i);
-                    listView.setItemChecked(i, currentSessionSelected.contains(uin));
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    String QQ = (String)过滤QQ列表.get(i);
+                    列表视图.setItemChecked(i, 当前选中.contains(QQ));
                 }
             }
         });
         
-        selectAllButton.setOnClickListener(new View.OnClickListener() {
+        全选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    listView.setItemChecked(i, true);
-                    String uin = (String) filteredUinList.get(i);
-                    if (!currentSessionSelected.contains(uin)) {
-                        currentSessionSelected.add(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    列表视图.setItemChecked(i, true);
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    if (!当前选中.contains(QQ)) {
+                        当前选中.add(QQ);
                     }
                 }
             }
         });
         
-        selectNoneButton.setOnClickListener(new View.OnClickListener() {
+        全不选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    listView.setItemChecked(i, false);
-                    String uin = (String) filteredUinList.get(i);
-                    currentSessionSelected.remove(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    列表视图.setItemChecked(i, false);
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    当前选中.remove(QQ);
                 }
             }
         });
         
-        invertSelectionButton.setOnClickListener(new View.OnClickListener() {
+        反选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    String uin = (String) filteredUinList.get(i);
-                    boolean isCurrentlySelected = currentSessionSelected.contains(uin);
-                    boolean newCheckedState = !isCurrentlySelected;
-                    listView.setItemChecked(i, newCheckedState);
-                    if (newCheckedState) {
-                        if (!currentSessionSelected.contains(uin)) {
-                            currentSessionSelected.add(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    boolean 当前选中状态 = 当前选中.contains(QQ);
+                    boolean 新选中状态 = !当前选中状态;
+                    列表视图.setItemChecked(i, 新选中状态);
+                    if (新选中状态) {
+                        if (!当前选中.contains(QQ)) {
+                            当前选中.add(QQ);
                         }
                     } else {
-                        currentSessionSelected.remove(uin);
+                        当前选中.remove(QQ);
                     }
                 }
             }
         });
         
-        dialogBuilder.setView(mainLayout);
+        对话框构建器.setView(主布局);
         
-        dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                selectedList.clear();
-                selectedList.addAll(currentSessionSelected);
+        对话框构建器.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface 对话框, int 选项) {
+                选中列表.clear();
+                选中列表.addAll(当前选中);
                 
-                if (configType.equals("like")) {
+                if (配置类型.equals("like")) {
                     saveLikeFriends();
-                    Toasts("已选择" + selectedList.size() + "位点赞好友");
-                } else if (configType.equals("fire")) {
+                    Toasts("已选择" + 选中列表.size() + "位点赞好友");
+                } else if (配置类型.equals("fire")) {
                     saveFireFriends();
-                    Toasts("已选择" + selectedList.size() + "位续火好友");
+                    Toasts("已选择" + 选中列表.size() + "位续火好友");
                 }
                 
                 checkAndExecuteTasks();
             }
         });
         
-        dialogBuilder.setNegativeButton("取消", null);
+        对话框构建器.setNegativeButton("取消", null);
         
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
+        AlertDialog 对话框 = 对话框构建器.create();
+        对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        对话框.show();
         
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-        lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
+        WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+        布局参数.copyFrom(对话框.getWindow().getAttributes());
+        布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+        布局参数.height = (int) (活动.getResources().getDisplayMetrics().heightPixels * 0.8);
+        对话框.getWindow().setAttributes(布局参数);
         
-        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if (positiveButton != null) {
-            positiveButton.setTextColor(Color.parseColor(accentColor));
+        Button 确定按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (确定按钮 != null) {
+            确定按钮.setTextColor(Color.parseColor(强调色));
         }
-        Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-        if (negativeButton != null) {
-            negativeButton.setTextColor(Color.parseColor(accentColor));
+        Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+        if (取消按钮 != null) {
+            取消按钮.setTextColor(Color.parseColor(强调色));
         }
         
     } catch (Exception e) {
@@ -1103,43 +1103,43 @@ private void showFriendSelectionDialog(Activity activity, ArrayList displayList,
     }
 }
 
-public void configFireGroups(String groupUin, String userUin, int chatType){
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configFireGroups(String 群号, String 用户, int 类型){
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList groupList = getGroupList();
-                if (groupList == null || groupList.isEmpty()) {
+                ArrayList 群组列表 = getGroupList();
+                if (群组列表 == null || 群组列表.isEmpty()) {
                     Toasts("未加入任何群组");
                     return;
                 }
                 
-                final ArrayList displayList = new ArrayList();
-                final ArrayList uinList = new ArrayList();
-                for (int i = 0; i < groupList.size(); i++) {
-                    Object group = groupList.get(i);
-                    String groupName = "";
-                    String groupUinStr = "";
+                final ArrayList 显示列表 = new ArrayList();
+                final ArrayList QQ列表 = new ArrayList();
+                for (int i = 0; i < 群组列表.size(); i++) {
+                    Object 群组 = 群组列表.get(i);
+                    String 群名 = "";
+                    String 群号 = "";
                     try {
-                        Object nameObj = getFieldValue(group, "GroupName");
-                        Object uinObj = getFieldValue(group, "GroupUin");
+                        Object 群名对象 = getFieldValue(群组, "GroupName");
+                        Object 群号对象 = getFieldValue(群组, "GroupUin");
                         
-                        if (nameObj != null) groupName = nameObj.toString();
-                        if (uinObj != null) groupUinStr = uinObj.toString();
+                        if (群名对象 != null) 群名 = 群名对象.toString();
+                        if (群号对象 != null) 群号 = 群号对象.toString();
                     } catch (Exception e) {
                         continue;
                     }
                     
-                    String displayName = groupName + " (" + groupUinStr + ")";
-                    displayList.add(displayName);
-                    uinList.add(groupUinStr);
+                    String 显示名 = 群名 + " (" + 群号 + ")";
+                    显示列表.add(显示名);
+                    QQ列表.add(群号);
                 }
                 
-                activity.runOnUiThread(new Runnable() {
+                活动.runOnUiThread(new Runnable() {
                     public void run() {
-                        showGroupSelectionDialog(activity, displayList, uinList);
+                        showGroupSelectionDialog(活动, 显示列表, QQ列表);
                     }
                 });
             } catch (Exception e) {
@@ -1149,243 +1149,243 @@ public void configFireGroups(String groupUin, String userUin, int chatType){
     }).start();
 }
 
-private void showGroupSelectionDialog(Activity activity, ArrayList displayList, ArrayList uinList) {
-    if (activity == null || activity.isFinishing()) {
+private void showGroupSelectionDialog(Activity 活动, ArrayList 显示列表, ArrayList QQ列表) {
+    if (活动 == null || 活动.isFinishing()) {
         Toasts("无法获取有效的Activity");
         return;
     }
     
     try {
-        int theme = getCurrentTheme();
-        String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+        int 主题 = getCurrentTheme();
+        String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
         
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+        AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
         
-        LinearLayout mainLayout = new LinearLayout(activity);
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
-        mainLayout.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
+        LinearLayout 主布局 = new LinearLayout(活动);
+        主布局.setOrientation(LinearLayout.VERTICAL);
+        主布局.setPadding(dp2px(4), dp2px(4), dp2px(4), dp2px(4));
         
-        final ArrayList currentSessionSelected = new ArrayList(selectedGroupsForFire);
+        final ArrayList 当前选中 = new ArrayList(飘飘花言飘飘);
         
-        LinearLayout contentLayout = new LinearLayout(activity);
-        contentLayout.setOrientation(LinearLayout.VERTICAL);
-        contentLayout.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
-        contentLayout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+        LinearLayout 内容布局 = new LinearLayout(活动);
+        内容布局.setOrientation(LinearLayout.VERTICAL);
+        内容布局.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+        内容布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
         
-        TextView titleView = new TextView(activity);
-        titleView.setText("选择续火群组");
-        titleView.setTextColor(Color.parseColor(getTextColor()));
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        titleView.setGravity(Gravity.CENTER);
-        titleView.setPadding(0, 0, 0, dp2px(16));
-        contentLayout.addView(titleView);
+        TextView 标题视图 = new TextView(活动);
+        标题视图.setText("选择续火群组");
+        标题视图.setTextColor(Color.parseColor(getTextColor()));
+        标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        标题视图.setGravity(Gravity.CENTER);
+        标题视图.setPadding(0, 0, 0, dp2px(16));
+        内容布局.addView(标题视图);
         
-        final EditText searchEditText = new EditText(activity);
-        searchEditText.setHint("搜索群号、群名");
-        searchEditText.setTextColor(Color.parseColor(getTextColor()));
-        searchEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-        searchEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-        searchEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-        contentLayout.addView(searchEditText);
+        final EditText 搜索框 = new EditText(活动);
+        搜索框.setHint("搜索群号、群名");
+        搜索框.setTextColor(Color.parseColor(getTextColor()));
+        搜索框.setHintTextColor(Color.parseColor(getSubTextColor()));
+        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        搜索框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+        内容布局.addView(搜索框);
         
-        LinearLayout buttonLayout = new LinearLayout(activity);
-        buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
-        buttonLayout.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(
+        LinearLayout 按钮布局 = new LinearLayout(活动);
+        按钮布局.setOrientation(LinearLayout.HORIZONTAL);
+        按钮布局.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams 按钮布局参数 = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        buttonLayoutParams.setMargins(0, dp2px(12), 0, dp2px(12));
-        buttonLayout.setLayoutParams(buttonLayoutParams);
+        按钮布局参数.setMargins(0, dp2px(12), 0, dp2px(12));
+        按钮布局.setLayoutParams(按钮布局参数);
         
-        Button selectAllButton = new Button(activity);
-        selectAllButton.setText("全选");
-        selectAllButton.setTextColor(Color.WHITE);
-        selectAllButton.setBackground(getShape(accentColor, dp2px(6)));
-        selectAllButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams selectAllParams = new LinearLayout.LayoutParams(
+        Button 全选按钮 = new Button(活动);
+        全选按钮.setText("全选");
+        全选按钮.setTextColor(Color.WHITE);
+        全选按钮.setBackground(getShape(强调色, dp2px(6)));
+        全选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        selectAllParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        selectAllButton.setLayoutParams(selectAllParams);
+        全选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        全选按钮.setLayoutParams(全选参数);
         
-        Button selectNoneButton = new Button(activity);
-        selectNoneButton.setText("全不选");
-        selectNoneButton.setTextColor(Color.WHITE);
-        selectNoneButton.setBackground(getShape(accentColor, dp2px(6)));
-        selectNoneButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams selectNoneParams = new LinearLayout.LayoutParams(
+        Button 全不选按钮 = new Button(活动);
+        全不选按钮.setText("全不选");
+        全不选按钮.setTextColor(Color.WHITE);
+        全不选按钮.setBackground(getShape(强调色, dp2px(6)));
+        全不选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        selectNoneParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        selectNoneButton.setLayoutParams(selectNoneParams);
+        全不选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        全不选按钮.setLayoutParams(全不选参数);
         
-        Button invertSelectionButton = new Button(activity);
-        invertSelectionButton.setText("反选");
-        invertSelectionButton.setTextColor(Color.WHITE);
-        invertSelectionButton.setBackground(getShape(accentColor, dp2px(6)));
-        invertSelectionButton.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams invertSelectionParams = new LinearLayout.LayoutParams(
+        Button 反选按钮 = new Button(活动);
+        反选按钮.setText("反选");
+        反选按钮.setTextColor(Color.WHITE);
+        反选按钮.setBackground(getShape(强调色, dp2px(6)));
+        反选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
+        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(
             0,
             LinearLayout.LayoutParams.WRAP_CONTENT,
             1.0f
         );
-        invertSelectionParams.setMargins(dp2px(2), 0, dp2px(2), 0);
-        invertSelectionButton.setLayoutParams(invertSelectionParams);
+        反选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
+        反选按钮.setLayoutParams(反选参数);
         
-        buttonLayout.addView(selectAllButton);
-        buttonLayout.addView(selectNoneButton);
-        buttonLayout.addView(invertSelectionButton);
-        contentLayout.addView(buttonLayout);
+        按钮布局.addView(全选按钮);
+        按钮布局.addView(全不选按钮);
+        按钮布局.addView(反选按钮);
+        内容布局.addView(按钮布局);
         
-        final ListView listView = new ListView(activity);
-        listView.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-        listView.setDividerHeight(dp2px(1));
-        LinearLayout.LayoutParams listParams = new LinearLayout.LayoutParams(
+        final ListView 列表视图 = new ListView(活动);
+        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        列表视图.setDividerHeight(dp2px(1));
+        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
         );
-        listParams.weight = 1;
-        listView.setLayoutParams(listParams);
-        contentLayout.addView(listView);
+        列表参数.weight = 1;
+        列表视图.setLayoutParams(列表参数);
+        内容布局.addView(列表视图);
         
-        mainLayout.addView(contentLayout);
+        主布局.addView(内容布局);
         
-        final ArrayList filteredDisplayList = new ArrayList(displayList);
-        final ArrayList filteredUinList = new ArrayList(uinList);
+        final ArrayList 过滤显示列表 = new ArrayList(显示列表);
+        final ArrayList 过滤QQ列表 = new ArrayList(QQ列表);
         
-        final CustomArrayAdapter adapter = new CustomArrayAdapter(activity, android.R.layout.simple_list_item_multiple_choice, filteredDisplayList, getTextColor());
-        listView.setAdapter(adapter);
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        final CustomArrayAdapter 适配器 = new CustomArrayAdapter(活动, android.R.layout.simple_list_item_multiple_choice, 过滤显示列表, getTextColor());
+        列表视图.setAdapter(适配器);
+        列表视图.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         
-        for (int i = 0; i < filteredUinList.size(); i++) {
-            String uin = (String)filteredUinList.get(i);
-            listView.setItemChecked(i, currentSessionSelected.contains(uin));
+        for (int i = 0; i < 过滤QQ列表.size(); i++) {
+            String QQ = (String)过滤QQ列表.get(i);
+            列表视图.setItemChecked(i, 当前选中.contains(QQ));
         }
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView parent, View view, int position, long id) {
-                String uin = (String) filteredUinList.get(position);
-                boolean isChecked = listView.isItemChecked(position);
-                if (isChecked) {
-                    if (!currentSessionSelected.contains(uin)) {
-                        currentSessionSelected.add(uin);
+        列表视图.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView 父视图, View 视图, int 位置, long id) {
+                String QQ = (String) 过滤QQ列表.get(位置);
+                boolean 选中状态 = 列表视图.isItemChecked(位置);
+                if (选中状态) {
+                    if (!当前选中.contains(QQ)) {
+                        当前选中.add(QQ);
                     }
                 } else {
-                    currentSessionSelected.remove(uin);
+                    当前选中.remove(QQ);
                 }
             }
         });
         
-        searchEditText.addTextChangedListener(new TextWatcher() {
+        搜索框.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {}
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String searchText = s.toString().toLowerCase().trim();
-                filteredDisplayList.clear();
-                filteredUinList.clear();
+            public void beforeTextChanged(CharSequence s, int 开始, int 数量, int 后) {}
+            public void onTextChanged(CharSequence s, int 开始, int 前, int 数量) {
+                String 搜索文本 = s.toString().toLowerCase().trim();
+                过滤显示列表.clear();
+                过滤QQ列表.clear();
                 
-                if (searchText.isEmpty()) {
-                    filteredDisplayList.addAll(displayList);
-                    filteredUinList.addAll(uinList);
+                if (搜索文本.isEmpty()) {
+                    过滤显示列表.addAll(显示列表);
+                    过滤QQ列表.addAll(QQ列表);
                 } else {
-                    for (int i = 0; i < displayList.size(); i++) {
-                        String displayName = ((String)displayList.get(i)).toLowerCase();
-                        String uin = (String)uinList.get(i);
+                    for (int i = 0; i < 显示列表.size(); i++) {
+                        String 显示名 = ((String)显示列表.get(i)).toLowerCase();
+                        String QQ = (String)QQ列表.get(i);
                         
-                        if (displayName.contains(searchText) || uin.contains(searchText)) {
-                            filteredDisplayList.add(displayList.get(i));
-                            filteredUinList.add(uinList.get(i));
+                        if (显示名.contains(搜索文本) || QQ.contains(搜索文本)) {
+                            过滤显示列表.add(显示列表.get(i));
+                            过滤QQ列表.add(QQ列表.get(i));
                         }
                     }
                 }
                 
-                adapter.notifyDataSetChanged();
+                适配器.notifyDataSetChanged();
                 
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    String uin = (String)filteredUinList.get(i);
-                    listView.setItemChecked(i, currentSessionSelected.contains(uin));
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    String QQ = (String)过滤QQ列表.get(i);
+                    列表视图.setItemChecked(i, 当前选中.contains(QQ));
                 }
             }
         });
         
-        selectAllButton.setOnClickListener(new View.OnClickListener() {
+        全选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    listView.setItemChecked(i, true);
-                    String uin = (String) filteredUinList.get(i);
-                    if (!currentSessionSelected.contains(uin)) {
-                        currentSessionSelected.add(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    列表视图.setItemChecked(i, true);
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    if (!当前选中.contains(QQ)) {
+                        当前选中.add(QQ);
                     }
                 }
             }
         });
         
-        selectNoneButton.setOnClickListener(new View.OnClickListener() {
+        全不选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    listView.setItemChecked(i, false);
-                    String uin = (String) filteredUinList.get(i);
-                    currentSessionSelected.remove(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    列表视图.setItemChecked(i, false);
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    当前选中.remove(QQ);
                 }
             }
         });
         
-        invertSelectionButton.setOnClickListener(new View.OnClickListener() {
+        反选按钮.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                for (int i = 0; i < filteredUinList.size(); i++) {
-                    String uin = (String) filteredUinList.get(i);
-                    boolean isCurrentlySelected = currentSessionSelected.contains(uin);
-                    boolean newCheckedState = !isCurrentlySelected;
-                    listView.setItemChecked(i, newCheckedState);
-                    if (newCheckedState) {
-                        if (!currentSessionSelected.contains(uin)) {
-                            currentSessionSelected.add(uin);
+                for (int i = 0; i < 过滤QQ列表.size(); i++) {
+                    String QQ = (String) 过滤QQ列表.get(i);
+                    boolean 当前选中状态 = 当前选中.contains(QQ);
+                    boolean 新选中状态 = !当前选中状态;
+                    列表视图.setItemChecked(i, 新选中状态);
+                    if (新选中状态) {
+                        if (!当前选中.contains(QQ)) {
+                            当前选中.add(QQ);
                         }
                     } else {
-                        currentSessionSelected.remove(uin);
+                        当前选中.remove(QQ);
                     }
                 }
             }
         });
         
-        dialogBuilder.setView(mainLayout);
+        对话框构建器.setView(主布局);
         
-        dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                selectedGroupsForFire.clear();
-                selectedGroupsForFire.addAll(currentSessionSelected);
+        对话框构建器.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface 对话框, int 选项) {
+                飘飘花言飘飘.clear();
+                飘飘花言飘飘.addAll(当前选中);
                 
                 saveFireGroups();
-                Toasts("已选择" + selectedGroupsForFire.size() + "个续火群组");
+                Toasts("已选择" + 飘飘花言飘飘.size() + "个续火群组");
                 
                 checkAndExecuteTasks();
             }
         });
         
-        dialogBuilder.setNegativeButton("取消", null);
+        对话框构建器.setNegativeButton("取消", null);
         
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.show();
+        AlertDialog 对话框 = 对话框构建器.create();
+        对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        对话框.show();
         
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-        lp.height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
-        dialog.getWindow().setAttributes(lp);
+        WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+        布局参数.copyFrom(对话框.getWindow().getAttributes());
+        布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+        布局参数.height = (int) (活动.getResources().getDisplayMetrics().heightPixels * 0.8);
+        对话框.getWindow().setAttributes(布局参数);
         
-        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        if (positiveButton != null) {
-            positiveButton.setTextColor(Color.parseColor(accentColor));
+        Button 确定按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (确定按钮 != null) {
+            确定按钮.setTextColor(Color.parseColor(强调色));
         }
-        Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-        if (negativeButton != null) {
-            negativeButton.setTextColor(Color.parseColor(accentColor));
+        Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+        if (取消按钮 != null) {
+            取消按钮.setTextColor(Color.parseColor(强调色));
         }
         
     } catch (Exception e) {
@@ -1393,120 +1393,120 @@ private void showGroupSelectionDialog(Activity activity, ArrayList displayList, 
     }
 }
 
-public void configFriendFireWords(String groupUin, String userUin, int chatType){
-    final Activity activity = getActivity();
-    if (activity == null) {
+public void configFriendFireWords(String 群号, String 用户, int 类型){
+    final Activity 活动 = getActivity();
+    if (活动 == null) {
         Toasts("无法获取Activity");
         return;
     }
     
-    activity.runOnUiThread(new Runnable() {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                StringBuilder wordsBuilder = new StringBuilder();
-                for (int i = 0; i < friendFireWords.size(); i++) {
-                    if (wordsBuilder.length() > 0) wordsBuilder.append("\n");
-                    wordsBuilder.append((String)friendFireWords.get(i));
+                StringBuilder 语录构建器 = new StringBuilder();
+                for (int i = 0; i < 飘飘叶飘.size(); i++) {
+                    if (语录构建器.length() > 0) 语录构建器.append("\n");
+                    语录构建器.append((String)飘飘叶飘.get(i));
                 }
                 
-                int theme = getCurrentTheme();
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView titleView = new TextView(activity);
-                titleView.setText("配置好友续火语录");
-                titleView.setTextColor(Color.parseColor(getTextColor()));
-                titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(titleView);
+                TextView 标题视图 = new TextView(活动);
+                标题视图.setText("配置好友续火语录");
+                标题视图.setTextColor(Color.parseColor(getTextColor()));
+                标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                标题视图.setGravity(Gravity.CENTER);
+                标题视图.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(标题视图);
                 
-                final EditText wordsEditText = new EditText(activity);
-                wordsEditText.setText(wordsBuilder.toString());
-                wordsEditText.setHint("输入好友续火语录，每行一个");
-                wordsEditText.setTextColor(Color.parseColor(getTextColor()));
-                wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-                wordsEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-                wordsEditText.setMinLines(6);
-                wordsEditText.setMaxLines(20);
-                wordsEditText.setGravity(Gravity.TOP);
-                wordsEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-                wordsEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                final EditText 语录编辑框 = new EditText(活动);
+                语录编辑框.setText(语录构建器.toString());
+                语录编辑框.setHint("输入好友续火语录，每行一个");
+                语录编辑框.setTextColor(Color.parseColor(getTextColor()));
+                语录编辑框.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                语录编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
+                语录编辑框.setMinLines(6);
+                语录编辑框.setMaxLines(20);
+                语录编辑框.setGravity(Gravity.TOP);
+                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                语录编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
-                int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
-                int editTextHeight = (int)(screenHeight * 0.35);
-                LinearLayout.LayoutParams editTextParams = new LinearLayout.LayoutParams(
+                int 屏幕高度 = 活动.getResources().getDisplayMetrics().heightPixels;
+                int 编辑框高度 = (int)(屏幕高度 * 0.35);
+                LinearLayout.LayoutParams 编辑框参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    editTextHeight
+                    编辑框高度
                 );
-                editTextParams.setMargins(0, 0, 0, dp2px(16));
-                wordsEditText.setLayoutParams(editTextParams);
+                编辑框参数.setMargins(0, 0, 0, dp2px(16));
+                语录编辑框.setLayoutParams(编辑框参数);
                 
-                layout.addView(wordsEditText);
+                布局.addView(语录编辑框);
                 
-                TextView hintView = new TextView(activity);
-                hintView.setText("注意：输入多个续火语录时，每行一个");
-                hintView.setTextColor(Color.parseColor(getSubTextColor()));
-                hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                hintView.setPadding(0, 0, 0, 0);
-                layout.addView(hintView);
+                TextView 提示视图 = new TextView(活动);
+                提示视图.setText("注意：输入多个续火语录时，每行一个");
+                提示视图.setTextColor(Color.parseColor(getSubTextColor()));
+                提示视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                提示视图.setPadding(0, 0, 0, 0);
+                布局.addView(提示视图);
                 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-                dialogBuilder.setView(layout);
-                dialogBuilder.setCancelable(true);
+                AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
+                对话框构建器.setView(布局);
+                对话框构建器.setCancelable(true);
                 
-                dialogBuilder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String wordsText = wordsEditText.getText().toString().trim();
-                        if (wordsText.isEmpty()) {
+                对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface 对话框, int 选项) {
+                        String 语录文本 = 语录编辑框.getText().toString().trim();
+                        if (语录文本.isEmpty()) {
                             Toasts("续火语录不能为空");
                             return;
                         }
                         
-                        friendFireWords.clear();
-                        String[] wordsArray = wordsText.split("\n");
-                        for (int i = 0; i < wordsArray.length; i++) {
-                            String word = wordsArray[i].trim();
-                            if (!word.isEmpty()) {
-                                friendFireWords.add(word);
+                        飘飘叶飘.clear();
+                        String[] 语录数组 = 语录文本.split("\n");
+                        for (int i = 0; i < 语录数组.length; i++) {
+                            String 语录 = 语录数组[i].trim();
+                            if (!语录.isEmpty()) {
+                                飘飘叶飘.add(语录);
                             }
                         }
                         
-                        if (friendFireWords.isEmpty()) {
+                        if (飘飘叶飘.isEmpty()) {
                             Toasts("未添加有效的续火语录");
                             return;
                         }
                         
-                        saveListToFile(friendFireWordsPath, friendFireWords);
-                        Toasts("已保存 " + friendFireWords.size() + " 个好友续火语录");
+                        saveListToFile(落叶花花飘言子子飘花, 飘飘叶飘);
+                        Toasts("已保存 " + 飘飘叶飘.size() + " 个好友续火语录");
                     }
                 });
                 
-                dialogBuilder.setNegativeButton("取消", null);
+                对话框构建器.setNegativeButton("取消", null);
                 
-                AlertDialog dialog = dialogBuilder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 对话框构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
                 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
+                WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+                布局参数.copyFrom(对话框.getWindow().getAttributes());
+                布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+                布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                对话框.getWindow().setAttributes(布局参数);
                 
-                dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+                对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
                 
-                Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                if (positiveButton != null) {
-                    positiveButton.setTextColor(Color.parseColor(accentColor));
+                Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+                if (保存按钮 != null) {
+                    保存按钮.setTextColor(Color.parseColor(强调色));
                 }
-                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                if (negativeButton != null) {
-                    negativeButton.setTextColor(Color.parseColor(accentColor));
+                Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+                if (取消按钮 != null) {
+                    取消按钮.setTextColor(Color.parseColor(强调色));
                 }
             } catch (Exception e) {
             }
@@ -1514,120 +1514,120 @@ public void configFriendFireWords(String groupUin, String userUin, int chatType)
     });
 }
 
-public void configGroupFireWords(String groupUin, String userUin, int chatType){
-    final Activity activity = getActivity();
-    if (activity == null) {
+public void configGroupFireWords(String 群号, String 用户, int 类型){
+    final Activity 活动 = getActivity();
+    if (活动 == null) {
         Toasts("无法获取Activity");
         return;
     }
     
-    activity.runOnUiThread(new Runnable() {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
             try {
-                StringBuilder wordsBuilder = new StringBuilder();
-                for (int i = 0; i < groupFireWords.size(); i++) {
-                    if (wordsBuilder.length() > 0) wordsBuilder.append("\n");
-                    wordsBuilder.append((String)groupFireWords.get(i));
+                StringBuilder 语录构建器 = new StringBuilder();
+                for (int i = 0; i < 叶落花落.size(); i++) {
+                    if (语录构建器.length() > 0) 语录构建器.append("\n");
+                    语录构建器.append((String)叶落花落.get(i));
                 }
                 
-                int theme = getCurrentTheme();
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
                 
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                LinearLayout 布局 = new LinearLayout(活动);
+                布局.setOrientation(LinearLayout.VERTICAL);
+                布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
                 
-                TextView titleView = new TextView(activity);
-                titleView.setText("配置群组续火语录");
-                titleView.setTextColor(Color.parseColor(getTextColor()));
-                titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-                titleView.setGravity(Gravity.CENTER);
-                titleView.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(titleView);
+                TextView 标题视图 = new TextView(活动);
+                标题视图.setText("配置群组续火语录");
+                标题视图.setTextColor(Color.parseColor(getTextColor()));
+                标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                标题视图.setGravity(Gravity.CENTER);
+                标题视图.setPadding(0, 0, 0, dp2px(16));
+                布局.addView(标题视图);
                 
-                final EditText wordsEditText = new EditText(activity);
-                wordsEditText.setText(wordsBuilder.toString());
-                wordsEditText.setHint("输入群组续火语录，每行一个");
-                wordsEditText.setTextColor(Color.parseColor(getTextColor()));
-                wordsEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-                wordsEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-                wordsEditText.setMinLines(6);
-                wordsEditText.setMaxLines(20);
-                wordsEditText.setGravity(Gravity.TOP);
-                wordsEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-                wordsEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+                final EditText 语录编辑框 = new EditText(活动);
+                语录编辑框.setText(语录构建器.toString());
+                语录编辑框.setHint("输入群组续火语录，每行一个");
+                语录编辑框.setTextColor(Color.parseColor(getTextColor()));
+                语录编辑框.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                语录编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
+                语录编辑框.setMinLines(6);
+                语录编辑框.setMaxLines(20);
+                语录编辑框.setGravity(Gravity.TOP);
+                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                语录编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
-                int screenHeight = activity.getResources().getDisplayMetrics().heightPixels;
-                int editTextHeight = (int)(screenHeight * 0.35);
-                LinearLayout.LayoutParams editTextParams = new LinearLayout.LayoutParams(
+                int 屏幕高度 = 活动.getResources().getDisplayMetrics().heightPixels;
+                int 编辑框高度 = (int)(屏幕高度 * 0.35);
+                LinearLayout.LayoutParams 编辑框参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    editTextHeight
+                    编辑框高度
                 );
-                editTextParams.setMargins(0, 0, 0, dp2px(16));
-                wordsEditText.setLayoutParams(editTextParams);
+                编辑框参数.setMargins(0, 0, 0, dp2px(16));
+                语录编辑框.setLayoutParams(编辑框参数);
                 
-                layout.addView(wordsEditText);
+                布局.addView(语录编辑框);
                 
-                TextView hintView = new TextView(activity);
-                hintView.setText("注意：输入多个续火语录时，每行一个");
-                hintView.setTextColor(Color.parseColor(getSubTextColor()));
-                hintView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                hintView.setPadding(0, 0, 0, 0);
-                layout.addView(hintView);
+                TextView 提示视图 = new TextView(活动);
+                提示视图.setText("注意：输入多个续火语录时，每行一个");
+                提示视图.setTextColor(Color.parseColor(getSubTextColor()));
+                提示视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                提示视图.setPadding(0, 0, 0, 0);
+                布局.addView(提示视图);
                 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
-                dialogBuilder.setView(layout);
-                dialogBuilder.setCancelable(true);
+                AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
+                对话框构建器.setView(布局);
+                对话框构建器.setCancelable(true);
                 
-                dialogBuilder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String wordsText = wordsEditText.getText().toString().trim();
-                        if (wordsText.isEmpty()) {
+                对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface 对话框, int 选项) {
+                        String 语录文本 = 语录编辑框.getText().toString().trim();
+                        if (语录文本.isEmpty()) {
                             Toasts("续火语录不能为空");
                             return;
                         }
                         
-                        groupFireWords.clear();
-                        String[] wordsArray = wordsText.split("\n");
-                        for (int i = 0; i < wordsArray.length; i++) {
-                            String word = wordsArray[i].trim();
-                            if (!word.isEmpty()) {
-                                groupFireWords.add(word);
+                        叶落花落.clear();
+                        String[] 语录数组 = 语录文本.split("\n");
+                        for (int i = 0; i < 语录数组.length; i++) {
+                            String 语录 = 语录数组[i].trim();
+                            if (!语录.isEmpty()) {
+                                叶落花落.add(语录);
                             }
                         }
                         
-                        if (groupFireWords.isEmpty()) {
+                        if (叶落花落.isEmpty()) {
                             Toasts("未添加有效的续火语录");
                             return;
                         }
                         
-                        saveListToFile(groupFireWordsPath, groupFireWords);
-                        Toasts("已保存 " + groupFireWords.size() + " 个群组续火语录");
+                        saveListToFile(子叶花花花飘, 叶落花落);
+                        Toasts("已保存 " + 叶落花落.size() + " 个群组续火语录");
                     }
                 });
                 
-                dialogBuilder.setNegativeButton("取消", null);
+                对话框构建器.setNegativeButton("取消", null);
                 
-                AlertDialog dialog = dialogBuilder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
+                AlertDialog 对话框 = 对话框构建器.create();
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                对话框.show();
     
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
+                WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+                布局参数.copyFrom(对话框.getWindow().getAttributes());
+                布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+                布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                对话框.getWindow().setAttributes(布局参数);
                 
-                dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+                对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
     
-                Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                if (positiveButton != null) {
-                    positiveButton.setTextColor(Color.parseColor(accentColor));
+                Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+                if (保存按钮 != null) {
+                    保存按钮.setTextColor(Color.parseColor(强调色));
                 }
-                Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-                if (negativeButton != null) {
-                    negativeButton.setTextColor(Color.parseColor(accentColor));
+                Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+                if (取消按钮 != null) {
+                    取消按钮.setTextColor(Color.parseColor(强调色));
                 }
             } catch (Exception e) {
             }
@@ -1635,48 +1635,48 @@ public void configGroupFireWords(String groupUin, String userUin, int chatType){
     });
 }
 
-public void configLikeTime(String groupUin, String userUin, int chatType) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configLikeTime(String 群号, String 用户, int 类型) {
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
-    activity.runOnUiThread(new Runnable() {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
-            int theme = getCurrentTheme();
-            String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+            int 主题 = getCurrentTheme();
+            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
             
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
             
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+            LinearLayout 布局 = new LinearLayout(活动);
+            布局.setOrientation(LinearLayout.VERTICAL);
+            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
             
-            TextView titleView = new TextView(activity);
-            titleView.setText("设置点赞时间 (HH:mm)");
-            titleView.setTextColor(Color.parseColor(getTextColor()));
-            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            titleView.setGravity(Gravity.CENTER);
-            titleView.setPadding(0, 0, 0, dp2px(16));
-            layout.addView(titleView);
+            TextView 标题视图 = new TextView(活动);
+            标题视图.setText("设置点赞时间 (HH:mm)");
+            标题视图.setTextColor(Color.parseColor(getTextColor()));
+            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            标题视图.setGravity(Gravity.CENTER);
+            标题视图.setPadding(0, 0, 0, dp2px(16));
+            布局.addView(标题视图);
             
-            final EditText timeEditText = new EditText(activity);
-            timeEditText.setText(likeTime);
-            timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-            timeEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            timeEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            layout.addView(timeEditText);
+            final EditText 时间编辑框 = new EditText(活动);
+            时间编辑框.setText(叶飘叶落言叶子叶落子);
+            时间编辑框.setHint("例如: 00:00");
+            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
+            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
+            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            布局.addView(时间编辑框);
             
-            dialogBuilder.setView(layout);
+            对话框构建器.setView(布局);
             
-            dialogBuilder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    String timeText = timeEditText.getText().toString().trim();
-                    if (timeText.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        likeTime = timeText;
+            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface 对话框, int 选项) {
+                    String 时间文本 = 时间编辑框.getText().toString().trim();
+                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                        叶飘叶落言叶子叶落子 = 时间文本;
                         saveTimeConfig();
-                        Toasts("已设置点赞时间: " + likeTime);
+                        Toasts("已设置点赞时间: " + 叶飘叶落言叶子叶落子);
                         checkAndExecuteTasks();
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
@@ -1684,74 +1684,74 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
                 }
             });
             
-            dialogBuilder.setNegativeButton("取消", null);
+            对话框构建器.setNegativeButton("取消", null);
             
-            AlertDialog dialog = dialogBuilder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+            AlertDialog 对话框 = 对话框构建器.create();
+            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            对话框.show();
             
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(dialog.getWindow().getAttributes());
-            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            dialog.getWindow().setAttributes(lp);
+            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+            布局参数.copyFrom(对话框.getWindow().getAttributes());
+            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            对话框.getWindow().setAttributes(布局参数);
             
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             
-            Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (positiveButton != null) {
-                positiveButton.setTextColor(Color.parseColor(accentColor));
+            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+            if (保存按钮 != null) {
+                保存按钮.setTextColor(Color.parseColor(强调色));
             }
-            Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (negativeButton != null) {
-                negativeButton.setTextColor(Color.parseColor(accentColor));
+            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+            if (取消按钮 != null) {
+                取消按钮.setTextColor(Color.parseColor(强调色));
             }
         }
     });
 }
 
-public void configFriendFireTime(String groupUin, String userUin, int chatType) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configFriendFireTime(String 群号, String 用户, int 类型) {
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
-    activity.runOnUiThread(new Runnable() {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
-            int theme = getCurrentTheme();
-            String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+            int 主题 = getCurrentTheme();
+            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
             
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
             
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+            LinearLayout 布局 = new LinearLayout(活动);
+            布局.setOrientation(LinearLayout.VERTICAL);
+            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
             
-            TextView titleView = new TextView(activity);
-            titleView.setText("设置好友续火时间 (HH:mm)");
-            titleView.setTextColor(Color.parseColor(getTextColor()));
-            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            titleView.setGravity(Gravity.CENTER);
-            titleView.setPadding(0, 0, 0, dp2px(16));
-            layout.addView(titleView);
+            TextView 标题视图 = new TextView(活动);
+            标题视图.setText("设置好友续火时间 (HH:mm)");
+            标题视图.setTextColor(Color.parseColor(getTextColor()));
+            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            标题视图.setGravity(Gravity.CENTER);
+            标题视图.setPadding(0, 0, 0, dp2px(16));
+            布局.addView(标题视图);
             
-            final EditText timeEditText = new EditText(activity);
-            timeEditText.setText(friendFireTime);
-            timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-            timeEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            timeEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            layout.addView(timeEditText);
+            final EditText 时间编辑框 = new EditText(活动);
+            时间编辑框.setText(飘飘花花);
+            时间编辑框.setHint("例如: 00:00");
+            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
+            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
+            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            布局.addView(时间编辑框);
             
-            dialogBuilder.setView(layout);
+            对话框构建器.setView(布局);
             
-            dialogBuilder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    String timeText = timeEditText.getText().toString().trim();
-                    if (timeText.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        friendFireTime = timeText;
+            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface 对话框, int 选项) {
+                    String 时间文本 = 时间编辑框.getText().toString().trim();
+                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                        飘飘花花 = 时间文本;
                         saveTimeConfig();
-                        Toasts("已设置好友续火时间: " + friendFireTime);
+                        Toasts("已设置好友续火时间: " + 飘飘花花);
                         checkAndExecuteTasks();
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
@@ -1759,74 +1759,74 @@ public void configFriendFireTime(String groupUin, String userUin, int chatType) 
                 }
             });
             
-            dialogBuilder.setNegativeButton("取消", null);
+            对话框构建器.setNegativeButton("取消", null);
     
-            AlertDialog dialog = dialogBuilder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+            AlertDialog 对话框 = 对话框构建器.create();
+            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            对话框.show();
             
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(dialog.getWindow().getAttributes());
-            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            dialog.getWindow().setAttributes(lp);
+            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+            布局参数.copyFrom(对话框.getWindow().getAttributes());
+            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            对话框.getWindow().setAttributes(布局参数);
             
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             
-            Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (positiveButton != null) {
-                positiveButton.setTextColor(Color.parseColor(accentColor));
+            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+            if (保存按钮 != null) {
+                保存按钮.setTextColor(Color.parseColor(强调色));
             }
-            Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (negativeButton != null) {
-                negativeButton.setTextColor(Color.parseColor(accentColor));
+            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+            if (取消按钮 != null) {
+                取消按钮.setTextColor(Color.parseColor(强调色));
             }
         }
     });
 }
 
-public void configGroupFireTime(String groupUin, String userUin, int chatType) {
-    final Activity activity = getActivity();
-    if (activity == null) return;
+public void configGroupFireTime(String 群号, String 用户, int 类型) {
+    final Activity 活动 = getActivity();
+    if (活动 == null) return;
     
-    activity.runOnUiThread(new Runnable() {
+    活动.runOnUiThread(new Runnable() {
         public void run() {
-            int theme = getCurrentTheme();
-            String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+            int 主题 = getCurrentTheme();
+            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
             
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, theme);
+            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
             
-            LinearLayout layout = new LinearLayout(activity);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
+            LinearLayout 布局 = new LinearLayout(活动);
+            布局.setOrientation(LinearLayout.VERTICAL);
+            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
             
-            TextView titleView = new TextView(activity);
-            titleView.setText("设置群组续火时间 (HH:mm)");
-            titleView.setTextColor(Color.parseColor(getTextColor()));
-            titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            titleView.setGravity(Gravity.CENTER);
-            titleView.setPadding(0, 0, 0, dp2px(16));
-            layout.addView(titleView);
+            TextView 标题视图 = new TextView(活动);
+            标题视图.setText("设置群组续火时间 (HH:mm)");
+            标题视图.setTextColor(Color.parseColor(getTextColor()));
+            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            标题视图.setGravity(Gravity.CENTER);
+            标题视图.setPadding(0, 0, 0, dp2px(16));
+            布局.addView(标题视图);
             
-            final EditText timeEditText = new EditText(activity);
-            timeEditText.setText(groupFireTime);
-            timeEditText.setHint("例如: 00:00");
-            timeEditText.setTextColor(Color.parseColor(getTextColor()));
-            timeEditText.setHintTextColor(Color.parseColor(getSubTextColor()));
-            timeEditText.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            timeEditText.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            layout.addView(timeEditText);
+            final EditText 时间编辑框 = new EditText(活动);
+            时间编辑框.setText(子言花言飘叶落飘);
+            时间编辑框.setHint("例如: 00:00");
+            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
+            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
+            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+            布局.addView(时间编辑框);
             
-            dialogBuilder.setView(layout);
+            对话框构建器.setView(布局);
             
-            dialogBuilder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    String timeText = timeEditText.getText().toString().trim();
-                    if (timeText.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        groupFireTime = timeText;
+            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface 对话框, int 选项) {
+                    String 时间文本 = 时间编辑框.getText().toString().trim();
+                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                        子言花言飘叶落飘 = 时间文本;
                         saveTimeConfig();
-                        Toasts("已设置群组续火时间: " + groupFireTime);
+                        Toasts("已设置群组续火时间: " + 子言花言飘叶落飘);
                         checkAndExecuteTasks();
                     } else {
                         Toasts("时间格式错误，请使用 HH:mm 格式");
@@ -1834,202 +1834,27 @@ public void configGroupFireTime(String groupUin, String userUin, int chatType) {
                 }
             });
             
-            dialogBuilder.setNegativeButton("取消", null);
+            对话框构建器.setNegativeButton("取消", null);
             
-            AlertDialog dialog = dialogBuilder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.show();
+            AlertDialog 对话框 = 对话框构建器.create();
+            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            对话框.show();
             
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-            lp.copyFrom(dialog.getWindow().getAttributes());
-            lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
-            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            dialog.getWindow().setAttributes(lp);
+            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
+            布局参数.copyFrom(对话框.getWindow().getAttributes());
+            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
+            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            对话框.getWindow().setAttributes(布局参数);
             
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
             
-            Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (positiveButton != null) {
-                positiveButton.setTextColor(Color.parseColor(accentColor));
+            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
+            if (保存按钮 != null) {
+                保存按钮.setTextColor(Color.parseColor(强调色));
             }
-            Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (negativeButton != null) {
-                negativeButton.setTextColor(Color.parseColor(accentColor));
-            }
-        }
-    });
-}
-
-void exportToJSON(final Activity activity) {
-    try {
-        String configJSON = buildConfigJSON();
-        String fileName = "任务配置_" + getCurrentDate().replace("-", "") + "_" + getCurrentTime().replace(":", "") + ".json";
-        String downloadPath = "/storage/emulated/0/Download/" + fileName;
-        
-        File downloadDir = new File("/storage/emulated/0/Download");
-        if (!downloadDir.exists()) {
-            downloadDir.mkdirs();
-        }
-        
-        writeTextToFile(downloadPath, configJSON);
-        showExportSuccessDialog(activity, downloadPath, "JSON格式");
-        
-    } catch (Exception e) {
-        Toasts("导出JSON失败: " + e.getMessage());
-    }
-}
-
-void exportToText(final Activity activity) {
-    try {
-        String configText = buildConfigText();
-        String fileName = "任务配置_" + getCurrentDate().replace("-", "") + "_" + getCurrentTime().replace(":", "") + ".txt";
-        String downloadPath = "/storage/emulated/0/Download/" + fileName;
-        
-        File downloadDir = new File("/storage/emulated/0/Download");
-        if (!downloadDir.exists()) {
-            downloadDir.mkdirs();
-        }
-        
-        writeTextToFile(downloadPath, configText);
-        showExportSuccessDialog(activity, downloadPath, "文本格式");
-        
-    } catch (Exception e) {
-        Toasts("导出文本失败: " + e.getMessage());
-    }
-}
-
-void showExportSuccessDialog(final Activity activity, final String filePath, final String format) {
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                int theme = getCurrentTheme();
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setTitle("导出成功");
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
-                
-                TextView title = new TextView(activity);
-                title.setText("配置已成功导出 (" + format + ")");
-                title.setTextSize(16);
-                title.setTextColor(Color.parseColor(getTextColor()));
-                title.setGravity(Gravity.CENTER);
-                title.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(title);
-                
-                TextView pathText = new TextView(activity);
-                pathText.setText("文件路径:\n" + filePath);
-                pathText.setTextSize(14);
-                pathText.setTextColor(Color.parseColor(getTextColor()));
-                pathText.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(16));
-                layout.addView(pathText);
-                
-                TextView hint = new TextView(activity);
-                hint.setText("提示: 文件已保存到下载目录，您可以通过文件管理器访问");
-                hint.setTextSize(12);
-                hint.setTextColor(Color.parseColor("#4CAF50"));
-                hint.setPadding(dp2px(8), dp2px(8), dp2px(8), dp2px(8));
-                layout.addView(hint);
-                
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(layout);
-                
-                builder.setView(scrollView);
-                builder.setPositiveButton("确定", null);
-                
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
-                
-            } catch (Exception e) {
-                Toasts("显示导出信息失败");
-            }
-        }
-    });
-}
-
-void showAdvancedImportExportMenu(final Activity activity) {
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                int theme = getCurrentTheme();
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
-                builder.setTitle("导入导出配置");
-                
-                LinearLayout layout = new LinearLayout(activity);
-                layout.setOrientation(LinearLayout.VERTICAL);
-                layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                layout.setBackground(getWebShape(getCardColor(), dp2px(8)));
-                
-                TextView hint = new TextView(activity);
-                hint.setText("配置文件将保存到/从下载目录操作：");
-                hint.setTextSize(14);
-                hint.setTextColor(Color.parseColor(getTextColor()));
-                hint.setPadding(0, 0, 0, dp2px(16));
-                layout.addView(hint);
-                
-                String accentColor = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-                
-                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(44)
-                );
-                buttonParams.setMargins(0, 0, 0, dp2px(8));
-                
-                Button btnExport = new Button(activity);
-                btnExport.setText("导出配置到下载目录");
-                btnExport.setTextColor(Color.WHITE);
-                btnExport.setBackground(getShape(accentColor, dp2px(6)));
-                btnExport.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnExport.setLayoutParams(buttonParams);
-                btnExport.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        showExportOptions(activity);
-                    }
-                });
-                
-                Button btnImport = new Button(activity);
-                btnImport.setText("从下载目录导入配置");
-                btnImport.setTextColor(Color.WHITE);
-                btnImport.setBackground(getShape(accentColor, dp2px(6)));
-                btnImport.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnImport.setLayoutParams(buttonParams);
-                btnImport.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        showImportFromDownload(activity);
-                    }
-                });
-                
-                Button btnViewDownload = new Button(activity);
-                btnViewDownload.setText("查看下载目录中的配置文件");
-                btnViewDownload.setTextColor(Color.WHITE);
-                btnViewDownload.setBackground(getShape("#757575", dp2px(6)));
-                btnViewDownload.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
-                btnViewDownload.setLayoutParams(buttonParams);
-                btnViewDownload.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        listDownloadDirectory(activity);
-                    }
-                });
-                
-                layout.addView(btnExport);
-                layout.addView(btnImport);
-                layout.addView(btnViewDownload);
-                
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(layout);
-                
-                builder.setView(scrollView);
-                builder.setNegativeButton("关闭", null);
-                
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
-                
-            } catch (Exception e) {
-                Toasts("显示菜单失败: " + e.getMessage());
+            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
+            if (取消按钮 != null) {
+                取消按钮.setTextColor(Color.parseColor(强调色));
             }
         }
     });
