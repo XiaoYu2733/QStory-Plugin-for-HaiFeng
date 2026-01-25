@@ -38,34 +38,34 @@ import android.graphics.Typeface;
 import android.widget.ScrollView;
 import android.util.DisplayMetrics;
 
-ArrayList selectedFriendsForLike = new ArrayList();
-String lastLikeDate = "";
-String likeTime = "00:00";
+ArrayList 落叶叶子叶落子飘 = new ArrayList();
+String 飘花叶言飘花 = "";
+String 叶飘叶落言叶子叶落子 = "00:00";
 
-ArrayList selectedFriendsForFire = new ArrayList();
-ArrayList friendFireWords = new ArrayList();
-String lastFriendFireDate = "";
-String friendFireTime = "00:00";
+ArrayList 落言花飘言落言 = new ArrayList();
+ArrayList 飘飘叶飘 = new ArrayList();
+String 言子言叶花子落 = "";
+String 飘飘花花 = "00:00";
 
-ArrayList selectedGroupsForFire = new ArrayList();
-ArrayList groupFireWords = new ArrayList();
-String lastGroupFireDate = "";
-String groupFireTime = "00:00";
+ArrayList 飘飘花言飘飘 = new ArrayList();
+ArrayList 叶落花落 = new ArrayList();
+String 落叶子子子叶 = "";
+String 子言花言飘叶落飘 = "00:00";
 
-long lastLikeClickTime = 0;
-long lastFriendFireClickTime = 0;
-long lastGroupFireClickTime = 0;
+long 叶言飘言花飘叶叶花 = 0;
+long 言落子子子 = 0;
+long 子花子飘 = 0;
 
-String configDir = appPath + "/配置文件";
-String likeFriendsPath = configDir + "/点赞好友.txt";
-String friendFirePath = configDir + "/续火好友.txt";
-String groupFirePath = configDir + "/续火群组.txt";
+String 花飘言子 = appPath + "/配置文件";
+String 叶花落叶叶落花叶 = 花飘言子 + "/点赞好友.txt";
+String 飘飘叶花飘落飘落 = 花飘言子 + "/续火好友.txt";
+String 子叶言飘子言花言花叶 = 花飘言子 + "/续火群组.txt";
 
-String friendFireWordsPath = appPath + "/续火语录/好友续火语录.txt";
-String groupFireWordsPath = appPath + "/续火语录/群组续火语录.txt";
-String timeConfigPath = appPath + "/执行时间";
+String 落叶花花飘言子子飘花 = appPath + "/续火语录/好友续火语录.txt";
+String 子叶花花花飘 = appPath + "/续火语录/群组续火语录.txt";
+String 花叶落飘落 = appPath + "/执行时间";
 
-Handler mainHandler = new Handler(Looper.getMainLooper());
+Handler 叶落飘花 = new Handler(Looper.getMainLooper());
 
 load(appPath + "/核心功能/ConfigManager.java");
 load(appPath + "/核心功能/TaskExecutor.java");
@@ -74,43 +74,43 @@ load(appPath + "/核心功能/ScheduleManager.java");
 
 loadConfig();
 
-Runnable timerRunnable = new Runnable() {
+Runnable 子言子花花子 = new Runnable() {
     public void run() {
         try {
-            String currentDate = getCurrentDate();
-            String currentTime = getCurrentTime();
+            String 当前日期 = getCurrentDate();
+            String 当前时间 = getCurrentTime();
             
-            if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime) && !selectedFriendsForLike.isEmpty()) {
-                lastLikeDate = currentDate;
-                putString("DailyLike", "lastLikeDate", currentDate);
+            if (!当前日期.equals(飘花叶言飘花) && 当前时间.equals(叶飘叶落言叶子叶落子) && !落叶叶子叶落子飘.isEmpty()) {
+                飘花叶言飘花 = 当前日期;
+                putString("DailyLike", "lastLikeDate", 当前日期);
                 executeLikeTask();
             }
             
-            if (!currentDate.equals(lastFriendFireDate) && currentTime.equals(friendFireTime) && !selectedFriendsForFire.isEmpty()) {
-                lastFriendFireDate = currentDate;
-                putString("KeepFire", "lastSendDate", currentDate);
+            if (!当前日期.equals(言子言叶花子落) && 当前时间.equals(飘飘花花) && !落言花飘言落言.isEmpty()) {
+                言子言叶花子落 = 当前日期;
+                putString("KeepFire", "lastSendDate", 当前日期);
                 executeFriendFireTask();
             }
             
-            if (!currentDate.equals(lastGroupFireDate) && currentTime.equals(groupFireTime) && !selectedGroupsForFire.isEmpty()) {
-                lastGroupFireDate = currentDate;
-                putString("GroupFire", "lastSendDate", currentDate);
+            if (!当前日期.equals(落叶子子子叶) && 当前时间.equals(子言花言飘叶落飘) && !飘飘花言飘飘.isEmpty()) {
+                落叶子子子叶 = 当前日期;
+                putString("GroupFire", "lastSendDate", 当前日期);
                 executeGroupFireTask();
             }
         } catch (Exception e) {}
         
-        mainHandler.postDelayed(this, 10000);
+        叶落飘花.postDelayed(this, 10000);
     }
 };
 
-mainHandler.post(timerRunnable);
+叶落飘花.post(子言子花花子);
 
-addItem("配置执行任务", "menu1");
-addItem("配置续火语录", "menu2");
-addItem("配置执行时间", "menu3");
-addItem("立即执行任务", "menu4");
+addItem("配置执行任务", "配置执行任务方法");
+addItem("配置续火语录", "配置续火语录方法");
+addItem("配置执行时间", "配置执行时间方法");
+addItem("立即执行任务", "立即执行任务方法");
 
-public void menu1(String g, String u, int t) {
+public void 配置执行任务方法(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -119,7 +119,7 @@ public void menu1(String g, String u, int t) {
     showMainMenu(a);
 }
 
-public void menu2(String g, String u, int t) {
+public void 配置续火语录方法(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -128,7 +128,7 @@ public void menu2(String g, String u, int t) {
     showWordsMenu(a);
 }
 
-public void menu3(String g, String u, int t) {
+public void 配置执行时间方法(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -137,7 +137,7 @@ public void menu3(String g, String u, int t) {
     showTimeMenu(a);
 }
 
-public void menu4(String g, String u, int t) {
+public void 立即执行任务方法(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -146,47 +146,55 @@ public void menu4(String g, String u, int t) {
     showExecuteMenu(a);
 }
 
-public void immediateLike(String groupUin, String userUin, int chatType){
-    long currentTime = System.currentTimeMillis();
-    if(currentTime - lastLikeClickTime < 60000){
-        long remainingTime = (60000 - (currentTime - lastLikeClickTime)) / 1000;
-        Toasts("冷却中，请" + remainingTime + "秒后再试");
+public void immediateLike(String 群号, String 用户, int 类型){
+    long 当前时间 = System.currentTimeMillis();
+    if(当前时间 - 叶言飘言花飘叶叶花 < 60000){
+        long 剩余时间 = (60000 - (当前时间 - 叶言飘言花飘叶叶花)) / 1000;
+        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
         return;
     }
-    lastLikeClickTime = currentTime;
-    if (selectedFriendsForLike.isEmpty()) {
+    叶言飘言花飘叶叶花 = 当前时间;
+    if (落叶叶子叶落子飘.isEmpty()) {
         Toasts("请先配置要点赞的好友");
         return;
     }
     executeLikeTask();
 }
 
-public void immediateFriendFire(String groupUin, String userUin, int chatType){
-    long currentTime = System.currentTimeMillis();
-    if(currentTime - lastFriendFireClickTime < 60000){
-        long remainingTime = (60000 - (currentTime - lastFriendFireClickTime)) / 1000;
-        Toasts("冷却中，请" + remainingTime + "秒后再试");
+public void immediateFriendFire(String 群号, String 用户, int 类型){
+    long 当前时间 = System.currentTimeMillis();
+    if(当前时间 - 言落子子子 < 60000){
+        long 剩余时间 = (60000 - (当前时间 - 言落子子子)) / 1000;
+        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
         return;
     }
-    lastFriendFireClickTime = currentTime;
-    if (selectedFriendsForFire.isEmpty()) {
+    言落子子子 = 当前时间;
+    if (落言花飘言落言.isEmpty()) {
         Toasts("请先配置要续火的好友");
         return;
     }
     executeFriendFireTask();
 }
 
-public void immediateGroupFire(String groupUin, String userUin, int chatType){
-    long currentTime = System.currentTimeMillis();
-    if(currentTime - lastGroupFireClickTime < 60000){
-        long remainingTime = (60000 - (currentTime - lastGroupFireClickTime)) / 1000;
-        Toasts("冷却中，请" + remainingTime + "秒后再试");
+public void immediateGroupFire(String 群号, String 用户, int 类型){
+    long 当前时间 = System.currentTimeMillis();
+    if(当前时间 - 子花子飘 < 60000){
+        long 剩余时间 = (60000 - (当前时间 - 子花子飘)) / 1000;
+        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
         return;
     }
-    lastGroupFireClickTime = currentTime;
-    if (selectedGroupsForFire.isEmpty()) {
+    子花子飘 = 当前时间;
+    if (飘飘花言飘飘.isEmpty()) {
         Toasts("请先配置要续火的群组");
         return;
     }
     executeGroupFireTask();
+}
+
+try {
+    File 花飘言子 = new File(appPath + "/error.txt");
+    if (花飘言子.exists()) {
+        花飘言子.delete();
+    }
+} catch (Exception 落叶叶子叶落子飘) {
 }
