@@ -1080,6 +1080,21 @@ public void forbiddenMenuItem(Object msg) {
             
             layout.addView(inputEditText);
             
+            TextView timeHint = new TextView(getActivity());
+            timeHint.setText("禁言时间参考示例：\n" +
+                           "1小时 = 3600秒\n" +
+                           "12小时 = 43200秒\n" +
+                           "24小时 = 86400秒\n" +
+                           "3天 = 259200秒\n" +
+                           "7天 = 604800秒\n" +
+                           "15天 = 1296000秒\n" +
+                           "30天 = 2592000秒");
+            timeHint.setTextSize(14);
+            timeHint.setTextColor(hintTextColor);
+            timeHint.setLineSpacing(dp2px(4), 1);
+            timeHint.setPadding(0, dp2px(12), 0, 0);
+            layout.addView(timeHint);
+            
             builder.setView(layout);
             
             builder.setPositiveButton("确定禁言", new android.content.DialogInterface.OnClickListener() {
@@ -1125,95 +1140,95 @@ public void forbiddenMenuItem(Object msg) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             
             Window window = dialog.getWindow();
-            if (window != null) {
-                GradientDrawable windowBg = new GradientDrawable();
-                windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
-                windowBg.setCornerRadius(dp2px(20));
-                window.setBackgroundDrawable(windowBg);
-            }
-            
-            dialog.show();
-        }
-    });
-}
-
-public void setTitleMenuItem(Object msg) {
-    if (msg == null || !msg.IsGroup) return;
-    
-    final String groupUin = msg.GroupUin;
-    final String targetUin = msg.UserUin;
-    
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
-            builder.setTitle("设置头衔");
-            
-            LinearLayout layout = new LinearLayout(getActivity());
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
-            
-            GradientDrawable bg = new GradientDrawable();
-            bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
-            bg.setCornerRadius(dp2px(16));
-            bg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
-            int textColor = isDark ? Color.parseColor("#E4E6EB") : Color.parseColor("#1A1A1A");
-            int hintTextColor = isDark ? Color.parseColor("#9A9DA3") : Color.parseColor("#666666");
-            layout.setBackground(bg);
-            
-            TextView hint = new TextView(getActivity());
-            hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
-            hint.setTextSize(16);
-            hint.setTextColor(textColor);
-            hint.setPadding(0, 0, 0, dp2px(16));
-            layout.addView(hint);
-            
-            final EditText inputEditText = new EditText(getActivity());
-            inputEditText.setHint("请输入头衔内容");
-            inputEditText.setHintTextColor(hintTextColor);
-            inputEditText.setTextColor(textColor);
-            
-            GradientDrawable etBg = new GradientDrawable();
-            etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
-            etBg.setCornerRadius(dp2px(12));
-            etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
-            inputEditText.setBackground(etBg);
-            inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
-            inputEditText.setTextSize(16);
-            
-            layout.addView(inputEditText);
-            
-            builder.setView(layout);
-            
-            builder.setPositiveButton("确定设置", new android.content.DialogInterface.OnClickListener() {
-                public void onClick(android.content.DialogInterface dialog, int which) {
-                    String input = inputEditText.getText().toString().trim();
-                    if (!input.isEmpty()) {
-                        setTitle(groupUin, targetUin, input);
-                        toast("已经为 " + 名(targetUin) + " 设置了头衔: " + input);
-                    } else {
-                        toast("请输入头衔内容");
-                    }
+                if (window != null) {
+                    GradientDrawable windowBg = new GradientDrawable();
+                    windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                    windowBg.setCornerRadius(dp2px(20));
+                    window.setBackgroundDrawable(windowBg);
                 }
-            });
-            
-            builder.setNegativeButton("取消", null);
-            
-            AlertDialog dialog = builder.create();
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            
-            Window window = dialog.getWindow();
-            if (window != null) {
-                GradientDrawable windowBg = new GradientDrawable();
-                windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
-                windowBg.setCornerRadius(dp2px(20));
-                window.setBackgroundDrawable(windowBg);
+                
+                dialog.show();
             }
-            
-            dialog.show();
-        }
-    });
-}
+        });
+    }
+
+    public void setTitleMenuItem(Object msg) {
+        if (msg == null || !msg.IsGroup) return;
+        
+        final String groupUin = msg.GroupUin;
+        final String targetUin = msg.UserUin;
+        
+        Activity activity = getActivity();
+        if (activity == null) return;
+        
+        activity.runOnUiThread(new Runnable() {
+            public void run() {
+                boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                builder.setTitle("设置头衔");
+                
+                LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+                
+                GradientDrawable bg = new GradientDrawable();
+                bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                bg.setCornerRadius(dp2px(16));
+                bg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                int textColor = isDark ? Color.parseColor("#E4E6EB") : Color.parseColor("#1A1A1A");
+                int hintTextColor = isDark ? Color.parseColor("#9A9DA3") : Color.parseColor("#666666");
+                layout.setBackground(bg);
+                
+                TextView hint = new TextView(getActivity());
+                hint.setText("目标用户: " + 名(targetUin) + "(" + targetUin + ")");
+                hint.setTextSize(16);
+                hint.setTextColor(textColor);
+                hint.setPadding(0, 0, 0, dp2px(16));
+                layout.addView(hint);
+                
+                final EditText inputEditText = new EditText(getActivity());
+                inputEditText.setHint("请输入头衔内容");
+                inputEditText.setHintTextColor(hintTextColor);
+                inputEditText.setTextColor(textColor);
+                
+                GradientDrawable etBg = new GradientDrawable();
+                etBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
+                etBg.setCornerRadius(dp2px(12));
+                etBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                inputEditText.setBackground(etBg);
+                inputEditText.setPadding(dp2px(16), dp2px(12), dp2px(16), dp2px(12));
+                inputEditText.setTextSize(16);
+                
+                layout.addView(inputEditText);
+                
+                builder.setView(layout);
+                
+                builder.setPositiveButton("确定设置", new android.content.DialogInterface.OnClickListener() {
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        String input = inputEditText.getText().toString().trim();
+                        if (!input.isEmpty()) {
+                            setTitle(groupUin, targetUin, input);
+                            toast("已经为 " + 名(targetUin) + " 设置了头衔: " + input);
+                        } else {
+                            toast("请输入头衔内容");
+                        }
+                    }
+                });
+                
+                builder.setNegativeButton("取消", null);
+                
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    GradientDrawable windowBg = new GradientDrawable();
+                    windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                    windowBg.setCornerRadius(dp2px(20));
+                    window.setBackgroundDrawable(windowBg);
+                }
+                
+                dialog.show();
+            }
+        });
+    }

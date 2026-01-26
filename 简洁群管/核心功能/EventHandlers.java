@@ -889,6 +889,21 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
                 
                 layout.addView(inputEditText);
                 
+                TextView timeHint = new TextView(activity);
+                timeHint.setText("禁言时间参考：\n" +
+                               "1小时 = 3600秒\n" +
+                               "12小时 = 43200秒\n" +
+                               "24小时 = 86400秒\n" +
+                               "3天 = 259200秒\n" +
+                               "7天 = 604800秒\n" +
+                               "15天 = 1296000秒\n" +
+                               "30天 = 2592000秒");
+                timeHint.setTextSize(14);
+                timeHint.setTextColor(hintTextColor);
+                timeHint.setLineSpacing(dp2px(4), 1);
+                timeHint.setPadding(0, dp2px(12), 0, 0);
+                layout.addView(timeHint);
+                
                 builder.setView(layout);
                 
                 builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
