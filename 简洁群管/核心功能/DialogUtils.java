@@ -609,8 +609,6 @@ public void showUpdateLog(String g, String u, int t) {
                         "——————————\n" +
                         "简洁群管_118.0_更新日志\n" +
                         "- [修复] 一些存在的问题\n" +
-                        "——————————\n" +
-                        "简洁群管_119.0_更新日志\n" +
                         "- [添加] 快捷群管以及设置艾特禁言时间方法添加禁言添加显示时间\n\n" +
                         "喜欢的人要早点说 有bug及时反馈\n\n交流群:https://t.me/XiaoYu_Chat");
                 textView.setTextSize(14);
