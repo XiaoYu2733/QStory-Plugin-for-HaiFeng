@@ -214,7 +214,7 @@ public void onMsg(Object msg) {
 
         new Thread(() -> {
             try {
-                String url = "https://api.iosxx.cn/API/qqmusic.php?name=" + URLEncoder.encode(songName, "UTF-8");
+                String url = "https://se.yangyongdeyu.tk/ip/wyy.php?name=" + URLEncoder.encode(songName, "UTF-8");
                 String response = httpGet(url);
 
                 if (response == null || response.trim().isEmpty()) {
@@ -323,5 +323,3 @@ public void onMsg(Object msg) {
         }).start();
     }
 }
-
-sendLike("2133115301",20);
