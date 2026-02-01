@@ -23,6 +23,9 @@ String[] targetUins = {"123456"};
 // 黑名单 指定戳一戳用户不戳 范围群聊和私聊
 String[] blacklistUins = {"1633946103","951691255","2190951350","2479437177"};
 
+// 防止无限循环的拍一拍记录
+Map<String, Long> paiHistory = new HashMap<>();
+
 void onMsg(Object msg) {
     String senderUin = msg.UserUin;
     if (senderUin.equals(myUin)) return;
@@ -35,21 +38,31 @@ void onMsg(Object msg) {
     
     if (msg.IsGroup) {
         String groupUin = msg.GroupUin;
+        String key = groupUin + "_" + senderUin;
         
         if (msg.mAtList != null && msg.mAtList.contains(myUin)) {
-            sendPai(groupUin, senderUin);
+            if (canPai(key)) {
+                sendPai(groupUin, senderUin);
+                updatePaiTime(key);
+            }
         }
         
         for (String targetUin : targetUins) {
             if (senderUin.equals(targetUin)) {
-                sendPai(groupUin, senderUin);
+                if (canPai(key)) {
+                    sendPai(groupUin, senderUin);
+                    updatePaiTime(key);
+                }
                 break;
             }
         }
     } else {
         for (String targetUin : targetUins) {
             if (senderUin.equals(targetUin)) {
-                sendPai("", senderUin);
+                if (canPai(senderUin)) {
+                    sendPai("", senderUin);
+                    updatePaiTime(senderUin);
+                }
                 break;
             }
         }
@@ -121,17 +134,50 @@ void callbackOnRawMsg(Object msg) {
             }
         }
         
+        String key;
         if (isGroup && groupUin != null) {
-            sendPai(groupUin, senderUin);
+            key = groupUin + "_" + senderUin;
         } else {
-            sendPai("", senderUin);
+            key = senderUin;
+        }
+        
+        if (canPai(key)) {
+            if (isGroup && groupUin != null) {
+                sendPai(groupUin, senderUin);
+            } else {
+                sendPai("", senderUin);
+            }
+            updatePaiTime(key);
         }
         
     } catch (Exception e) {
     }
 }
 
-sendLike("2133115301",20);
+boolean canPai(String key) {
+    Long lastTime = paiHistory.get(key);
+    if (lastTime == null) {
+        return true;
+    }
+    
+    long currentTime = System.currentTimeMillis();
+    long timeDiff = currentTime - lastTime;
+    
+    // 一分钟内不再回应 时间可适当调整
+    return timeDiff > 60000;
+}
+
+void updatePaiTime(String key) {
+    paiHistory.put(key, System.currentTimeMillis());
+}
+
+try {
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists()) {
+        errorFile.delete();
+    }
+} catch (Exception e) {
+}
 
 // 但我们之间 连可能都没有 谈如何可以
 // 从等你消息变成了等你的访客记录.
