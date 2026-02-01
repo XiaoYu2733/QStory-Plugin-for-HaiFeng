@@ -17,13 +17,15 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 // 支持多个用户 请用 , 和 "" 隔开
+// 这里不要动
 String atPaiConfig = "AtPai";
-// 配置指定人戳一戳 支持私聊和群聊（不是艾特回戳） 配置用户后该用户发一条消息就会戳一次 范围是群聊和私聊 和艾特回戳可能冲突
-String[] targetUins = {"123456"};
-// 黑名单 指定戳一戳用户不戳 范围群聊和私聊
+
+// 以下是 配置指定人戳一戳 支持私聊和群聊（不是艾特回戳） 配置用户后该用户发一条消息就会戳一次 范围是群聊和私聊 和艾特回戳可能冲突
+String[] targetUins = {"404910156"};
+
+// 以下是 黑名单 指定戳一戳用户不戳 范围群聊和私聊
 String[] blacklistUins = {"1633946103","951691255","2190951350","2479437177"};
 
-// 防止无限循环的拍一拍记录
 Map<String, Long> paiHistory = new HashMap<>();
 
 void onMsg(Object msg) {
@@ -164,7 +166,7 @@ boolean canPai(String key) {
     long timeDiff = currentTime - lastTime;
     
     // 一分钟内不再回应 时间可适当调整
-    return timeDiff > 60000;
+    return timeDiff > 2000;
 }
 
 void updatePaiTime(String key) {
