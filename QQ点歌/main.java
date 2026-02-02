@@ -11,6 +11,110 @@ import java.util.Random;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.security.MessageDigest;
+import android.app.Activity;
+
+import android.widget.Toast;
+import java.io.File;
+import com.tencent.common.app.BaseApplicationImpl;
+
+import com.tencent.mobileqq.data.troop.TroopInfo;
+import com.tencent.mobileqq.app.ITroopInfoService;
+
+import android.view.*;
+import android.widget.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.json.JSONException;
+import java.io.*;
+
+import java.net.*;
+import java.util.*;
+
+import java.text.SimpleDateFormat;
+import java.util.regex.*;
+import java.lang.reflect.*;
+
+import android.os.Bundle;
+import android.os.Environment;
+
+import android.content.Context;
+import android.app.Activity;
+import android.app.AlertDialog;
+
+import android.content.DialogInterface;
+import android.graphics.*;
+import android.graphics.drawable.*;
+
+import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.view.WindowManager;
+import android.view.Gravity;
+
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.graphics.PixelFormat;
+import android.widget.SeekBar;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.renderscript.*;
+
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.telephony.TelephonyManager;
+import android.net.wifi.WifiManager;
+import android.net.ConnectivityManager;
+
+import android.provider.Settings;
+
+import android.app.ActivityManager;
+import android.text.format.Formatter;
+import android.webkit.WebView;
+
+import androidx.fragment.app.Fragment;
+import com.tencent.mobileqq.app.BaseActivity;
+import com.tencent.mobileqq.transfile.TransferRequest;
+
+import com.tencent.mobileqq.friend.api.IFriendDataService;
+import com.tencent.mobileqq.data.Friends;
+
+import com.tencent.mobileqq.qroute.QRoute;
+import com.tencent.qqnt.msg.api.IMsgUtilApi;
+import com.tencent.qqnt.msg.api.IMsgService;
+import com.tencent.qqnt.kernel.nativeinterface.*;
+
+import mqq.app.AppService;
+import mqq.manager.TicketManager;
+
+import oicq.wlogin_sdk.request.WtloginHelper;
+import com.tencent.relation.common.api.IRelationNTUinAndUidApi;
+import com.tencent.mobileqq.troop.clockin.handler.TroopClockInHandler;
+import com.tencent.mobileqq.profilecard.api.IProfileDataService;
+
+import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
+import com.tencent.mobileqq.data.Card;
+
+import com.tencent.mobileqq.forward.ForwardSDKB77Sender;
+import com.tencent.mobileqq.structmsg.StructMsgForAudioShare;
+
+import com.tencent.mobileqq.structmsg.AbsShareMsg;
+import java.security.MessageDigest;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import java.math.BigInteger;
+import java.util.zip.*;
+import android.content.pm.PackageManager;
+
+import android.content.pm.ApplicationInfo;
+import dalvik.system.DexClassLoader;
+import com.tencent.aio.data.AIOParam;
+import lin.xposed.hook.HookEnv;
 
 String configName = "haifeng";
 String modeConfigName = "music_mode";
@@ -25,9 +129,10 @@ String myWeb = "https://api.yuafeng.cn/API/ly/";
 String SECRET = "lengyu520";
 
 addItem("开启/关闭点歌功能", "haifeng520");
-addItem("切换语音/卡片点歌", "xkong520");
+addItem("切换语音/卡片点歌", "xkong520"); // 只想你 只喜欢你 只爱你 只想和你永远在一起.(⑅˘̤ ᵕ˘̤)*♡*
 addItem("开启/关闭显示歌词", "xiaoyu520");
 
+// 我在你的世界外徘徊了很久
 public void xiaoyu520(String groupUin, String uin, int chatType) {
     if (chatType == 2) {
         if (getBoolean(lyricConfigName, groupUin, false)) {
@@ -49,6 +154,8 @@ public void xiaoyu520(String groupUin, String uin, int chatType) {
     }
 }
 
+// 其实 我的心也想离你近一点
+
 public void haifeng520(String groupUin, String uin, int chatType) {
     if (chatType == 2) {
         if (getBoolean(configName, groupUin, false)) {
@@ -69,6 +176,8 @@ public void haifeng520(String groupUin, String uin, int chatType) {
         }
     }
 }
+
+// 生于海 归与海 一鲸落 万物生 这是它给大海最后的温柔
 
 public void xkong520(String groupUin, String uin, int chatType) {
     if (chatType == 2) {
@@ -541,3 +650,13 @@ class SearchResult {
     public org.json.JSONArray data;
     public long timestamp;
 }
+
+try {
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists()) {
+        errorFile.delete();
+    }
+} catch (Exception e) {
+}
+
+// 喜欢的歌要一直听 爱的人要拉紧
