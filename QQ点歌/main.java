@@ -1,7 +1,7 @@
 
 // 海枫
 
-// 点歌接口来自冷雨 感谢冷雨提供的接口 请勿搬运接口或用于非法用途
+// 点歌接口来自冷雨 感谢冷雨提供的接口 请勿搬运接口以及用于非法用途
 
 // 宇宙這麼大 你消失之後我該去哪裡找你
 
@@ -348,7 +348,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
             String encodedMsg = URL(songName, 1);
             String sign = calculateSign(songName);
             String url = myWeb + "qqmusicu.php?msg=" + encodedMsg + "&num=30&sign=" + sign;
-            
+
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
                 if (isGroup) {
@@ -358,9 +358,9 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 }
                 return;
             }
-            
+
             JSONObject json = new JSONObject(response);
-            
+
             if (json.getInt("code") != 0) {
                 String errorMsg = json.optString("msg", "未知错误");
                 if (isGroup) {
@@ -370,9 +370,9 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 }
                 return;
             }
-            
+
             org.json.JSONArray data = json.getJSONArray("data");
-            
+
             if (data.length() == 0) {
                 if (isGroup) {
                     sendMsg(group, "", "未找到相关歌曲");
@@ -381,15 +381,15 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 }
                 return;
             }
-            
+
             SearchResult result = new SearchResult();
             result.type = "QQ";
             result.data = data;
             result.timestamp = System.currentTimeMillis();
-            
+
             String key = group + "_" + uin;
             search_results.put(key, result);
-            
+
             StringBuilder resultText = new StringBuilder();
             resultText.append("搜索结果：\n");
             int displayCount = Math.min(data.length(), 15);
@@ -400,13 +400,13 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 resultText.append((i + 1)).append("、").append(title).append("——").append(singer).append("\n");
             }
             resultText.append("\n请发送序号选择（1-").append(displayCount).append("）\n发送\"取消点歌\"取消");
-            
+
             if (isGroup) {
                 sendMsg(group, "", resultText.toString());
             } else {
                 sendMsg("", uin, resultText.toString());
             }
-            
+
         } catch (Exception e) {
             error(e);
             if (isGroup) {
@@ -423,7 +423,7 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
         try {
             String sign = calculateSignForMid(mid);
             String url = myWeb + "qqmusicu.php?mid=" + mid + "&sign=" + sign;
-            
+
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
                 if (isGroup) {
@@ -433,9 +433,9 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 }
                 return;
             }
-            
+
             JSONObject json = new JSONObject(response);
-            
+
             if (json.getInt("code") != 0) {
                 String errorMsg = json.optString("msg", "未知错误");
                 if (isGroup) {
@@ -445,15 +445,15 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 }
                 return;
             }
-            
+
             JSONObject data = json.getJSONObject("data");
-            
+
             String title = data.optString("title", data.optString("song", "未知歌曲"));
             String singer = data.optString("author", data.optString("singer", "未知歌手"));
             String coverUrl = data.optString("cover", "");
             String musicUrl = data.optString("music", "");
             String lyric = data.optString("lyric", "");
-            
+
             if (musicUrl.isEmpty()) {
                 if (isGroup) {
                     sendMsg(group, "", "歌曲链接获取失败，可能是VIP歌曲或链接无效");
@@ -462,11 +462,11 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 }
                 return;
             }
-            
+
             String mode = isGroup ? getString(modeConfigName, group, "voice") : getString(privateModeConfigName, uin, "voice");
-            
+
             sendMusicResult(group, uin, title, singer, coverUrl, musicUrl, lyric, mode, isGroup);
-            
+
         } catch (Exception e) {
             error(e);
             if (isGroup) {
@@ -483,27 +483,27 @@ public void processMusicSelection(String text, String uin, String group, boolean
         if (!text.matches("[0-9]+") || text.length() > 2) {
             return;
         }
-        
+
         int index = Integer.parseInt(text);
         String key = group + "_" + uin;
-        
+
         if (!search_results.containsKey(key)) {
             return;
         }
-        
+
         SearchResult result = search_results.get(key);
         if (result == null || result.data == null || index < 1 || index > result.data.length()) {
             return;
         }
-        
+
         if (System.currentTimeMillis() - result.timestamp > 5 * 60 * 1000) {
             search_results.remove(key);
             return;
         }
-        
+
         JSONObject item = result.data.getJSONObject(index - 1);
         String mid = item.optString("mid", "");
-        
+
         if (mid.isEmpty()) {
             if (isGroup) {
                 sendMsg(group, "", "歌曲信息不完整，缺少MID");
@@ -512,11 +512,11 @@ public void processMusicSelection(String text, String uin, String group, boolean
             }
             return;
         }
-        
+
         getMusicByMid(mid, group, uin, isGroup);
-        
+
         search_results.remove(key);
-        
+
     } catch (Exception e) {
         error(e);
     }
@@ -528,15 +528,15 @@ public void sendMusicResult(String group, String uin, String title, String singe
     if (randomTexts.size() > 0) {
         randomText = "\n文案：" + randomTexts.get(rand.nextInt(randomTexts.size()));
     }
-    
+
     String musicInfo = "歌曲：" + title + "\n歌手：" + singer + randomText;
-    
+
     if (isGroup) {
         if (getBoolean(lyricConfigName, group, false) && lyric != null && !lyric.isEmpty()) {
             String cleanLyric = lyric.replace("\r\n", "\n");
             sendMsg(group, "", "歌词：\n" + cleanLyric);
         }
-        
+
         if (mode.equals("card")) {
             boolean success = sendMusicCard(group, title, singer, coverUrl, musicUrl, true);
             if (!success) {
@@ -560,7 +560,7 @@ public void sendMusicResult(String group, String uin, String title, String singe
             String cleanLyric = lyric.replace("\r\n", "\n");
             sendMsg("", uin, "歌词：\n" + cleanLyric);
         }
-        
+
         if (mode.equals("card")) {
             boolean success = sendMusicCard(uin, title, singer, coverUrl, musicUrl, false);
             if (!success) {
@@ -595,12 +595,12 @@ public void onMsg(Object msg) {
             search_results.remove(group + "_" + senderUin);
             sendMsg(group, "", "已清除您的点歌缓存数据");
         } else {
-            search_results.remove(peerUin + "_" + senderUin);
+            search_results.remove(peerUin + "_" + peerUin);
             sendMsg("", peerUin, "已清除您的点歌缓存数据");
         }
         return;
     }
-    
+
     if (text.matches("[0-9]+") && text.length() <= 2) {
         if (isGroup) {
             if (!getBoolean(configName, group, false)) {
@@ -611,11 +611,11 @@ public void onMsg(Object msg) {
             if (!getBoolean(privateConfigName, peerUin, false)) {
                 return;
             }
-            processMusicSelection(text, senderUin, peerUin, false);
+            processMusicSelection(text, peerUin, peerUin, false);
         }
         return;
     }
-    
+
     if (text.startsWith("QQ点歌")) {
         if (isGroup) {
             if (!getBoolean(configName, group, false)) {
@@ -640,7 +640,7 @@ public void onMsg(Object msg) {
         if (isGroup) {
             searchQQMusic(songName, group, senderUin, true);
         } else {
-            searchQQMusic(songName, peerUin, senderUin, false);
+            searchQQMusic(songName, peerUin, peerUin, false);
         }
     }
 }
