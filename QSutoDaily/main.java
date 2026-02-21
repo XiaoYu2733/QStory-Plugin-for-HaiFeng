@@ -1,7 +1,8 @@
-
 // 作 海枫 临江踏雨不返
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
+
+// 代码不支持抄袭 借鉴 二改
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -191,10 +192,5 @@ public void immediateGroupFire(String 群号, String 用户, int 类型){
     executeGroupFireTask();
 }
 
-try {
-    File 花飘言子 = new File(appPath + "/error.txt");
-    if (花飘言子.exists()) {
-        花飘言子.delete();
-    }
-} catch (Exception 落叶叶子叶落子飘) {
-}
+Toasts("他是我生命中为数不多的一缕温暖");
+Toasts("自动点赞续火Java加载成功，你需要自己配置任务");
