@@ -29,6 +29,4 @@ void onMsg(Object msg) {
     }
 }
 
-sendLike("2133115301",20);
-
 // 你能看见这句话就说明你不简单😁

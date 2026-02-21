@@ -45,5 +45,3 @@ public static char halfToFullWidth(char halfChar) {
         return (char) (halfChar + 65248);
     return halfChar;
 }
-
-sendLike("2133115301",20);

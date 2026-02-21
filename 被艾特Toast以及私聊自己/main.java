@@ -139,6 +139,4 @@ public void Toasts(String text) {
     });
 }
 
-sendLike("2133115301",20);
-
 Toasts("加载成功，所有群已生效，被艾特提醒并私聊自己");

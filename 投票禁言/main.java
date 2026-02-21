@@ -220,8 +220,6 @@ public String getCurrentBeijingTime() {
     }
 }
 
-sendLike("2133115301",20);
-
 public void 接着写(String path, String data) {
     FileOutputStream fos = null;
     try {

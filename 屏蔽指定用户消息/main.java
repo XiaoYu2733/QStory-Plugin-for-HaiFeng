@@ -14,5 +14,3 @@ void onMsg(Object msg) {
         }
     }
 }
-
-sendLike("2133115301",20);

@@ -350,5 +350,3 @@ public void removeQQFromFile(String qq) {
         }
     }
 }
-
-sendLike("2133115301",20);

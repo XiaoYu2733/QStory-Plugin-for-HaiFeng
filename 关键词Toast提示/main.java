@@ -171,7 +171,6 @@ private boolean clearKeywords(String groupUin) {
 }
 
 // 山有木兮木有枝 心悦君兮君不知
-sendLike("2133115301",20);
 
 // 人道洛阳花似锦 偏我来时不逢春
 toast("关键词Toast提示Java加载成功");

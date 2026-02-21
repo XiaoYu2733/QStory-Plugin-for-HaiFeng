@@ -30,6 +30,4 @@ void onTroopEvent(String groupUin, String userUin, int type) {
     }
 }
 
-sendLike("2133115301",20);
-
 // 树不会再议掉落的树叶 旧物必有新代替

@@ -1350,8 +1350,6 @@ public void toggleVerify(String groupUin, String uin, int chatType) {
     }
 }
 
-sendLike("2133115301",20);
-
 boolean isVerifyEnabled(String groupUin) {
     return getBoolean(configName, groupUin, false);
 }

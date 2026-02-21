@@ -172,7 +172,5 @@ public void showUpdateLog(String g, String u, int t) {
     });
 }
 
-sendLike("2133115301",20);
-
 // 但我们之间 连可能都没有 谈如何可以
 // 从等你消息变成了等你的访客记录.

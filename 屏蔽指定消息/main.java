@@ -1,8 +1,6 @@
 
 // 海枫
 
-// 
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -142,5 +140,3 @@ void saveKeywords(String groupUin, ArrayList<String> keywords) {
         error(e);
     }
 }
-
-sendLike("2133115301",20);

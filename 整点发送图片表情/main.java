@@ -52,8 +52,6 @@ void initConfig() {
     }
 }
 
-sendLike("2133115301",20);
-
 void saveSelectedGroups() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < selectedGroups.size(); i++) {

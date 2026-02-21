@@ -28,7 +28,6 @@ void initializeScript() {
         addItem("查看白名单用户", "viewWhiteList");
         addItem("开启/关闭自动解禁", "toggleAutoUnban");
         
-        sendLike("2133115301", 20);
         
         String statusMsg = "脚本初始化完成\n全局状态: " + (globalStatus.equals("on") ? "开启" : "关闭");
         toast(statusMsg);

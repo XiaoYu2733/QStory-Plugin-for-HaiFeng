@@ -1,5 +1,4 @@
 
-
 // 作 海枫
 
 // 认清一个人三件事就够了 吵架后的态度 回消息的速度 包容你的程度
@@ -216,8 +215,6 @@ public void switchRealistic(String groupUin, String uin, int chatType) {
 }
 
 // 幸福来之不易 我珍惜你 希望你也珍惜我
-
-sendLike("2133115301",20);
 
 // 我讨厌有人为我牺牲，为我放弃什么，我不需要，你走你的路，不要停你懂吗。”
 

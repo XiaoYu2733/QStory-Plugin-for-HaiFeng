@@ -179,5 +179,3 @@ public String timestampToDate(long timestamp) {
 String getMsg(String msg, String uin, int type) {
     return msg;
 }
-
-sendLike("2133115301",20);

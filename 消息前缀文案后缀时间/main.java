@@ -91,6 +91,3 @@ public void toggleSuffix(String group, String uin, int chatType) {
 public void unLoadPlugin() {
     toast("加载成功 欢迎使用");
 }
-
-
-sendLike("2133115301",20);

@@ -88,8 +88,6 @@ public void Toasts(String text) {
     });
 }
 
-sendLike("2133115301",20);
-
 File blacklistDir = new File(appPath, "黑名单文件夹");
 File blacklistFile = new File(blacklistDir, "黑名单.txt");
 

@@ -20,5 +20,3 @@ public void sendVoiceMenu(Object msg) {
 }
 
 // 我始终做不到说走就走
-
-sendLike("2133115301",20);

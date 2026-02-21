@@ -261,6 +261,4 @@ public void onMsg(Object msg) {
     }
 }
 
-sendLike("2133115301",20);
-
 toast("加载成功 欢迎使用");

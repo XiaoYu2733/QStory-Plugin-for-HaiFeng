@@ -113,6 +113,3 @@ void onMsg(Object msg) {
     int index = (int)(Math.random() * quotesList.size());
     sendMsg(group, "", (String)quotesList.get(index));
 }
-
-sendLike("2133115301",20);
-sendLike("107464738",20);

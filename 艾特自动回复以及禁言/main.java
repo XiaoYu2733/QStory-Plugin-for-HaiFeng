@@ -56,6 +56,4 @@ boolean shouldForbid(Object msg) {
           getBoolean(FORBIDDEN_CONFIG_NAME, msg.GroupUin, false);
 }
 
-sendLike("2133115301",20);
-
 toast("艾特自动回复加载成功\n艾特自动禁言加载成功");

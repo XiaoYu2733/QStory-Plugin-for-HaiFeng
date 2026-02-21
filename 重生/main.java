@@ -291,5 +291,3 @@ void showUpdateLog(String g, String u, int t) {
         }
     });
 }
-
-sendLike("2133115301",20);

@@ -208,5 +208,3 @@ public void clearCacheMenu(String groupUin, String uin, int chatType) {
         }
     }).start();
 }
-
-sendLike("2133115301",20);

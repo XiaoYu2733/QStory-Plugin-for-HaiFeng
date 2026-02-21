@@ -194,5 +194,3 @@ public void showHelpDialog(String group, String user, int chatType) {
 }
 
 toast("举报系统已加载");
-
-sendLike("2133115301",20);

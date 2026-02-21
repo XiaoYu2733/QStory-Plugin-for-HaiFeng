@@ -440,6 +440,4 @@ public void configureFireWords(String g,String u,int t){
     });
 }
 
-sendLike("2133115301",20);
-
 // 我保护自己都拼尽了全力 又该拿什么来保护你
