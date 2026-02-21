@@ -179,6 +179,7 @@ public void showUpdateLog(String g, String u, int t) {
                 textView.setText("QStory精选脚本系列\n\n" +
                         "- [修复] 一些存在的问题\n" +
                         "- [移除] 以前的更新日志堆积成山没有保留的必要，已进行删除从而保持代码的简洁性\n" +
+                        "- [优化] 大幅提升了艾特禁言的速度与判断方法\n" +
                         "- [添加] 快捷群管以及设置艾特禁言时间方法添加禁言添加显示时间\n\n" +
                         "喜欢的人要早点说 有bug及时反馈\n\n交流群:https://t.me/XiaoYu_Chat");
                 textView.setTextSize(14);

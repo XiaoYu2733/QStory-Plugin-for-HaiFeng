@@ -11,12 +11,116 @@
 // 此脚本存在绝大多数中文变量 如果你没有Java基础请勿随意修改 可能造成无法加载或导致QQ频繁闪退
 
 import android.app.Activity;
+
 import android.widget.Toast;
 import java.io.File;
+import com.tencent.common.app.BaseApplicationImpl;
+
+import com.tencent.mobileqq.data.troop.TroopInfo;
+import com.tencent.mobileqq.app.ITroopInfoService;
+
+import android.view.*;
+import android.widget.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.json.JSONException;
+import java.io.*;
+
+import java.net.*;
+import java.util.*;
+
+import java.text.SimpleDateFormat;
+import java.util.regex.*;
+import java.lang.reflect.*;
+
+import android.os.Bundle;
+import android.os.Environment;
+
+import android.content.Context;
+import android.app.Activity;
+import android.app.AlertDialog;
+
+import android.content.DialogInterface;
+import android.graphics.*;
+import android.graphics.drawable.*;
+
+import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.view.WindowManager;
+import android.view.Gravity;
+
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.graphics.PixelFormat;
+import android.widget.SeekBar;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
+import android.renderscript.*;
+
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.telephony.TelephonyManager;
+import android.net.wifi.WifiManager;
+import android.net.ConnectivityManager;
+
+import android.provider.Settings;
+
+import android.app.ActivityManager;
+import android.text.format.Formatter;
+import android.webkit.WebView;
+
+import androidx.fragment.app.Fragment;
+import com.tencent.mobileqq.app.BaseActivity;
+import com.tencent.mobileqq.transfile.TransferRequest;
+
+import com.tencent.mobileqq.friend.api.IFriendDataService;
+import com.tencent.mobileqq.data.Friends;
+
+import com.tencent.mobileqq.qroute.QRoute;
+import com.tencent.qqnt.msg.api.IMsgUtilApi;
+import com.tencent.qqnt.msg.api.IMsgService;
+import com.tencent.qqnt.kernel.nativeinterface.*;
+
+import mqq.app.AppService;
+import mqq.manager.TicketManager;
+
+import oicq.wlogin_sdk.request.WtloginHelper;
+import com.tencent.relation.common.api.IRelationNTUinAndUidApi;
+import com.tencent.mobileqq.troop.clockin.handler.TroopClockInHandler;
+import com.tencent.mobileqq.profilecard.api.IProfileDataService;
+
+import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
+import com.tencent.mobileqq.data.Card;
+
+import com.tencent.mobileqq.forward.ForwardSDKB77Sender;
+import com.tencent.mobileqq.structmsg.StructMsgForAudioShare;
+
+import com.tencent.mobileqq.structmsg.AbsShareMsg;
+import java.security.MessageDigest;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import java.math.BigInteger;
+import java.util.zip.*;
+import android.content.pm.PackageManager;
+
+import android.content.pm.ApplicationInfo;
+import dalvik.system.DexClassLoader;
+import com.tencent.aio.data.AIOParam;
+import lin.xposed.hook.HookEnv;
 
 String 退群拉黑目录;
+
 String 联盟目录;
+
 File 联盟群组文件;
+
 File 封禁列表文件;
 
 public void onLoad() {
@@ -44,7 +148,6 @@ public void onLoad() {
     load(appPath + "/核心功能/AllianceManager.java");
     load(appPath + "/核心功能/FileOperations.java");
     load(appPath + "/核心功能/QQInterface.java");
-    load(appPath + "/核心功能/CustomDice.java");
 
     initEventHandlers();
 }

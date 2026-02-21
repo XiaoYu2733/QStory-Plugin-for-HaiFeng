@@ -78,7 +78,6 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
             addTemporaryItem("查看更新日志", "showUpdateLog");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
-            addTemporaryItem("自定骰子功能", "自定义骰子方法");
         }
     } catch (Exception e) {
     }
@@ -152,6 +151,7 @@ public void haifeng520(final Object msg) {
                         batchRevokeBtn.setTextColor(textColor);
                         batchRevokeBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         batchRevokeBtn.setGravity(Gravity.CENTER);
+                        batchRevokeBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable batchRevokeBg = new GradientDrawable();
                         batchRevokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -173,6 +173,7 @@ public void haifeng520(final Object msg) {
                         banBtn.setTextColor(textColor);
                         banBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         banBtn.setGravity(Gravity.CENTER);
+                        banBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable banBg = new GradientDrawable();
                         banBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -194,6 +195,7 @@ public void haifeng520(final Object msg) {
                         revokeBtn.setTextColor(textColor);
                         revokeBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         revokeBtn.setGravity(Gravity.CENTER);
+                        revokeBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable revokeBg = new GradientDrawable();
                         revokeBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -270,6 +272,7 @@ public void haifeng520(final Object msg) {
                         kickBtn.setTextColor(textColor);
                         kickBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         kickBtn.setGravity(Gravity.CENTER);
+                        kickBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable kickBg = new GradientDrawable();
                         kickBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -291,6 +294,7 @@ public void haifeng520(final Object msg) {
                         kickBlackBtn.setTextColor(textColor);
                         kickBlackBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         kickBlackBtn.setGravity(Gravity.CENTER);
+                        kickBlackBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable kickBlackBg = new GradientDrawable();
                         kickBlackBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -312,6 +316,7 @@ public void haifeng520(final Object msg) {
                         blacklistBtn.setTextColor(textColor);
                         blacklistBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                         blacklistBtn.setGravity(Gravity.CENTER);
+                        blacklistBtn.setMinHeight(dp2px(48));
                         
                         GradientDrawable blacklistBg = new GradientDrawable();
                         blacklistBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -334,6 +339,7 @@ public void haifeng520(final Object msg) {
                             allianceBanBtn.setTextColor(textColor);
                             allianceBanBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                             allianceBanBtn.setGravity(Gravity.CENTER);
+                            allianceBanBtn.setMinHeight(dp2px(48));
                             
                             GradientDrawable allianceBanBg = new GradientDrawable();
                             allianceBanBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -359,6 +365,7 @@ public void haifeng520(final Object msg) {
                     titleBtn.setTextColor(textColor);
                     titleBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                     titleBtn.setGravity(Gravity.CENTER);
+                    titleBtn.setMinHeight(dp2px(48));
                     
                     GradientDrawable titleBg = new GradientDrawable();
                     titleBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
@@ -515,13 +522,17 @@ public void showBatchRevokeDialog(final Object msg) {
                 prevBtn.setTextColor(Color.WHITE);
                 prevBtn.setGravity(Gravity.CENTER);
                 prevBtn.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
+                prevBtn.setMinHeight(dp2px(44));
+                prevBtn.setMinWidth(dp2px(0));
                 
                 GradientDrawable prevBg = new GradientDrawable();
                 prevBg.setColor(isDark ? Color.parseColor("#4285F4") : Color.parseColor("#1A73E8"));
                 prevBg.setCornerRadius(dp2px(10));
+                prevBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
                 prevBtn.setBackground(prevBg);
                 
                 LinearLayout.LayoutParams prevParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
+                prevParams.weight = 1;
                 prevParams.setMargins(0, 0, dp2px(8), 0);
                 prevBtn.setLayoutParams(prevParams);
                 
@@ -531,13 +542,17 @@ public void showBatchRevokeDialog(final Object msg) {
                 nextBtn.setTextColor(Color.WHITE);
                 nextBtn.setGravity(Gravity.CENTER);
                 nextBtn.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
+                nextBtn.setMinHeight(dp2px(44));
+                nextBtn.setMinWidth(dp2px(0));
                 
                 GradientDrawable nextBg = new GradientDrawable();
                 nextBg.setColor(isDark ? Color.parseColor("#34A853") : Color.parseColor("#0D652D"));
                 nextBg.setCornerRadius(dp2px(10));
+                nextBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
                 nextBtn.setBackground(nextBg);
                 
                 LinearLayout.LayoutParams nextParams = new LinearLayout.LayoutParams(0, -2, 1.0f);
+                nextParams.weight = 1;
                 nextParams.setMargins(dp2px(8), 0, 0, 0);
                 nextBtn.setLayoutParams(nextParams);
                 
@@ -627,14 +642,14 @@ public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
             progressContainer.setOrientation(LinearLayout.VERTICAL);
             
             LinearLayout progressBg = new LinearLayout(getActivity());
-            progressBg.setBackground(getShape(surfaceColor, dp2px(8)));
+            progressBg.setBackground(getWebShape(surfaceColor, dp2px(8)));
             progressBg.setPadding(1, 1, 1, 1);
             LinearLayout.LayoutParams bgParams = new LinearLayout.LayoutParams(-1, dp2px(12));
             bgParams.setMargins(0, 0, 0, dp2px(12));
             progressBg.setLayoutParams(bgParams);
             
             final android.view.View progressFill = new android.view.View(getActivity());
-            progressFill.setBackground(getShape(accentColor, dp2px(6)));
+            progressFill.setBackground(getWebShape(accentColor, dp2px(6)));
             LinearLayout.LayoutParams fillParams = new LinearLayout.LayoutParams(0, -1, 0.0f);
             progressFill.setMinimumHeight(dp2px(10));
             progressFill.setLayoutParams(fillParams);
