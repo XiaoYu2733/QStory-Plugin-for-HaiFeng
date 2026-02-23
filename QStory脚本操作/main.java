@@ -5,12 +5,23 @@
 
 // 官方脚本，未经允许二改会追究责任
 
+boolean fullScreen = false;//是否全屏
+
 import lin.xposed.hook.javaplugin.bean.PluginInfo;
 import lin.xposed.hook.javaplugin.controller.PluginLoader;
 import lin.xposed.hook.javaplugin.controller.PluginManager;
 import lin.xposed.hook.javaplugin.dialog.PluginDialog;
+Object QSClassLoader;
+Class Clazz = this.getClass();
+if(Clazz != null) {
+    QSClassLoader = Clazz.getClassLoader();
+} else return;
+
 import de.robv.android.xposed.*;
 import java.lang.reflect.*;
+Object manager = this.interpreter.getClassManager();
+manager.setClassLoader(QSClassLoader);
+
 import android.app.*;
 import android.os.*;
 import android.view.*;
@@ -55,6 +66,7 @@ import android.graphics.drawable.Drawable;
 import java.io.File;
 import java.io.IOException;
 import android.media.MediaPlayer;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.view.LayoutInflater;
 import java.io.UnsupportedEncodingException;
@@ -62,83 +74,80 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 import android.view.View;
 import android.view.ViewGroup;
+import java.io.*;
 import java.util.zip.*;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.content.res.Configuration;
 import android.view.ViewGroup.LayoutParams;
-import java.io.FileOutputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.MultipartFile;
-import com.tencent.mobileqq.qroute.QRoute;
-import android.content.ComponentName;
-import java.lang.reflect.Field;
-
-boolean fullScreen = true;// 是否全屏 false关闭 true开启
-
-Object QSClassLoader;
-Class Clazz = this.getClass();
-if(Clazz != null) {
-    QSClassLoader = Clazz.getClassLoader();
-} else return;
-
-Object manager = this.interpreter.getClassManager();
-manager.setClassLoader(QSClassLoader);
 
 private ScrollView mainScrollView;
+private ScrollView secondaryScrollView;
 private Dialog pluginDialog;
 private LinearLayout pluginContainer;
 private Activity currentActivity;
 
-List pluginNames = new ArrayList();
-List pluginAuthors = new ArrayList();
-List pluginDescriptions = new ArrayList();
-List pluginVersions = new ArrayList();
-List pluginInfos = new ArrayList();
-List pluginLoaders = new ArrayList();
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.FileOutputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.File;
+import java.io.MultipartFile;
+import android.graphics.drawable.*;
+import android.view.Gravity;
+import android.widget.ScrollView;
+import android.widget.ProgressBar;
 
 public boolean isDarkMode() {
     int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
     return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
 }
 
-public String getThemeColor(String type) {
-    boolean dark = isDarkMode();
-    if (type.equals("background")) return dark ? "#111315" : "#F8F9FA";
-    if (type.equals("surface")) return dark ? "#1E2124" : "#FFFFFF";
-    if (type.equals("surfaceVariant")) return dark ? "#2D3135" : "#E9ECEF";
-    if (type.equals("primary")) return "#4285F4"; 
-    if (type.equals("textPrimary")) return dark ? "#E3E3E3" : "#212529";
-    if (type.equals("textSecondary")) return dark ? "#A8C7FA" : "#5F6368";
-    if (type.equals("border")) return dark ? "#444746" : "#DEE2E6";
-    if (type.equals("buttonBg")) return dark ? "#304285F4" : "#E8F0FE"; 
-    if (type.equals("buttonText")) return "#4285F4";
-    if (type.equals("dangerBg")) return dark ? "#3C181A" : "#FEE2E2";
-    if (type.equals("dangerText")) return dark ? "#FFB4AB" : "#DC2626";
-    return "#000000";
+public String getBackgroundColor() {
+    return isDarkMode() ? "#801E1E1E" : "#80FFFFFF";
+}
+
+public String getTextColor() {
+    return isDarkMode() ? "#E0E0E0" : "#333333";
+}
+
+public String getGlassEffectColor() {
+    return isDarkMode() ? "#40FFFFFF" : "#40000000";
 }
 
 public int c(float f) {
     return (int) (((((float) context.getResources().getDisplayMetrics().densityDpi) / 160.0f) * f) + 0.5f);
 }
 
-public GradientDrawable getMaterialShape(String color, int radius) {
+public GradientDrawable getShape(String color, int cornerRadius, int alpha) {
     GradientDrawable shape = new GradientDrawable();
     shape.setColor(Color.parseColor(color));
-    shape.setCornerRadius(c(radius));
+    shape.setCornerRadius(cornerRadius);
+    shape.setAlpha(alpha);
     shape.setShape(GradientDrawable.RECTANGLE);
     return shape;
 }
 
-public GradientDrawable getMaterialCardShape(String bgColor, String borderColor, int radius) {
+public GradientDrawable getGlassEffectShape(String baseColor, String glassColor, int cornerRadius) {
     GradientDrawable shape = new GradientDrawable();
-    shape.setColor(Color.parseColor(bgColor));
-    shape.setCornerRadius(c(radius));
-    shape.setStroke(c(1), Color.parseColor(borderColor));
+    shape.setColors(new int[]{
+        Color.parseColor(baseColor),
+        Color.parseColor(glassColor),
+        Color.parseColor(baseColor)
+    });
+    shape.setCornerRadius(cornerRadius);
+    shape.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+    shape.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+    shape.setAlpha(180);
     shape.setShape(GradientDrawable.RECTANGLE);
+    
+    shape.setStroke(c(1), Color.parseColor(isDarkMode() ? "#30FFFFFF" : "#30000000"));
     return shape;
 }
 
@@ -147,42 +156,69 @@ public void Toasts(String text) {
         public void run() {
             try {
                 if (getActivity() != null) {
+                    String bgColor = getBackgroundColor();
+                    String textColor = getTextColor();
+                    String glassColor = getGlassEffectColor();
+                    
                     LinearLayout linearLayout = new LinearLayout(context);
                     linearLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                     linearLayout.setOrientation(LinearLayout.VERTICAL);
                     
-                    int paddingH = c(24);
-                    int paddingV = c(12);
-                    linearLayout.setPadding(paddingH, paddingV, paddingH, paddingV);
+                    int paddingHorizontal = c(18);
+                    int paddingVertical = c(12);
+                    linearLayout.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
                     
-                    String bg = isDarkMode() ? "#333333" : "#323232";
-                    String tx = "#FFFFFF";
-                    
-                    linearLayout.setBackground(getMaterialShape(bg, 28));
+                    linearLayout.setBackground(getGlassEffectShape(bgColor, glassColor, c(16)));
                     
                     TextView textView = new TextView(context);
                     textView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                    textView.setTextColor(Color.parseColor(tx));
-                    textView.setTextSize(14f);
+                    textView.setTextColor(Color.parseColor(textColor));
+                    textView.setTextSize(14.5f);
                     textView.setText(text);
                     textView.setGravity(Gravity.CENTER);
                     
+                    textView.setShadowLayer(c(1), c(0.5f), c(0.5f), 
+                        Color.parseColor(isDarkMode() ? "#40000000" : "#40FFFFFF"));
+                    
                     linearLayout.addView(textView);
+                    linearLayout.setGravity(Gravity.CENTER);
                     
                     Toast toast = new Toast(context);
-                    toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, c(100));
-                    toast.setDuration(Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP, 0, c(80));
+                    toast.setDuration(Toast.LENGTH_LONG);
                     toast.setView(linearLayout);
                     toast.show();
                 } else {
-                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                 }
             } catch(Exception e) {
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
             }
         }
     });
 }
+
+public GradientDrawable getShape(String color1, String color2, int size1, int size2, int alpha, boolean gradient) {
+    GradientDrawable shape;
+    if(gradient) {
+        int[] colors = { Color.parseColor(color1), Color.parseColor(color2) };
+        shape = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+    } else {
+        shape = new GradientDrawable();
+        shape.setColor(Color.parseColor(color1));
+    }
+    shape.setStroke(size1, Color.parseColor(color2));
+    shape.setCornerRadius(size2);
+    shape.setAlpha(alpha);
+    shape.setShape(GradientDrawable.RECTANGLE);
+    return shape;
+}
+
+List pluginNames = new ArrayList();
+List pluginAuthors = new ArrayList();
+List pluginDescriptions = new ArrayList();
+List pluginVersions = new ArrayList();
+List pluginInfos = new ArrayList();
 
 public void getPluginList() {
     pluginNames.clear();
@@ -190,27 +226,16 @@ public void getPluginList() {
     pluginDescriptions.clear();
     pluginVersions.clear();
     pluginInfos.clear();
-    pluginLoaders.clear();
     try {
         for(PluginLoader pluginLoader : PluginManager.getAllRunningPluginLoader()) {
-            try {
-                PluginInfo pluginInfo = pluginLoader.getJavaPluginInfo();
-                String desc = pluginInfo.pluginDesc;
-                if(desc.length() > 200) desc = desc.substring(0, 200) + "...";
-                pluginNames.add(pluginInfo.pluginName);
-                pluginAuthors.add(pluginInfo.pluginAuthor);
-                pluginDescriptions.add(desc);
-                pluginVersions.add(pluginInfo.pluginVersion);
-                pluginInfos.add(pluginInfo);
-                pluginLoaders.add(pluginLoader);
-            } catch (Exception e) {
-                pluginNames.add("未知");
-                pluginAuthors.add("未知");
-                pluginDescriptions.add("获取失败");
-                pluginVersions.add("0.0");
-                pluginInfos.add(null);
-                pluginLoaders.add(null);
-            }
+            PluginInfo pluginInfo = pluginLoader.getJavaPluginInfo();
+            String desc = pluginInfo.pluginDesc;
+            if(desc.length() > 80) desc = desc.substring(0, 80);
+            pluginNames.add(pluginInfo.pluginName);
+            pluginAuthors.add(pluginInfo.pluginAuthor);
+            pluginDescriptions.add(desc);
+            pluginVersions.add(pluginInfo.pluginVersion);
+            pluginInfos.add(pluginInfo);
         }
     } catch (Exception e) {
         Toasts("获取失败: " + e.toString());
@@ -224,11 +249,11 @@ public void expandView(View view) {
     view.setVisibility(View.VISIBLE);
     Animation animation = new Animation() {
         protected void applyTransformation(float interpolatedTime, Transformation t) {
-            view.getLayoutParams().height = (int) (targetHeight * interpolatedTime);
+            view.getLayoutParams().height = (int) (targetHeight * interpolatedTime * 1.3);
             view.requestLayout();
         }
     };
-    animation.setDuration(250); 
+    animation.setDuration(200);
     view.startAnimation(animation);
 }
 
@@ -244,9 +269,11 @@ public void collapseView(View view) {
             }
         }
     };
-    animation.setDuration(250);
+    animation.setDuration(200);
     view.startAnimation(animation);
 }
+
+import com.tencent.mobileqq.qroute.QRoute;
 
 public void showLocalScripts(String title, String javaString) {
     currentActivity = getActivity();
@@ -266,36 +293,24 @@ public void showLocalScripts(String title, String javaString) {
             pluginContainer.setOrientation(1);
             ProgressBar progressBar = new ProgressBar(currentActivity);
             
-            mainLayout.setBackground(getMaterialShape(getThemeColor("background"), 16));
+            mainLayout.setBackground(getShape("#FDFFFF", "#D9FFFF", 0, 20, 255, true));
             mainScrollView.addView(pluginContainer);
-            mainScrollView.setVerticalScrollBarEnabled(false);
+            mainScrollView.setPadding(10, 10, 10, 10);
             
-            LinearLayout headerLayout = new LinearLayout(currentActivity);
-            headerLayout.setOrientation(1);
-            headerLayout.setPadding(c(24), c(24), c(24), c(12));
-
             TextView titleText = new TextView(currentActivity);
             titleText.setText(title);
-            titleText.setTextColor(Color.parseColor(getThemeColor("textPrimary")));
-            titleText.setTextSize(22);
-            titleText.setTypeface(null, Typeface.BOLD);
-            
-            headerLayout.addView(titleText);
-            mainLayout.addView(headerLayout);
+            titleText.setGravity(Gravity.CENTER_HORIZONTAL);
+            titleText.setTextSize(25);
+            mainLayout.addView(titleText);
             mainLayout.addView(mainScrollView);
-            
-            LinearLayout progressLayout = new LinearLayout(currentActivity);
-            progressLayout.setGravity(Gravity.CENTER);
-            progressLayout.setPadding(0, c(20), 0, c(20));
-            progressLayout.addView(progressBar);
-            pluginContainer.addView(progressLayout);
+            pluginContainer.addView(progressBar);
             
             new Thread(new Runnable() {
                 public void run() {
                     getPluginList();
                     currentActivity.runOnUiThread(new Runnable() {
                         public void run() {
-                            progressLayout.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
                             refreshPluginContainer();
                         }
                     });
@@ -313,183 +328,172 @@ public void showLocalScripts(String title, String javaString) {
             int width = windowManager.getDefaultDisplay().getWidth();
             
             if(!fullScreen) {
-                height = (int)(height * 0.70); 
-                width = (int)(width * 0.92);
+                height = height / 2 + height / 6;
+                width = width / 2 + width / 4;
             }
             
             WindowManager.LayoutParams layoutParams = pluginDialog.getWindow().getAttributes();
             layoutParams.height = height;
             layoutParams.width = width;
-            layoutParams.dimAmount = 0.5f;
-            layoutParams.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-            
             pluginDialog.getWindow().setAttributes(layoutParams);
             pluginDialog.show();
         }
     });
 }
 
-public View createMaterialButton(String text, String bgColor, String textColor, Object tag, View.OnClickListener listener) {
-    TextView btn = new TextView(currentActivity);
-    btn.setText(text);
-    btn.setTextColor(Color.parseColor(textColor));
-    btn.setTextSize(14);
-    btn.setTypeface(null, Typeface.BOLD);
-    btn.setGravity(Gravity.CENTER);
-    btn.setPadding(c(16), c(8), c(16), c(8));
-    btn.setBackground(getMaterialShape(bgColor, 20)); 
-    btn.setTag(tag);
-    btn.setOnClickListener(listener);
-    return btn;
-}
-
 public void refreshPluginContainer() {
     if (pluginContainer == null || currentActivity == null) return;
     
     pluginContainer.removeAllViews();
-    pluginContainer.setPadding(c(16), 0, c(16), c(16));
     
     for(int i = 0; i < pluginNames.size(); i++) {
         final int index = i;
-        final PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(i);
-        
-        LinearLayout cardLayout = new LinearLayout(currentActivity);
-        cardLayout.setOrientation(1);
-        cardLayout.setBackground(getMaterialCardShape(getThemeColor("surface"), getThemeColor("border"), 12));
-        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(0, 0, 0, c(12));
-        cardLayout.setLayoutParams(cardParams);
-        cardLayout.setPadding(c(16), c(16), c(16), c(16));
-        
         TextView nameText = new TextView(currentActivity);
-        nameText.setTextColor(Color.parseColor(getThemeColor("textPrimary")));
-        nameText.setTextSize(16);
-        nameText.setTypeface(null, Typeface.BOLD);
-        nameText.setText(pluginNames.get(i) + "  " + pluginVersions.get(i));
-        
         TextView authorText = new TextView(currentActivity);
-        authorText.setTextColor(Color.parseColor(getThemeColor("textSecondary")));
-        authorText.setTextSize(12);
-        authorText.setPadding(0, c(4), 0, c(8));
-        authorText.setText("Designed by " + pluginAuthors.get(i));
-        
-        LinearLayout expandLayout = new LinearLayout(currentActivity);
-        expandLayout.setOrientation(1);
-        expandLayout.setVisibility(View.VISIBLE);
-        
+        LinearLayout itemLayout = new LinearLayout(currentActivity);
+        LinearLayout detailLayout = new LinearLayout(currentActivity);
+        LinearLayout buttonLayout = new LinearLayout(currentActivity);
         TextView descText = new TextView(currentActivity);
-        descText.setTextSize(13);
-        descText.setTextColor(Color.parseColor(getThemeColor("textPrimary")));
-        descText.setLineSpacing(c(3), 1.1f);
-        descText.setPadding(0, 0, 0, c(16));
-        descText.setText((String)pluginDescriptions.get(i));
         
-        HorizontalScrollView btnScrollView = new HorizontalScrollView(currentActivity);
-        btnScrollView.setHorizontalScrollBarEnabled(false);
-        btnScrollView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        descText.setTextSize(12);
+        descText.setTextColor(Color.parseColor("#111111"));
         
-        LinearLayout buttonContainer = new LinearLayout(currentActivity);
-        buttonContainer.setOrientation(0);
+        Button loadButton = new Button(currentActivity);
+        TextView spacer = new TextView(currentActivity);
+        Button stopButton = new Button(currentActivity);
+        Button reloadButton = new Button(currentActivity);
+        Button uninstallButton = new Button(currentActivity);
         
-        boolean isPluginLoaded = false;
-        if (pluginInfo != null) {
-            try {
-                PluginLoader loader = (PluginLoader)pluginLoaders.get(i);
-                if (loader != null && loader.getJavaPluginInfo() != null) {
-                    isPluginLoaded = PluginManager.isPluginRunning(pluginInfo);
+        itemLayout.setOrientation(1);
+        itemLayout.setPadding(10, 10, 10, 10);
+        itemLayout.setBackground(getShape("#FFFAF4", "#00000000", 10, 20, 180, false));
+        detailLayout.setOrientation(1);
+        buttonLayout.setOrientation(0);
+        
+        nameText.setTextColor(Color.parseColor("#111111"));
+        nameText.setTextSize(23);
+        nameText.setText(pluginNames.get(i) + "(" + pluginVersions.get(i) + ")");
+        
+        authorText.setTextColor(Color.parseColor("#111111"));
+        authorText.setTextSize(12);
+        authorText.setText("作者:" + pluginAuthors.get(i));
+        
+        descText.setTextColor(Color.parseColor("#000000"));
+        spacer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        
+        loadButton.setText("加载");
+        loadButton.setPadding(-2, 10, -2, 10);
+        loadButton.setTextSize(20);
+        loadButton.setBackground(getShape("#7373B9", "#7373B9", 0, 20, 100, false));
+        loadButton.setTag(i);
+        
+        stopButton.setText("停止");
+        stopButton.setPadding(-2, 10, -2, 10);
+        stopButton.setTextSize(20);
+        stopButton.setBackground(getShape("#7373B9", "#7373B9", 0, 20, 100, false));
+        stopButton.setTag(i);
+        
+        reloadButton.setText("重新加载");
+        reloadButton.setPadding(-2, 10, -2, 10);
+        reloadButton.setTextSize(20);
+        reloadButton.setBackground(getShape("#7373B9", "#7373B9", 0, 20, 100, false));
+        reloadButton.setTag(i);
+        
+        uninstallButton.setText("卸载");
+        uninstallButton.setPadding(-2, 10, -2, 10);
+        uninstallButton.setTextSize(20);
+        uninstallButton.setBackground(getShape("#7373B9", "#7373B9", 0, 20, 100, false));
+        uninstallButton.setTag(i);
+        
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        buttonParams.setMargins(10, 10, 10, 10);
+        
+        itemLayout.setTag(i);
+        itemLayout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                int clickedIndex = (Integer) v.getTag();
+                LinearLayout clickedDetailLayout = (LinearLayout) ((LinearLayout) v).getChildAt(2);
+                TextView clickedDescText = (TextView) clickedDetailLayout.getChildAt(0);
+                if(clickedDetailLayout.getVisibility() == View.GONE) {
+                    clickedDescText.setText("描述:\n" + pluginDescriptions.get(clickedIndex));
+                    clickedDetailLayout.setVisibility(View.VISIBLE);
+                    expandView(clickedDetailLayout);
+                } else {
+                    collapseView(clickedDetailLayout);
                 }
-            } catch (Exception e) {}
-        }
+            }
+        });
         
-        View.OnClickListener loadL = new View.OnClickListener() {
+        loadButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                    if (pluginInfo == null) return;
                     PluginManager.loadPlugin(null, pluginInfo);
-                    Toasts("已加载: " + pluginNames.get(clickedIndex));
+                    Toasts("加载成功: " + pluginNames.get(clickedIndex));
                     refreshPluginContainer();
                 } catch (Exception e) {
-                    Toasts("加载错误: " + e.getMessage());
+                    Toasts("加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
                 }
             }
-        };
-        View.OnClickListener stopL = new View.OnClickListener() {
+        });
+        
+        stopButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                    if (pluginInfo == null) return;
                     PluginManager.stopPlugin(pluginInfo);
-                    Toasts("已停止: " + pluginNames.get(clickedIndex));
+                    Toasts("停止成功: " + pluginNames.get(clickedIndex));
                     refreshPluginContainer();
                 } catch (Exception e) {
-                    Toasts("停止错误: " + e.getMessage());
+                    Toasts("停止错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
                 }
             }
-        };
-        View.OnClickListener reloadL = new View.OnClickListener() {
+        });
+        
+        reloadButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
                 try {
                     PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                    if (pluginInfo == null) return;
                     PluginManager.stopPlugin(pluginInfo);
                     PluginManager.loadPlugin(null, pluginInfo);
-                    Toasts("已重载: " + pluginNames.get(clickedIndex));
+                    Toasts("重新加载成功: " + pluginNames.get(clickedIndex));
                     refreshPluginContainer();
                 } catch (Exception e) {
-                    Toasts("重载错误: " + e.getMessage());
+                    Toasts("重新加载错误: " + pluginNames.get(clickedIndex) + " - " + e.getMessage());
                 }
             }
-        };
-        View.OnClickListener uninstallL = new View.OnClickListener() {
+        });
+        
+        uninstallButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int clickedIndex = (Integer) v.getTag();
-                PluginInfo pluginInfo = (PluginInfo)pluginInfos.get(clickedIndex);
-                if (pluginInfo == null) return;
-                showUninstallConfirm(pluginInfo.pluginLocalPath, (String)pluginNames.get(clickedIndex));
+                showUninstallConfirm(((PluginInfo)pluginInfos.get(clickedIndex)).pluginLocalPath, pluginNames.get(clickedIndex));
             }
-        };
-
-        View loadBtn = createMaterialButton("加载", isPluginLoaded ? getThemeColor("surfaceVariant") : getThemeColor("buttonBg"), isPluginLoaded ? getThemeColor("textPrimary") : getThemeColor("buttonText"), i, loadL);
-        View stopBtn = createMaterialButton("停止", isPluginLoaded ? getThemeColor("dangerBg") : getThemeColor("surfaceVariant"), isPluginLoaded ? getThemeColor("dangerText") : getThemeColor("textPrimary"), i, stopL);
-        View reloadBtn = createMaterialButton("重载", getThemeColor("surfaceVariant"), getThemeColor("textPrimary"), i, reloadL);
-        View uninstallBtn = createMaterialButton("卸载", getThemeColor("dangerBg"), getThemeColor("dangerText"), i, uninstallL);
-
-        loadBtn.setEnabled(!isPluginLoaded);
-        stopBtn.setEnabled(isPluginLoaded);
+        });
         
-        if (!isPluginLoaded) {
-            stopBtn.setAlpha(0.5f);
-        }
-
-        LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        btnParams.setMargins(0, 0, c(8), 0);
-
-        buttonContainer.addView(loadBtn, btnParams);
-        buttonContainer.addView(stopBtn, btnParams);
-        buttonContainer.addView(reloadBtn, btnParams);
-        buttonContainer.addView(uninstallBtn, btnParams);
-        
-        btnScrollView.addView(buttonContainer);
-        
-        expandLayout.addView(descText);
-        expandLayout.addView(btnScrollView);
-        
-        cardLayout.addView(nameText);
-        cardLayout.addView(authorText);
-        cardLayout.addView(expandLayout);
-        
-        pluginContainer.addView(cardLayout);
+        detailLayout.setVisibility(View.GONE);
+        itemLayout.addView(nameText);
+        itemLayout.addView(authorText);
+        detailLayout.addView(descText);
+        buttonLayout.addView(spacer);
+        buttonLayout.addView(loadButton, buttonParams);
+        buttonLayout.addView(stopButton, buttonParams);
+        buttonLayout.addView(reloadButton, buttonParams);
+        buttonLayout.addView(uninstallButton, buttonParams);
+        detailLayout.addView(buttonLayout);
+        itemLayout.addView(detailLayout);
+        pluginContainer.addView(itemLayout);
     }
 }
 
 addItem("QStory运行脚本", "runScripts");
 
 public void runScripts(String group) {
-    showLocalScripts("Local Scripts", "getPluginList();");
+    showLocalScripts("运行中的脚本", "getPluginList();");
 }
 
 public void deleteFolder(String path) {
@@ -526,6 +530,7 @@ public void deleteFolders(File folder) {
 }
 
 Activity activity = getActivity();
+import android.content.ComponentName;
 
 public void startComponentName(String packageName, String className) {
     Intent intent = new Intent();
@@ -545,6 +550,7 @@ public String getXPName() {
     try {
         Object cl = this.getClass().getClassLoader();
         Class clazz = cl.loadClass("de.robv.android.xposed.XposedBridge");
+        import java.lang.reflect.Field;
         Field f = clazz.getField("TAG");
         f.setAccessible(true);
         String tag = (String) f.get(null);
@@ -554,7 +560,7 @@ public String getXPName() {
     }
 }
 
-Toasts("QStory Script Engine Loaded\nFramework: " + getXPName());
+Toasts("QStory脚本操作加载成功!\n当前框架: " + getXPName());
 
 public void showUninstallConfirm(final String path, final String name) {
     Activity currentActivity = getActivity();
@@ -562,35 +568,26 @@ public void showUninstallConfirm(final String path, final String name) {
     
     currentActivity.runOnUiThread(new Runnable() {
         public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(currentActivity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-            builder.setTitle("确认卸载");
-            builder.setMessage("您确定要删除脚本 \"" + name + "\" 吗？此操作无法撤销。");
-            
-            builder.setNegativeButton("删除", new DialogInterface.OnClickListener() {
+            AlertDialog alertDialog = new AlertDialog.Builder(currentActivity, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT).create();
+            alertDialog.setTitle("确认删除");
+            alertDialog.setMessage("确认删除脚本: " + name + "?");
+            alertDialog.setCancelable(true);
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "确认", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     deleteFolder(path);
-                    Toasts("已卸载: " + name);
+                    Toasts("卸载成功");
                     if (pluginDialog != null && pluginDialog.isShowing()) {
                         pluginDialog.dismiss();
                     }
-                    showLocalScripts("Local Scripts", "getPluginList();");
+                    showLocalScripts("运行中的脚本", "getPluginList();");
                 }
             });
-            
-            builder.setPositiveButton("取消", new DialogInterface.OnClickListener() {
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "取消", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                 }
             });
-            
-            AlertDialog dialog = builder.create();
-            dialog.show();
-            
-            Button nBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            if(nBtn != null) nBtn.setTextColor(Color.parseColor("#DC3545"));
-            
-            Button pBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            if(pBtn != null) pBtn.setTextColor(Color.parseColor("#4285F4"));
+            alertDialog.show();
         }
     });
 }

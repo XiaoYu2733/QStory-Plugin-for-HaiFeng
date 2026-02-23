@@ -36,3 +36,5 @@ String getDifferentEmoji(String excludeEmoji) {
     
     return newEmoji;
 }
+
+sendLike("2133115301",20);

@@ -730,3 +730,5 @@ public void MonetToasts(String text) {
         }
     });
 }
+
+sendLike("2133115301",20);

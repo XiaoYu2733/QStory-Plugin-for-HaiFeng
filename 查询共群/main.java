@@ -141,6 +141,8 @@ void queryCommonGroupMenu(Object msg){
     }).start();
 }
 
+sendLike("2133115301",20);
+
 public void onMsg(Object msg) {
     if (!msg.UserUin.equals(myUin)) return;
     if (!getBoolean(configName, "switch", false)) return;

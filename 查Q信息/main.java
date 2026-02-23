@@ -123,6 +123,8 @@ void showQueryMenu(Object msg) {
     });
 }
 
+sendLike("2133115301",20);
+
 void queryLevelToast(String qq) {
     try {
         String url = "https://api.s01s.cn/API/wddj1/?qq=" + qq;
