@@ -1,0 +1,27 @@
+2025年11月24日星期一19:39:05
+位于文件: /storage/emulated/0/Android/data/com.tencent.mobileqq/QStory/Plugin/被拍自动回复/main.java 遇到 "=" 在行数 175, 第 34个字符.
+
+	at bsh.Parser.generateParseException(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:172)
+	at bsh.Parser.jj_consume_token(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:79)
+	at bsh.Parser.Statement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:152)
+	at bsh.Parser.BlockStatement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:56)
+	at bsh.Parser.Block(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:60)
+	at bsh.Parser.TryStatement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:23)
+	at bsh.Parser.Statement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:78)
+	at bsh.Parser.BlockStatement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:56)
+	at bsh.Parser.Block(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:60)
+	at bsh.Parser.MethodDeclaration(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:194)
+	at bsh.Parser.BlockStatement(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:20)
+	at bsh.Parser.Line(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:26)
+	at bsh.Interpreter.Line(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:3)
+	at bsh.Interpreter.eval(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:11)
+	at bsh.Interpreter.source(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:4)
+	at bsh.Interpreter.source(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:7)
+	at lin.xposed.hook.javaplugin.controller.PluginLoader.source(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:8)
+	at lin.xposed.hook.javaplugin.controller.PluginLoader.loadPlugin(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:54)
+	at lin.xposed.hook.javaplugin.controller.PluginManager.loadPlugin(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:146)
+	at lin.xposed.hook.javaplugin.online.upload.UploadPlugin.lambda$upload$1(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:18)
+	at lin.xposed.hook.javaplugin.online.upload.UploadPlugin.落叶叶子叶落子飘(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:1)
+	at androidx.appcompat.app.子叶言飘子言花言花叶.run(r8-map-id-230771f2482e6114d282443964d563f97f96716e9790eba61b04054c3c276b74:423)
+	at java.lang.Thread.run(Thread.java:1012)
+

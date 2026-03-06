@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/Java代码美化" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/QQ点歌" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/QSutoDaily" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/code" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/kuma" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/伪造聊天记录" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/信息查询" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/入群欢迎退群提示" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/入群验证" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/全局拉黑" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/关键词" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/切换字体" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/定时发送" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/屏蔽指定消息" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/拍一拍Pro" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/整点发送图片表情" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/查Q信息" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/查询共群" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/消息前缀文案后缀时间" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/白名单解禁" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/简洁群管" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/自由复制" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/表情回应指定用户" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/表情回应自己" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/被拍自动回复" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/被艾特Toast以及私聊自己" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/赞我" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/退群拉黑" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/重生" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/针对禁言" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/随机图片" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/随机文案" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
