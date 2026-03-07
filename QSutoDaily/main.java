@@ -1,10 +1,11 @@
 
-// 作 海枫 临江踏雨不返
+// 作 海枫
 
-// 希望有人懂你的言外之意 更懂你的欲言又止
+// 部分帮助来自临江
 
-// 代码不支持抄袭 借鉴 二改
+// 不支持二改 可借鉴 但是必须标注原作者名
 
+// 必须用到的库 不要动
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -67,7 +68,9 @@ String 子叶言飘子言花言花叶 = 当前账号目录 + "/续火群组.txt"
 
 String 落叶花花飘言子子飘花 = appPath + "/续火语录/好友续火语录.txt";
 String 子叶花花花飘 = appPath + "/续火语录/群组续火语录.txt";
-String 花叶落飘落 = 当前账号目录;
+String 花叶落飘落 = appPath + "/执行时间";
+
+String 当前脚本版本 = "v49.0";
 
 Handler 叶落飘花 = new Handler(Looper.getMainLooper());
 
@@ -77,6 +80,29 @@ load(appPath + "/核心功能/UIManager.java");
 load(appPath + "/核心功能/ScheduleManager.java");
 
 loadConfig();
+
+String 上次显示版本 = getString("UpdateLog", "lastShownVersion", "");
+if (!当前脚本版本.equals(上次显示版本)) {
+    final int[] 尝试次数 = {0};
+    final int 最大尝试 = 5;
+    Handler 重试处理器 = new Handler(Looper.getMainLooper());
+    Runnable 尝试显示 = new Runnable() {
+        public void run() {
+            Activity 活动 = getActivity();
+            if (活动 != null) {
+                showUpdateLogDialog(活动);
+            } else {
+                尝试次数[0]++;
+                if (尝试次数[0] < 最大尝试) {
+                    重试处理器.postDelayed(this, 1000);
+                } else {
+                    Toasts("妹妹吗");
+                }
+            }
+        }
+    };
+    重试处理器.post(尝试显示);
+}
 
 Runnable 子言子花花子 = new Runnable() {
     public void run() {
@@ -195,7 +221,116 @@ public void immediateGroupFire(String 群号, String 用户, int 类型){
     executeGroupFireTask();
 }
 
-/*
+public void showUpdateLogDialog(Activity 活动) {
+    if (活动 == null) return;
+    
+    活动.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int 主题 = getCurrentTheme();
+                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 卡片背景色 = getCardColor();
+                String 文本颜色 = getTextColor();
+                String 次要文本颜色 = getSubTextColor();
+                String 边框颜色 = getBorderColor();
+                
+                LinearLayout 根布局 = new LinearLayout(活动);
+                根布局.setOrientation(LinearLayout.VERTICAL);
+                根布局.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+                根布局.setBackground(getWebShape(卡片背景色, dp2px(20)));
+                
+                TextView 标题 = new TextView(活动);
+                标题.setText("自动点赞+续火更新日志");
+                标题.setTextColor(Color.parseColor(文本颜色));
+                标题.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                标题.setTypeface(null, Typeface.BOLD);
+                标题.setGravity(Gravity.CENTER);
+                标题.setPadding(0, 0, 0, dp2px(12));
+                根布局.addView(标题);
+                
+                TextView 内容 = new TextView(活动);
+                内容.setText("· [优化] 切换账号时QS自动关闭脚本，重开即可；配置按账号隔离，加载时自动获取QQ号\n· [优化] 续火间隔5-30秒，降低风控概率\n\nTG交流群：https://t.me/XiaoYu_Chat");
+                内容.setTextColor(Color.parseColor(次要文本颜色));
+                内容.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                内容.setLineSpacing(dp2px(4), 1.2f);
+                内容.setPadding(dp2px(4), dp2px(8), dp2px(4), dp2px(16));
+                根布局.addView(内容);
+                
+                LinearLayout 按钮栏 = new LinearLayout(活动);
+                按钮栏.setOrientation(LinearLayout.HORIZONTAL);
+                按钮栏.setGravity(Gravity.END);
+                LinearLayout.LayoutParams 按钮栏参数 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                按钮栏.setLayoutParams(按钮栏参数);
+                
+                Button 不同意按钮 = new Button(活动);
+                不同意按钮.setText("朕不同意");
+                不同意按钮.setTextColor(Color.parseColor(强调色));
+                不同意按钮.setBackground(null);
+                不同意按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+                不同意按钮.setTypeface(null, Typeface.BOLD);
+                不同意按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                LinearLayout.LayoutParams 不同意参数 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                不同意参数.setMargins(0, 0, dp2px(8), 0);
+                不同意按钮.setLayoutParams(不同意参数);
+                不同意按钮.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        System.exit(0);
+                    }
+                });
+                按钮栏.addView(不同意按钮);
+                
+                Button 确定按钮 = new Button(活动);
+                确定按钮.setText("朕知道了");
+                确定按钮.setTextColor(Color.WHITE);
+                确定按钮.setBackground(getShape(强调色, dp2px(20)));
+                确定按钮.setPadding(dp2px(20), dp2px(10), dp2px(20), dp2px(10));
+                确定按钮.setTypeface(null, Typeface.BOLD);
+                确定按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                LinearLayout.LayoutParams 确定参数 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                确定按钮.setLayoutParams(确定参数);
+                按钮栏.addView(确定按钮);
+                
+                根布局.addView(按钮栏);
+                
+                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
+                构建器.setView(根布局);
+                
+                AlertDialog 对话框 = 构建器.create();
+                对话框.setCancelable(false);
+                对话框.setCanceledOnTouchOutside(false);
+                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                
+                final AlertDialog[] dialogHolder = new AlertDialog[1];
+                dialogHolder[0] = 对话框;
+                
+                确定按钮.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        putString("UpdateLog", "lastShownVersion", 当前脚本版本);
+                        if (dialogHolder[0] != null) {
+                            dialogHolder[0].dismiss();
+                        }
+                    }
+                });
+                
+                对话框.show();
+                根布局.setTag(对话框);
+                
+            } catch (Exception e) {
+                Toasts("显示更新日志失败");
+            }
+        }
+    });
+}
+
 try {
     File 花飘言子 = new File(appPath + "/error.txt");
     if (花飘言子.exists()) {
@@ -204,6 +339,4 @@ try {
 } catch (Exception 落叶叶子叶落子飘) {
 }
 
-Toasts("他是我生命中为数不多的一缕温暖");
-Toasts("自动点赞续火Java加载成功，你需要自己配置任务");
-*/
+Toasts("自动点赞续火脚本加载成功 当前QQ:" + myUin);

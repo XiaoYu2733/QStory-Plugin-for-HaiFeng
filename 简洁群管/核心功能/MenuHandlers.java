@@ -76,7 +76,6 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("代管管理功能", "代管管理弹窗");
             addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
-            addTemporaryItem("查看更新日志", "showUpdateLog");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
         }
     } catch (Exception e) {

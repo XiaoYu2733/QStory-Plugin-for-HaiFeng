@@ -165,61 +165,6 @@ class CustomArrayAdapter extends ArrayAdapter {
     }
 }
 
-public void showUpdateLog(String g, String u, int t) {
-    Activity activity = getActivity();
-    if (activity == null) return;
-    
-    activity.runOnUiThread(new Runnable() {
-        public void run() {
-            try {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity, getCurrentTheme());
-                builder.setTitle("简洁群管更新日志");
-                
-                TextView textView = new TextView(activity);
-                textView.setText("QStory精选脚本系列\n\n" +
-                        "- [修复] 一些存在的问题\n" +
-                        "- [移除] 以前的更新日志堆积成山没有保留的必要，已进行删除从而保持代码的简洁性\n" +
-                        "- [优化] 大幅提升了艾特禁言的速度与判断方法\n" +
-                        "- [添加] 快捷群管以及设置艾特禁言时间方法添加禁言添加显示时间\n\n" +
-                        "喜欢的人要早点说 有bug及时反馈\n\n交流群:https://t.me/XiaoYu_Chat");
-                textView.setTextSize(14);
-                textView.setLineSpacing(dp2px(4), 1);
-                textView.setTextIsSelectable(true);
-                
-                int textColor = Color.parseColor(getTextColor());
-                textView.setTextColor(textColor);
-                textView.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
-                
-                ScrollView scrollView = new ScrollView(activity);
-                scrollView.addView(textView);
-                
-                LinearLayout container = new LinearLayout(activity);
-                container.setOrientation(LinearLayout.VERTICAL);
-                container.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
-                
-                GradientDrawable bg = getWebShape(getCardColor(), dp2px(16));
-                scrollView.setBackground(bg);
-                
-                container.addView(scrollView);
-                
-                builder.setView(container);
-                builder.setPositiveButton("确定", null);
-                
-                AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                dialog.show();
-                
-                Window window = dialog.getWindow();
-                if (window != null) {
-                    GradientDrawable windowBg = getShape(getCardColor(), dp2px(20));
-                    window.setBackgroundDrawable(windowBg);
-                }
-            } catch (Exception e) {
-            }
-        }
-    });
-}
-
 public void showGroupManageDialog() {
     try {
         String qqVersion = "QQVersion未知";
