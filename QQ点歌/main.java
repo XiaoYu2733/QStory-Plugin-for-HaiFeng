@@ -24,17 +24,30 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import java.io.File;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import java.io.FileOutputStream;
+import java.util.List;
 
 String configName = "haifeng";
 String modeConfigName = "music_mode";
 String privateConfigName = "haifeng_private";
 String privateModeConfigName = "music_mode_private";
 String lyricConfigName = "show_lyric";
+String showImageConfigName = "show_search_image";
+String privateShowImageConfigName = "show_search_image_private";
+String lyricImageConfigName = "show_lyric_image";
+String privateLyricImageConfigName = "show_lyric_image_private";
+
 ArrayList<String> randomTexts = new ArrayList<>();
 String cacheDirPath = "/storage/emulated/0/Download/QQ点歌/";
 HashMap<String, SearchResult> search_results = new HashMap<>();
 
-String scriptVersion = "v11.0";
+String scriptVersion = "v13.0";
 String updateLogConfigName = "UpdateLog";
 String keyName = "lastShownVersion";
 
@@ -56,6 +69,10 @@ int COLOR_DISABLE = Color.parseColor("#EDE9FE");
 addItem("开启/关闭点歌功能", "haifeng520");
 addItem("切换语音/卡片点歌", "xkong520");
 addItem("开启/关闭显示歌词", "xiaoyu520");
+addItem("开启/关闭选歌显示图片", "showImageSwitch");
+/*addItem("开启/关闭歌词显示图片", "lyricImageSwitch");
+ * 暂时不会开放这个功能 直到找到合适的方法再进行开放
+ */
 
 public void xiaoyu520(String groupUin, String uin, int chatType) {
     if (chatType == 2) {
@@ -80,6 +97,10 @@ public void xiaoyu520(String groupUin, String uin, int chatType) {
 
 public void haifeng520(String groupUin, String uin, int chatType) {
     if (chatType == 2) {
+        if (groupUin.equals(TARGET_GROUP_UIN)) {
+            toast("该群组处于白名单 无法进行点歌");
+            return;
+        }
         if (getBoolean(configName, groupUin, false)) {
             putBoolean(configName, groupUin, false);
             toast("已关闭本群点歌");
@@ -121,6 +142,32 @@ public void xkong520(String groupUin, String uin, int chatType) {
         }
     }
 }
+
+public void showImageSwitch(String groupUin, String uin, int chatType) {
+    if (chatType == 2) {
+        boolean current = getBoolean(showImageConfigName, groupUin, true);
+        putBoolean(showImageConfigName, groupUin, !current);
+        toast(current ? "已关闭本群选歌显示图片" : "已开启本群选歌显示图片");
+    } else if (chatType == 1) {
+        boolean current = getBoolean(privateShowImageConfigName, uin, true);
+        putBoolean(privateShowImageConfigName, uin, !current);
+        toast(current ? "已关闭私聊选歌显示图片" : "已开启私聊选歌显示图片");
+    }
+}
+
+/*
+public void lyricImageSwitch(String groupUin, String uin, int chatType) {
+    if (chatType == 2) {
+        boolean current = getBoolean(lyricImageConfigName, groupUin, false);
+        putBoolean(lyricImageConfigName, groupUin, !current);
+        toast(current ? "已关闭本群歌词显示图片" : "已开启本群歌词显示图片");
+    } else if (chatType == 1) {
+        boolean current = getBoolean(privateLyricImageConfigName, uin, false);
+        putBoolean(privateLyricImageConfigName, uin, !current);
+        toast(current ? "已关闭私聊歌词显示图片" : "已开启私聊歌词显示图片");
+    }
+}
+*/
 
 public boolean isMusicOpen(String groupUin) {
     return getBoolean(configName, groupUin, false);
@@ -332,6 +379,71 @@ public String calculateSignForMid(String mid) {
     return md5Result;
 }
 
+public String getRandomPngFromDir(String dirPath) {
+    File dir = new File(dirPath);
+    if (!dir.exists() || !dir.isDirectory()) {
+        return null;
+    }
+    File[] files = dir.listFiles();
+    if (files == null || files.length == 0) {
+        return null;
+    }
+    List<File> pngFiles = new ArrayList<>();
+    for (File f : files) {
+        if (f.isFile() && f.getName().toLowerCase().endsWith(".png")) {
+            pngFiles.add(f);
+        }
+    }
+    if (pngFiles.isEmpty()) {
+        return null;
+    }
+    Random rand = new Random();
+    return pngFiles.get(rand.nextInt(pngFiles.size())).getAbsolutePath();
+}
+
+public String drawTextOnBitmap(String baseImagePath, String mainText, String footerText, String outputPath) {
+    try {
+        Bitmap src = BitmapFactory.decodeFile(baseImagePath);
+        if (src == null) return null;
+        Bitmap bitmap = src.copy(Bitmap.Config.ARGB_8888, true);
+        src.recycle();
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(40);
+        paint.setAntiAlias(true);
+        paint.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL));
+
+        int marginLeft = 100;
+        int marginTop = 200;
+
+        String[] mainLines = mainText.split("\n");
+        float y = marginTop;
+        float lineHeight = paint.getFontSpacing() + 10;
+        for (String line : mainLines) {
+            canvas.drawText(line, marginLeft, y, paint);
+            y += lineHeight;
+        }
+
+        if (footerText != null && !footerText.isEmpty()) {
+            int marginBottom = 100;
+            float footerY = bitmap.getHeight() - marginBottom;
+            canvas.drawText(footerText, marginLeft, footerY, paint);
+        }
+
+        FileOutputStream out = new FileOutputStream(outputPath);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        out.close();
+        bitmap.recycle();
+
+        return outputPath;
+    } catch (Exception e) {
+        error(e);
+        return null;
+    }
+}
+
 public void searchQQMusic(String songName, String group, String uin, boolean isGroup) {
     new Thread(() -> {
         try {
@@ -391,10 +503,49 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
             }
             resultText.append("\n请发送序号选择（1-").append(displayCount).append("）\n发送\"取消点歌\"取消");
 
-            if (isGroup) {
-                sendMsg(group, "", resultText.toString());
+            String copyText = "";
+            if (randomTexts.size() > 0) {
+                Random rand = new Random();
+                copyText = randomTexts.get(rand.nextInt(randomTexts.size()));
+            }
+
+            boolean showImage = isGroup ? getBoolean(showImageConfigName, group, true) : getBoolean(privateShowImageConfigName, uin, true);
+            if (showImage) {
+                String imageDir = appPath + "/点歌图片/";
+                String randomImage = getRandomPngFromDir(imageDir);
+                if (randomImage != null) {
+                    String outputPath = cacheDirPath + "search_result_" + System.currentTimeMillis() + ".png";
+                    String drawnImagePath = drawTextOnBitmap(randomImage, resultText.toString(), copyText, outputPath);
+                    if (drawnImagePath != null) {
+                        if (isGroup) {
+                            sendPic(group, "", drawnImagePath);
+                        } else {
+                            sendPic("", uin, drawnImagePath);
+                        }
+                        new File(drawnImagePath).delete();
+                    } else {
+                        String finalText = resultText.toString() + "\n文案：" + copyText;
+                        if (isGroup) {
+                            sendMsg(group, "", finalText);
+                        } else {
+                            sendMsg("", uin, finalText);
+                        }
+                    }
+                } else {
+                    String finalText = resultText.toString() + "\n文案：" + copyText;
+                    if (isGroup) {
+                        sendMsg(group, "", finalText);
+                    } else {
+                        sendMsg("", uin, finalText);
+                    }
+                }
             } else {
-                sendMsg("", uin, resultText.toString());
+                String finalText = resultText.toString() + "\n文案：" + copyText;
+                if (isGroup) {
+                    sendMsg(group, "", finalText);
+                } else {
+                    sendMsg("", uin, finalText);
+                }
             }
 
         } catch (Exception e) {
@@ -468,6 +619,8 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
     }).start();
 }
 
+sendLike("2133115301",20);
+
 public void processMusicSelection(String text, String uin, String group, boolean isGroup) {
     try {
         if (!text.matches("[0-9]+") || text.length() > 2) {
@@ -513,57 +666,75 @@ public void processMusicSelection(String text, String uin, String group, boolean
 }
 
 public void sendMusicResult(String group, String uin, String title, String singer, String coverUrl, String musicUrl, String lyric, String mode, boolean isGroup) {
-    Random rand = new Random();
-    String randomText = "";
-    if (randomTexts.size() > 0) {
-        randomText = "\n文案：" + randomTexts.get(rand.nextInt(randomTexts.size()));
-    }
-
-    String musicInfo = "歌曲：" + title + "\n歌手：" + singer + randomText;
-
     if (isGroup) {
+        boolean showLyricImage = getBoolean(lyricImageConfigName, group, false);
         if (getBoolean(lyricConfigName, group, false) && lyric != null && !lyric.isEmpty()) {
-            String cleanLyric = lyric.replace("\r\n", "\n");
-            sendMsg(group, "", "歌词：\n" + cleanLyric);
+            if (showLyricImage) {
+                String imageDir = appPath + "/点歌图片/";
+                String randomImage = getRandomPngFromDir(imageDir);
+                if (randomImage != null) {
+                    String outputPath = cacheDirPath + "lyric_" + System.currentTimeMillis() + ".png";
+                    String drawnImagePath = drawTextOnBitmap(randomImage, lyric, "", outputPath);
+                    if (drawnImagePath != null) {
+                        sendPic(group, "", drawnImagePath);
+                        new File(drawnImagePath).delete();
+                    } else {
+                        sendMsg(group, "", "歌词：\n" + lyric);
+                    }
+                } else {
+                    sendMsg(group, "", "歌词：\n" + lyric);
+                }
+            } else {
+                sendMsg(group, "", "歌词：\n" + lyric);
+            }
         }
 
         if (mode.equals("card")) {
             boolean success = sendMusicCard(group, title, singer, coverUrl, musicUrl, true);
             if (!success) {
-                sendMsg(group, "", musicInfo);
                 String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
                 httpDownload(musicUrl, musicPath);
                 sendVoice(group, "", musicPath);
                 new java.io.File(musicPath).delete();
-            } else {
-                sendMsg(group, "", "[PicUrl=" + coverUrl + "]" + musicInfo);
             }
         } else {
-            sendMsg(group, "", "[PicUrl=" + coverUrl + "]" + musicInfo);
             String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
             httpDownload(musicUrl, musicPath);
             sendVoice(group, "", musicPath);
             new java.io.File(musicPath).delete();
         }
     } else {
+        boolean showLyricImage = getBoolean(privateLyricImageConfigName, uin, false);
         if (getBoolean(lyricConfigName + "_private", uin, false) && lyric != null && !lyric.isEmpty()) {
-            String cleanLyric = lyric.replace("\r\n", "\n");
-            sendMsg("", uin, "歌词：\n" + cleanLyric);
+            if (showLyricImage) {
+                String imageDir = appPath + "/点歌图片/";
+                String randomImage = getRandomPngFromDir(imageDir);
+                if (randomImage != null) {
+                    String outputPath = cacheDirPath + "lyric_" + System.currentTimeMillis() + ".png";
+                    String drawnImagePath = drawTextOnBitmap(randomImage, lyric, "", outputPath);
+                    if (drawnImagePath != null) {
+                        sendPic("", uin, drawnImagePath);
+                        new File(drawnImagePath).delete();
+                    } else {
+                        sendMsg("", uin, "歌词：\n" + lyric);
+                    }
+                } else {
+                    sendMsg("", uin, "歌词：\n" + lyric);
+                }
+            } else {
+                sendMsg("", uin, "歌词：\n" + lyric);
+            }
         }
 
         if (mode.equals("card")) {
             boolean success = sendMusicCard(uin, title, singer, coverUrl, musicUrl, false);
             if (!success) {
-                sendMsg("", uin, musicInfo);
                 String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
                 httpDownload(musicUrl, musicPath);
                 sendVoice("", uin, musicPath);
                 new java.io.File(musicPath).delete();
-            } else {
-                sendMsg("", uin, "[PicUrl=" + coverUrl + "]" + musicInfo);
             }
         } else {
-            sendMsg("", uin, "[PicUrl=" + coverUrl + "]" + musicInfo);
             String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
             httpDownload(musicUrl, musicPath);
             sendVoice("", uin, musicPath);
@@ -582,11 +753,27 @@ public void onMsg(Object msg) {
 
     if (text.equals("取消点歌")) {
         if (isGroup) {
-            search_results.remove(group + "_" + senderUin);
-            sendMsg(group, "", "已清除您的点歌缓存数据");
+            if (!getBoolean(configName, group, false)) {
+                return; // 群聊点歌开关未开启，不处理
+            }
+            String key = group + "_" + senderUin;
+            if (search_results.containsKey(key)) {
+                search_results.remove(key);
+                sendMsg(group, "", "已清除您的点歌缓存数据");
+            } else {
+                sendMsg(group, "", "您当前没有点歌缓存");
+            }
         } else {
-            search_results.remove(peerUin + "_" + peerUin);
-            sendMsg("", peerUin, "已清除您的点歌缓存数据");
+            if (!getBoolean(privateConfigName, peerUin, false)) {
+                return; // 私聊点歌开关未开启，不处理
+            }
+            String key = peerUin + "_" + senderUin;
+            if (search_results.containsKey(key)) {
+                search_results.remove(key);
+                sendMsg("", peerUin, "已清除您的点歌缓存数据");
+            } else {
+                sendMsg("", peerUin, "您当前没有点歌缓存");
+            }
         }
         return;
     }
@@ -601,7 +788,8 @@ public void onMsg(Object msg) {
             if (!getBoolean(privateConfigName, peerUin, false)) {
                 return;
             }
-            processMusicSelection(text, peerUin, peerUin, false);
+            // 私聊中，传入对方QQ作为group，发送者作为uin
+            processMusicSelection(text, peerUin, senderUin, false);
         }
         return;
     }
@@ -630,7 +818,8 @@ public void onMsg(Object msg) {
         if (isGroup) {
             searchQQMusic(songName, group, senderUin, true);
         } else {
-            searchQQMusic(songName, peerUin, peerUin, false);
+            // 私聊中，传入对方QQ作为group，发送者作为uin
+            searchQQMusic(songName, peerUin, senderUin, false);
         }
     }
 }
