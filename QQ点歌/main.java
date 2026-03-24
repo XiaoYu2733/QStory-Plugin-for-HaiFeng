@@ -51,7 +51,7 @@ String scriptVersion = "v13.0";
 String updateLogConfigName = "UpdateLog";
 String keyName = "lastShownVersion";
 
-String myWeb = "https://api.yuafeng.cn/API/ly/";
+String myWeb = "http://lengy.top/API/";
 String SECRET = "lengyu520";
 
 String DIALOG_TITLE = "欢迎使用本脚本";
@@ -448,8 +448,8 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
     new Thread(() -> {
         try {
             String encodedMsg = URL(songName, 1);
-            String sign = calculateSign(songName);
-            String url = myWeb + "qqmusicu.php?msg=" + encodedMsg + "&num=30&sign=" + sign;
+            // 新接口：使用 msg 和 n 参数，n 设为 30 获取列表（原逻辑）
+            String url = myWeb + "qqmusic.php?msg=" + encodedMsg + "&n=30";
 
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
@@ -562,8 +562,8 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
 public void getMusicByMid(String mid, String group, String uin, boolean isGroup) {
     new Thread(() -> {
         try {
-            String sign = calculateSignForMid(mid);
-            String url = myWeb + "qqmusicu.php?mid=" + mid + "&sign=" + sign;
+            // 新接口：使用 mid 参数获取歌曲详情
+            String url = myWeb + "qqmusic.php?mid=" + mid;
 
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
