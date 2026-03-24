@@ -1,5 +1,44 @@
-
 // 你当然不会难过 你身边有很多人可以代替我 而我没有
+
+// 核心ui类 借鉴或搬运自己的脚本请标注原作者名称
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Calendar;
+import android.graphics.Typeface;
+import android.util.DisplayMetrics;
+import android.os.Handler;
+import android.os.Looper;
+import java.util.List;
 
 public Object getFieldValue(Object 对象, String 字段名) {
     try {
@@ -46,7 +85,7 @@ public String getTextColor() {
 public String getSubTextColor() {
     int 主题 = getCurrentTheme();
     if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#ADB5BD";
+        return "#E9ECEF";
     } else {
         return "#6C757D";
     }
@@ -62,11 +101,12 @@ public String getCardColor() {
 }
 
 public String getAccentColor() {
-    return "#4285F4";
-}
-
-public String getAccentColorDark() {
-    return "#3367D6";
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#5A9EFF";
+    } else {
+        return "#4285F4";
+    }
 }
 
 public String getSurfaceColor() {
@@ -75,15 +115,6 @@ public String getSurfaceColor() {
         return "#3C3C3C";
     } else {
         return "#E9ECEF";
-    }
-}
-
-public String getBorderColor() {
-    int 主题 = getCurrentTheme();
-    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#404040";
-    } else {
-        return "#DEE2E6";
     }
 }
 
@@ -111,6 +142,19 @@ public GradientDrawable getShape(String 颜色, int 圆角) {
     return 形状;
 }
 
+public StateListDrawable getButtonBackground(String 正常色, String 按压色, int 圆角) {
+    StateListDrawable 状态列表 = new StateListDrawable();
+    GradientDrawable 正常形状 = new GradientDrawable();
+    正常形状.setColor(Color.parseColor(正常色));
+    正常形状.setCornerRadius(圆角);
+    GradientDrawable 按压形状 = new GradientDrawable();
+    按压形状.setColor(Color.parseColor(按压色));
+    按压形状.setCornerRadius(圆角);
+    状态列表.addState(new int[]{android.R.attr.state_pressed}, 按压形状);
+    状态列表.addState(new int[]{}, 正常形状);
+    return 状态列表;
+}
+
 public GradientDrawable getWebShape(String 基色, int 圆角) {
     GradientDrawable 形状 = new GradientDrawable();
     形状.setColor(Color.parseColor(基色));
@@ -120,13 +164,22 @@ public GradientDrawable getWebShape(String 基色, int 圆角) {
     return 形状;
 }
 
+public String getBorderColor() {
+    int 主题 = getCurrentTheme();
+    if (主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
+        return "#404040";
+    } else {
+        return "#DEE2E6";
+    }
+}
+
 public void Toasts(String 文本) {
     new Handler(Looper.getMainLooper()).post(new Runnable() {
         public void run() {
             try {
                 if (getActivity() != null) {
                     int 主题 = getCurrentTheme();
-                    String 背景色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#2D2D2D" : "#4285F4";
+                    String 背景色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#CC2D2D2D" : "#CC000000";
                     String 文本色 = "#FFFFFF";
                     
                     LinearLayout 线性布局 = new LinearLayout(context);
@@ -150,7 +203,7 @@ public void Toasts(String 文本) {
                     线性布局.setGravity(Gravity.CENTER);
                     
                     Toast 提示 = new Toast(context);
-                    提示.setGravity(Gravity.TOP, 0, dp2px(80));
+                    提示.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
                     提示.setDuration(Toast.LENGTH_LONG);
                     提示.setView(线性布局);
                     提示.show();
@@ -191,8 +244,7 @@ void showMainMenu(final Activity 活动) {
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 提示文本 = new TextView(活动);
                 提示文本.setText("当前配置:\n点赞好友: " + 落叶叶子叶落子飘.size() + " 人\n续火好友: " + 落言花飘言落言.size() + " 人\n续火群组: " + 飘飘花言飘飘.size() + " 个");
@@ -202,25 +254,20 @@ void showMainMenu(final Activity 活动) {
                 布局.addView(提示文本);
                 
                 View 间隔 = new View(活动);
-                间隔.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 
-                    dp2px(16)
-                ));
+                间隔.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(12)));
                 布局.addView(间隔);
                 
-                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(44)
-                );
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp2px(44));
                 按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
+                String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
                 
                 Button 点赞好友按钮 = new Button(活动);
                 点赞好友按钮.setText("配置点赞好友");
                 点赞好友按钮.setTextColor(Color.WHITE);
-                点赞好友按钮.setBackground(getShape(强调色, dp2px(6)));
-                点赞好友按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞好友按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                点赞好友按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 点赞好友按钮.setLayoutParams(按钮参数);
                 点赞好友按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -231,8 +278,8 @@ void showMainMenu(final Activity 活动) {
                 Button 续火好友按钮 = new Button(活动);
                 续火好友按钮.setText("配置续火好友");
                 续火好友按钮.setTextColor(Color.WHITE);
-                续火好友按钮.setBackground(getShape(强调色, dp2px(6)));
-                续火好友按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                续火好友按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                续火好友按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 续火好友按钮.setLayoutParams(按钮参数);
                 续火好友按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -243,8 +290,8 @@ void showMainMenu(final Activity 活动) {
                 Button 续火群组按钮 = new Button(活动);
                 续火群组按钮.setText("配置续火群组");
                 续火群组按钮.setTextColor(Color.WHITE);
-                续火群组按钮.setBackground(getShape(强调色, dp2px(6)));
-                续火群组按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                续火群组按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                续火群组按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 续火群组按钮.setLayoutParams(按钮参数);
                 续火群组按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -257,31 +304,25 @@ void showMainMenu(final Activity 活动) {
                 布局.addView(续火群组按钮);
                 
                 View 间隔2 = new View(活动);
-                间隔2.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 
-                    dp2px(16)
-                ));
+                间隔2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp2px(16)));
                 布局.addView(间隔2);
                 
                 TextView 快速标题 = new TextView(活动);
                 快速标题.setText("快速操作");
-                快速标题.setTextSize(15);
+                快速标题.setTextSize(16);
                 快速标题.setTextColor(Color.parseColor(getTextColor()));
                 快速标题.setTypeface(null, Typeface.BOLD);
                 快速标题.setPadding(0, 0, 0, dp2px(8));
                 布局.addView(快速标题);
                 
-                LinearLayout.LayoutParams 快速按钮参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(40)
-                );
+                LinearLayout.LayoutParams 快速按钮参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp2px(40));
                 快速按钮参数.setMargins(0, 0, 0, dp2px(6));
                 
                 Button 查看配置按钮 = new Button(活动);
                 查看配置按钮.setText("查看配置详情");
                 查看配置按钮.setTextColor(Color.WHITE);
-                查看配置按钮.setBackground(getShape(强调色, dp2px(6)));
-                查看配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                查看配置按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                查看配置按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
                 查看配置按钮.setLayoutParams(快速按钮参数);
                 查看配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -292,8 +333,8 @@ void showMainMenu(final Activity 活动) {
                 Button 导入配置按钮 = new Button(活动);
                 导入配置按钮.setText("导入配置文件");
                 导入配置按钮.setTextColor(Color.WHITE);
-                导入配置按钮.setBackground(getShape(强调色, dp2px(6)));
-                导入配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                导入配置按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                导入配置按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
                 导入配置按钮.setLayoutParams(快速按钮参数);
                 导入配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -304,8 +345,8 @@ void showMainMenu(final Activity 活动) {
                 Button 导出配置按钮 = new Button(活动);
                 导出配置按钮.setText("导出配置文件");
                 导出配置按钮.setTextColor(Color.WHITE);
-                导出配置按钮.setBackground(getShape(强调色, dp2px(6)));
-                导出配置按钮.setPadding(dp2px(12), dp2px(8), dp2px(12), dp2px(8));
+                导出配置按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                导出配置按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
                 导出配置按钮.setLayoutParams(快速按钮参数);
                 导出配置按钮.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -341,11 +382,11 @@ void showConfigDetails(final Activity 活动) {
     LinearLayout 布局 = new LinearLayout(活动);
     布局.setOrientation(LinearLayout.VERTICAL);
     布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-    布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+    布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
     
     TextView 标题视图 = new TextView(活动);
     标题视图.setText("配置详情");
-    标题视图.setTextSize(17);
+    标题视图.setTextSize(18);
     标题视图.setTextColor(Color.parseColor(getTextColor()));
     标题视图.setGravity(Gravity.CENTER);
     标题视图.setPadding(0, 0, 0, dp2px(16));
@@ -357,7 +398,7 @@ void showConfigDetails(final Activity 活动) {
     
     TextView 点赞标题 = new TextView(活动);
     点赞标题.setText("点赞好友 (" + 落叶叶子叶落子飘.size() + "人):");
-    点赞标题.setTextSize(15);
+    点赞标题.setTextSize(16);
     点赞标题.setTextColor(Color.parseColor(getTextColor()));
     点赞标题.setPadding(0, dp2px(4), 0, dp2px(4));
     点赞标题.setTypeface(null, Typeface.BOLD);
@@ -383,7 +424,7 @@ void showConfigDetails(final Activity 活动) {
     
     TextView 续火标题 = new TextView(活动);
     续火标题.setText("续火好友 (" + 落言花飘言落言.size() + "人):");
-    续火标题.setTextSize(15);
+    续火标题.setTextSize(16);
     续火标题.setTextColor(Color.parseColor(getTextColor()));
     续火标题.setPadding(0, dp2px(12), 0, dp2px(4));
     续火标题.setTypeface(null, Typeface.BOLD);
@@ -409,7 +450,7 @@ void showConfigDetails(final Activity 活动) {
     
     TextView 群组标题 = new TextView(活动);
     群组标题.setText("续火群组 (" + 飘飘花言飘飘.size() + "个):");
-    群组标题.setTextSize(15);
+    群组标题.setTextSize(16);
     群组标题.setTextColor(Color.parseColor(getTextColor()));
     群组标题.setPadding(0, dp2px(12), 0, dp2px(4));
     群组标题.setTypeface(null, Typeface.BOLD);
@@ -450,7 +491,8 @@ void showConfigDetails(final Activity 活动) {
     WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
     布局参数.copyFrom(对话框.getWindow().getAttributes());
     布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
-    布局参数.height = (int) (活动.getResources().getDisplayMetrics().heightPixels * 0.7);
+    布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
+    布局参数.height = Math.min(布局参数.height, (int) (活动.getResources().getDisplayMetrics().heightPixels * 0.8));
     对话框.getWindow().setAttributes(布局参数);
 }
 
@@ -459,32 +501,30 @@ void showWordsMenu(final Activity 活动) {
         public void run() {
             try {
                 int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
+                String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
                 
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 标题视图 = new TextView(活动);
                 标题视图.setText("配置续火语录");
-                标题视图.setTextSize(17);
+                标题视图.setTextSize(18);
                 标题视图.setTextColor(Color.parseColor(getTextColor()));
                 标题视图.setGravity(Gravity.CENTER);
                 标题视图.setPadding(0, 0, 0, dp2px(16));
                 布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(44)
-                );
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp2px(44));
                 按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
                 Button 好友语录按钮 = new Button(活动);
                 好友语录按钮.setText("配置好友续火语录");
                 好友语录按钮.setTextColor(Color.WHITE);
-                好友语录按钮.setBackground(getShape(强调色, dp2px(6)));
-                好友语录按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友语录按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                好友语录按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 好友语录按钮.setLayoutParams(按钮参数);
                 
                 好友语录按钮.setOnClickListener(new View.OnClickListener() {
@@ -496,8 +536,8 @@ void showWordsMenu(final Activity 活动) {
                 Button 群组语录按钮 = new Button(活动);
                 群组语录按钮.setText("配置群组续火语录");
                 群组语录按钮.setTextColor(Color.WHITE);
-                群组语录按钮.setBackground(getShape(强调色, dp2px(6)));
-                群组语录按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组语录按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                群组语录按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 群组语录按钮.setLayoutParams(按钮参数);
                 
                 群组语录按钮.setOnClickListener(new View.OnClickListener() {
@@ -543,32 +583,30 @@ void showTimeMenu(final Activity 活动) {
         public void run() {
             try {
                 int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
+                String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
                 
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 标题视图 = new TextView(活动);
                 标题视图.setText("配置执行时间");
-                标题视图.setTextSize(17);
+                标题视图.setTextSize(18);
                 标题视图.setTextColor(Color.parseColor(getTextColor()));
                 标题视图.setGravity(Gravity.CENTER);
                 标题视图.setPadding(0, 0, 0, dp2px(16));
                 布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(44)
-                );
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp2px(44));
                 按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
                 Button 点赞时间按钮 = new Button(活动);
                 点赞时间按钮.setText("配置好友点赞时间");
                 点赞时间按钮.setTextColor(Color.WHITE);
-                点赞时间按钮.setBackground(getShape(强调色, dp2px(6)));
-                点赞时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞时间按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                点赞时间按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 点赞时间按钮.setLayoutParams(按钮参数);
                 
                 点赞时间按钮.setOnClickListener(new View.OnClickListener() {
@@ -580,8 +618,8 @@ void showTimeMenu(final Activity 活动) {
                 Button 好友续火时间按钮 = new Button(活动);
                 好友续火时间按钮.setText("配置好友续火时间");
                 好友续火时间按钮.setTextColor(Color.WHITE);
-                好友续火时间按钮.setBackground(getShape(强调色, dp2px(6)));
-                好友续火时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友续火时间按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                好友续火时间按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 好友续火时间按钮.setLayoutParams(按钮参数);
                 
                 好友续火时间按钮.setOnClickListener(new View.OnClickListener() {
@@ -593,8 +631,8 @@ void showTimeMenu(final Activity 活动) {
                 Button 群组续火时间按钮 = new Button(活动);
                 群组续火时间按钮.setText("配置群组续火时间");
                 群组续火时间按钮.setTextColor(Color.WHITE);
-                群组续火时间按钮.setBackground(getShape(强调色, dp2px(6)));
-                群组续火时间按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组续火时间按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                群组续火时间按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 群组续火时间按钮.setLayoutParams(按钮参数);
                 
                 群组续火时间按钮.setOnClickListener(new View.OnClickListener() {
@@ -641,32 +679,30 @@ void showExecuteMenu(final Activity 活动) {
         public void run() {
             try {
                 int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
+                String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
                 
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 标题视图 = new TextView(活动);
                 标题视图.setText("立即执行任务");
-                标题视图.setTextSize(17);
+                标题视图.setTextSize(18);
                 标题视图.setTextColor(Color.parseColor(getTextColor()));
                 标题视图.setGravity(Gravity.CENTER);
                 标题视图.setPadding(0, 0, 0, dp2px(16));
                 布局.addView(标题视图);
                 
-                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    dp2px(44)
-                );
+                LinearLayout.LayoutParams 按钮参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp2px(44));
                 按钮参数.setMargins(0, 0, 0, dp2px(8));
                 
                 Button 点赞按钮 = new Button(活动);
                 点赞按钮.setText("立即点赞好友");
                 点赞按钮.setTextColor(Color.WHITE);
-                点赞按钮.setBackground(getShape(强调色, dp2px(6)));
-                点赞按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                点赞按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                点赞按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 点赞按钮.setLayoutParams(按钮参数);
                 
                 点赞按钮.setOnClickListener(new View.OnClickListener() {
@@ -678,8 +714,8 @@ void showExecuteMenu(final Activity 活动) {
                 Button 好友续火按钮 = new Button(活动);
                 好友续火按钮.setText("立即续火好友");
                 好友续火按钮.setTextColor(Color.WHITE);
-                好友续火按钮.setBackground(getShape(强调色, dp2px(6)));
-                好友续火按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                好友续火按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                好友续火按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 好友续火按钮.setLayoutParams(按钮参数);
                 
                 好友续火按钮.setOnClickListener(new View.OnClickListener() {
@@ -691,8 +727,8 @@ void showExecuteMenu(final Activity 活动) {
                 Button 群组续火按钮 = new Button(活动);
                 群组续火按钮.setText("立即续火群组");
                 群组续火按钮.setTextColor(Color.WHITE);
-                群组续火按钮.setBackground(getShape(强调色, dp2px(6)));
-                群组续火按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                群组续火按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                群组续火按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 群组续火按钮.setLayoutParams(按钮参数);
                 
                 群组续火按钮.setOnClickListener(new View.OnClickListener() {
@@ -704,8 +740,8 @@ void showExecuteMenu(final Activity 活动) {
                 Button 全部按钮 = new Button(活动);
                 全部按钮.setText("执行全部任务");
                 全部按钮.setTextColor(Color.WHITE);
-                全部按钮.setBackground(getShape(强调色, dp2px(6)));
-                全部按钮.setPadding(dp2px(16), dp2px(10), dp2px(16), dp2px(10));
+                全部按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+                全部按钮.setPadding(dp2px(24), dp2px(12), dp2px(24), dp2px(12));
                 全部按钮.setLayoutParams(按钮参数);
                 
                 全部按钮.setOnClickListener(new View.OnClickListener() {
@@ -752,12 +788,25 @@ public void configLikeFriends(String 群号, String 用户, int 类型){
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
+    final ProgressBar 加载进度 = new ProgressBar(活动);
+    
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList 好友列表 = getFriendList();
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.VISIBLE);
+                    }
+                });
+                
+                List 好友列表 = getNewFriendList();
                 if (好友列表 == null || 好友列表.isEmpty()) {
                     Toasts("未添加任何好友");
+                    活动.runOnUiThread(new Runnable() {
+                        public void run() {
+                            加载进度.setVisibility(View.GONE);
+                        }
+                    });
                     return;
                 }
                 
@@ -789,11 +838,17 @@ public void configLikeFriends(String 群号, String 用户, int 类型){
                 
                 活动.runOnUiThread(new Runnable() {
                     public void run() {
+                        加载进度.setVisibility(View.GONE);
                         showFriendSelectionDialog(活动, 显示列表, QQ列表, 落叶叶子叶落子飘, "点赞", "like");
                     }
                 });
             } catch (Exception e) {
                 Toasts("获取好友列表失败");
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.GONE);
+                    }
+                });
             }
         }
     }).start();
@@ -803,12 +858,25 @@ public void configFireFriends(String 群号, String 用户, int 类型){
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
+    final ProgressBar 加载进度 = new ProgressBar(活动);
+    
     new Thread(new Runnable() {
         public void run() {
             try {
-                ArrayList 好友列表 = getFriendList();
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.VISIBLE);
+                    }
+                });
+                
+                List 好友列表 = getNewFriendList();
                 if (好友列表 == null || 好友列表.isEmpty()) {
                     Toasts("未添加任何好友");
+                    活动.runOnUiThread(new Runnable() {
+                        public void run() {
+                            加载进度.setVisibility(View.GONE);
+                        }
+                    });
                     return;
                 }
                 
@@ -840,11 +908,17 @@ public void configFireFriends(String 群号, String 用户, int 类型){
                 
                 活动.runOnUiThread(new Runnable() {
                     public void run() {
+                        加载进度.setVisibility(View.GONE);
                         showFriendSelectionDialog(活动, 显示列表, QQ列表, 落言花飘言落言, "续火", "fire");
                     }
                 });
             } catch (Exception e) {
                 Toasts("获取好友列表失败");
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.GONE);
+                    }
+                });
             }
         }
     }).start();
@@ -860,6 +934,7 @@ private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, 
     
     try {
         int 主题 = getCurrentTheme();
+        String 强调色 = getAccentColor();
         AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
         
         LinearLayout 主布局 = new LinearLayout(活动);
@@ -871,12 +946,12 @@ private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, 
         LinearLayout 内容布局 = new LinearLayout(活动);
         内容布局.setOrientation(LinearLayout.VERTICAL);
         内容布局.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
-        内容布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+        内容布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
         
         TextView 标题视图 = new TextView(活动);
         标题视图.setText("选择" + 任务名 + "好友");
         标题视图.setTextColor(Color.parseColor(getTextColor()));
-        标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        标题视图.setTextSize(18);
         标题视图.setGravity(Gravity.CENTER);
         标题视图.setPadding(0, 0, 0, dp2px(16));
         内容布局.addView(标题视图);
@@ -885,12 +960,9 @@ private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, 
         搜索框.setHint("搜索好友QQ号、好友名、备注");
         搜索框.setTextColor(Color.parseColor(getTextColor()));
         搜索框.setHintTextColor(Color.parseColor(getSubTextColor()));
-        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
         搜索框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
         内容布局.addView(搜索框);
-        
-        int 主题值 = getCurrentTheme();
-        String 强调色 = 主题值 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
         
         LinearLayout 按钮布局 = new LinearLayout(活动);
         按钮布局.setOrientation(LinearLayout.HORIZONTAL);
@@ -902,42 +974,32 @@ private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, 
         按钮布局参数.setMargins(0, dp2px(12), 0, dp2px(12));
         按钮布局.setLayoutParams(按钮布局参数);
         
+        String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
+        
         Button 全选按钮 = new Button(活动);
         全选按钮.setText("全选");
         全选按钮.setTextColor(Color.WHITE);
-        全选按钮.setBackground(getShape(强调色, dp2px(6)));
-        全选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        全选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        全选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         全选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         全选按钮.setLayoutParams(全选参数);
         
         Button 全不选按钮 = new Button(活动);
         全不选按钮.setText("全不选");
         全不选按钮.setTextColor(Color.WHITE);
-        全不选按钮.setBackground(getShape(强调色, dp2px(6)));
-        全不选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        全不选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        全不选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         全不选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         全不选按钮.setLayoutParams(全不选参数);
         
         Button 反选按钮 = new Button(活动);
         反选按钮.setText("反选");
         反选按钮.setTextColor(Color.WHITE);
-        反选按钮.setBackground(getShape(强调色, dp2px(6)));
-        反选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        反选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        反选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         反选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         反选按钮.setLayoutParams(反选参数);
         
@@ -947,12 +1009,9 @@ private void showFriendSelectionDialog(Activity 活动, ArrayList 显示列表, 
         内容布局.addView(按钮布局);
         
         final ListView 列表视图 = new ListView(活动);
-        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
         列表视图.setDividerHeight(dp2px(1));
-        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        );
+        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         列表参数.weight = 1;
         列表视图.setLayoutParams(列表参数);
         内容布局.addView(列表视图);
@@ -1107,12 +1166,25 @@ public void configFireGroups(String 群号, String 用户, int 类型){
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
+    final ProgressBar 加载进度 = new ProgressBar(活动);
+    
     new Thread(new Runnable() {
         public void run() {
             try {
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.VISIBLE);
+                    }
+                });
+                
                 ArrayList 群组列表 = getGroupList();
                 if (群组列表 == null || 群组列表.isEmpty()) {
                     Toasts("未加入任何群组");
+                    活动.runOnUiThread(new Runnable() {
+                        public void run() {
+                            加载进度.setVisibility(View.GONE);
+                        }
+                    });
                     return;
                 }
                 
@@ -1139,11 +1211,17 @@ public void configFireGroups(String 群号, String 用户, int 类型){
                 
                 活动.runOnUiThread(new Runnable() {
                     public void run() {
+                        加载进度.setVisibility(View.GONE);
                         showGroupSelectionDialog(活动, 显示列表, QQ列表);
                     }
                 });
             } catch (Exception e) {
                 Toasts("获取群组列表失败");
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        加载进度.setVisibility(View.GONE);
+                    }
+                });
             }
         }
     }).start();
@@ -1157,8 +1235,7 @@ private void showGroupSelectionDialog(Activity 活动, ArrayList 显示列表, A
     
     try {
         int 主题 = getCurrentTheme();
-        String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-        
+        String 强调色 = getAccentColor();
         AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
         
         LinearLayout 主布局 = new LinearLayout(活动);
@@ -1170,12 +1247,12 @@ private void showGroupSelectionDialog(Activity 活动, ArrayList 显示列表, A
         LinearLayout 内容布局 = new LinearLayout(活动);
         内容布局.setOrientation(LinearLayout.VERTICAL);
         内容布局.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
-        内容布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+        内容布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
         
         TextView 标题视图 = new TextView(活动);
         标题视图.setText("选择续火群组");
         标题视图.setTextColor(Color.parseColor(getTextColor()));
-        标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        标题视图.setTextSize(18);
         标题视图.setGravity(Gravity.CENTER);
         标题视图.setPadding(0, 0, 0, dp2px(16));
         内容布局.addView(标题视图);
@@ -1184,56 +1261,43 @@ private void showGroupSelectionDialog(Activity 活动, ArrayList 显示列表, A
         搜索框.setHint("搜索群号、群名");
         搜索框.setTextColor(Color.parseColor(getTextColor()));
         搜索框.setHintTextColor(Color.parseColor(getSubTextColor()));
-        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        搜索框.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
         搜索框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
         内容布局.addView(搜索框);
         
         LinearLayout 按钮布局 = new LinearLayout(活动);
         按钮布局.setOrientation(LinearLayout.HORIZONTAL);
         按钮布局.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams 按钮布局参数 = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        );
+        LinearLayout.LayoutParams 按钮布局参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         按钮布局参数.setMargins(0, dp2px(12), 0, dp2px(12));
         按钮布局.setLayoutParams(按钮布局参数);
+        
+        String 按压色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? "#3A6CD9" : "#3367D6";
         
         Button 全选按钮 = new Button(活动);
         全选按钮.setText("全选");
         全选按钮.setTextColor(Color.WHITE);
-        全选按钮.setBackground(getShape(强调色, dp2px(6)));
-        全选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        全选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        全选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 全选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         全选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         全选按钮.setLayoutParams(全选参数);
         
         Button 全不选按钮 = new Button(活动);
         全不选按钮.setText("全不选");
         全不选按钮.setTextColor(Color.WHITE);
-        全不选按钮.setBackground(getShape(强调色, dp2px(6)));
-        全不选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        全不选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        全不选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 全不选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         全不选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         全不选按钮.setLayoutParams(全不选参数);
         
         Button 反选按钮 = new Button(活动);
         反选按钮.setText("反选");
         反选按钮.setTextColor(Color.WHITE);
-        反选按钮.setBackground(getShape(强调色, dp2px(6)));
-        反选按钮.setPadding(dp2px(10), dp2px(8), dp2px(10), dp2px(8));
-        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            1.0f
-        );
+        反选按钮.setBackground(getButtonBackground(强调色, 按压色, dp2px(8)));
+        反选按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
+        LinearLayout.LayoutParams 反选参数 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
         反选参数.setMargins(dp2px(2), 0, dp2px(2), 0);
         反选按钮.setLayoutParams(反选参数);
         
@@ -1243,12 +1307,9 @@ private void showGroupSelectionDialog(Activity 活动, ArrayList 显示列表, A
         内容布局.addView(按钮布局);
         
         final ListView 列表视图 = new ListView(活动);
-        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+        列表视图.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
         列表视图.setDividerHeight(dp2px(1));
-        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        );
+        LinearLayout.LayoutParams 列表参数 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         列表参数.weight = 1;
         列表视图.setLayoutParams(列表参数);
         内容布局.addView(列表视图);
@@ -1410,17 +1471,17 @@ public void configFriendFireWords(String 群号, String 用户, int 类型){
                 }
                 
                 int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
                 
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 标题视图 = new TextView(活动);
                 标题视图.setText("配置好友续火语录");
                 标题视图.setTextColor(Color.parseColor(getTextColor()));
-                标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                标题视图.setTextSize(18);
                 标题视图.setGravity(Gravity.CENTER);
                 标题视图.setPadding(0, 0, 0, dp2px(16));
                 布局.addView(标题视图);
@@ -1429,19 +1490,17 @@ public void configFriendFireWords(String 群号, String 用户, int 类型){
                 语录编辑框.setText(语录构建器.toString());
                 语录编辑框.setHint("输入好友续火语录，每行一个");
                 语录编辑框.setTextColor(Color.parseColor(getTextColor()));
-                语录编辑框.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                语录编辑框.setTextSize(15);
                 语录编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
                 语录编辑框.setMinLines(6);
-                语录编辑框.setMaxLines(20);
+                语录编辑框.setMaxLines(15);
                 语录编辑框.setGravity(Gravity.TOP);
-                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
                 语录编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
-                int 屏幕高度 = 活动.getResources().getDisplayMetrics().heightPixels;
-                int 编辑框高度 = (int)(屏幕高度 * 0.35);
                 LinearLayout.LayoutParams 编辑框参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    编辑框高度
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 );
                 编辑框参数.setMargins(0, 0, 0, dp2px(16));
                 语录编辑框.setLayoutParams(编辑框参数);
@@ -1451,7 +1510,7 @@ public void configFriendFireWords(String 群号, String 用户, int 类型){
                 TextView 提示视图 = new TextView(活动);
                 提示视图.setText("注意：输入多个续火语录时，每行一个");
                 提示视图.setTextColor(Color.parseColor(getSubTextColor()));
-                提示视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                提示视图.setTextSize(14);
                 提示视图.setPadding(0, 0, 0, 0);
                 布局.addView(提示视图);
                 
@@ -1498,8 +1557,6 @@ public void configFriendFireWords(String 群号, String 用户, int 类型){
                 布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 对话框.getWindow().setAttributes(布局参数);
                 
-                对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-                
                 Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
                 if (保存按钮 != null) {
                     保存按钮.setTextColor(Color.parseColor(强调色));
@@ -1531,17 +1588,17 @@ public void configGroupFireWords(String 群号, String 用户, int 类型){
                 }
                 
                 int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
+                String 强调色 = getAccentColor();
                 
                 LinearLayout 布局 = new LinearLayout(活动);
                 布局.setOrientation(LinearLayout.VERTICAL);
                 布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-                布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
+                布局.setBackground(getWebShape(getCardColor(), dp2px(16)));
                 
                 TextView 标题视图 = new TextView(活动);
                 标题视图.setText("配置群组续火语录");
                 标题视图.setTextColor(Color.parseColor(getTextColor()));
-                标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                标题视图.setTextSize(18);
                 标题视图.setGravity(Gravity.CENTER);
                 标题视图.setPadding(0, 0, 0, dp2px(16));
                 布局.addView(标题视图);
@@ -1550,19 +1607,17 @@ public void configGroupFireWords(String 群号, String 用户, int 类型){
                 语录编辑框.setText(语录构建器.toString());
                 语录编辑框.setHint("输入群组续火语录，每行一个");
                 语录编辑框.setTextColor(Color.parseColor(getTextColor()));
-                语录编辑框.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                语录编辑框.setTextSize(15);
                 语录编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
                 语录编辑框.setMinLines(6);
-                语录编辑框.setMaxLines(20);
+                语录编辑框.setMaxLines(15);
                 语录编辑框.setGravity(Gravity.TOP);
-                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
+                语录编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(8)));
                 语录编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
                 
-                int 屏幕高度 = 活动.getResources().getDisplayMetrics().heightPixels;
-                int 编辑框高度 = (int)(屏幕高度 * 0.35);
                 LinearLayout.LayoutParams 编辑框参数 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    编辑框高度
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 );
                 编辑框参数.setMargins(0, 0, 0, dp2px(16));
                 语录编辑框.setLayoutParams(编辑框参数);
@@ -1572,7 +1627,7 @@ public void configGroupFireWords(String 群号, String 用户, int 类型){
                 TextView 提示视图 = new TextView(活动);
                 提示视图.setText("注意：输入多个续火语录时，每行一个");
                 提示视图.setTextColor(Color.parseColor(getSubTextColor()));
-                提示视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+                提示视图.setTextSize(14);
                 提示视图.setPadding(0, 0, 0, 0);
                 布局.addView(提示视图);
                 
@@ -1618,8 +1673,6 @@ public void configGroupFireWords(String 群号, String 用户, int 类型){
                 布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
                 布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 对话框.getWindow().setAttributes(布局参数);
-                
-                对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
     
                 Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
                 if (保存按钮 != null) {
@@ -1639,223 +1692,69 @@ public void configLikeTime(String 群号, String 用户, int 类型) {
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
-    活动.runOnUiThread(new Runnable() {
-        public void run() {
-            int 主题 = getCurrentTheme();
-            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-            
-            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
-            
-            LinearLayout 布局 = new LinearLayout(活动);
-            布局.setOrientation(LinearLayout.VERTICAL);
-            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
-            
-            TextView 标题视图 = new TextView(活动);
-            标题视图.setText("设置点赞时间 (HH:mm)");
-            标题视图.setTextColor(Color.parseColor(getTextColor()));
-            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            标题视图.setGravity(Gravity.CENTER);
-            标题视图.setPadding(0, 0, 0, dp2px(16));
-            布局.addView(标题视图);
-            
-            final EditText 时间编辑框 = new EditText(活动);
-            时间编辑框.setText(叶飘叶落言叶子叶落子);
-            时间编辑框.setHint("例如: 00:00");
-            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
-            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
-            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            布局.addView(时间编辑框);
-            
-            对话框构建器.setView(布局);
-            
-            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface 对话框, int 选项) {
-                    String 时间文本 = 时间编辑框.getText().toString().trim();
-                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        叶飘叶落言叶子叶落子 = 时间文本;
-                        saveTimeConfig();
-                        Toasts("已设置点赞时间: " + 叶飘叶落言叶子叶落子);
-                        checkAndExecuteTasks();
-                    } else {
-                        Toasts("时间格式错误，请使用 HH:mm 格式");
-                    }
-                }
-            });
-            
-            对话框构建器.setNegativeButton("取消", null);
-            
-            AlertDialog 对话框 = 对话框构建器.create();
-            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            对话框.show();
-            
-            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
-            布局参数.copyFrom(对话框.getWindow().getAttributes());
-            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
-            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            对话框.getWindow().setAttributes(布局参数);
-            
-            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-            
-            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (保存按钮 != null) {
-                保存按钮.setTextColor(Color.parseColor(强调色));
-            }
-            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (取消按钮 != null) {
-                取消按钮.setTextColor(Color.parseColor(强调色));
-            }
+    Calendar 日历 = Calendar.getInstance();
+    String[] 当前时间 = 叶飘叶落言叶子叶落子.split(":");
+    int 初始小时 = Integer.parseInt(当前时间[0]);
+    int 初始分钟 = Integer.parseInt(当前时间[1]);
+    
+    TimePickerDialog 时间选择器 = new TimePickerDialog(活动, new TimePickerDialog.OnTimeSetListener() {
+        public void onTimeSet(TimePicker view, int 小时, int 分钟) {
+            String 时间文本 = String.format("%02d:%02d", 小时, 分钟);
+            叶飘叶落言叶子叶落子 = 时间文本;
+            saveTimeConfig();
+            Toasts("已设置点赞时间: " + 叶飘叶落言叶子叶落子);
+            checkAndExecuteTasks();
         }
-    });
+    }, 初始小时, 初始分钟, true);
+    
+    时间选择器.setTitle("设置点赞时间");
+    时间选择器.show();
 }
 
 public void configFriendFireTime(String 群号, String 用户, int 类型) {
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
-    活动.runOnUiThread(new Runnable() {
-        public void run() {
-            int 主题 = getCurrentTheme();
-            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-            
-            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
-            
-            LinearLayout 布局 = new LinearLayout(活动);
-            布局.setOrientation(LinearLayout.VERTICAL);
-            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
-            
-            TextView 标题视图 = new TextView(活动);
-            标题视图.setText("设置好友续火时间 (HH:mm)");
-            标题视图.setTextColor(Color.parseColor(getTextColor()));
-            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            标题视图.setGravity(Gravity.CENTER);
-            标题视图.setPadding(0, 0, 0, dp2px(16));
-            布局.addView(标题视图);
-            
-            final EditText 时间编辑框 = new EditText(活动);
-            时间编辑框.setText(飘飘花花);
-            时间编辑框.setHint("例如: 00:00");
-            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
-            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
-            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            布局.addView(时间编辑框);
-            
-            对话框构建器.setView(布局);
-            
-            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface 对话框, int 选项) {
-                    String 时间文本 = 时间编辑框.getText().toString().trim();
-                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        飘飘花花 = 时间文本;
-                        saveTimeConfig();
-                        Toasts("已设置好友续火时间: " + 飘飘花花);
-                        checkAndExecuteTasks();
-                    } else {
-                        Toasts("时间格式错误，请使用 HH:mm 格式");
-                    }
-                }
-            });
-            
-            对话框构建器.setNegativeButton("取消", null);
+    Calendar 日历 = Calendar.getInstance();
+    String[] 当前时间 = 飘飘花花.split(":");
+    int 初始小时 = Integer.parseInt(当前时间[0]);
+    int 初始分钟 = Integer.parseInt(当前时间[1]);
     
-            AlertDialog 对话框 = 对话框构建器.create();
-            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            对话框.show();
-            
-            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
-            布局参数.copyFrom(对话框.getWindow().getAttributes());
-            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
-            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            对话框.getWindow().setAttributes(布局参数);
-            
-            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-            
-            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (保存按钮 != null) {
-                保存按钮.setTextColor(Color.parseColor(强调色));
-            }
-            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (取消按钮 != null) {
-                取消按钮.setTextColor(Color.parseColor(强调色));
-            }
+    TimePickerDialog 时间选择器 = new TimePickerDialog(活动, new TimePickerDialog.OnTimeSetListener() {
+        public void onTimeSet(TimePicker view, int 小时, int 分钟) {
+            String 时间文本 = String.format("%02d:%02d", 小时, 分钟);
+            飘飘花花 = 时间文本;
+            saveTimeConfig();
+            Toasts("已设置好友续火时间: " + 飘飘花花);
+            checkAndExecuteTasks();
         }
-    });
+    }, 初始小时, 初始分钟, true);
+    
+    时间选择器.setTitle("设置好友续火时间");
+    时间选择器.show();
 }
 
 public void configGroupFireTime(String 群号, String 用户, int 类型) {
     final Activity 活动 = getActivity();
     if (活动 == null) return;
     
-    活动.runOnUiThread(new Runnable() {
-        public void run() {
-            int 主题 = getCurrentTheme();
-            String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-            
-            AlertDialog.Builder 对话框构建器 = new AlertDialog.Builder(活动, 主题);
-            
-            LinearLayout 布局 = new LinearLayout(活动);
-            布局.setOrientation(LinearLayout.VERTICAL);
-            布局.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
-            布局.setBackground(getWebShape(getCardColor(), dp2px(8)));
-            
-            TextView 标题视图 = new TextView(活动);
-            标题视图.setText("设置群组续火时间 (HH:mm)");
-            标题视图.setTextColor(Color.parseColor(getTextColor()));
-            标题视图.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            标题视图.setGravity(Gravity.CENTER);
-            标题视图.setPadding(0, 0, 0, dp2px(16));
-            布局.addView(标题视图);
-            
-            final EditText 时间编辑框 = new EditText(活动);
-            时间编辑框.setText(子言花言飘叶落飘);
-            时间编辑框.setHint("例如: 00:00");
-            时间编辑框.setTextColor(Color.parseColor(getTextColor()));
-            时间编辑框.setHintTextColor(Color.parseColor(getSubTextColor()));
-            时间编辑框.setBackground(getWebShape(getSurfaceColor(), dp2px(6)));
-            时间编辑框.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
-            布局.addView(时间编辑框);
-            
-            对话框构建器.setView(布局);
-            
-            对话框构建器.setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface 对话框, int 选项) {
-                    String 时间文本 = 时间编辑框.getText().toString().trim();
-                    if (时间文本.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                        子言花言飘叶落飘 = 时间文本;
-                        saveTimeConfig();
-                        Toasts("已设置群组续火时间: " + 子言花言飘叶落飘);
-                        checkAndExecuteTasks();
-                    } else {
-                        Toasts("时间格式错误，请使用 HH:mm 格式");
-                    }
-                }
-            });
-            
-            对话框构建器.setNegativeButton("取消", null);
-            
-            AlertDialog 对话框 = 对话框构建器.create();
-            对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            对话框.show();
-            
-            WindowManager.LayoutParams 布局参数 = new WindowManager.LayoutParams();
-            布局参数.copyFrom(对话框.getWindow().getAttributes());
-            布局参数.width = (int) (活动.getResources().getDisplayMetrics().widthPixels * 0.9);
-            布局参数.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            对话框.getWindow().setAttributes(布局参数);
-            
-            对话框.getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-            
-            Button 保存按钮 = 对话框.getButton(DialogInterface.BUTTON_POSITIVE);
-            if (保存按钮 != null) {
-                保存按钮.setTextColor(Color.parseColor(强调色));
-            }
-            Button 取消按钮 = 对话框.getButton(DialogInterface.BUTTON_NEGATIVE);
-            if (取消按钮 != null) {
-                取消按钮.setTextColor(Color.parseColor(强调色));
-            }
+    Calendar 日历 = Calendar.getInstance();
+    String[] 当前时间 = 子言花言飘叶落飘.split(":");
+    int 初始小时 = Integer.parseInt(当前时间[0]);
+    int 初始分钟 = Integer.parseInt(当前时间[1]);
+    
+    TimePickerDialog 时间选择器 = new TimePickerDialog(活动, new TimePickerDialog.OnTimeSetListener() {
+        public void onTimeSet(TimePicker view, int 小时, int 分钟) {
+            String 时间文本 = String.format("%02d:%02d", 小时, 分钟);
+            子言花言飘叶落飘 = 时间文本;
+            saveTimeConfig();
+            Toasts("已设置群组续火时间: " + 子言花言飘叶落飘);
+            checkAndExecuteTasks();
         }
-    });
+    }, 初始小时, 初始分钟, true);
+    
+    时间选择器.setTitle("设置群组续火时间");
+    时间选择器.show();
 }
+
+// 那天我们聊到深夜 心比手机烫 我以为那是永远
