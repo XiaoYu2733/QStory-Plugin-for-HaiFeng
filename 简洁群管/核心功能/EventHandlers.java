@@ -27,6 +27,21 @@ public String 获取群名(String groupUin) {
 }
 
 public void onMsg(Object msg) {
+    if (msg.MessageContent != null && msg.MessageContent.equals("log") && myUin.equals(msg.UserUin)) {
+        String filePath = appPath + "/error.txt";
+        File file = new File(filePath);
+        if (file.exists()) {
+            sendFile(msg.IsGroup ? msg.GroupUin : null,
+                     msg.IsGroup ? null : msg.UserUin,
+                     filePath);
+        } else {
+            sendMsg(msg.IsGroup ? msg.GroupUin : null,
+                    msg.IsGroup ? null : msg.UserUin,
+                    "error.txt 文件不存在");
+        }
+        return;
+    }
+
     if (msg == null) return;
 
     synchronized (msgLock) {
