@@ -5,7 +5,7 @@
 
 // 官方脚本，未经允许二改会追究责任
 
-boolean fullScreen = false;//是否全屏
+boolean fullScreen = true;//是否全屏
 
 import lin.xposed.hook.javaplugin.bean.PluginInfo;
 import lin.xposed.hook.javaplugin.controller.PluginLoader;
@@ -543,7 +543,7 @@ public void startComponentName(String packageName, String className) {
 addItem("打开QStory设置", "openSettings");
 
 public void openSettings(String group) {
-    startComponentName("com.tencent.mobileqq", "lin.xposed.hook.view.main.MainSettingActivity");
+    startComponentName("com.tencent.mobileqq", "top.app.ui.SettingActivity");
 }
 
 public String getXPName() {
