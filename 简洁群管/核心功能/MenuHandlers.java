@@ -357,7 +357,160 @@ public void haifeng520(final Object msg) {
                     }
                 }
                 
+                // 群主专属：设置管理 / 取消管理
                 if (isOwner) {
+                    TextView setAdminBtn = new TextView(getActivity());
+                    setAdminBtn.setText("设置管理");
+                    setAdminBtn.setTextSize(16);
+                    setAdminBtn.setTextColor(textColor);
+                    setAdminBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+                    setAdminBtn.setGravity(Gravity.CENTER);
+                    setAdminBtn.setMinHeight(dp2px(48));
+                    
+                    GradientDrawable setAdminBg = new GradientDrawable();
+                    setAdminBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
+                    setAdminBg.setCornerRadius(dp2px(12));
+                    setAdminBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                    setAdminBtn.setBackground(setAdminBg);
+                    
+                    setAdminBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
+                            Activity activity = getActivity();
+                            if (activity == null) return;
+                            activity.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                                    builder.setTitle("确认设置管理");
+                                    
+                                    LinearLayout layout = new LinearLayout(getActivity());
+                                    layout.setOrientation(LinearLayout.VERTICAL);
+                                    layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+                                    
+                                    GradientDrawable bg = new GradientDrawable();
+                                    bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                                    bg.setCornerRadius(dp2px(16));
+                                    bg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                                    int textColor = isDark ? Color.parseColor("#E4E6EB") : Color.parseColor("#1A1A1A");
+                                    layout.setBackground(bg);
+                                    
+                                    TextView message = new TextView(getActivity());
+                                    message.setText("确定要将 " + 名(targetUin) + "(" + targetUin + ") 设置为管理员吗？");
+                                    message.setTextSize(16);
+                                    message.setTextColor(textColor);
+                                    message.setPadding(0, 0, 0, dp2px(20));
+                                    layout.addView(message);
+                                    
+                                    builder.setView(layout);
+                                    
+                                    builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                                        public void onClick(android.content.DialogInterface dialog, int which) {
+                                            try {
+                                                setTroopAdmin(groupUin, targetUin, 1);
+                                                toast("已发送设置管理请求");
+                                            } catch (Exception e) {
+                                                toast("设置失败: " + e.getMessage());
+                                            }
+                                        }
+                                    });
+                                    
+                                    builder.setNegativeButton("取消", null);
+                                    
+                                    AlertDialog dialog = builder.create();
+                                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                                    
+                                    Window window = dialog.getWindow();
+                                    if (window != null) {
+                                        GradientDrawable windowBg = new GradientDrawable();
+                                        windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                                        windowBg.setCornerRadius(dp2px(20));
+                                        window.setBackgroundDrawable(windowBg);
+                                    }
+                                    
+                                    dialog.show();
+                                }
+                            });
+                        }
+                    });
+                    
+                    buttonList.add(setAdminBtn);
+                    
+                    TextView unsetAdminBtn = new TextView(getActivity());
+                    unsetAdminBtn.setText("取消管理");
+                    unsetAdminBtn.setTextSize(16);
+                    unsetAdminBtn.setTextColor(textColor);
+                    unsetAdminBtn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+                    unsetAdminBtn.setGravity(Gravity.CENTER);
+                    unsetAdminBtn.setMinHeight(dp2px(48));
+                    
+                    GradientDrawable unsetAdminBg = new GradientDrawable();
+                    unsetAdminBg.setColor(isDark ? Color.parseColor("#2D2D2D") : Color.parseColor("#F2F2F7"));
+                    unsetAdminBg.setCornerRadius(dp2px(12));
+                    unsetAdminBg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                    unsetAdminBtn.setBackground(unsetAdminBg);
+                    
+                    unsetAdminBtn.setOnClickListener(new android.view.View.OnClickListener() {
+                        public void onClick(android.view.View v) {
+                            Activity activity = getActivity();
+                            if (activity == null) return;
+                            activity.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    boolean isDark = getCurrentTheme() == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), getCurrentTheme());
+                                    builder.setTitle("确认取消管理");
+                                    
+                                    LinearLayout layout = new LinearLayout(getActivity());
+                                    layout.setOrientation(LinearLayout.VERTICAL);
+                                    layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+                                    
+                                    GradientDrawable bg = new GradientDrawable();
+                                    bg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                                    bg.setCornerRadius(dp2px(16));
+                                    bg.setStroke(dp2px(1), isDark ? Color.parseColor("#3A3A3C") : Color.parseColor("#E5E5EA"));
+                                    int textColor = isDark ? Color.parseColor("#E4E6EB") : Color.parseColor("#1A1A1A");
+                                    layout.setBackground(bg);
+                                    
+                                    TextView message = new TextView(getActivity());
+                                    message.setText("确定要取消 " + 名(targetUin) + "(" + targetUin + ") 的管理员权限吗？");
+                                    message.setTextSize(16);
+                                    message.setTextColor(textColor);
+                                    message.setPadding(0, 0, 0, dp2px(20));
+                                    layout.addView(message);
+                                    
+                                    builder.setView(layout);
+                                    
+                                    builder.setPositiveButton("确定", new android.content.DialogInterface.OnClickListener() {
+                                        public void onClick(android.content.DialogInterface dialog, int which) {
+                                            try {
+                                                setTroopAdmin(groupUin, targetUin, 0);
+                                                toast("已发送取消管理请求");
+                                            } catch (Exception e) {
+                                                toast("取消失败: " + e.getMessage());
+                                            }
+                                        }
+                                    });
+                                    
+                                    builder.setNegativeButton("取消", null);
+                                    
+                                    AlertDialog dialog = builder.create();
+                                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                                    
+                                    Window window = dialog.getWindow();
+                                    if (window != null) {
+                                        GradientDrawable windowBg = new GradientDrawable();
+                                        windowBg.setColor(isDark ? Color.parseColor("#1E1E1E") : Color.parseColor("#FFFFFF"));
+                                        windowBg.setCornerRadius(dp2px(20));
+                                        window.setBackgroundDrawable(windowBg);
+                                    }
+                                    
+                                    dialog.show();
+                                }
+                            });
+                        }
+                    });
+                    
+                    buttonList.add(unsetAdminBtn);
+                    
                     TextView titleBtn = new TextView(getActivity());
                     titleBtn.setText("设置头衔");
                     titleBtn.setTextSize(16);
@@ -711,7 +864,7 @@ public void executeBatchRevoke(String gUin, long startSeq, int count, int dir) {
                                 }
                             });
                             
-                            Thread.sleep(1000);
+                            Thread.sleep(300);
                         }
                         
                         getActivity().runOnUiThread(new Runnable() {

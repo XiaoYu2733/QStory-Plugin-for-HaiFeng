@@ -13,7 +13,6 @@ import com.tencent.common.app.BaseApplicationImpl;
 import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import com.tencent.mobileqq.app.TroopServlet;
-import com.tencent.mobileqq.filemanager.app.FileManagerEngine;
 
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
@@ -161,5 +160,23 @@ public void SetTroopAdmin(Object qun,Object qq,int type){
         initMethod.invoke(tr, app, null);
         serviceMethod.invoke(tr, intent);
     } catch (Exception e) {
+    }
+}
+
+public boolean setTroopAdmin(String qun, String qq, int type) {
+    try {
+        Object app = BaseApplicationImpl.getApplication().getRuntime();
+        Intent intent = new Intent();
+        intent.putExtra("command", 0);
+        intent.putExtra("operation", (byte) type);
+        intent.putExtra("troop_code", qun);
+        intent.putExtra("troop_member_uin", qq);
+        TroopServlet tr = new TroopServlet();
+        tr.init(app, null);
+        tr.service(intent);
+        return true;
+    } catch (Throwable e) {
+        error(e);
+        return false;
     }
 }

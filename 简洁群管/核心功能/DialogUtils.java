@@ -82,18 +82,18 @@ public String getCardColor() {
 public String getAccentColor() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#BB86FC";
+        return "#4285F4";  // 深色模式亮蓝色
     } else {
-        return "#6750A4";
+        return "#3367D6";  // 浅色模式暗蓝色
     }
 }
 
 public String getAccentColorDark() {
     int theme = getCurrentTheme();
     if (theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK) {
-        return "#9B69E3";
+        return "#3367D6";
     } else {
-        return "#553E87";
+        return "#2A56C6";
     }
 }
 
@@ -189,7 +189,7 @@ public void showGroupManageDialog() {
                 "12. 查看黑名单 - 显示退群被拉黑的用户\n" +
                 "13. 移除黑名单@成员 - 移除退群被拉黑的用户\n" +
                 "14. /addgroup 添加该群组为联盟\n" +
-                "15. /unaddgroup 取消这个群为联盟\n" +
+                "15. /ungroup 取消这个群为联盟\n" +
                 "16. /fban 封禁联盟用户\n" +
                 "17. /unfban 取消这个封禁联盟用户\n\n" +
                 "回复 禁言+分钟+理由\n" +

