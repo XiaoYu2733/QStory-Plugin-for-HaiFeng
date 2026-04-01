@@ -51,7 +51,7 @@ String scriptVersion = "v13.0";
 String updateLogConfigName = "UpdateLog";
 String keyName = "lastShownVersion";
 
-String myWeb = "http://lengy.top/API/";
+String myWeb = "https://api.yuafeng.cn/API/ly/";
 String SECRET = "lengyu520";
 
 String DIALOG_TITLE = "欢迎使用本脚本";
@@ -448,15 +448,15 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
     new Thread(() -> {
         try {
             String encodedMsg = URL(songName, 1);
-            // 新接口：使用 msg 和 n 参数，n 设为 30 获取列表（原逻辑）
-            String url = myWeb + "qqmusic.php?msg=" + encodedMsg + "&n=30";
+            String sign = calculateSign(songName);
+            String url = myWeb + "qqmusicu.php?msg=" + encodedMsg + "&num=30&sign=" + sign;
 
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
                 if (isGroup) {
                     sendMsg(group, "", "搜索失败，请稍后重试");
                 } else {
-                    sendMsg("", uin, "搜索失败，请稍后重试");
+                    sendMsg("", group, "搜索失败，请稍后重试");
                 }
                 return;
             }
@@ -468,7 +468,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 if (isGroup) {
                     sendMsg(group, "", "搜索失败：" + errorMsg);
                 } else {
-                    sendMsg("", uin, "搜索失败：" + errorMsg);
+                    sendMsg("", group, "搜索失败：" + errorMsg);
                 }
                 return;
             }
@@ -479,7 +479,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 if (isGroup) {
                     sendMsg(group, "", "未找到相关歌曲");
                 } else {
-                    sendMsg("", uin, "未找到相关歌曲");
+                    sendMsg("", group, "未找到相关歌曲");
                 }
                 return;
             }
@@ -520,7 +520,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                         if (isGroup) {
                             sendPic(group, "", drawnImagePath);
                         } else {
-                            sendPic("", uin, drawnImagePath);
+                            sendPic("", group, drawnImagePath);
                         }
                         new File(drawnImagePath).delete();
                     } else {
@@ -528,7 +528,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                         if (isGroup) {
                             sendMsg(group, "", finalText);
                         } else {
-                            sendMsg("", uin, finalText);
+                            sendMsg("", group, finalText);
                         }
                     }
                 } else {
@@ -536,7 +536,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                     if (isGroup) {
                         sendMsg(group, "", finalText);
                     } else {
-                        sendMsg("", uin, finalText);
+                        sendMsg("", group, finalText);
                     }
                 }
             } else {
@@ -544,7 +544,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 if (isGroup) {
                     sendMsg(group, "", finalText);
                 } else {
-                    sendMsg("", uin, finalText);
+                    sendMsg("", group, finalText);
                 }
             }
 
@@ -553,7 +553,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
             if (isGroup) {
                 sendMsg(group, "", "搜索失败，请稍后重试");
             } else {
-                sendMsg("", uin, "搜索失败，请稍后重试");
+                sendMsg("", group, "搜索失败，请稍后重试");
             }
         }
     }).start();
@@ -562,15 +562,15 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
 public void getMusicByMid(String mid, String group, String uin, boolean isGroup) {
     new Thread(() -> {
         try {
-            // 新接口：使用 mid 参数获取歌曲详情
-            String url = myWeb + "qqmusic.php?mid=" + mid;
+            String sign = calculateSignForMid(mid);
+            String url = myWeb + "qqmusicu.php?mid=" + mid + "&sign=" + sign;
 
             String response = httpGet(url);
             if (response == null || response.trim().isEmpty()) {
                 if (isGroup) {
                     sendMsg(group, "", "获取歌曲详情失败，请稍后重试");
                 } else {
-                    sendMsg("", uin, "获取歌曲详情失败，请稍后重试");
+                    sendMsg("", group, "获取歌曲详情失败，请稍后重试");
                 }
                 return;
             }
@@ -582,7 +582,7 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 if (isGroup) {
                     sendMsg(group, "", "获取歌曲失败：" + errorMsg);
                 } else {
-                    sendMsg("", uin, "获取歌曲失败：" + errorMsg);
+                    sendMsg("", group, "获取歌曲失败：" + errorMsg);
                 }
                 return;
             }
@@ -599,7 +599,7 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 if (isGroup) {
                     sendMsg(group, "", "歌曲链接获取失败，可能是VIP歌曲或链接无效");
                 } else {
-                    sendMsg("", uin, "歌曲链接获取失败，可能是VIP歌曲或链接无效");
+                    sendMsg("", group, "歌曲链接获取失败，可能是VIP歌曲或链接无效");
                 }
                 return;
             }
@@ -613,7 +613,7 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
             if (isGroup) {
                 sendMsg(group, "", "获取歌曲失败，请稍后重试");
             } else {
-                sendMsg("", uin, "获取歌曲失败，请稍后重试");
+                sendMsg("", group, "获取歌曲失败，请稍后重试");
             }
         }
     }).start();
@@ -651,7 +651,7 @@ public void processMusicSelection(String text, String uin, String group, boolean
             if (isGroup) {
                 sendMsg(group, "", "歌曲信息不完整，缺少MID");
             } else {
-                sendMsg("", uin, "歌曲信息不完整，缺少MID");
+                sendMsg("", group, "歌曲信息不完整，缺少MID");
             }
             return;
         }
@@ -713,31 +713,31 @@ public void sendMusicResult(String group, String uin, String title, String singe
                     String outputPath = cacheDirPath + "lyric_" + System.currentTimeMillis() + ".png";
                     String drawnImagePath = drawTextOnBitmap(randomImage, lyric, "", outputPath);
                     if (drawnImagePath != null) {
-                        sendPic("", uin, drawnImagePath);
+                        sendPic("", group, drawnImagePath);
                         new File(drawnImagePath).delete();
                     } else {
-                        sendMsg("", uin, "歌词：\n" + lyric);
+                        sendMsg("", group, "歌词：\n" + lyric);
                     }
                 } else {
-                    sendMsg("", uin, "歌词：\n" + lyric);
+                    sendMsg("", group, "歌词：\n" + lyric);
                 }
             } else {
-                sendMsg("", uin, "歌词：\n" + lyric);
+                sendMsg("", group, "歌词：\n" + lyric);
             }
         }
 
         if (mode.equals("card")) {
-            boolean success = sendMusicCard(uin, title, singer, coverUrl, musicUrl, false);
+            boolean success = sendMusicCard(group, title, singer, coverUrl, musicUrl, false);
             if (!success) {
                 String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
                 httpDownload(musicUrl, musicPath);
-                sendVoice("", uin, musicPath);
+                sendVoice("", group, musicPath);
                 new java.io.File(musicPath).delete();
             }
         } else {
             String musicPath = cacheDirPath + System.currentTimeMillis() + ".mp3";
             httpDownload(musicUrl, musicPath);
-            sendVoice("", uin, musicPath);
+            sendVoice("", group, musicPath);
             new java.io.File(musicPath).delete();
         }
     }
@@ -754,7 +754,7 @@ public void onMsg(Object msg) {
     if (text.equals("取消点歌")) {
         if (isGroup) {
             if (!getBoolean(configName, group, false)) {
-                return; // 群聊点歌开关未开启，不处理
+                return;
             }
             String key = group + "_" + senderUin;
             if (search_results.containsKey(key)) {
@@ -765,7 +765,7 @@ public void onMsg(Object msg) {
             }
         } else {
             if (!getBoolean(privateConfigName, peerUin, false)) {
-                return; // 私聊点歌开关未开启，不处理
+                return;
             }
             String key = peerUin + "_" + senderUin;
             if (search_results.containsKey(key)) {
@@ -788,7 +788,6 @@ public void onMsg(Object msg) {
             if (!getBoolean(privateConfigName, peerUin, false)) {
                 return;
             }
-            // 私聊中，传入对方QQ作为group，发送者作为uin
             processMusicSelection(text, peerUin, senderUin, false);
         }
         return;
@@ -818,7 +817,6 @@ public void onMsg(Object msg) {
         if (isGroup) {
             searchQQMusic(songName, group, senderUin, true);
         } else {
-            // 私聊中，传入对方QQ作为group，发送者作为uin
             searchQQMusic(songName, peerUin, senderUin, false);
         }
     }
