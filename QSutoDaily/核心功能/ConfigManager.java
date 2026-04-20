@@ -1,51 +1,51 @@
 
 // 再见面时 我们拥抱吧 在冬天 在下雪天
 
-ArrayList loadListFromFile(String 文件路径) {
-    ArrayList 列表 = new ArrayList();
+ArrayList loadListFromFile(String filePath) {
+    ArrayList list = new ArrayList();
     try {
-        File 文件 = new File(文件路径);
-        if (文件.exists()) {
-            BufferedReader 读取器 = new BufferedReader(new FileReader(文件));
-            String 行;
-            while ((行 = 读取器.readLine()) != null) {
-                行 = 行.trim();
-                if (!行.isEmpty()) {
-                    列表.add(行);
+        File file = new File(filePath);
+        if (file.exists()) {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (!line.isEmpty()) {
+                    list.add(line);
                 }
             }
-            读取器.close();
+            reader.close();
         }
     } catch (Exception e) {
     }
-    return 列表;
+    return list;
 }
 
-void saveListToFile(String 文件路径, ArrayList 列表) {
+void saveListToFile(String filePath, ArrayList list) {
     try {
-        File 文件 = new File(文件路径);
-        File 父目录 = 文件.getParentFile();
-        if (!父目录.exists()) {
-            父目录.mkdirs();
+        File file = new File(filePath);
+        File parentDir = file.getParentFile();
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
         }
-        FileWriter 写入器 = new FileWriter(文件路径);
-        for (int i = 0; i < 列表.size(); i++) {
-            写入器.write((String)列表.get(i) + "\n");
+        FileWriter writer = new FileWriter(filePath);
+        for (int i = 0; i < list.size(); i++) {
+            writer.write((String) list.get(i) + "\n");
         }
-        写入器.close();
+        writer.close();
     } catch (Exception e) {
     }
 }
 
-String loadTimeFromFile(String 文件路径) {
+String loadTimeFromFile(String filePath) {
     try {
-        File 文件 = new File(文件路径);
-        if (文件.exists()) {
-            BufferedReader 读取器 = new BufferedReader(new FileReader(文件));
-            String 时间 = 读取器.readLine();
-            读取器.close();
-            if (时间 != null && 时间.trim().matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
-                return 时间.trim();
+        File file = new File(filePath);
+        if (file.exists()) {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String time = reader.readLine();
+            reader.close();
+            if (time != null && time.trim().matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                return time.trim();
             }
         }
     } catch (Exception e) {
@@ -53,138 +53,138 @@ String loadTimeFromFile(String 文件路径) {
     return null;
 }
 
-void saveTimeToFile(String 文件路径, String 时间) {
+void saveTimeToFile(String filePath, String time) {
     try {
-        File 目录 = new File(文件路径).getParentFile();
-        if (!目录.exists()) {
-            目录.mkdirs();
+        File dir = new File(filePath).getParentFile();
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
-        FileWriter 写入器 = new FileWriter(文件路径);
-        写入器.write(时间);
-        写入器.close();
+        FileWriter writer = new FileWriter(filePath);
+        writer.write(time);
+        writer.close();
     } catch (Exception e) {
     }
 }
 
 void initTimeConfig() {
     try {
-        File 目录 = new File(花叶落飘落);
-        if (!目录.exists()) {
-            目录.mkdirs();
+        File dir = new File(timeConfigDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
         
-        String 点赞时间文件 = 花叶落飘落 + "/好友点赞时间.txt";
-        String 好友续火时间文件 = 花叶落飘落 + "/好友续火时间.txt";
-        String 群组续火时间文件 = 花叶落飘落 + "/群组续火时间.txt";
+        String likeTimeFile = timeConfigDir + "/好友点赞时间.txt";
+        String friendFireTimeFile = timeConfigDir + "/好友续火时间.txt";
+        String groupFireTimeFile = timeConfigDir + "/群组续火时间.txt";
         
-        if (!new File(点赞时间文件).exists()) {
-            saveTimeToFile(点赞时间文件, "00:00");
+        if (!new File(likeTimeFile).exists()) {
+            saveTimeToFile(likeTimeFile, "00:00");
         }
-        if (!new File(好友续火时间文件).exists()) {
-            saveTimeToFile(好友续火时间文件, "00:00");
+        if (!new File(friendFireTimeFile).exists()) {
+            saveTimeToFile(friendFireTimeFile, "00:00");
         }
-        if (!new File(群组续火时间文件).exists()) {
-            saveTimeToFile(群组续火时间文件, "00:00");
+        if (!new File(groupFireTimeFile).exists()) {
+            saveTimeToFile(groupFireTimeFile, "00:00");
         }
     } catch (Exception e) {
     }
 }
 
 public String getCurrentDate() {
-    Calendar 日历 = Calendar.getInstance();
+    Calendar calendar = Calendar.getInstance();
     return String.format("%04d-%02d-%02d", 
-        日历.get(Calendar.YEAR), 
-        日历.get(Calendar.MONTH) + 1, 
-        日历.get(Calendar.DAY_OF_MONTH));
+        calendar.get(Calendar.YEAR), 
+        calendar.get(Calendar.MONTH) + 1, 
+        calendar.get(Calendar.DAY_OF_MONTH));
 }
 
 public String getCurrentTime() {
-    Calendar 日历 = Calendar.getInstance();
-    return String.format("%02d:%02d", 日历.get(Calendar.HOUR_OF_DAY), 日历.get(Calendar.MINUTE));
+    Calendar calendar = Calendar.getInstance();
+    return String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 }
 
 void loadConfig() {
-    File 配置目录 = new File(花飘言子);
-    if (!配置目录.exists()) {
-        配置目录.mkdirs();
+    File configDir = new File(configRoot);
+    if (!configDir.exists()) {
+        configDir.mkdirs();
     }
 
-    File 账号目录 = new File(当前账号目录);
-    if (!账号目录.exists()) {
-        账号目录.mkdirs();
+    File accountDir = new File(currentAccountDir);
+    if (!accountDir.exists()) {
+        accountDir.mkdirs();
         toast("检测到新账号，已创建配置文件夹，请自行配置任务");
     }
 
-    落叶叶子叶落子飘 = loadListFromFile(叶花落叶叶落花叶);
-    落言花飘言落言 = loadListFromFile(飘飘叶花飘落飘落);
-    飘飘花言飘飘 = loadListFromFile(子叶言飘子言花言花叶);
+    likeFriendList = loadListFromFile(likeFriendsFile);
+    fireFriendList = loadListFromFile(fireFriendsFile);
+    fireGroupList = loadListFromFile(fireGroupsFile);
     
-    ArrayList 加载的好友语录 = loadListFromFile(落叶花花飘言子子飘花);
-    if (!加载的好友语录.isEmpty()) {
-        飘飘叶飘 = 加载的好友语录;
+    ArrayList loadedFriendWords = loadListFromFile(friendFireWordsFile);
+    if (!loadedFriendWords.isEmpty()) {
+        friendFireWords = loadedFriendWords;
     } else {
-        飘飘叶飘.add("Ciallo～(∠・ω ＜)⌒☆");
-        saveListToFile(落叶花花飘言子子飘花, 飘飘叶飘);
+        friendFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
+        saveListToFile(friendFireWordsFile, friendFireWords);
     }
     
-    ArrayList 加载的群组语录 = loadListFromFile(子叶花花花飘);
-    if (!加载的群组语录.isEmpty()) {
-        叶落花落 = 加载的群组语录;
+    ArrayList loadedGroupWords = loadListFromFile(groupFireWordsFile);
+    if (!loadedGroupWords.isEmpty()) {
+        groupFireWords = loadedGroupWords;
     } else {
-        叶落花落.add("Ciallo～(∠・ω ＜)⌒☆");
-        saveListToFile(子叶花花花飘, 叶落花落);
+        groupFireWords.add("Ciallo～(∠・ω ＜)⌒☆");
+        saveListToFile(groupFireWordsFile, groupFireWords);
     }
     
     initTimeConfig();
     
-    String 点赞时间文件 = 花叶落飘落 + "/好友点赞时间.txt";
-    String 好友续火时间文件 = 花叶落飘落 + "/好友续火时间.txt";
-    String 群组续火时间文件 = 花叶落飘落 + "/群组续火时间.txt";
+    String likeTimeFile = timeConfigDir + "/好友点赞时间.txt";
+    String friendFireTimeFile = timeConfigDir + "/好友续火时间.txt";
+    String groupFireTimeFile = timeConfigDir + "/群组续火时间.txt";
     
-    String 加载的点赞时间 = loadTimeFromFile(点赞时间文件);
-    if (加载的点赞时间 != null) {
-        叶飘叶落言叶子叶落子 = 加载的点赞时间;
+    String loadedLikeTime = loadTimeFromFile(likeTimeFile);
+    if (loadedLikeTime != null) {
+        likeTime = loadedLikeTime;
     } else {
-        叶飘叶落言叶子叶落子 = "00:00";
+        likeTime = "00:00";
     }
     
-    String 加载的好友续火时间 = loadTimeFromFile(好友续火时间文件);
-    if (加载的好友续火时间 != null) {
-        飘飘花花 = 加载的好友续火时间;
+    String loadedFriendFireTime = loadTimeFromFile(friendFireTimeFile);
+    if (loadedFriendFireTime != null) {
+        fireFriendTime = loadedFriendFireTime;
     } else {
-        飘飘花花 = "00:00";
+        fireFriendTime = "00:00";
     }
     
-    String 加载的群组续火时间 = loadTimeFromFile(群组续火时间文件);
-    if (加载的群组续火时间 != null) {
-        子言花言飘叶落飘 = 加载的群组续火时间;
+    String loadedGroupFireTime = loadTimeFromFile(groupFireTimeFile);
+    if (loadedGroupFireTime != null) {
+        fireGroupTime = loadedGroupFireTime;
     } else {
-        子言花言飘叶落飘 = "00:00";
+        fireGroupTime = "00:00";
     }
     
-    飘花叶言飘花 = getString("DailyLike", "lastLikeDate", "");
-    言子言叶花子落 = getString("KeepFire", "lastSendDate", "");
-    落叶子子子叶 = getString("GroupFire", "lastSendDate", "");
+    lastLikeDate = getString("DailyLike", "lastLikeDate", "");
+    lastFireFriendDate = getString("KeepFire", "lastSendDate", "");
+    lastFireGroupDate = getString("GroupFire", "lastSendDate", "");
 }
 
 void saveLikeFriends() {
-    saveListToFile(叶花落叶叶落花叶, 落叶叶子叶落子飘);
+    saveListToFile(likeFriendsFile, likeFriendList);
 }
 
 void saveFireFriends() {
-    saveListToFile(飘飘叶花飘落飘落, 落言花飘言落言);
+    saveListToFile(fireFriendsFile, fireFriendList);
 }
 
 void saveFireGroups() {
-    saveListToFile(子叶言飘子言花言花叶, 飘飘花言飘飘);
+    saveListToFile(fireGroupsFile, fireGroupList);
 }
 
 void saveTimeConfig() {
-    String 点赞时间文件 = 花叶落飘落 + "/好友点赞时间.txt";
-    String 好友续火时间文件 = 花叶落飘落 + "/好友续火时间.txt";
-    String 群组续火时间文件 = 花叶落飘落 + "/群组续火时间.txt";
+    String likeTimeFile = timeConfigDir + "/好友点赞时间.txt";
+    String friendFireTimeFile = timeConfigDir + "/好友续火时间.txt";
+    String groupFireTimeFile = timeConfigDir + "/群组续火时间.txt";
     
-    saveTimeToFile(点赞时间文件, 叶飘叶落言叶子叶落子);
-    saveTimeToFile(好友续火时间文件, 飘飘花花);
-    saveTimeToFile(群组续火时间文件, 子言花言飘叶落飘);
+    saveTimeToFile(likeTimeFile, likeTime);
+    saveTimeToFile(friendFireTimeFile, fireFriendTime);
+    saveTimeToFile(groupFireTimeFile, fireGroupTime);
 }

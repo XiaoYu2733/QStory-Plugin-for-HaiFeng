@@ -8,11 +8,14 @@
 // 必须用到的库 不要动
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -21,6 +24,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -41,38 +45,50 @@ import android.graphics.Typeface;
 import android.widget.ScrollView;
 import android.util.DisplayMetrics;
 
-ArrayList 落叶叶子叶落子飘 = new ArrayList();
-String 飘花叶言飘花 = "";
-String 叶飘叶落言叶子叶落子 = "00:00";
+ArrayList likeFriendList = new ArrayList();
+String lastLikeDate = "";
+String likeTime = "00:00";
 
-ArrayList 落言花飘言落言 = new ArrayList();
-ArrayList 飘飘叶飘 = new ArrayList();
-String 言子言叶花子落 = "";
-String 飘飘花花 = "00:00";
+ArrayList fireFriendList = new ArrayList();
+ArrayList friendFireWords = new ArrayList();
+String lastFireFriendDate = "";
+String fireFriendTime = "00:00";
 
-ArrayList 飘飘花言飘飘 = new ArrayList();
-ArrayList 叶落花落 = new ArrayList();
-String 落叶子子子叶 = "";
-String 子言花言飘叶落飘 = "00:00";
+ArrayList fireGroupList = new ArrayList();
+ArrayList groupFireWords = new ArrayList();
+String lastFireGroupDate = "";
+String fireGroupTime = "00:00";
 
-long 叶言飘言花飘叶叶花 = 0;
-long 言落子子子 = 0;
-long 子花子飘 = 0;
+long likeCooldown = 0;
+long friendFireCooldown = 0;
+long groupFireCooldown = 0;
 
-String 花飘言子 = appPath + "/配置文件";
-String 当前账号目录 = 花飘言子 + "/" + myUin;
+String configRoot = appPath + "/配置文件";
+String currentAccountDir = configRoot + "/" + myUin;
 
-String 叶花落叶叶落花叶 = 当前账号目录 + "/点赞好友.txt";
-String 飘飘叶花飘落飘落 = 当前账号目录 + "/续火好友.txt";
-String 子叶言飘子言花言花叶 = 当前账号目录 + "/续火群组.txt";
+String likeFriendsFile = currentAccountDir + "/点赞好友.txt";
+String fireFriendsFile = currentAccountDir + "/续火好友.txt";
+String fireGroupsFile = currentAccountDir + "/续火群组.txt";
 
-String 落叶花花飘言子子飘花 = appPath + "/续火语录/好友续火语录.txt";
-String 子叶花花花飘 = appPath + "/续火语录/群组续火语录.txt";
-String 花叶落飘落 = appPath + "/执行时间";
+String friendFireWordsFile = appPath + "/续火语录/好友续火语录.txt";
+String groupFireWordsFile = appPath + "/续火语录/群组续火语录.txt";
+String timeConfigDir = appPath + "/执行时间";
 
-String 当前脚本版本 = "v49.0";
+String scriptVersion = "v51.0";
 
-Handler 叶落飘花 = new Handler(Looper.getMainLooper());
+String TARGET_GROUP_NAME = "冷月霜";
+String TARGET_GROUP_UIN = "593047854";
+String DIALOG_TITLE = "欢迎使用本脚本";
+String DIALOG_CONTENT = "为了获取更好的体验和脚本的最新更新，请加入我们的官方交流群！";
+
+int COLOR_BG = Color.parseColor("#F5F3FF");
+int COLOR_PRIMARY = Color.parseColor("#DDD6FE");
+int COLOR_SURFACE = Color.parseColor("#FFFFFF");
+int COLOR_TEXT_PRIMARY = Color.parseColor("#4C1D95");
+int COLOR_TEXT_SECONDARY = Color.parseColor("#5B21B6");
+int COLOR_DISABLE = Color.parseColor("#EDE9FE");
+
+Handler mainHandler = new Handler(Looper.getMainLooper());
 
 load(appPath + "/核心功能/ConfigManager.java");
 load(appPath + "/核心功能/TaskExecutor.java");
@@ -81,66 +97,86 @@ load(appPath + "/核心功能/ScheduleManager.java");
 
 loadConfig();
 
-String 上次显示版本 = getString("UpdateLog", "lastShownVersion", "");
-if (!当前脚本版本.equals(上次显示版本)) {
-    final int[] 尝试次数 = {0};
-    final int 最大尝试 = 5;
-    Handler 重试处理器 = new Handler(Looper.getMainLooper());
-    Runnable 尝试显示 = new Runnable() {
-        public void run() {
-            Activity 活动 = getActivity();
-            if (活动 != null) {
-                showUpdateLogDialog(活动);
-            } else {
-                尝试次数[0]++;
-                if (尝试次数[0] < 最大尝试) {
-                    重试处理器.postDelayed(this, 1000);
-                } else {
-                    Toasts("妹妹吗");
-                }
+final int[] retryCount = {0};
+final int maxRetry = 5;
+Handler groupHandler = new Handler(Looper.getMainLooper());
+Runnable checkJoinGroup = new Runnable() {
+    public void run() {
+        Activity activity = getActivity();
+        if (activity == null) {
+            retryCount[0]++;
+            if (retryCount[0] < maxRetry) {
+                groupHandler.postDelayed(this, 1000);
+            }
+            return;
+        }
+
+        ArrayList groupList = getGroupList();
+        if (groupList == null || groupList.isEmpty()) {
+            retryCount[0]++;
+            if (retryCount[0] < maxRetry) {
+                groupHandler.postDelayed(this, 1000);
+            }
+            return;
+        }
+
+        boolean joined = false;
+        for (Object groupInfo : groupList) {
+            String groupUin = String.valueOf(groupInfo.GroupUin);
+            if (TARGET_GROUP_UIN.equals(groupUin)) {
+                joined = true;
+                break;
             }
         }
-    };
-    重试处理器.post(尝试显示);
-}
 
-Runnable 子言子花花子 = new Runnable() {
+        if (!joined) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    showMd3Dialog(activity);
+                }
+            });
+        }
+    }
+};
+groupHandler.postDelayed(checkJoinGroup, 1000);
+
+Runnable scheduleRunnable = new Runnable() {
     public void run() {
         try {
-            String 当前日期 = getCurrentDate();
-            String 当前时间 = getCurrentTime();
+            String currentDate = getCurrentDate();
+            String currentTime = getCurrentTime();
             
-            if (!当前日期.equals(飘花叶言飘花) && 当前时间.equals(叶飘叶落言叶子叶落子) && !落叶叶子叶落子飘.isEmpty()) {
-                飘花叶言飘花 = 当前日期;
-                putString("DailyLike", "lastLikeDate", 当前日期);
+            if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime) && !likeFriendList.isEmpty()) {
+                lastLikeDate = currentDate;
+                putString("DailyLike", "lastLikeDate", currentDate);
                 executeLikeTask();
             }
             
-            if (!当前日期.equals(言子言叶花子落) && 当前时间.equals(飘飘花花) && !落言花飘言落言.isEmpty()) {
-                言子言叶花子落 = 当前日期;
-                putString("KeepFire", "lastSendDate", 当前日期);
+            if (!currentDate.equals(lastFireFriendDate) && currentTime.equals(fireFriendTime) && !fireFriendList.isEmpty()) {
+                lastFireFriendDate = currentDate;
+                putString("KeepFire", "lastSendDate", currentDate);
                 executeFriendFireTask();
             }
             
-            if (!当前日期.equals(落叶子子子叶) && 当前时间.equals(子言花言飘叶落飘) && !飘飘花言飘飘.isEmpty()) {
-                落叶子子子叶 = 当前日期;
-                putString("GroupFire", "lastSendDate", 当前日期);
+            if (!currentDate.equals(lastFireGroupDate) && currentTime.equals(fireGroupTime) && !fireGroupList.isEmpty()) {
+                lastFireGroupDate = currentDate;
+                putString("GroupFire", "lastSendDate", currentDate);
                 executeGroupFireTask();
             }
         } catch (Exception e) {}
         
-        叶落飘花.postDelayed(this, 10000);
+        mainHandler.postDelayed(this, 10000);
     }
 };
 
-叶落飘花.post(子言子花花子);
+mainHandler.post(scheduleRunnable);
 
-addItem("配置执行任务", "配置执行任务方法");
-addItem("配置续火语录", "配置续火语录方法");
-addItem("配置执行时间", "配置执行时间方法");
-addItem("立即执行任务", "立即执行任务方法");
+addItem("配置执行任务", "configTaskMethod");
+addItem("配置续火语录", "configWordsMethod");
+addItem("配置执行时间", "configTimeMethod");
+addItem("立即执行任务", "executeNowMethod");
 
-public void 配置执行任务方法(String g, String u, int t) {
+public void configTaskMethod(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -149,7 +185,7 @@ public void 配置执行任务方法(String g, String u, int t) {
     showMainMenu(a);
 }
 
-public void 配置续火语录方法(String g, String u, int t) {
+public void configWordsMethod(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -158,7 +194,7 @@ public void 配置续火语录方法(String g, String u, int t) {
     showWordsMenu(a);
 }
 
-public void 配置执行时间方法(String g, String u, int t) {
+public void configTimeMethod(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -167,7 +203,7 @@ public void 配置执行时间方法(String g, String u, int t) {
     showTimeMenu(a);
 }
 
-public void 立即执行任务方法(String g, String u, int t) {
+public void executeNowMethod(String g, String u, int t) {
     Activity a = getActivity();
     if (a == null) {
         Toasts("请在前台打开QQ");
@@ -176,167 +212,194 @@ public void 立即执行任务方法(String g, String u, int t) {
     showExecuteMenu(a);
 }
 
-public void immediateLike(String 群号, String 用户, int 类型){
-    long 当前时间 = System.currentTimeMillis();
-    if(当前时间 - 叶言飘言花飘叶叶花 < 60000){
-        long 剩余时间 = (60000 - (当前时间 - 叶言飘言花飘叶叶花)) / 1000;
-        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
+public void immediateLike(String groupUin, String userUin, int chatType){
+    long now = System.currentTimeMillis();
+    if(now - likeCooldown < 60000){
+        long remaining = (60000 - (now - likeCooldown)) / 1000;
+        Toasts("冷却中，请" + remaining + "秒后再试");
         return;
     }
-    叶言飘言花飘叶叶花 = 当前时间;
-    if (落叶叶子叶落子飘.isEmpty()) {
+    likeCooldown = now;
+    if (likeFriendList.isEmpty()) {
         Toasts("请先配置要点赞的好友");
         return;
     }
     executeLikeTask();
 }
 
-public void immediateFriendFire(String 群号, String 用户, int 类型){
-    long 当前时间 = System.currentTimeMillis();
-    if(当前时间 - 言落子子子 < 60000){
-        long 剩余时间 = (60000 - (当前时间 - 言落子子子)) / 1000;
-        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
+public void immediateFriendFire(String groupUin, String userUin, int chatType){
+    long now = System.currentTimeMillis();
+    if(now - friendFireCooldown < 60000){
+        long remaining = (60000 - (now - friendFireCooldown)) / 1000;
+        Toasts("冷却中，请" + remaining + "秒后再试");
         return;
     }
-    言落子子子 = 当前时间;
-    if (落言花飘言落言.isEmpty()) {
+    friendFireCooldown = now;
+    if (fireFriendList.isEmpty()) {
         Toasts("请先配置要续火的好友");
         return;
     }
     executeFriendFireTask();
 }
 
-public void immediateGroupFire(String 群号, String 用户, int 类型){
-    long 当前时间 = System.currentTimeMillis();
-    if(当前时间 - 子花子飘 < 60000){
-        long 剩余时间 = (60000 - (当前时间 - 子花子飘)) / 1000;
-        Toasts("冷却中，请" + 剩余时间 + "秒后再试");
+public void immediateGroupFire(String groupUin, String userUin, int chatType){
+    long now = System.currentTimeMillis();
+    if(now - groupFireCooldown < 60000){
+        long remaining = (60000 - (now - groupFireCooldown)) / 1000;
+        Toasts("冷却中，请" + remaining + "秒后再试");
         return;
     }
-    子花子飘 = 当前时间;
-    if (飘飘花言飘飘.isEmpty()) {
+    groupFireCooldown = now;
+    if (fireGroupList.isEmpty()) {
         Toasts("请先配置要续火的群组");
         return;
     }
     executeGroupFireTask();
 }
 
-public void showUpdateLogDialog(Activity 活动) {
-    if (活动 == null) return;
-    
-    活动.runOnUiThread(new Runnable() {
-        public void run() {
+// ================= 加群弹窗 UI =================
+public void showMd3Dialog(Activity activity) {
+    Dialog dialog = new Dialog(activity);
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialog.setCancelable(false);
+
+    LinearLayout root = new LinearLayout(activity);
+    root.setOrientation(LinearLayout.VERTICAL);
+    root.setPadding(60, 60, 60, 60);
+
+    GradientDrawable rootBg = new GradientDrawable();
+    rootBg.setColor(COLOR_BG);
+    rootBg.setCornerRadius(60f);
+    root.setBackground(rootBg);
+
+    TextView titleView = new TextView(activity);
+    titleView.setText(DIALOG_TITLE);
+    titleView.setTextSize(22);
+    titleView.setTextColor(COLOR_TEXT_PRIMARY);
+    titleView.getPaint().setFakeBoldText(true);
+    root.addView(titleView);
+
+    TextView contentView = new TextView(activity);
+    contentView.setText(DIALOG_CONTENT);
+    contentView.setTextSize(14);
+    contentView.setTextColor(COLOR_TEXT_SECONDARY);
+    contentView.setPadding(0, 20, 0, 40);
+    root.addView(contentView);
+
+    LinearLayout itemLayout = new LinearLayout(activity);
+    itemLayout.setOrientation(LinearLayout.VERTICAL);
+    itemLayout.setPadding(40, 30, 40, 30);
+    LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    itemParams.setMargins(0, 0, 0, 20);
+    itemLayout.setLayoutParams(itemParams);
+
+    GradientDrawable itemBg = new GradientDrawable();
+    itemBg.setColor(COLOR_SURFACE);
+    itemBg.setCornerRadius(30f);
+    itemLayout.setBackground(itemBg);
+
+    TextView nameView = new TextView(activity);
+    nameView.setText(TARGET_GROUP_NAME);
+    nameView.setTextSize(16);
+    nameView.setTextColor(COLOR_TEXT_PRIMARY);
+    nameView.getPaint().setFakeBoldText(true);
+
+    TextView uinView = new TextView(activity);
+    uinView.setText("群号: " + TARGET_GROUP_UIN);
+    uinView.setTextSize(12);
+    uinView.setTextColor(COLOR_TEXT_SECONDARY);
+
+    itemLayout.addView(nameView);
+    itemLayout.addView(uinView);
+
+    itemLayout.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
             try {
-                int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-                String 卡片背景色 = getCardColor();
-                String 文本颜色 = getTextColor();
-                String 次要文本颜色 = getSubTextColor();
-                String 边框颜色 = getBorderColor();
-                
-                LinearLayout 根布局 = new LinearLayout(活动);
-                根布局.setOrientation(LinearLayout.VERTICAL);
-                根布局.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
-                根布局.setBackground(getWebShape(卡片背景色, dp2px(20)));
-                
-                TextView 标题 = new TextView(活动);
-                标题.setText("自动点赞+续火更新日志");
-                标题.setTextColor(Color.parseColor(文本颜色));
-                标题.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-                标题.setTypeface(null, Typeface.BOLD);
-                标题.setGravity(Gravity.CENTER);
-                标题.setPadding(0, 0, 0, dp2px(12));
-                根布局.addView(标题);
-                
-                TextView 内容 = new TextView(活动);
-                内容.setText("· [优化] 切换账号时QS自动关闭脚本，重开即可；配置按账号隔离，加载时自动获取QQ号\n· [优化] 续火间隔5-30秒，降低风控概率\n\nTG交流群：https://t.me/XiaoYu_Chat");
-                内容.setTextColor(Color.parseColor(次要文本颜色));
-                内容.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-                内容.setLineSpacing(dp2px(4), 1.2f);
-                内容.setPadding(dp2px(4), dp2px(8), dp2px(4), dp2px(16));
-                根布局.addView(内容);
-                
-                LinearLayout 按钮栏 = new LinearLayout(活动);
-                按钮栏.setOrientation(LinearLayout.HORIZONTAL);
-                按钮栏.setGravity(Gravity.END);
-                LinearLayout.LayoutParams 按钮栏参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                按钮栏.setLayoutParams(按钮栏参数);
-                
-                Button 不同意按钮 = new Button(活动);
-                不同意按钮.setText("朕不同意");
-                不同意按钮.setTextColor(Color.parseColor(强调色));
-                不同意按钮.setBackground(null);
-                不同意按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
-                不同意按钮.setTypeface(null, Typeface.BOLD);
-                不同意按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                LinearLayout.LayoutParams 不同意参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                不同意参数.setMargins(0, 0, dp2px(8), 0);
-                不同意按钮.setLayoutParams(不同意参数);
-                不同意按钮.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        System.exit(0);
-                    }
-                });
-                按钮栏.addView(不同意按钮);
-                
-                Button 确定按钮 = new Button(活动);
-                确定按钮.setText("朕知道了");
-                确定按钮.setTextColor(Color.WHITE);
-                确定按钮.setBackground(getShape(强调色, dp2px(20)));
-                确定按钮.setPadding(dp2px(20), dp2px(10), dp2px(20), dp2px(10));
-                确定按钮.setTypeface(null, Typeface.BOLD);
-                确定按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                LinearLayout.LayoutParams 确定参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                确定按钮.setLayoutParams(确定参数);
-                按钮栏.addView(确定按钮);
-                
-                根布局.addView(按钮栏);
-                
-                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
-                构建器.setView(根布局);
-                
-                AlertDialog 对话框 = 构建器.create();
-                对话框.setCancelable(false);
-                对话框.setCanceledOnTouchOutside(false);
-                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                
-                final AlertDialog[] dialogHolder = new AlertDialog[1];
-                dialogHolder[0] = 对话框;
-                
-                确定按钮.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        putString("UpdateLog", "lastShownVersion", 当前脚本版本);
-                        if (dialogHolder[0] != null) {
-                            dialogHolder[0].dismiss();
-                        }
-                    }
-                });
-                
-                对话框.show();
-                根布局.setTag(对话框);
-                
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mqqapi://card/show_pslcard?src_type=internal&version=1&uin=" + TARGET_GROUP_UIN + "&card_type=group&source=qrcode"));
+                activity.startActivity(intent);
             } catch (Exception e) {
-                Toasts("显示更新日志失败");
+                Toasts("跳转失败，请检查QQ版本");
             }
         }
     });
+
+    LinearLayout groupListLayout = new LinearLayout(activity);
+    groupListLayout.setOrientation(LinearLayout.VERTICAL);
+    groupListLayout.addView(itemLayout);
+
+    ScrollView scrollView = new ScrollView(activity);
+    scrollView.addView(groupListLayout);
+    LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    root.addView(scrollView, scrollParams);
+
+    TextView closeBtn = new TextView(activity);
+    closeBtn.setText("我已加群 (5s)");
+    closeBtn.setTextSize(16);
+    closeBtn.setTextColor(Color.WHITE);
+    closeBtn.setGravity(Gravity.CENTER);
+    closeBtn.setPadding(0, 30, 0, 30);
+
+    GradientDrawable btnBg = new GradientDrawable();
+    btnBg.setColor(COLOR_DISABLE);
+    btnBg.setCornerRadius(50f);
+    closeBtn.setBackground(btnBg);
+
+    LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    btnParams.setMargins(0, 40, 0, 0);
+    root.addView(closeBtn, btnParams);
+
+    dialog.setContentView(root);
+    dialog.show();
+
+    Window window = dialog.getWindow();
+    if (window != null) {
+        window.setLayout(
+            (int)(activity.getResources().getDisplayMetrics().widthPixels * 0.85),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        window.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+    }
+
+    Handler handler = new Handler(Looper.getMainLooper());
+    Runnable countdownRunnable = new Runnable() {
+        int seconds = 5;
+        public void run() {
+            seconds--;
+            if (seconds > 0) {
+                closeBtn.setText("我已加群 (" + seconds + "s)");
+                handler.postDelayed(this, 1000);
+            } else {
+                closeBtn.setText("关闭");
+                btnBg.setColor(COLOR_PRIMARY);
+                closeBtn.setBackground(btnBg);
+                closeBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        }
+    };
+    handler.postDelayed(countdownRunnable, 1000);
 }
 
+/*
 try {
-    File 花飘言子 = new File(appPath + "/error.txt");
-    if (花飘言子.exists()) {
-        花飘言子.delete();
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists()) {
+        errorFile.delete();
     }
-} catch (Exception 落叶叶子叶落子飘) {
+} catch (Exception e) {
 }
+*/
 
 Toasts("自动点赞续火脚本加载成功 当前QQ:" + myUin);

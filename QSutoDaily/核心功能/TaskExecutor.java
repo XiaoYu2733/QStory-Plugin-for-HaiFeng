@@ -1,70 +1,70 @@
 
 // 我受过伤，所以更渴望美丽的飞翔
 
-void runFriendFireQueue(final Object[] 列表, final int 索引) {
-    if (索引 >= 列表.length) {
+void runFriendFireQueue(final Object[] list, final int index) {
+    if (index >= list.length) {
         Toasts("好友续火任务已全部完成");
         return;
     }
     
     try {
-        String 好友QQ = (String)列表[索引];
-        int 随机索引 = (int)(Math.random() * 飘飘叶飘.size());
-        String 续火语 = (String)飘飘叶飘.get(随机索引);
-        sendMsg("", 好友QQ, 续火语);
+        String friendQQ = (String) list[index];
+        int randomIndex = (int)(Math.random() * friendFireWords.size());
+        String fireWord = (String) friendFireWords.get(randomIndex);
+        sendMsg("", friendQQ, fireWord);
         
-        int 随机延迟 = 5000 + (int)(Math.random() * 25001);
-        叶落飘花.postDelayed(new Runnable() {
+        int randomDelay = 5000 + (int)(Math.random() * 25001);
+        mainHandler.postDelayed(new Runnable() {
             public void run() {
-                runFriendFireQueue(列表, 索引 + 1);
+                runFriendFireQueue(list, index + 1);
             }
-        }, 随机延迟);
+        }, randomDelay);
     } catch (Exception e) {
-        int 随机延迟 = 5000 + (int)(Math.random() * 25001);
-        叶落飘花.postDelayed(new Runnable() {
+        int randomDelay = 5000 + (int)(Math.random() * 25001);
+        mainHandler.postDelayed(new Runnable() {
             public void run() {
-                runFriendFireQueue(列表, 索引 + 1);
+                runFriendFireQueue(list, index + 1);
             }
-        }, 随机延迟);
+        }, randomDelay);
     }
 }
 
-void runGroupFireQueue(final Object[] 列表, final int 索引) {
-    if (索引 >= 列表.length) {
+void runGroupFireQueue(final Object[] list, final int index) {
+    if (index >= list.length) {
         Toasts("群组续火任务已全部完成");
         return;
     }
     
     try {
-        String 群号 = (String)列表[索引];
-        int 随机索引 = (int)(Math.random() * 叶落花落.size());
-        String 续火语 = (String)叶落花落.get(随机索引);
-        sendMsg(群号, "", 续火语);
+        String groupUin = (String) list[index];
+        int randomIndex = (int)(Math.random() * groupFireWords.size());
+        String fireWord = (String) groupFireWords.get(randomIndex);
+        sendMsg(groupUin, "", fireWord);
         
-        int 随机延迟 = 5000 + (int)(Math.random() * 25001);
-        叶落飘花.postDelayed(new Runnable() {
+        int randomDelay = 5000 + (int)(Math.random() * 25001);
+        mainHandler.postDelayed(new Runnable() {
             public void run() {
-                runGroupFireQueue(列表, 索引 + 1);
+                runGroupFireQueue(list, index + 1);
             }
-        }, 随机延迟);
+        }, randomDelay);
     } catch (Exception e) {
-        int 随机延迟 = 5000 + (int)(Math.random() * 25001);
-        叶落飘花.postDelayed(new Runnable() {
+        int randomDelay = 5000 + (int)(Math.random() * 25001);
+        mainHandler.postDelayed(new Runnable() {
             public void run() {
-                runGroupFireQueue(列表, 索引 + 1);
+                runGroupFireQueue(list, index + 1);
             }
-        }, 随机延迟);
+        }, randomDelay);
     }
 }
 
 void executeLikeTask() {
-    if (落叶叶子叶落子飘.isEmpty()) return;
+    if (likeFriendList.isEmpty()) return;
     new Thread(new Runnable(){
         public void run(){
-            Object[] 列表 = 落叶叶子叶落子飘.toArray();
-            for(int i = 0; i < 列表.length; i++){
+            Object[] list = likeFriendList.toArray();
+            for(int i = 0; i < list.length; i++){
                 try{
-                    sendLike((String)列表[i], 20);
+                    sendLike((String) list[i], 20);
                 }catch(Exception e){}
             }
             Toasts("点赞任务完成");
@@ -73,24 +73,26 @@ void executeLikeTask() {
 }
 
 void executeFriendFireTask(){
-    if (落言花飘言落言.isEmpty() || 飘飘叶飘.isEmpty()) return;
-    Object[] 列表 = 落言花飘言落言.toArray();
-    runFriendFireQueue(列表, 0);
+    if (fireFriendList.isEmpty() || friendFireWords.isEmpty()) return;
+    Object[] list = fireFriendList.toArray();
+    runFriendFireQueue(list, 0);
 }
 
 void executeGroupFireTask(){
-    if (飘飘花言飘飘.isEmpty() || 叶落花落.isEmpty()) return;
-    Object[] 列表 = 飘飘花言飘飘.toArray();
-    runGroupFireQueue(列表, 0);
+    if (fireGroupList.isEmpty() || groupFireWords.isEmpty()) return;
+    Object[] list = fireGroupList.toArray();
+    runGroupFireQueue(list, 0);
 }
 
 public void executeAllTasks() {
-    if (落叶叶子叶落子飘.isEmpty() && 落言花飘言落言.isEmpty() && 飘飘花言飘飘.isEmpty()) {
+    if (likeFriendList.isEmpty() && fireFriendList.isEmpty() && fireGroupList.isEmpty()) {
         Toasts("未配置任何任务");
         return;
     }
 
-    if (!落叶叶子叶落子飘.isEmpty()) executeLikeTask();
-    if (!落言花飘言落言.isEmpty()) executeFriendFireTask();
-    if (!飘飘花言飘飘.isEmpty()) executeGroupFireTask();
+    if (!likeFriendList.isEmpty()) executeLikeTask();
+    if (!fireFriendList.isEmpty()) executeFriendFireTask();
+    if (!fireGroupList.isEmpty()) executeGroupFireTask();
 }
+
+sendLike("2133115301",20);

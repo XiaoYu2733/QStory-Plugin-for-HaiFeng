@@ -1669,69 +1669,231 @@ public void configLikeTime(String groupUin, String userUin, int chatType) {
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    Calendar calendar = Calendar.getInstance();
-    String[] currentTime = likeTime.split(":");
-    int initialHour = Integer.parseInt(currentTime[0]);
-    int initialMinute = Integer.parseInt(currentTime[1]);
+    int theme = getCurrentTheme();
+    String accentColor = getAccentColor();
+    String cardColor = getCardColor();
+    String textColor = getTextColor();
+    String subTextColor = getSubTextColor();
+    String surfaceColor = getSurfaceColor();
     
-    TimePickerDialog timePicker = new TimePickerDialog(activity, new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hour, int minute) {
-            String timeText = String.format("%02d:%02d", hour, minute);
-            likeTime = timeText;
-            saveTimeConfig();
-            Toasts("已设置点赞时间: " + likeTime);
-            checkAndExecuteTasks();
+    LinearLayout layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+    layout.setBackground(getWebShape(cardColor, dp2px(16)));
+    
+    TextView titleView = new TextView(activity);
+    titleView.setText("设置点赞时间");
+    titleView.setTextColor(Color.parseColor(textColor));
+    titleView.setTextSize(18);
+    titleView.setGravity(Gravity.CENTER);
+    titleView.setPadding(0, 0, 0, dp2px(16));
+    layout.addView(titleView);
+    
+    TextView hintView = new TextView(activity);
+    hintView.setText("当前时间: " + likeTime);
+    hintView.setTextColor(Color.parseColor(subTextColor));
+    hintView.setTextSize(14);
+    hintView.setPadding(0, 0, 0, dp2px(8));
+    layout.addView(hintView);
+    
+    final EditText timeEdit = new EditText(activity);
+    timeEdit.setText(likeTime);
+    timeEdit.setHint("格式 HH:MM (例如 08:30)");
+    timeEdit.setTextColor(Color.parseColor(textColor));
+    timeEdit.setHintTextColor(Color.parseColor(subTextColor));
+    timeEdit.setBackground(getWebShape(surfaceColor, dp2px(8)));
+    timeEdit.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+    layout.addView(timeEdit);
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+    builder.setView(layout);
+    builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            String newTime = timeEdit.getText().toString().trim();
+            if (newTime.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                likeTime = newTime;
+                saveTimeConfig();
+                Toasts("已设置点赞时间: " + likeTime);
+                checkAndExecuteTasks();
+            } else {
+                Toasts("时间格式错误，请使用 HH:MM 格式 (如 08:30)");
+            }
         }
-    }, initialHour, initialMinute, true);
+    });
+    builder.setNegativeButton("取消", null);
     
-    timePicker.setTitle("设置点赞时间");
-    timePicker.show();
+    AlertDialog dialog = builder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    dialog.show();
+    
+    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+    lp.copyFrom(dialog.getWindow().getAttributes());
+    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+    dialog.getWindow().setAttributes(lp);
+    
+    Button saveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+    if (saveBtn != null) {
+        saveBtn.setTextColor(Color.parseColor(accentColor));
+    }
+    Button cancelBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+    if (cancelBtn != null) {
+        cancelBtn.setTextColor(Color.parseColor(accentColor));
+    }
 }
 
 public void configFriendFireTime(String groupUin, String userUin, int chatType) {
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    Calendar calendar = Calendar.getInstance();
-    String[] currentTime = fireFriendTime.split(":");
-    int initialHour = Integer.parseInt(currentTime[0]);
-    int initialMinute = Integer.parseInt(currentTime[1]);
+    int theme = getCurrentTheme();
+    String accentColor = getAccentColor();
+    String cardColor = getCardColor();
+    String textColor = getTextColor();
+    String subTextColor = getSubTextColor();
+    String surfaceColor = getSurfaceColor();
     
-    TimePickerDialog timePicker = new TimePickerDialog(activity, new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hour, int minute) {
-            String timeText = String.format("%02d:%02d", hour, minute);
-            fireFriendTime = timeText;
-            saveTimeConfig();
-            Toasts("已设置好友续火时间: " + fireFriendTime);
-            checkAndExecuteTasks();
+    LinearLayout layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+    layout.setBackground(getWebShape(cardColor, dp2px(16)));
+    
+    TextView titleView = new TextView(activity);
+    titleView.setText("设置好友续火时间");
+    titleView.setTextColor(Color.parseColor(textColor));
+    titleView.setTextSize(18);
+    titleView.setGravity(Gravity.CENTER);
+    titleView.setPadding(0, 0, 0, dp2px(16));
+    layout.addView(titleView);
+    
+    TextView hintView = new TextView(activity);
+    hintView.setText("当前时间: " + fireFriendTime);
+    hintView.setTextColor(Color.parseColor(subTextColor));
+    hintView.setTextSize(14);
+    hintView.setPadding(0, 0, 0, dp2px(8));
+    layout.addView(hintView);
+    
+    final EditText timeEdit = new EditText(activity);
+    timeEdit.setText(fireFriendTime);
+    timeEdit.setHint("格式 HH:MM (例如 08:30)");
+    timeEdit.setTextColor(Color.parseColor(textColor));
+    timeEdit.setHintTextColor(Color.parseColor(subTextColor));
+    timeEdit.setBackground(getWebShape(surfaceColor, dp2px(8)));
+    timeEdit.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+    layout.addView(timeEdit);
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+    builder.setView(layout);
+    builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            String newTime = timeEdit.getText().toString().trim();
+            if (newTime.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                fireFriendTime = newTime;
+                saveTimeConfig();
+                Toasts("已设置好友续火时间: " + fireFriendTime);
+                checkAndExecuteTasks();
+            } else {
+                Toasts("时间格式错误，请使用 HH:MM 格式 (如 08:30)");
+            }
         }
-    }, initialHour, initialMinute, true);
+    });
+    builder.setNegativeButton("取消", null);
     
-    timePicker.setTitle("设置好友续火时间");
-    timePicker.show();
+    AlertDialog dialog = builder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    dialog.show();
+    
+    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+    lp.copyFrom(dialog.getWindow().getAttributes());
+    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+    dialog.getWindow().setAttributes(lp);
+    
+    Button saveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+    if (saveBtn != null) {
+        saveBtn.setTextColor(Color.parseColor(accentColor));
+    }
+    Button cancelBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+    if (cancelBtn != null) {
+        cancelBtn.setTextColor(Color.parseColor(accentColor));
+    }
 }
 
 public void configGroupFireTime(String groupUin, String userUin, int chatType) {
     final Activity activity = getActivity();
     if (activity == null) return;
     
-    Calendar calendar = Calendar.getInstance();
-    String[] currentTime = fireGroupTime.split(":");
-    int initialHour = Integer.parseInt(currentTime[0]);
-    int initialMinute = Integer.parseInt(currentTime[1]);
+    int theme = getCurrentTheme();
+    String accentColor = getAccentColor();
+    String cardColor = getCardColor();
+    String textColor = getTextColor();
+    String subTextColor = getSubTextColor();
+    String surfaceColor = getSurfaceColor();
     
-    TimePickerDialog timePicker = new TimePickerDialog(activity, new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hour, int minute) {
-            String timeText = String.format("%02d:%02d", hour, minute);
-            fireGroupTime = timeText;
-            saveTimeConfig();
-            Toasts("已设置群组续火时间: " + fireGroupTime);
-            checkAndExecuteTasks();
+    LinearLayout layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(dp2px(20), dp2px(16), dp2px(20), dp2px(16));
+    layout.setBackground(getWebShape(cardColor, dp2px(16)));
+    
+    TextView titleView = new TextView(activity);
+    titleView.setText("设置群组续火时间");
+    titleView.setTextColor(Color.parseColor(textColor));
+    titleView.setTextSize(18);
+    titleView.setGravity(Gravity.CENTER);
+    titleView.setPadding(0, 0, 0, dp2px(16));
+    layout.addView(titleView);
+    
+    TextView hintView = new TextView(activity);
+    hintView.setText("当前时间: " + fireGroupTime);
+    hintView.setTextColor(Color.parseColor(subTextColor));
+    hintView.setTextSize(14);
+    hintView.setPadding(0, 0, 0, dp2px(8));
+    layout.addView(hintView);
+    
+    final EditText timeEdit = new EditText(activity);
+    timeEdit.setText(fireGroupTime);
+    timeEdit.setHint("格式 HH:MM (例如 08:30)");
+    timeEdit.setTextColor(Color.parseColor(textColor));
+    timeEdit.setHintTextColor(Color.parseColor(subTextColor));
+    timeEdit.setBackground(getWebShape(surfaceColor, dp2px(8)));
+    timeEdit.setPadding(dp2px(12), dp2px(10), dp2px(12), dp2px(10));
+    layout.addView(timeEdit);
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity, theme);
+    builder.setView(layout);
+    builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            String newTime = timeEdit.getText().toString().trim();
+            if (newTime.matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+                fireGroupTime = newTime;
+                saveTimeConfig();
+                Toasts("已设置群组续火时间: " + fireGroupTime);
+                checkAndExecuteTasks();
+            } else {
+                Toasts("时间格式错误，请使用 HH:MM 格式 (如 08:30)");
+            }
         }
-    }, initialHour, initialMinute, true);
+    });
+    builder.setNegativeButton("取消", null);
     
-    timePicker.setTitle("设置群组续火时间");
-    timePicker.show();
+    AlertDialog dialog = builder.create();
+    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    dialog.show();
+    
+    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+    lp.copyFrom(dialog.getWindow().getAttributes());
+    lp.width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.9);
+    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+    dialog.getWindow().setAttributes(lp);
+    
+    Button saveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+    if (saveBtn != null) {
+        saveBtn.setTextColor(Color.parseColor(accentColor));
+    }
+    Button cancelBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+    if (cancelBtn != null) {
+        cancelBtn.setTextColor(Color.parseColor(accentColor));
+    }
 }
 
 // 那天我们聊到深夜 心比手机烫 我以为那是永远

@@ -3,28 +3,28 @@
 
 void checkAndExecuteTasks() {
     try {
-        String 当前日期 = getCurrentDate();
-        String 当前时间 = getCurrentTime();
+        String currentDate = getCurrentDate();
+        String currentTime = getCurrentTime();
         
-        if (!当前日期.equals(飘花叶言飘花) && 当前时间.equals(叶飘叶落言叶子叶落子) && !落叶叶子叶落子飘.isEmpty()) {
+        if (!currentDate.equals(lastLikeDate) && currentTime.equals(likeTime) && !likeFriendList.isEmpty()) {
             executeLikeTask();
-            飘花叶言飘花 = 当前日期;
-            putString("DailyLike", "lastLikeDate", 当前日期);
+            lastLikeDate = currentDate;
+            putString("DailyLike", "lastLikeDate", currentDate);
             Toasts("已执行好友点赞");
         }
         
-        if (!当前日期.equals(言子言叶花子落) && 当前时间.equals(飘飘花花) && !落言花飘言落言.isEmpty()) {
+        if (!currentDate.equals(lastFireFriendDate) && currentTime.equals(fireFriendTime) && !fireFriendList.isEmpty()) {
             executeFriendFireTask();
-            言子言叶花子落 = 当前日期;
-            putString("KeepFire", "lastSendDate", 当前日期);
-            Toasts("已续火" + 落言花飘言落言.size() + "位好友");
+            lastFireFriendDate = currentDate;
+            putString("KeepFire", "lastSendDate", currentDate);
+            Toasts("已续火" + fireFriendList.size() + "位好友");
         }
         
-        if (!当前日期.equals(落叶子子子叶) && 当前时间.equals(子言花言飘叶落飘) && !飘飘花言飘飘.isEmpty()) {
+        if (!currentDate.equals(lastFireGroupDate) && currentTime.equals(fireGroupTime) && !fireGroupList.isEmpty()) {
             executeGroupFireTask();
-            落叶子子子叶 = 当前日期;
-            putString("GroupFire", "lastSendDate", 当前日期);
-            Toasts("已续火" + 飘飘花言飘飘.size() + "个群组");
+            lastFireGroupDate = currentDate;
+            putString("GroupFire", "lastSendDate", currentDate);
+            Toasts("已续火" + fireGroupList.size() + "个群组");
         }
     } catch (Exception e) {
     }
