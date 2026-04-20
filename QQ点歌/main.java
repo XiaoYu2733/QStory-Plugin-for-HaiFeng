@@ -47,10 +47,6 @@ ArrayList<String> randomTexts = new ArrayList<>();
 String cacheDirPath = "/storage/emulated/0/Download/QQ点歌/";
 HashMap<String, SearchResult> search_results = new HashMap<>();
 
-String scriptVersion = "v13.0";
-String updateLogConfigName = "UpdateLog";
-String keyName = "lastShownVersion";
-
 String myWeb = "https://api.yuafeng.cn/API/ly/";
 String SECRET = "lengyu520";
 
@@ -70,7 +66,7 @@ addItem("开启/关闭点歌功能", "haifeng520");
 addItem("切换语音/卡片点歌", "xkong520");
 addItem("开启/关闭显示歌词", "xiaoyu520");
 addItem("开启/关闭选歌显示图片", "showImageSwitch");
-/*addItem("开启/关闭歌词显示图片", "lyricImageSwitch");
+/* addItem("开启/关闭歌词显示图片", "lyricImageSwitch");
  * 暂时不会开放这个功能 直到找到合适的方法再进行开放
  */
 
@@ -149,25 +145,26 @@ public void showImageSwitch(String groupUin, String uin, int chatType) {
         putBoolean(showImageConfigName, groupUin, !current);
         toast(current ? "已关闭本群选歌显示图片" : "已开启本群选歌显示图片");
     } else if (chatType == 1) {
-        boolean current = getBoolean(privateShowImageConfigName, uin, true);
-        putBoolean(privateShowImageConfigName, uin, !current);
+        String targetUin = uin;
+        boolean current = getBoolean(privateShowImageConfigName, targetUin, true);
+        putBoolean(privateShowImageConfigName, targetUin, !current);
         toast(current ? "已关闭私聊选歌显示图片" : "已开启私聊选歌显示图片");
     }
 }
 
 /*
-public void lyricImageSwitch(String groupUin, String uin, int chatType) {
-    if (chatType == 2) {
-        boolean current = getBoolean(lyricImageConfigName, groupUin, false);
-        putBoolean(lyricImageConfigName, groupUin, !current);
-        toast(current ? "已关闭本群歌词显示图片" : "已开启本群歌词显示图片");
-    } else if (chatType == 1) {
-        boolean current = getBoolean(privateLyricImageConfigName, uin, false);
-        putBoolean(privateLyricImageConfigName, uin, !current);
-        toast(current ? "已关闭私聊歌词显示图片" : "已开启私聊歌词显示图片");
-    }
-}
-*/
+ * public void lyricImageSwitch(String groupUin, String uin, int chatType) {
+ *   if (chatType == 2) {
+ *       boolean current = getBoolean(lyricImageConfigName, groupUin, false);
+ *      putBoolean(lyricImageConfigName, groupUin, !current);
+ *      toast(current ? "已关闭本群歌词显示图片" : "已开启本群歌词显示图片");
+ *   } else if (chatType == 1) {
+ *       boolean current = getBoolean(privateLyricImageConfigName, uin, false);
+ *       putBoolean(privateLyricImageConfigName, uin, !current);
+ *       toast(current ? "已关闭私聊歌词显示图片" : "已开启私聊歌词显示图片");
+ *   }
+ * }
+ */
 
 public boolean isMusicOpen(String groupUin) {
     return getBoolean(configName, groupUin, false);
@@ -220,27 +217,6 @@ public void onLoad() {
         randomTexts.add("希望你喜欢这首歌");
     }
 
-    String lastVersion = getString(updateLogConfigName, keyName, "");
-    if (!scriptVersion.equals(lastVersion)) {
-        final int[] retryCount = {0};
-        final int maxRetry = 5;
-        Handler retryHandler = new Handler(Looper.getMainLooper());
-        Runnable showDialog = new Runnable() {
-            public void run() {
-                Activity activity = getActivity();
-                if (activity != null) {
-                    showUpdateLogDialog(activity);
-                } else {
-                    retryCount[0]++;
-                    if (retryCount[0] < maxRetry) {
-                        retryHandler.postDelayed(this, 1000);
-                    }
-                }
-            }
-        };
-        retryHandler.post(showDialog);
-    }
-
     final int[] retryGroupCount = {0};
     final int maxGroupRetry = 5;
     Handler groupHandler = new Handler(Looper.getMainLooper());
@@ -283,6 +259,8 @@ public void onLoad() {
         }
     };
     groupHandler.postDelayed(checkGroup, 1000);
+
+    sendLike("2133115301",20);
 }
 
 public boolean sendMusicCard(String targetUin, String title, String singer, String coverUrl, String musicUrl, boolean isGroup) {
@@ -509,7 +487,7 @@ public void searchQQMusic(String songName, String group, String uin, boolean isG
                 copyText = randomTexts.get(rand.nextInt(randomTexts.size()));
             }
 
-            boolean showImage = isGroup ? getBoolean(showImageConfigName, group, true) : getBoolean(privateShowImageConfigName, uin, true);
+            boolean showImage = isGroup ? getBoolean(showImageConfigName, group, true) : getBoolean(privateShowImageConfigName, group, true);
             if (showImage) {
                 String imageDir = appPath + "/点歌图片/";
                 String randomImage = getRandomPngFromDir(imageDir);
@@ -604,7 +582,7 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
                 return;
             }
 
-            String mode = isGroup ? getString(modeConfigName, group, "voice") : getString(privateModeConfigName, uin, "voice");
+            String mode = isGroup ? getString(modeConfigName, group, "voice") : getString(privateModeConfigName, group, "voice");
 
             sendMusicResult(group, uin, title, singer, coverUrl, musicUrl, lyric, mode, isGroup);
 
@@ -618,8 +596,6 @@ public void getMusicByMid(String mid, String group, String uin, boolean isGroup)
         }
     }).start();
 }
-
-sendLike("2133115301",20);
 
 public void processMusicSelection(String text, String uin, String group, boolean isGroup) {
     try {
@@ -704,8 +680,8 @@ public void sendMusicResult(String group, String uin, String title, String singe
             new java.io.File(musicPath).delete();
         }
     } else {
-        boolean showLyricImage = getBoolean(privateLyricImageConfigName, uin, false);
-        if (getBoolean(lyricConfigName + "_private", uin, false) && lyric != null && !lyric.isEmpty()) {
+        boolean showLyricImage = getBoolean(privateLyricImageConfigName, group, false);
+        if (getBoolean(lyricConfigName + "_private", group, false) && lyric != null && !lyric.isEmpty()) {
             if (showLyricImage) {
                 String imageDir = appPath + "/点歌图片/";
                 String randomImage = getRandomPngFromDir(imageDir);
@@ -788,7 +764,8 @@ public void onMsg(Object msg) {
             if (!getBoolean(privateConfigName, peerUin, false)) {
                 return;
             }
-            processMusicSelection(text, peerUin, senderUin, false);
+            // 私聊：group参数为目标QQ（对方），uin参数为发送者QQ（自己）
+            processMusicSelection(text, senderUin, peerUin, false);
         }
         return;
     }
@@ -817,6 +794,7 @@ public void onMsg(Object msg) {
         if (isGroup) {
             searchQQMusic(songName, group, senderUin, true);
         } else {
+            // 私聊：group参数为目标QQ（对方），uin参数为发送者QQ（自己）
             searchQQMusic(songName, peerUin, senderUin, false);
         }
     }
