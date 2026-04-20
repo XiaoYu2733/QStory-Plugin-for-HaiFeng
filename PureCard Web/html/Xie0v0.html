@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>PureCard 动效版 - 优化动画</title>
+<style>
+/* 修复SVG图标对齐问题 */
+.engine-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--ease-out-elastic);
+}
+
+.engine-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.engine-item .engine-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.engine-item .engine-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* 书签图标样式 - 调整SVG大小 */
+.bookmark-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookmark-icon svg {
+  width: 28px;  /* 从24px增加到28px */
+  height: 28px; /* 从24px增加到28px */
+  display: block;
+}
+
+/* 对于使用emoji的书签，保持原有字体大小 */
+.bookmark-icon span {
+  font-size: 22px; /* 保持原有的emoji大小 */
+}
+
+/* 调整搜索引擎按钮的布局 */
+.engine-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* 原有的所有其他样式保持不变 */
+:root {
+  --blue: #3E82E6;
+  --light-bg: #F7FAFF;
+  --border: #E1E8ED;
+  --text-dark: #1E293B;
+  --text-gray: #475569;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(62,130,230,0.1);
+  --transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  /* 专业动画曲线 */
+  --bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --spring: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  --super-bounce: cubic-bezier(0.2, 2, 0.8, 0.5);
+  --smooth-in: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --smooth-out: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  
+  /* 新增专业曲线 - Material Design & 专业动画 */
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-out-elastic: cubic-bezier(0.5, 1.5, 0.5, 1);
+  --ease-in-out-sine: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  --material-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --material-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --material-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+  --gentle-bounce: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --smooth-spring: cubic-bezier(0.25, 0.8, 0.25, 1.2);
+}
+
+* { 
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--light-bg);
+  font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  margin: 0; padding: 15px;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; color: var(--text-dark); overflow-x: hidden; width: 100%;
+  opacity: 0;
+  animation: bodyFadeIn 0.8s var(--gentle-bounce) 0.2s forwards;
+}
+
+@keyframes bodyFadeIn {
+  0% { opacity: 0; transform: scale(0.98) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* 卡片入场动画 - 优化版本 */
+.card {
+  width: 100%; max-width: 480px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: #fff; box-shadow: var(--shadow); 
+  margin-bottom: 16px; transform: translateY(0);
+  animation: cardSlideUp 0.7s var(--ease-out-back) backwards;
+  will-change: transform;
+  transition: all 0.4s var(--material-standard);
+}
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes cardSlideUp {
+  0% { 
+    opacity: 0; 
+    transform: translateY(40px) scale(0.95); 
+  }
+  60% { 
+    opacity: 1; 
+    transform: translateY(-8px) scale(1.01); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* Header */
+.header-card { text-align: center; padding: 20px 16px; }
+.main-icon {
+  width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto; font-size: 28px; color: var(--blue); border-radius: 50%;
+  background: linear-gradient(135deg, rgba(62,130,230,0.2), rgba(62,130,230,0.05));
+  cursor: pointer; 
+  position: relative;
+  animation: iconHyperspace 3s cubic-bezier(0.2, 2, 0.8, 0.5) infinite;
+  transform-style: preserve-3d;
+  transition: all 0.4s var(--material-standard);
+}
+@keyframes iconHyperspace {
+  0%, 100% { 
+    transform: scale(1) rotate(0) translateZ(0);
+    box-shadow: 
+      0 0 0 0 rgba(62,130,230,0.6),
+      0 0 0 0 rgba(62,130,230,0.4),
+      0 0 0 0 rgba(62,130,230,0.2);
+  }
+  20% { 
+    transform: scale(1.15) rotate(10deg) translateZ(20px);
+    box-shadow: 
+      0 0 0 12px rgba(62,130,230,0),
+      0 0 0 24px rgba(62,130,230,0),
+      0 0 0 36px rgba(62,130,230,0);
+  }
+  40% { 
+    transform: scale(0.9) rotate(-8deg) translateZ(10px);
+  }
+  60% { 
+    transform: scale(1.1) rotate(5deg) translateZ(15px);
+  }
+  80% { 
+    transform: scale(0.95) rotate(-3deg) translateZ(5px);
+  }
+}
+.main-icon::before {
+  content: '';
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent, 
+    rgba(62,130,230,0.8), 
+    rgba(255,255,255,0.9),
+    rgba(62,130,230,0.6),
+    transparent
+  );
+  animation: iconWarpSpeed 2s linear infinite;
+  z-index: -1;
+  filter: blur(5px);
+}
+@keyframes iconWarpSpeed {
+  0% { transform: rotate(0) scale(1); opacity: 0.8; }
+  50% { transform: rotate(180deg) scale(1.3); opacity: 0.4; }
+  100% { transform: rotate(360deg) scale(1); opacity: 0.8; }
+}
+.main-icon.interact { 
+  animation: iconSuperSpin 0.8s var(--ease-out-elastic) forwards;
+}
+@keyframes iconSuperSpin {
+  0% { 
+    transform: rotate(0) scale(1);
+  }
+  30% { 
+    transform: rotate(540deg) scale(1.4);
+  }
+  60% { 
+    transform: rotate(900deg) scale(0.8);
+  }
+  100% { 
+    transform: rotate(1080deg) scale(1);
+  }
+}
+.title { 
+  font-size: 20px; font-weight: 700; margin: 12px 0 6px; 
+  animation: titlePop 0.8s var(--ease-out-back) 0.4s backwards;
+}
+@keyframes titlePop {
+  0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+  70% { transform: scale(1.05) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.quote-content { 
+  font-size: 14px; color: var(--text-gray); font-style: italic; 
+  opacity: 0; transform: translateY(10px);
+  transition: all 0.6s var(--gentle-bounce); 
+}
+.quote-author { 
+  font-size: 12px; color: #6b7280; margin-top: 4px;
+  opacity: 0; transform: translateY(5px);
+  transition: all 0.6s var(--gentle-bounce) 0.1s;
+}
+
+/* 搜索 */
+.search-card { padding: 18px 16px; }
+.search-container { 
+  display: flex; 
+  align-items: stretch; 
+  gap: 8px; 
+  position: relative;
+  z-index: 1;
+}
+
+/* 搜索引擎按钮 - 优化版本 */
+.engine-btn {
+  background: #f1f5fb; 
+  border: 1px solid var(--border); 
+  border-radius: 8px;
+  width: 90px; 
+  font-size: 13px; 
+  color: var(--blue); 
+  font-weight: 800;
+  text-align: center; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 6px; 
+  position: relative; 
+  overflow: hidden; 
+  padding: 0 8px;
+  animation: buttonPop 0.6s var(--ease-out-back) 0.5s backwards;
+  transition: all 0.3s var(--material-standard);
+  transform-style: preserve-3d;
+  will-change: transform;
+  box-shadow: 0 2px 6px rgba(62,130,230,0.1);
+  z-index: 2;
+}
+
+.engine-btn.animate .engine-icon { 
+  transform: rotate(360deg) scale(1.2);
+}
+
+@keyframes buttonPop {
+  0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+  70% { transform: scale(1.05) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* 搜索按钮 - 优化版本 */
+.search-btn {
+  position: relative; 
+  overflow: hidden; 
+  background: var(--blue); 
+  color: white;
+  border: none; 
+  border-radius: 8px; 
+  padding: 0 16px; 
+  font-size: 14px;
+  font-weight: 600; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  white-space: nowrap; 
+  cursor: pointer;
+  animation: buttonPop 0.6s var(--ease-out-back) 0.6s backwards;
+  transition: all 0.3s var(--material-standard);
+  will-change: transform;
+  box-shadow: 0 2px 6px rgba(62,130,230,0.2);
+  transform-style: preserve-3d;
+  z-index: 2;
+}
+
+/* 搜索按钮涟漪效果 - 优化版本 */
+.search-btn::after {
+  content: ''; 
+  position: absolute; 
+  border-radius: 50%;
+  width: 18px; 
+  height: 18px; 
+  background: rgba(255,255,255,0.5);
+  transform: scale(0); 
+  opacity: 0; 
+  transition: transform 0.5s var(--ease-out-elastic), opacity 0.8s ease;
+}
+.search-btn.ripple::after { 
+  transform: scale(10); 
+  opacity: 0; 
+}
+
+.search-input {
+  flex: 1; padding: 10px 12px; font-size: 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  transition: all .25s var(--material-decelerate); 
+  min-width: 0;
+  animation: inputSlide 0.6s var(--material-decelerate) 0.4s backwards;
+  will-change: transform;
+  z-index: 2;
+}
+@keyframes inputSlide {
+  0% { opacity: 0; transform: translateX(-20px) scale(0.95); }
+  70% { transform: translateX(5px) scale(1.01); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* 输入框焦点样式 */
+.search-input:focus,
+.engine-btn:focus,
+.search-btn:focus {
+  outline: none; 
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(62, 130, 230, 0.1);
+  transform: translateY(-1px);
+}
+
+/* 引擎弹出菜单飞出动画 */
+@keyframes popupSpringOut {
+  0% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+  40% { 
+    opacity: 0.8; 
+    transform: scale(1.05) translateY(3px); 
+  }
+  70% { 
+    transform: scale(0.98) translateY(-1px); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: scale(0.7) translateY(-10px); 
+  }
+}
+
+/* 引擎弹出菜单 - 优化版本 */
+#enginePopup {
+  position: absolute; 
+  background: white; 
+  border: 1px solid var(--border);
+  border-radius: 12px; 
+  box-shadow: 0 8px 32px rgba(62,130,230,0.2); 
+  display: none; 
+  z-index: 100;
+  min-width: 130px; 
+  overflow: hidden;
+  animation: popupSpring 0.4s var(--ease-in-out-back) forwards;
+  transform-origin: top left;
+  will-change: transform, opacity;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+@keyframes popupSpring {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.7) translateY(-10px); 
+  }
+  40% { 
+    opacity: 1; 
+    transform: scale(1.05) translateY(3px); 
+  }
+  70% { 
+    transform: scale(0.98) translateY(-1px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.engine-item { 
+  padding: 12px 16px; 
+  font-size: 13px; 
+  color: var(--text-dark); 
+  cursor: pointer; 
+  transition: all 0.3s var(--smooth-spring);
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(225,232,237,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.engine-item:last-child {
+  border-bottom: none;
+}
+
+.engine-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(62,130,230,0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.engine-item:hover::before {
+  left: 100%;
+}
+
+.engine-item.active { 
+  color: var(--blue); 
+  font-weight: 600;
+  background: rgba(62,130,230,0.08);
+  position: relative;
+}
+
+.engine-item.active::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--blue);
+  border-radius: 50%;
+  animation: activePulse 1.5s infinite;
+}
+
+@keyframes activePulse {
+  0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+  50% { opacity: 0.5; transform: translateY(-50%) scale(1.5); }
+}
+
+/* 书签 */
+.bookmarks-card { padding: 18px 16px; }
+.bookmarks-title { 
+  font-size: 16px; font-weight: 700; margin-bottom: 14px;
+  display: flex; align-items: center; 
+  animation: titleSlide 0.6s var(--material-decelerate) 0.7s backwards;
+}
+@keyframes titleSlide {
+  0% { opacity: 0; transform: translateX(-20px); }
+  70% { transform: translateX(5px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.bookmarks-title::before { 
+  content: "📌"; margin-right: 6px; 
+  animation: pinWiggle 3s var(--gentle-bounce) infinite;
+}
+@keyframes pinWiggle {
+  0%, 20%, 40%, 60%, 80%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(-3deg); }
+  50%, 70% { transform: rotate(3deg); }
+}
+
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 12px;
+}
+.bookmark-item {
+  display: flex; flex-direction: column; align-items: center;
+  text-decoration: none; transition: all 0.4s var(--material-standard); color: inherit;
+  animation: bookmarkBounce 0.6s var(--ease-out-back) backwards;
+  will-change: transform;
+}
+.bookmark-item:nth-child(1) { animation-delay: 0.8s; }
+.bookmark-item:nth-child(2) { animation-delay: 0.9s; }
+.bookmark-item:nth-child(3) { animation-delay: 1.0s; }
+.bookmark-item:nth-child(4) { animation-delay: 1.1s; }
+.bookmark-item:nth-child(5) { animation-delay: 1.2s; }
+.bookmark-item:nth-child(6) { animation-delay: 1.3s; }
+
+@keyframes bookmarkBounce {
+  0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+  60% { transform: scale(1.1) translateY(-5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.bookmark-icon {
+  width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;
+  color: var(--blue); border: 1px solid var(--border);
+  background: #f1f5fb; border-radius: 10px;
+  transition: all 0.4s var(--smooth-spring);
+  will-change: transform;
+}
+.bookmark-label { 
+  font-size: 12px; color: var(--text-gray); margin-top: 6px; text-align: center; 
+  transition: all 0.3s var(--material-standard);
+  will-change: transform;
+}
+
+/* 微交互：书签点击效果 */
+.bookmark-item:active .bookmark-icon {
+  transform: scale(0.9);
+  transition: all 0.1s var(--material-accelerate);
+}
+
+.bookmark-item:active .bookmark-label {
+  transform: scale(0.95);
+  transition: all 0.1s var(--material-accelerate);
+}
+
+/* 彩蛋弹窗 - 优化动画曲线 */
+.easter-egg-popup {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+  border: 1px solid rgba(62,130,230,0.2); border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(62,130,230,0.2); 
+  padding: 30px 28px; z-index: 1001; opacity: 0; text-align: center;
+  animation: modernEggEnter 0.6s var(--ease-in-out-back) forwards;
+  max-width: 320px; width: 85%;
+  will-change: transform, opacity;
+  overflow: hidden;
+}
+
+.easter-egg-popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FF6B9D, #FFB74D, #4FC3F7, #9575CD, #FF6B9D);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes modernEggEnter {
+  0% { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.8) rotate(-5deg); 
+  }
+  60% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1.02) rotate(1deg); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1) rotate(0); 
+  }
+}
+
+/* 新增彩蛋弹窗飞出动画 */
+@keyframes modernEggExit {
+  0% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1) rotate(0); 
+  }
+  30% { 
+    opacity: 0.9; 
+    transform: translate(-50%, -50%) scale(1.05) rotate(-3deg); 
+  }
+  60% { 
+    opacity: 0.7; 
+    transform: translate(-50%, -50%) scale(0.95) rotate(2deg); 
+  }
+  100% { 
+    opacity: 0; 
+    transform: translate(-50%, -50%) scale(0.8) rotate(-5deg) translateY(40px); 
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.easter-egg-header {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.easter-egg-icon {
+  font-size: 48px; margin-bottom: 16px; 
+  animation: float 3s var(--gentle-bounce) infinite;
+  display: inline-block;
+  filter: drop-shadow(0 4px 8px rgba(62,130,230,0.3));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.05); }
+}
+
+.easter-egg-title {
+  font-size: 18px; font-weight: 700; color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.easter-egg-content {
+  font-size: 14px; color: var(--text-gray); line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.easter-egg-btn {
+  background: var(--blue); color: white; border: none; border-radius: 10px;
+  padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.3s var(--material-standard);
+  animation: buttonPop 0.6s var(--ease-out-back) 0.3s backwards;
+  will-change: transform;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  min-width: 120px;
+}
+
+.easter-egg-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.easter-egg-btn:hover::before {
+  left: 100%;
+}
+
+.easter-egg-btn:active {
+  transform: scale(0.95);
+  transition: all 0.1s var(--material-accelerate);
+}
+
+.close-btn {
+  border: none; background: none; color: var(--blue); font-size: 16px;
+  cursor: pointer; border-radius: 50%; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s var(--material-standard);
+  will-change: transform;
+}
+
+.close-btn:active {
+  transform: scale(0.9);
+  background: rgba(62,130,230,0.1);
+}
+
+.footer { 
+  font-size: 11px; color: #94a3b8; text-align: center; 
+  margin-top: auto; padding-top: 16px;
+  animation: fadeIn 1s var(--gentle-bounce) 1.5s backwards;
+}
+
+@keyframes fadeIn { 
+  from{opacity:0;} 
+  to{opacity:1;} 
+}
+
+/* 粒子效果 - 优化动画曲线 */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: particleFloat 1.2s var(--ease-out-elastic) forwards;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 0.7;
+  }
+  70% {
+    transform: translate(var(--tx), var(--ty)) scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* 微交互：按钮按压效果 */
+.engine-btn:active,
+.search-btn:active {
+  transform: scale(0.96);
+  transition: all 0.1s var(--material-accelerate);
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  body { padding: 12px; }
+  .card { max-width: 100%; margin-bottom: 14px; }
+  .bookmarks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 10px;
+  }
+  #enginePopup {
+    min-width: 120px;
+  }
+  .engine-item {
+    padding: 10px 14px;
+  }
+  .easter-egg-popup {
+    padding: 24px 20px;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  body { padding: 10px; }
+  .card { margin-bottom: 12px; }
+  .bookmarks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+  }
+  .bookmark-icon { width: 48px; height: 48px; }
+  .bookmark-icon svg { width: 24px; height: 24px; }
+  .bookmark-icon span { font-size: 20px; }
+  .bookmark-label { font-size: 11px; }
+  #enginePopup {
+    min-width: 110px;
+  }
+  .engine-item {
+    padding: 8px 12px;
+  }
+  .easter-egg-popup {
+    padding: 20px 16px;
+    max-width: 260px;
+  }
+  .easter-egg-icon {
+    font-size: 40px;
+  }
+  .easter-egg-title {
+    font-size: 16px;
+  }
+  .easter-egg-content {
+    font-size: 13px;
+  }
+}
+
+/* 性能优化 */
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 彩蛋弹窗 - 优化动画曲线 -->
+<div id="easterEggPopup" class="easter-egg-popup" style="display:none;">
+  <div class="easter-egg-header">
+    <div class="easter-egg-icon">🎮</div>
+    <div class="easter-egg-title" id="easterEggTitle">哇！发现小彩蛋！</div>
+  </div>
+  <div class="easter-egg-content" id="easterEggMessage">你发现了我们的隐藏彩蛋！继续探索，也许还有更多惊喜等着你。</div>
+  <!-- 添加友情链接 - 俏皮风格 -->
+  <div class="hitokoto-link" style="margin-top: 16px; font-size: 13px; color: #6b7280;">
+    本页一言由 <a href="https://hitokoto.cn/" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600;">Hitokoto</a> 暖心提供 🌟
+    <br><span style="font-size: 12px;">快去感谢这些温暖的话语吧～</span>
+  </div>
+  <button id="closeEasterEgg" class="easter-egg-btn">好哒！</button>
+</div>
+
+<div class="card header-card">
+  <div id="refreshQuote" class="main-icon">🌐</div>
+  <h1 class="title">PureCard 浏览器</h1>
+  <div id="quoteText" class="quote-content">正在获取一言...</div>
+  <div id="quoteAuthor" class="quote-author"></div>
+</div>
+
+<div class="card search-card">
+  <div class="search-container">
+    <div id="engineBtn" class="engine-btn">
+      <span id="engineBtnIcon" class="engine-icon"></span><span id="engineName">Bing</span>
+    </div>
+    <input id="searchInput" class="search-input" placeholder="请输入文本…" />
+    <button id="searchBtn" class="search-btn">搜索</button>
+  </div>
+</div>
+<div id="enginePopup"></div>
+
+<div class="card bookmarks-card">
+  <div class="bookmarks-title">常用网站</div>
+  <div id="bookmarksContainer" class="bookmarks-grid">
+    <!-- 书签将通过JavaScript动态生成 -->
+  </div>
+</div>
+
+<!-- 修改底部footer，添加正式风格的友情链接 -->
+<p class="footer">
+  © 2025 PureCard | Xie_0v0 
+  <span style="margin: 0 8px">•</span>
+  一言由 <a href="https://hitokoto.cn/" target="_blank" style="color: #94a3b8; text-decoration: none;">Hitokoto</a> 提供
+</p>
+
+<script>
+// 彩蛋功能变量
+let clickCount = 0;
+let clickTimer = null;
+const EGG_TRIGGER_COUNT = 10;
+const EGG_TIMEOUT = 1500;
+
+// SVG图标定义 - 搜索引擎
+const bingSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Bing</title><path d="M11.97 7.569a.92.92 0 00-.805.863c-.013.195-.01.209.43 1.347 1 2.59 1.242 3.214 1.283 3.302.099.213.237.413.41.592.134.138.222.212.37.311.26.176.39.224 1.405.527.989.295 1.529.49 1.994.723.603.302 1.024.644 1.29 1.051.191.292.36.815.434 1.342.029.206.029.661 0 .847a2.491 2.491 0 01-.376 1.026c-.1.151-.065.126.081-.058.415-.520.838-1.408 1.054-2.213a6.728 6.728 0 00.102-3.012 6.626 6.626 0 00-3.291-4.53 104.157 104.157 0 00-1.322-.698l-.254-.133a737.941 737.941 0 01-1.575-.827c-.548-.29-.78-.406-.846-.426a1.376 1.376 0 00-.29-.045l-.093.01z" fill="url(#lobe-icons-bing-fill-0)"></path><path d="M13.164 17.24a4.385 4.385 0 00-.202.125 511.45 511.45 0 00-1.795 1.115 163.087 163.087 0 01-.989.614l-.463.288a99.198 99.198 0 01-1.502.941c-.326.2-.704.334-1.09.387-.18.024-.520.024-.7 0a2.807 2.807 0 01-1.318-.538 3.665 3.665 0 01-.543-.545 2.837 2.837 0 01-.506-1.141 2.161 2.161 0 00-.041-.182c-.008-.008.006.138.032.33.027.199.085.487.147.733.482 1.907 1.85 3.457 3.705 4.195a6.31 6.31 0 001.658.412c.22.025.844.035 1.074.017 1.054-.08 1.972-.393 2.913-.992a325.28 325.28 0 01.937-.596l.384-.244.684-.435.234-.149.009-.005.025-.017.013-.007.172-.11.597-.38c.76-.481.987-.65 1.34-.998.148-.146.37-.394.381-.425.002-.007.042-.068.088-.136a2.49 2.49 0 00.373-1.023 4.181 4.181 0 000-.847 4.336 4.336 0 00-.318-1.137c-.224-.472-.7-.9-1.383-1.245a2.972 2.972 0 00-.406-.181c-.01 0-.646.392-1.413.87a7089.171 7089.171 0 00-1.658 1.031l-.439.274z" fill="url(#lobe-icons-bing-fill-1)" fill-rule="nonzero"></path><path d="M4.003 14.946l.004 3.33.042.193c.134.604.366 1.04.77 1.445a2.701 2.701 0 001.955.814c.536 0 1-.135 1.479-.43l.703-.435.556-.346V8.003c0-2.306-.004-3.675-.012-3.782a2.734 2.734 0 00-.797-1.765c-.145-.144-.268-.24-.637-.496A1780.102 1780.102 0 015.762.362C5.406.115 5.38.098 5.271.059a.943.943 0 00-1.254.696C4.003.818 4 1.659 4 6.223v5.394H4l.003 3.329z" fill="url(#lobe-icons-bing-fill-2)" fill-rule="nonzero"></path><defs><radialGradient cx="93.717%" cy="77.818%" fx="93.717%" fy="77.818%" gradientTransform="scale(-1 -.7146) rotate(49.288 2.035 -2.198)" id="lobe-icons-bing-fill-0" r="143.691%"><stop offset="0%" stop-color="#00CACC"></stop><stop offset="100%" stop-color="#048FCE"></stop></radialGradient><radialGradient cx="13.893%" cy="71.448%" fx="13.893%" fy="71.448%" gradientTransform="scale(.6042 1) rotate(-23.34 .184 .494)" id="lobe-icons-bing-fill-1" r="149.21%"><stop offset="0%" stop-color="#00BBEC"></stop><stop offset="100%" stop-color="#2756A9"></stop></radialGradient><linearGradient id="lobe-icons-bing-fill-2" x1="50%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#00BBEC"></stop><stop offset="100%" stop-color="#2756A9"></stop></linearGradient></defs></svg>`;
+
+const baiduSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Baidu</title><path d="M8.859 11.735c1.017-1.71 4.059-3.083 6.202.286 1.579 2.284 4.284 4.397 4.284 4.397s2.027 1.601.73 4.684c-1.24 2.956-5.64 1.607-6.005 1.49l-.024-.009s-1.746-.568-3.776-.112c-2.026.458-3.773.286-3.773.286l-.045-.001c-.328-.01-2.38-.187-3.001-2.968-.675-3.028 2.365-4.687 2.592-4.968.226-.288 1.802-1.37 2.816-3.085zm.986 1.738v2.032h-1.64s-1.64.138-2.213 2.014c-.2 1.252.177 1.99.242 2.148.067.157.596 1.073 1.927 1.342h3.078v-7.514l-1.394-.022zm3.588 2.191l-1.44.024v3.956s.064.985 1.44 1.344h3.541v-5.3h-1.528v3.979h-1.46s-.466-.068-.553-.447v-3.556zM9.82 16.715v3.06H8.58s-.863-.045-1.126-1.049c-.136-.445.02-.959.088-1.16.063-.203.353-.671.951-.850H9.82zm9.525-9.036c2.086 0 2.646 2.06 2.646 2.742 0 .688.284 3.597-2.309 3.655-2.595.057-2.704-1.77-2.704-3.08 0-1.374.277-3.317 2.367-3.317zM4.24 6.08c1.523-.135 2.645 1.55 2.762 2.513.07.625.393 3.486-1.975 4-2.364.515-3.244-2.249-2.984-3.544 0 0 .280-2.797 2.197-2.969zm8.847-1.483c.14-1.31 1.69-3.316 2.931-3.028 1.236.285 2.367 1.944 2.137 3.37-.224 1.428-1.345 3.313-3.095 3.082-1.748-.226-2.143-1.823-1.973-3.424zM9.425 1c1.307 0 2.364 1.519 2.364 3.398 0 1.879-1.057 3.4-2.364 3.4s-2.367-1.521-2.367-3.4C7.058 2.518 8.118 1 9.425 1z" fill="#2932E1" fill-rule="nonzero"></path></svg>`;
+
+const googleSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Google</title><path d="M23 12.245c0-.905-.075-1.565-.236-2.25h-10.54v4.083h6.186c-.124 1.014-.797 2.542-2.294 3.569l-.021.136 3.332 2.53.23.022C21.779 18.417 23 15.593 23 12.245z" fill="#4285F4"></path><path d="M12.225 23c3.03 0 5.574-.978 7.433-2.665l-3.542-2.688c-.948.648-2.22 1.1-3.891 1.1a6.745 6.745 0 01-6.386-4.572l-.132.011-3.465 2.628-.045.124C4.043 20.531 7.835 23 12.225 23z" fill="#34A853"></path><path d="M5.84 14.175A6.65 6.65 0 015.463 12c0-.758.138-1.491.361-2.175l-.006-.147-3.508-2.67-.115.054A10.831 10.831 0 001 12c0 1.772.436 3.447 1.197 4.938l3.642-2.763z" fill="#FBBC05"></path><path d="M12.225 5.253c2.108 0 3.529.892 4.34 1.638l3.167-3.031C17.787 2.088 15.255 1 12.225 1 7.834 1 4.043 3.469 2.197 7.062l3.63 2.763a6.77 6.77 0 016.398-4.572z" fill="#EB4335"></path></svg>`;
+
+// 新增搜狗SVG图标
+const sougouSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="66.3 78.1 890.7 864.4" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="m900.3 942.5h-777.3c-31.2 0-56.7-25.5-56.7-56.7v-751c0-31.2 25.5-56.7 56.7-56.7h777.3c31.2 0 56.7 25.5 56.7 56.7v750.9c0 31.2-25.5 56.8-56.7 56.8z" fill="#f75314"/><path d="m738.2 195.4 53.7 120.2s-189.2-25.6-337.5 25.6-56.3 107.4-56.3 107.4 120.2 12.8 232.7 0 222.5 30.7 240.4 71.6 58.8 140.6-74.2 230.1-350.3 120.2-531.8 104.8l-48.6-117.6s204.3 28.1 337.4-25.6 81.9-94.6 81.9-94.6-10.2-40.9-268.5-2.6-248-163.7-248-163.7 2.6-127.9 209.7-196.9 409.1-58.7 409.1-58.7z" fill="#c93a14"/><path d="m738.2 164.2 53.7 120.2s-189.2-25.6-337.5 25.6-56.3 107.4-56.3 107.4 120.2 12.8 232.7 0 222.5 30.7 240.4 71.6c17.9 40.8 58.8 140.5-74.2 230s-350.3 120.2-531.8 104.9l-48.6-117.6s204.3 28.1 337.4-25.6 81.9-94.6 81.9-94.6-10.2-40.9-268.5-2.6-248-163.7-248-163.7 2.6-127.8 209.7-196.8 409.1-58.8 409.1-58.8z" fill="#fff"/></svg>`;
+
+// SVG图标定义 - 书签
+const bilibiliBookmarkSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="51.2 51.2 921.6 921.6" width="1em" xmlns="http://www.w3.org/2000/svg"><g fill="#f16c8d"><path d="m729.329 373.95c-9.795-5.945-19.062-6.785-19.144-6.785l-1.065-.05c-57.2-3.866-121.165-5.832-190.126-5.832l-13.988.005c-68.956 0-132.925 1.96-190.12 5.831l-1.066.052c-.082 0-9.349.84-19.144 6.784-15.047 9.129-24.273 25.948-27.417 49.97-10.071 76.913-4.383 173.65.19 251.393 2.938 49.966 33.407 62.459 85.048 67.149 10.782.988 69.089 5.867 159.508 5.893v-.005c90.42-.02 148.726-4.905 159.514-5.888 51.64-4.69 82.11-17.183 85.043-67.15 4.577-77.741 10.26-174.479.19-251.391-3.15-24.028-12.376-40.848-27.423-49.977zm-390.99 172.718a23.65 23.65 0 0 1 -31.687-10.845 23.68 23.68 0 0 1 10.844-31.687c2.038-1.004 50.693-24.725 110.541-43.065a23.68 23.68 0 1 1 13.88 45.292c-56.294 17.25-103.111 40.074-103.577 40.305zm268.898 35.886c-.44 2.232-11.269 54.64-50.939 54.64-21.442 0-36.1-14.049-44.984-26.772-8.694 12.708-22.805 26.772-42.655 26.772-35.533 0-50.135-48.266-51.681-53.77a11.366 11.366 0 0 1 21.878-6.17c2.75 9.652 14.13 37.202 29.798 37.202 16.374 0 28.892-23.644 31.985-31.928a11.372 11.372 0 0 1 10.65-7.388h.06a11.376 11.376 0 0 1 10.63 7.506c.107.286 11.965 31.815 34.314 31.815 20.864 0 28.565-35.952 28.641-36.32a11.346 11.346 0 0 1 13.358-8.94 11.361 11.361 0 0 1 8.945 13.353zm110.116-46.736a23.68 23.68 0 0 1 -31.683 10.844c-.47-.230-47.472-23.116-103.572-40.31a23.69 23.69 0 0 1 -15.708-29.583 23.67 23.67 0 0 1 29.578-15.703c59.848 18.340 108.498 42.061 110.551 43.065a23.68 23.68 0 0 1 10.834 31.687z"/><path d="m849.92 51.2h-675.84c-67.866 0-122.88 55.014-122.88 122.88v675.84c0 67.87 55.014 122.88 122.88 122.88h675.84c67.87 0 122.88-55.01 122.88-122.88v-675.84c0-67.86-55.01-122.88-122.88-122.88zm-36.603 627.45c-2.626 44.58-21.821 78.634-55.516 98.49-25.682 15.134-54.175 19.486-81.137 21.938-32.455 2.95-92.718 6.098-164.664 6.119-71.941-.02-132.209-3.164-164.664-6.119-26.962-2.452-55.455-6.804-81.132-21.939-33.695-19.855-52.89-53.903-55.51-98.483-4.706-80.133-10.574-179.855.194-262.108 10.654-81.383 70.102-104.976 100.612-106.168a2482.642 2482.642 0 0 1 81.423-4.086c-7.536-8.535-19.88-23.322-28.815-38.114-13.737-22.737 8.53-41.687 8.53-41.687s23.68-20.367 44.528 5.213c15.698 19.266 38.38 55.997 48.62 72.954l53.207-.215c13.26 0 26.332.072 39.22.215 10.24-16.957 32.92-53.683 48.619-72.954 20.843-25.58 44.528-5.213 44.528-5.213s22.262 18.95 8.525 41.687c-8.934 14.792-21.279 29.579-28.815 38.114 28.36.978 55.562 2.34 81.423 4.08 30.515 1.199 89.958 24.791 100.613 106.174 10.778 82.248 4.915 181.97.21 262.103z"/></g></svg>`;
+
+const zhihuBookmarkSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="51.20000000000002 51.2 921.6 921.6" width="2500" height="2500"><path fill="#06F" d="M656.906 724.29l47.422-33.725h52.69V344.9h-143.32v346.726h35.83z"/><path fill="#06F" d="M849.92 51.2H174.08c-67.866 0-122.88 55.014-122.88 122.88v675.84c0 67.866 55.014 122.88 122.88 122.88h675.84c67.866 0 122.88-55.014 122.88-122.88V174.08c0-67.866-55.014-122.88-122.88-122.88zM495.662 803.348l-101.171-157.05 44.267-31.616 67.451 98.007c-.005 0 23.179 37.995-10.547 90.66zm38.994-276.1v25.292H408.197C357.612 876.068 204.8 807.045 204.8 807.045 344.965 697.18 347.597 552.54 347.597 552.54H208.492c0-57.958 52.162-56.914 52.162-56.914h93.793V343.87h-50.585c-18.965 85.366-99.062 81.152-99.062 81.152s32.67-50.585 54.8-137c22.128-86.421 89.574-76.929 89.574-76.929-20.02 35.83-29.507 76.928-29.507 76.928H485.12c40.049 0 37.94 25.293 37.94 25.293v29.512H411.355v152.806h91.684c33.725 0 31.616 31.616 31.616 31.616zM819.2 747.5H716.974l-88.52 55.848-8.427-55.848h-64.292V288.015H819.2V747.5z"/></svg>`;
+
+const baiduBookmarkSVG = `<svg height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Baidu</title><path d="M8.859 11.735c1.017-1.71 4.059-3.083 6.202.286 1.579 2.284 4.284 4.397 4.284 4.397s2.027 1.601.73 4.684c-1.24 2.956-5.64 1.607-6.005 1.49l-.024-.009s-1.746-.568-3.776-.112c-2.026.458-3.773.286-3.773.286l-.045-.001c-.328-.01-2.38-.187-3.001-2.968-.675-3.028 2.365-4.687 2.592-4.968.226-.288 1.802-1.37 2.816-3.085zm.986 1.738v2.032h-1.64s-1.64.138-2.213 2.014c-.2 1.252.177 1.99.242 2.148.067.157.596 1.073 1.927 1.342h3.078v-7.514l-1.394-.022zm3.588 2.191l-1.44.024v3.956s.064.985 1.44 1.344h3.541v-5.3h-1.528v3.979h-1.46s-.466-.068-.553-.447v-3.556zM9.82 16.715v3.06H8.58s-.863-.045-1.126-1.049c-.136-.445.02-.959.088-1.16.063-.203.353-.671.951-.850H9.82zm9.525-9.036c2.086 0 2.646 2.06 2.646 2.742 0 .688.284 3.597-2.309 3.655-2.595.057-2.704-1.77-2.704-3.08 0-1.374.277-3.317 2.367-3.317zM4.24 6.08c1.523-.135 2.645 1.55 2.762 2.513.07.625.393 3.486-1.975 4-2.364.515-3.244-2.249-2.984-3.544 0 0 .280-2.797 2.197-2.969zm8.847-1.483c.14-1.31 1.69-3.316 2.931-3.028 1.236.285 2.367 1.944 2.137 3.37-.224 1.428-1.345 3.313-3.095 3.082-1.748-.226-2.143-1.823-1.973-3.424zM9.425 1c1.307 0 2.364 1.519 2.364 3.398 0 1.879-1.057 3.4-2.364 3.4s-2.367-1.521-2.367-3.4C7.058 2.518 8.118 1 9.425 1z" fill="#2932E1" fill-rule="nonzero"></path></svg>`;
+
+const weiboBookmarkSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="2012" viewBox="0 0 50.497 40.648"><path fill="#E99315" d="M50.448 12.132c.217 2.814-.259 6.186-2.117 6.351-3.033.271-1.451-3.07-1.411-5.081.111-5.829-4.865-9.879-9.739-9.879-1.381 0-4.588.936-4.094-1.976.222-1.284 1.31-1.266 2.399-1.411 8.197-1.093 14.386 4.546 14.962 11.996z"/><path fill="#D52A2C" d="M37.04 18.907c3.524 1.928 7.758 2.888 7.056 8.61-.168 1.371-.998 3.203-1.834 4.373-5.957 8.339-23.924 11.844-35.144 5.506C3.355 35.269-.539 32.159.062 25.962c.517-5.333 4.103-9.464 7.622-12.983 3.357-3.359 6.897-5.987 11.714-7.198 5.226-1.314 6.771 3.043 5.363 7.339 3.027-.203 9.442-3.582 12.279-.282 1.25 1.454.771 4.058 0 6.069zm-3.811 13.548c1.129-1.28 2.264-3.231 2.257-5.503-.015-7.014-8.851-9.605-15.806-9.033-3.804.312-6.363 1.115-9.033 2.682-2.179 1.279-4.729 3.36-5.363 6.491-1.427 7.041 6.231 10.35 11.855 10.726 6.498.437 13.002-1.857 16.09-5.363z"/><path fill="#E99315" d="M43.531 12.132c.296 2.149-.319 4.011-1.552 4.093-2.056.137-1.287-1.408-1.412-3.246-.078-1.132-1.016-2.439-1.835-2.823-1.606-.752-4.093.548-4.093-1.693 0-1.664 1.443-1.491 2.259-1.553 3.574-.272 6.216 2.191 6.633 5.222z"/><path d="M27.019 26.246c3.007 9.088-12.66 13.314-15.525 5.504-1.917-5.223 2.686-9.377 7.48-9.879 4.093-.429 7.144 1.658 8.045 4.375zm-7.198 1.553c.638 1.104 2.105.311 1.976-.564-.154-1.013-1.989-.863-1.976.564zm-2.541 4.799c2.634-.627 2.988-5.588-.988-4.658-3.34.78-2.694 5.533.988 4.658z"/></svg>`;
+
+const tiebaBookmarkSVG = `<svg viewBox="51.20000000000002 51.2 921.6 921.6" xmlns="http://www.w3.org/2000/svg" width="2500" height="2500"><g fill="#2482fd"><path d="M750.351 541.056H600.827v214.467h115.522c35.456 0 34.002-41.124 34.002-41.124z"/><path d="M849.92 51.2H174.08c-67.866 0-122.88 55.014-122.88 122.88v675.84c0 67.866 55.014 122.88 122.88 122.88h675.84c67.866 0 122.88-55.014 122.88-122.88V174.08c0-67.866-55.014-122.88-122.88-122.88zm-358.707 768c-97.598 0-141.599-73.252-141.599-73.252-51.85 80.44-141.594 73.073-141.594 73.073v-63.504c108.729 0 108.78-107.228 108.78-107.228V317.466h65.623v330.823c0 102.907 108.785 107.228 108.785 107.228V819.2zm0-608.584V658.35H425.59V273.388H314.435c-41.529 0-40.781 33.136-40.781 33.136V658.34h-65.628V306.53c0-98.085 106.403-96.64 106.403-96.64h176.784zm324.761 503.778c0 103.915-99.625 104.632-99.625 104.632H535.204V477.558h60.518V204.8h65.623v67.855h154.532v67.738H661.345v137.16h154.63z"/></g></svg>`;
+
+// 书签数据 - 使用SVG替换emoji
+const bookmarks = [
+  {name: "bilibili", url: "https://www.bilibili.com", icon: bilibiliBookmarkSVG},
+  {name: "知乎", url: "https://www.zhihu.com", icon: zhihuBookmarkSVG},
+  {name: "百度", url: "https://www.baidu.com", icon: baiduBookmarkSVG},
+  {name: "微博", url: "https://weibo.com", icon: weiboBookmarkSVG},
+  {name: "贴吧", url: "https://tieba.baidu.com", icon: tiebaBookmarkSVG},
+  {name: "Bad Apple!!", url: "https://b23.tv/JPH91dd", icon: "🍎"}
+];
+
+// 搜索引擎数据 - 使用SVG替换搜狗emoji
+const engines = [
+  {name: 'Bing', icon: bingSVG, url: 'https://cn.bing.com/search?q={query}'},
+  {name: '百度', icon: baiduSVG, url: 'https://www.baidu.com/s?wd={query}'},
+  {name: 'Google', icon: googleSVG, url: 'https://www.google.com/search?q={query}'},
+  {name: '搜狗', icon: sougouSVG, url: 'https://www.sogou.com/web?query={query}'}
+];
+
+let currentEngine = 0;
+
+// 粒子效果函数
+function createParticles(x, y, count = 5) {
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('div');
+    particle.classList.add('particle');
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.width = `${Math.random() * 10 + 5}px`;
+    particle.style.height = particle.style.width;
+    particle.style.background = `hsl(${Math.random() * 60 + 200}, 70%, 60%)`;
+    particle.style.borderRadius = '50%';
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 50 + 30;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    
+    particle.style.setProperty('--tx', `${tx}px`);
+    particle.style.setProperty('--ty', `${ty}px`);
+    
+    document.body.appendChild(particle);
+    
+    setTimeout(() => {
+      if (particle.parentNode) {
+        particle.parentNode.removeChild(particle);
+      }
+    }, 1200);
+  }
+}
+
+// 工具函数
+function animateElement(element, className, duration = 400) {
+  element.classList.add(className);
+  setTimeout(() => {
+    if (element.classList.contains(className)) {
+      element.classList.remove(className);
+    }
+  }, duration);
+}
+
+// 优化关闭弹窗函数，添加飞出动画
+function closePopup(popup, exitAnimation, enterAnimation, duration = 500) {
+  // 应用退出动画
+  popup.style.animation = exitAnimation;
+  
+  // 动画结束后隐藏弹窗
+  setTimeout(() => {
+    popup.style.display = 'none';
+    popup.style.animation = enterAnimation; // 重置为进入动画，以备下次使用
+  }, duration);
+}
+
+// 初始化书签
+function initializeBookmarks() {
+  const bc = document.getElementById('bookmarksContainer');
+  bc.innerHTML = bookmarks.map(b => {
+    const iconContent = typeof b.icon === 'string' && b.icon.startsWith('<svg') 
+      ? b.icon 
+      : `<span style="font-size: 22px;">${b.icon}</span>`;
+    
+    return `
+      <a href="${b.url}" class="bookmark-item">
+        <div class="bookmark-icon">${iconContent}</div>
+        <div class="bookmark-label">${b.name}</div>
+      </a>
+    `;
+  }).join('');
+}
+
+/* 一言 */
+async function fetchSentence(){
+  const qt = document.getElementById('quoteText');
+  const qa = document.getElementById('quoteAuthor');
+  
+  // 先淡出当前内容
+  qt.style.opacity = 0;
+  qt.style.transform = 'translateY(10px)';
+  qa.style.opacity = 0;
+  qa.style.transform = 'translateY(5px)';
+  
+  try{
+    const r = await fetch('https://v1.hitokoto.cn/');
+    const d = await r.json();
+    setTimeout(() => {
+      qt.textContent = `"${d.hitokoto}"`;
+      qa.textContent = d.from ? `—— ${d.from}` : '';
+      
+      setTimeout(() => {
+        qt.style.opacity = 1;
+        qt.style.transform = 'translateY(0)';
+        qa.style.opacity = 1;
+        qa.style.transform = 'translateY(0)';
+      }, 50);
+    }, 300);
+  } catch {
+    qt.textContent = '获取一言失败，请检查网络。';
+    qa.textContent = '';
+    
+    setTimeout(() => {
+      qt.style.opacity = 1;
+      qt.style.transform = 'translateY(0)';
+      qa.style.opacity = 1;
+      qa.style.transform = 'translateY(0)';
+    }, 50);
+  }
+}
+
+/* 刷新动画 */
+const mainIcon = document.getElementById('refreshQuote');
+mainIcon.addEventListener('click', (e) => {
+  clickCount++;
+  
+  // 添加粒子效果
+  const rect = mainIcon.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  createParticles(x, y, 8);
+  
+  if (clickTimer) clearTimeout(clickTimer);
+  
+  clickTimer = setTimeout(() => {
+    clickCount = 0;
+  }, EGG_TIMEOUT);
+  
+  if (clickCount >= EGG_TRIGGER_COUNT) {
+    showEasterEgg();
+    clickCount = 0;
+    return;
+  }
+  
+  animateElement(mainIcon, 'interact');
+  fetchSentence();
+});
+
+/* 彩蛋弹窗 - 优化动画曲线 */
+function showEasterEgg() {
+  const popup = document.getElementById('easterEggPopup');
+  const title = document.getElementById('easterEggTitle');
+  const message = document.getElementById('easterEggMessage');
+  
+  const titles = [
+    "哇！发现小彩蛋！",
+    "嘿嘿，被你找到啦！",
+    "惊喜时刻到啦！",
+    "发现隐藏小可爱！",
+    "刷新小能手就是你！",
+    "哇塞！彩蛋出现！"
+  ];
+  
+  const messages = [
+    "你发现了我们的隐藏彩蛋！继续探索，也许还有更多惊喜等着你哦～ 🎉",
+    "哇！你的刷新技巧真是令人印象深刻！发现了这个可爱的小彩蛋～ 🌟",
+    "恭喜！你触发了我们的特别彩蛋！感谢你的探索精神，你真棒！ 💫",
+    "真厉害！你已经连续刷新了10次，获得了『刷新小达人』称号！ 🏆",
+    "发现隐藏模式！你的好奇心带来了这个特别的惊喜，继续加油！ ✨",
+    "刷新按钮表示很荣幸被你如此关注！感谢你的热情点击，爱你哟！ 💖",
+    "哇！你真是刷新小天才！这个彩蛋专门为你准备哒～ 🎈",
+    "发现小秘密！你的坚持不懈找到了这个隐藏彩蛋，太厉害啦！ 🎯",
+    "嘿嘿，被你找到啦！这个彩蛋是给最细心的小伙伴准备的～ 🌈",
+    "刷新狂魔就是你！恭喜发现隐藏彩蛋，继续探索更多惊喜吧！ 🚀"
+  ];
+  
+  const icons = ["🎮", "🎉", "🌟", "🏆", "✨", "💫", "🎈", "🌈", "💖", "🚀"];
+  const buttons = ["好哒！", "知道啦！", "太棒了！", "开心！", "继续探索！", "耶！"];
+  
+  const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+  const randomButton = buttons[Math.floor(Math.random() * buttons.length)];
+  
+  title.textContent = randomTitle;
+  message.textContent = randomMessage;
+  document.querySelector('.easter-egg-icon').textContent = randomIcon;
+  document.getElementById('closeEasterEgg').textContent = randomButton;
+  
+  popup.style.display = 'block';
+  
+  // 添加关闭按钮事件
+  document.getElementById('closeEasterEgg').onclick = function() {
+    // 使用飞出动画关闭彩蛋弹窗
+    closePopup(popup, 'modernEggExit 0.5s var(--material-accelerate) forwards', 'modernEggEnter 0.6s var(--ease-in-out-back) forwards');
+  };
+}
+
+/* 搜索引擎切换动效 */
+const engineBtn = document.getElementById('engineBtn');
+const engineName = document.getElementById('engineName');
+const engineBtnIcon = document.getElementById('engineBtnIcon');
+const enginePopup = document.getElementById('enginePopup');
+
+// 添加关闭引擎菜单函数
+function closeEnginePopup() {
+  if (enginePopup.style.display === 'block') {
+    // 添加飞出动画
+    enginePopup.style.animation = 'popupSpringOut 0.3s var(--material-accelerate) forwards';
+    
+    // 动画结束后隐藏
+    setTimeout(() => {
+      enginePopup.style.display = 'none';
+      enginePopup.style.animation = 'popupSpring 0.4s var(--ease-in-out-back) forwards'; // 重置为进入动画
+    }, 300);
+  }
+}
+
+// 初始化搜索引擎按钮图标
+function updateEngineIcon() {
+  if (typeof engines[currentEngine].icon === 'string' && engines[currentEngine].icon.startsWith('<svg')) {
+    engineBtnIcon.innerHTML = engines[currentEngine].icon;
+  } else {
+    engineBtnIcon.innerHTML = `<span>${engines[currentEngine].icon}</span>`;
+  }
+  engineName.textContent = engines[currentEngine].name;
+}
+
+// 初始化时设置正确的图标和名称
+updateEngineIcon();
+
+// 优化引擎按钮点击事件
+engineBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  
+  if (enginePopup.style.display === 'block') {
+    // 如果已经打开，则关闭
+    closeEnginePopup();
+  } else {
+    // 否则打开菜单
+    const rect = engineBtn.getBoundingClientRect();
+    enginePopup.style.left = rect.left + 'px';
+    enginePopup.style.top = (rect.bottom + 6) + 'px';
+    enginePopup.style.display = 'block';
+    
+    // 生成引擎菜单项
+    enginePopup.innerHTML = engines.map((engine, i) => {
+      const iconContent = typeof engine.icon === 'string' && engine.icon.startsWith('<svg') 
+        ? engine.icon 
+        : `<span>${engine.icon}</span>`;
+      
+      return `
+        <div class="engine-item ${i === currentEngine ? 'active' : ''}" data-i="${i}">
+          <span class="engine-icon">${iconContent}</span> ${engine.name}
+        </div>
+      `;
+    }).join('');
+  }
+});
+
+// 优化文档点击事件 - 点击其他地方关闭菜单
+document.addEventListener('click', (e) => {
+  // 只有当点击的不是引擎按钮或弹出菜单时才关闭
+  if (!engineBtn.contains(e.target) && !enginePopup.contains(e.target)) {
+    closeEnginePopup();
+  }
+});
+
+// 优化引擎弹出菜单点击事件
+enginePopup.addEventListener('click', e => {
+  e.stopPropagation();
+  const engineItem = e.target.closest('.engine-item');
+  if (engineItem) {
+    const idx = parseInt(engineItem.dataset.i);
+    if(!isNaN(idx)){
+      currentEngine = idx;
+      updateEngineIcon();
+      
+      // 添加粒子效果
+      const rect = engineBtn.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      createParticles(x, y, 4);
+      
+      // 触发旋转动画
+      animateElement(engineBtn, 'animate', 700);
+      
+      // 添加菜单项点击反馈
+      engineItem.style.animation = 'none';
+      setTimeout(() => {
+        engineItem.style.animation = '';
+      }, 10);
+      
+      // 延迟关闭菜单，让用户看到反馈
+      setTimeout(() => {
+        closeEnginePopup();
+      }, 300);
+    }
+  }
+});
+
+/* 搜索按钮效果 - 优化版本 */
+const searchBtn = document.getElementById('searchBtn');
+searchBtn.addEventListener('click', e => {
+  // 添加涟漪效果
+  searchBtn.classList.remove('ripple');
+  void searchBtn.offsetWidth; // 重置动画
+  searchBtn.classList.add('ripple');
+  
+  // 添加粒子效果
+  const rect = searchBtn.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  createParticles(x + rect.left, y + rect.top, 5);
+  
+  setTimeout(() => {
+    searchBtn.classList.remove('ripple');
+  }, 600);
+  
+  doSearch();
+});
+
+function doSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  if(q.startsWith('http')) location.href = q;
+  else if(q.includes('.') && !q.includes(' ')) location.href = 'https://' + q;
+  else location.href = engines[currentEngine].url.replace('{query}', encodeURIComponent(q));
+}
+document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key === 'Enter') doSearch(); });
+
+// 初始加载
+window.onload = () => {
+  initializeBookmarks();
+  
+  // 修改：页面加载时立即从API获取一言
+  fetchSentence();
+};
+</script>
+</body>
+</html>
