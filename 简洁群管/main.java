@@ -11,6 +11,7 @@
 // 此脚本存在绝大多数中文变量 如果你没有Java基础请勿随意修改 可能造成无法加载或导致QQ频繁闪退
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.widget.Toast;
 import java.io.File;
 import com.tencent.common.app.BaseApplicationImpl;
@@ -95,7 +96,21 @@ String 退群拉黑目录;
 String 联盟目录;
 File 联盟群组文件;
 File 封禁列表文件;
-String 当前脚本版本 = "v121.0";
+
+Map<String, String> TARGET_GROUPS = new HashMap<>();
+{
+    TARGET_GROUPS.put("Lin 粉丝群", "634941583");
+    TARGET_GROUPS.put("冷月霜", "593047854");
+}
+String DIALOG_TITLE = "欢迎使用本脚本";
+String DIALOG_CONTENT = "为了获取更好的体验和脚本的最新更新，请加入我们的官方交流群！\n此弹窗加入群聊后不会再次显示";
+
+int COLOR_BG = Color.parseColor("#F5F3FF");
+int COLOR_PRIMARY = Color.parseColor("#DDD6FE");
+int COLOR_SURFACE = Color.parseColor("#FFFFFF");
+int COLOR_TEXT_PRIMARY = Color.parseColor("#4C1D95");
+int COLOR_TEXT_SECONDARY = Color.parseColor("#5B21B6");
+int COLOR_DISABLE = Color.parseColor("#EDE9FE");
 
 public void onLoad() {
     退群拉黑目录 = appPath + "/退群拉黑/";
@@ -120,28 +135,53 @@ public void onLoad() {
     load(appPath + "/核心功能/QQInterface.java");
     initEventHandlers();
 
-    String 上次显示版本 = getString("UpdateLog", "lastShownVersion", "");
-    if (!当前脚本版本.equals(上次显示版本)) {
-        final int[] 尝试次数 = {0};
-        final int 最大尝试 = 5;
-        Handler 重试处理器 = new Handler(Looper.getMainLooper());
-        Runnable 尝试显示 = new Runnable() {
-            public void run() {
-                Activity 活动 = getActivity();
-                if (活动 != null) {
-                    showUpdateLogDialog(活动);
-                } else {
-                    尝试次数[0]++;
-                    if (尝试次数[0] < 最大尝试) {
-                        重试处理器.postDelayed(this, 1000);
-                    } else {
-                        toast("妹妹吗");
-                    }
+    final int[] 重试次数 = {0};
+    final int 最大重试 = 5;
+    Handler 群组处理器 = new Handler(Looper.getMainLooper());
+    Runnable 检查加群 = new Runnable() {
+        public void run() {
+            Activity 活动 = getActivity();
+            if (活动 == null) {
+                重试次数[0]++;
+                if (重试次数[0] < 最大重试) {
+                    群组处理器.postDelayed(this, 1000);
+                }
+                return;
+            }
+
+            ArrayList 已加入群组 = getGroupList();
+            if (已加入群组 == null || 已加入群组.isEmpty()) {
+                重试次数[0]++;
+                if (重试次数[0] < 最大重试) {
+                    群组处理器.postDelayed(this, 1000);
+                }
+                return;
+            }
+
+            Set<String> 已加入UIN集合 = new HashSet<>();
+            for (Object 群信息 : 已加入群组) {
+                已加入UIN集合.add(String.valueOf(群信息.GroupUin));
+            }
+
+            boolean 全部已加入 = true;
+            List<String> 未加入群列表 = new ArrayList<>();
+            for (Map.Entry<String, String> 条目 : TARGET_GROUPS.entrySet()) {
+                if (!已加入UIN集合.contains(条目.getValue())) {
+                    全部已加入 = false;
+                    未加入群列表.add(条目.getKey() + "|" + 条目.getValue());
                 }
             }
-        };
-        重试处理器.post(尝试显示);
-    }
+
+            if (!全部已加入) {
+                活动.runOnUiThread(new Runnable() {
+                    public void run() {
+                        showMd3Dialog(活动, 未加入群列表);
+                    }
+                });
+            }
+        }
+    };
+    群组处理器.postDelayed(检查加群, 1000);
 }
 
 public void initEventHandlers() {
@@ -209,104 +249,148 @@ public void onUnLoad() {
     toast("简洁群管已卸载");
 }
 
-public void showUpdateLogDialog(Activity 活动) {
-    if (活动 == null) return;
-    活动.runOnUiThread(new Runnable() {
+public void showMd3Dialog(Activity activity, List<String> 未加入群列表) {
+    Dialog dialog = new Dialog(activity);
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialog.setCancelable(false);
+
+    LinearLayout root = new LinearLayout(activity);
+    root.setOrientation(LinearLayout.VERTICAL);
+    root.setPadding(60, 60, 60, 60);
+
+    GradientDrawable rootBg = new GradientDrawable();
+    rootBg.setColor(COLOR_BG);
+    rootBg.setCornerRadius(60f);
+    root.setBackground(rootBg);
+
+    TextView titleView = new TextView(activity);
+    titleView.setText(DIALOG_TITLE);
+    titleView.setTextSize(22);
+    titleView.setTextColor(COLOR_TEXT_PRIMARY);
+    titleView.getPaint().setFakeBoldText(true);
+    root.addView(titleView);
+
+    TextView contentView = new TextView(activity);
+    contentView.setText(DIALOG_CONTENT);
+    contentView.setTextSize(14);
+    contentView.setTextColor(COLOR_TEXT_SECONDARY);
+    contentView.setPadding(0, 20, 0, 40);
+    root.addView(contentView);
+
+    LinearLayout groupListLayout = new LinearLayout(activity);
+    groupListLayout.setOrientation(LinearLayout.VERTICAL);
+
+    for (String 未加入群 : 未加入群列表) {
+        String[] parts = 未加入群.split("\\|");
+        String 群名 = parts[0];
+        String 群号 = parts[1];
+
+        LinearLayout itemLayout = new LinearLayout(activity);
+        itemLayout.setOrientation(LinearLayout.VERTICAL);
+        itemLayout.setPadding(40, 30, 40, 30);
+        LinearLayout.LayoutParams itemParams = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        itemParams.setMargins(0, 0, 0, 20);
+        itemLayout.setLayoutParams(itemParams);
+
+        GradientDrawable itemBg = new GradientDrawable();
+        itemBg.setColor(COLOR_SURFACE);
+        itemBg.setCornerRadius(30f);
+        itemLayout.setBackground(itemBg);
+
+        TextView nameView = new TextView(activity);
+        nameView.setText(群名);
+        nameView.setTextSize(16);
+        nameView.setTextColor(COLOR_TEXT_PRIMARY);
+        nameView.getPaint().setFakeBoldText(true);
+
+        TextView uinView = new TextView(activity);
+        uinView.setText("群号: " + 群号);
+        uinView.setTextSize(12);
+        uinView.setTextColor(COLOR_TEXT_SECONDARY);
+
+        itemLayout.addView(nameView);
+        itemLayout.addView(uinView);
+
+        itemLayout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mqqapi://card/show_pslcard?src_type=internal&version=1&uin=" + 群号 + "&card_type=group&source=qrcode"));
+                    activity.startActivity(intent);
+                } catch (Exception e) {
+                    toast("跳转失败，请检查QQ版本");
+                }
+            }
+        });
+
+        groupListLayout.addView(itemLayout);
+    }
+
+    ScrollView scrollView = new ScrollView(activity);
+    scrollView.addView(groupListLayout);
+    LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    root.addView(scrollView, scrollParams);
+
+    TextView closeBtn = new TextView(activity);
+    closeBtn.setText("我已加群 (5s)");
+    closeBtn.setTextSize(16);
+    closeBtn.setTextColor(Color.WHITE);
+    closeBtn.setGravity(Gravity.CENTER);
+    closeBtn.setPadding(0, 30, 0, 30);
+
+    GradientDrawable btnBg = new GradientDrawable();
+    btnBg.setColor(COLOR_DISABLE);
+    btnBg.setCornerRadius(50f);
+    closeBtn.setBackground(btnBg);
+
+    LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    );
+    btnParams.setMargins(0, 40, 0, 0);
+    root.addView(closeBtn, btnParams);
+
+    dialog.setContentView(root);
+    dialog.show();
+
+    Window window = dialog.getWindow();
+    if (window != null) {
+        window.setLayout(
+            (int)(activity.getResources().getDisplayMetrics().widthPixels * 0.85),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        window.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+    }
+
+    Handler handler = new Handler(Looper.getMainLooper());
+    Runnable countdownRunnable = new Runnable() {
+        int seconds = 5;
         public void run() {
-            try {
-                int 主题 = getCurrentTheme();
-                String 强调色 = 主题 == AlertDialog.THEME_DEVICE_DEFAULT_DARK ? getAccentColorDark() : getAccentColor();
-                String 卡片背景色 = getCardColor();
-                String 文本颜色 = getTextColor();
-                String 次要文本颜色 = getSubTextColor();
-                String 边框颜色 = getBorderColor();
-                LinearLayout 根布局 = new LinearLayout(活动);
-                根布局.setOrientation(LinearLayout.VERTICAL);
-                根布局.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
-                根布局.setBackground(getWebShape(卡片背景色, dp2px(20)));
-                TextView 标题 = new TextView(活动);
-                标题.setText("简洁群管更新日志");
-                标题.setTextColor(Color.parseColor(文本颜色));
-                标题.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-                标题.setTypeface(null, Typeface.BOLD);
-                标题.setGravity(Gravity.CENTER);
-                标题.setPadding(0, 0, 0, dp2px(12));
-                根布局.addView(标题);
-                TextView 内容 = new TextView(活动);
-                内容.setText("- [修复] 一些存在的问题\n- [移除] 以前的更新日志堆积成山没有保留的必要，已进行删除从而保持代码的简洁性\n- [优化] 大幅提升了艾特禁言的速度与判断方法\n- [添加] 快捷群管以及设置艾特禁言时间方法添加禁言添加显示时间\n\n喜欢的人要早点说 有bug及时反馈\n\n交流群:https://t.me/XiaoYu_Chat");
-                内容.setTextColor(Color.parseColor(次要文本颜色));
-                内容.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-                内容.setLineSpacing(dp2px(4), 1.2f);
-                内容.setPadding(dp2px(4), dp2px(8), dp2px(4), dp2px(16));
-                根布局.addView(内容);
-                LinearLayout 按钮栏 = new LinearLayout(活动);
-                按钮栏.setOrientation(LinearLayout.HORIZONTAL);
-                按钮栏.setGravity(Gravity.END);
-                LinearLayout.LayoutParams 按钮栏参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                按钮栏.setLayoutParams(按钮栏参数);
-                Button 不同意按钮 = new Button(活动);
-                不同意按钮.setText("朕不同意");
-                不同意按钮.setTextColor(Color.parseColor(强调色));
-                不同意按钮.setBackground(null);
-                不同意按钮.setPadding(dp2px(16), dp2px(8), dp2px(16), dp2px(8));
-                不同意按钮.setTypeface(null, Typeface.BOLD);
-                不同意按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                LinearLayout.LayoutParams 不同意参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                不同意参数.setMargins(0, 0, dp2px(8), 0);
-                不同意按钮.setLayoutParams(不同意参数);
-                不同意按钮.setOnClickListener(new View.OnClickListener() {
+            seconds--;
+            if (seconds > 0) {
+                closeBtn.setText("我已加群 (" + seconds + "s)");
+                handler.postDelayed(this, 1000);
+            } else {
+                closeBtn.setText("关闭");
+                btnBg.setColor(COLOR_PRIMARY);
+                closeBtn.setBackground(btnBg);
+                closeBtn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        System.exit(0);
+                        dialog.dismiss();
                     }
                 });
-                按钮栏.addView(不同意按钮);
-                Button 确定按钮 = new Button(活动);
-                确定按钮.setText("朕知道了");
-                确定按钮.setTextColor(Color.WHITE);
-                确定按钮.setBackground(getShape(强调色, dp2px(20)));
-                确定按钮.setPadding(dp2px(20), dp2px(10), dp2px(20), dp2px(10));
-                确定按钮.setTypeface(null, Typeface.BOLD);
-                确定按钮.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                LinearLayout.LayoutParams 确定参数 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                确定按钮.setLayoutParams(确定参数);
-                按钮栏.addView(确定按钮);
-                根布局.addView(按钮栏);
-                AlertDialog.Builder 构建器 = new AlertDialog.Builder(活动, 主题);
-                构建器.setView(根布局);
-                AlertDialog 对话框 = 构建器.create();
-                对话框.setCancelable(false);
-                对话框.setCanceledOnTouchOutside(false);
-                对话框.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                对话框.show();
-                根布局.setTag(对话框);
-                
-                确定按钮.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        putString("UpdateLog", "lastShownVersion", 当前脚本版本);
-                        // 通过根布局的 tag 获取对话框并关闭
-                        View root = (View) v.getParent().getParent(); // 按钮栏的父布局就是根布局
-                        AlertDialog dialog = (AlertDialog) root.getTag();
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                toast("显示更新日志失败");
             }
         }
-    });
+    };
+    handler.postDelayed(countdownRunnable, 1000);
 }
 
+/*
 try {
     File errorFile = new File(appPath + "/error.txt");
     if (errorFile.exists()) {
@@ -314,5 +398,6 @@ try {
     }
 } catch (Exception e) {
 }
+*/
 
 // 希望有人懂你的言外之意 更懂你的欲言又止

@@ -123,8 +123,13 @@ public int getCurrentTheme() {
     }
 }
 
-private Map Arab2Chinese = new ConcurrentHashMap();
-{
+private Map Arab2Chinese = null;
+private Map UnitMap = null;
+private Pattern pattern = null;
+
+private synchronized void initMaps() {
+    if (Arab2Chinese != null) return;
+    Arab2Chinese = new ConcurrentHashMap();
     Arab2Chinese.put('零', 0);
     Arab2Chinese.put('一', 1);
     Arab2Chinese.put('二', 2);
@@ -136,19 +141,18 @@ private Map Arab2Chinese = new ConcurrentHashMap();
     Arab2Chinese.put('八', 8);
     Arab2Chinese.put('九', 9);
     Arab2Chinese.put('十', 10);
-}
-
-private Map UnitMap = new ConcurrentHashMap();
-{
+    
+    UnitMap = new ConcurrentHashMap();
     UnitMap.put('十', 10);
     UnitMap.put('百', 100);
     UnitMap.put('千', 1000);
     UnitMap.put('万', 10000);
+    
+    pattern = Pattern.compile("[零一二三四五六七八九十]?[十百千万]?");
 }
 
-private Pattern pattern = Pattern.compile("[零一二三四五六七八九十]?[十百千万]?");
-
 public Integer CN_zh_int(String chinese) {
+    initMaps();
     if (chinese == null) return 0;
     try {
         Integer result = 0;

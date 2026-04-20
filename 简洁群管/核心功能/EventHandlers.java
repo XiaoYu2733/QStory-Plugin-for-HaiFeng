@@ -69,7 +69,6 @@ public void onMsg(Object msg) {
             
             if (!msg.IsGroup) return;
 
-            // 上管 / 下管 指令（仅主人可用）
             if (msgContent.startsWith("上管") && !mAtListCopy.isEmpty()) {
                 if (!isOwner) return;
                 String target = (String) mAtListCopy.get(0);

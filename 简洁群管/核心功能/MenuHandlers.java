@@ -18,21 +18,6 @@ import android.widget.EditText;
 
 Map groupInfoCache = new ConcurrentHashMap();
 
-{
-    try {
-        ArrayList groupList = getGroupList();
-        if (groupList != null) {
-            ArrayList groupListCopy = safeCopyList(groupList);
-            for (Object groupInfo : groupListCopy) {
-                if (groupInfo != null && groupInfo.GroupUin != null) {
-                    groupInfoCache.put(groupInfo.GroupUin, groupInfo);
-                }
-            }
-        }
-    } catch (Exception e) {
-    }
-}
-
 void onCreateMenu(Object msg) {
     try {
         if (msg != null && msg.IsGroup) {
@@ -357,7 +342,6 @@ public void haifeng520(final Object msg) {
                     }
                 }
                 
-                // 群主专属：设置管理 / 取消管理
                 if (isOwner) {
                     TextView setAdminBtn = new TextView(getActivity());
                     setAdminBtn.setText("设置管理");
