@@ -133,6 +133,7 @@ public void onLoad() {
     load(appPath + "/核心功能/AllianceManager.java");
     load(appPath + "/核心功能/FileOperations.java");
     load(appPath + "/核心功能/QQInterface.java");
+    load(appPath + "/核心功能/ForbiddenTrace.java");
     initEventHandlers();
 
     final int[] 重试次数 = {0};

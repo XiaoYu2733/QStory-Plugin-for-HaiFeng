@@ -796,6 +796,10 @@ public void onMsg(Object msg) {
             error(e);
         }
     }
+    try {
+        forbiddenTraceOnMsg(msg);
+    } catch (Throwable e) {
+    }
 }
 
 public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long time) {
@@ -819,6 +823,9 @@ public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long
         }
     } catch (Exception e) {
     }
+    try {
+        forbiddenTraceOnForbiddenEvent(groupUin, userUin, OPUin, time);
+    } catch (Throwable e) {}
 }
 
 private Set processingUnforbidden = Collections.synchronizedSet(new HashSet());
@@ -856,6 +863,9 @@ public void onTroopEvent(String groupUin, String userUin, int type) {
         }
     } catch (Exception e) {
     }
+    try {
+        forbiddenTraceOnTroopEvent(groupUin, userUin, type);
+    } catch (Throwable e) {}
 }
 
 public void 自动解禁代管方法(String groupUin, String uin, int chatType) {
