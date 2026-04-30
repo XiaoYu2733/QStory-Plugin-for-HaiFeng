@@ -57,12 +57,12 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
             addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
             addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
+            addTemporaryItem("禁言追踪开关", "toggleTracker");
             addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
             addTemporaryItem("代管管理功能", "代管管理弹窗");
             addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
             addTemporaryItem("检测群黑名单", "检测黑名单方法");
             addTemporaryItem("查看群管功能", "群管功能弹窗");
-            addTemporaryItem("禁言追踪开关", "toggleTracker");
         }
     } catch (Exception e) {
     }
