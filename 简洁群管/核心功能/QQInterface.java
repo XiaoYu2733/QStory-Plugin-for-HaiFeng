@@ -13,6 +13,7 @@ import com.tencent.common.app.BaseApplicationImpl;
 import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import com.tencent.mobileqq.app.TroopServlet;
+import top.sacz.xphelper.dexkit.ClassFinder
 
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
