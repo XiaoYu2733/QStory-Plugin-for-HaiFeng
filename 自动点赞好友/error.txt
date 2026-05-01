@@ -1,0 +1,16 @@
+2025年12月2日星期二23:01:48
+java.util.ConcurrentModificationException
+	at java.util.HashMap$ValueSpliterator.forEachRemaining(HashMap.java:1790)
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:513)
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:503)
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:582)
+	at java.util.stream.AbstractPipeline.evaluateToArrayNode(AbstractPipeline.java:263)
+	at java.util.stream.ReferencePipeline.toArray(ReferencePipeline.java:639)
+	at bsh.NameSpace.getMethods(r8-map-id-414799d7ab92a5084cb277317fda74cb1cb22a48f250347ab7720e18afcb5bfb:28)
+	at lin.xposed.hook.javaplugin.controller.PluginManager.lambda$invokeToPluginMethod$0(r8-map-id-414799d7ab92a5084cb277317fda74cb1cb22a48f250347ab7720e18afcb5bfb:13)
+	at lin.xposed.hook.javaplugin.controller.PluginManager.落叶叶子叶落子飘(r8-map-id-414799d7ab92a5084cb277317fda74cb1cb22a48f250347ab7720e18afcb5bfb:1)
+	at androidx.fragment.app.飘飘花言飘飘.run(r8-map-id-414799d7ab92a5084cb277317fda74cb1cb22a48f250347ab7720e18afcb5bfb:396)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1156)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:651)
+	at java.lang.Thread.run(Thread.java:1119)
+
