@@ -1,0 +1,8 @@
+自动更改info.prop文件以适配2.1.0以上的QStory
+太老的脚本不适用
+
+使用前建议将
+/storage/emulated/0/Android/data/com.tencent.mobileqq/QStory
+目录下名为Plugin的文件夹权限全部设置为允许防止出现无法读写的问题
+使用前建议先备份脚本
+使用完后记得关闭此脚本
