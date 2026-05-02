@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import android.widget.EditText;
+import android.view.View;
+import android.view.Window;
 
 Map groupInfoCache = new ConcurrentHashMap();
 
@@ -56,13 +58,7 @@ void onClickFloatingWindow(int type, String uin) {
             addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
             addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
             addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
-            addTemporaryItem("开启/关闭自动解禁代管", "自动解禁代管方法");
-            addTemporaryItem("禁言追踪开关", "toggleTracker");
-            addTemporaryItem("设置艾特禁言时间", "设置艾特禁言时间方法");
-            addTemporaryItem("代管管理功能", "代管管理弹窗");
-            addTemporaryItem("群黑名单管理", "黑名单管理弹窗");
-            addTemporaryItem("检测群黑名单", "检测黑名单方法");
-            addTemporaryItem("查看群管功能", "群管功能弹窗");
+            addTemporaryItem("其他设置", "其他设置方法");
         }
     } catch (Exception e) {
     }
@@ -1381,6 +1377,114 @@ public void setTitleMenuItem(Object msg) {
             }
             
             dialog.show();
+        }
+    });
+}
+
+public void 其他设置方法(final String groupUin, final String uin, final int chatType) {
+    Activity activity = getActivity();
+    if (activity == null) return;
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+            try {
+                int theme = getCurrentTheme();
+                boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), theme);
+                builder.setTitle("其他设置");
+
+                LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
+
+                String cardColor = getCardColor();
+                String textColor = getTextColor();
+                String surfaceColor = getSurfaceColor();
+
+                GradientDrawable bg = new GradientDrawable();
+                bg.setColor(Color.parseColor(cardColor));
+                bg.setCornerRadius(dp2px(16));
+                bg.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+                layout.setBackground(bg);
+
+                String[][] items = {
+                    {"开启/关闭自动解禁代管", "自动解禁代管方法"},
+                    {"开启/关闭禁言追踪", "开关禁言追踪方法"},
+                    {"设置艾特禁言时间", "设置艾特禁言时间方法"},
+                    {"代管管理功能", "代管管理弹窗"},
+                    {"群黑名单管理", "黑名单管理弹窗"},
+                    {"检测群黑名单", "检测黑名单方法"},
+                    {"查看群管功能", "群管功能弹窗"}
+                };
+
+                for (int i = 0; i < items.length; i++) {
+                    String[] item = items[i];
+                    String title = item[0];
+                    String method = item[1];
+
+                    TextView btn = new TextView(getActivity());
+                    btn.setText(title);
+                    btn.setTextColor(Color.parseColor(textColor));
+                    btn.setTextSize(16);
+                    btn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
+                    btn.setGravity(Gravity.CENTER);
+                    btn.setMinHeight(dp2px(48));
+                    
+                    GradientDrawable btnBg = new GradientDrawable();
+                    btnBg.setColor(Color.parseColor(surfaceColor));
+                    btnBg.setCornerRadius(dp2px(12));
+                    btnBg.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+                    btn.setBackground(btnBg);
+                    
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0, 0, 0, dp2px(10));
+                    btn.setLayoutParams(params);
+                    
+                    btn.setTag(method);
+                    
+                    btn.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            String targetMethod = (String) v.getTag();
+                            
+                            if (targetMethod.equals("自动解禁代管方法")) {
+                                自动解禁代管方法(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("开关禁言追踪方法")) {
+                                开关禁言追踪方法(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("设置艾特禁言时间方法")) {
+                                设置艾特禁言时间方法(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("代管管理弹窗")) {
+                                代管管理弹窗(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("黑名单管理弹窗")) {
+                                黑名单管理弹窗(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("检测黑名单方法")) {
+                                检测黑名单方法(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("群管功能弹窗")) {
+                                群管功能弹窗(groupUin, uin, chatType);
+                            }
+                        }
+                    });
+                    
+                    layout.addView(btn);
+                }
+
+                builder.setView(layout);
+                builder.setNegativeButton("取消", null);
+
+                AlertDialog dialog = builder.create();
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    GradientDrawable windowBg = new GradientDrawable();
+                    windowBg.setColor(Color.parseColor(cardColor));
+                    windowBg.setCornerRadius(dp2px(20));
+                    window.setBackgroundDrawable(windowBg);
+                }
+                dialog.show();
+            } catch (Exception e) {
+                toast("打开其他设置失败");
+            }
         }
     });
 }
