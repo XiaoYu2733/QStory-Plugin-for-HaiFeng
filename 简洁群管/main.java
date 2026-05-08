@@ -228,6 +228,7 @@ public void onLoad() {
     load(appPath + "/核心功能/FileOperations.java");
     load(appPath + "/核心功能/QQInterface.java");
     load(appPath + "/核心功能/ForbiddenTrace.java");
+    load(appPath + "/核心功能/ForbiddenListDialog.java");
     initEventHandlers();
 
     final int[] 重试次数 = {0};

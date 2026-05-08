@@ -1,5 +1,5 @@
 
-// 是我想要的太多 又或是从未得到过
+// 又该怎么写我这充满遗憾的故事 毕竟得不到的太多了 只能怪我的弱小 我的无知 我的无奈
 
 import android.app.Activity;
 import android.app.AlertDialog;

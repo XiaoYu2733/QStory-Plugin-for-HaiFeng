@@ -1410,6 +1410,7 @@ public void 其他设置方法(final String groupUin, final String uin, final in
                     {"开启/关闭自动解禁代管", "自动解禁代管方法"},
                     {"开启/关闭禁言追踪", "开关禁言追踪方法"},
                     {"设置艾特禁言时间", "设置艾特禁言时间方法"},
+                    {"禁言列表管理", "禁言列表弹窗"},
                     {"代管管理功能", "代管管理弹窗"},
                     {"群黑名单管理", "黑名单管理弹窗"},
                     {"检测群黑名单", "检测黑名单方法"},
@@ -1454,6 +1455,8 @@ public void 其他设置方法(final String groupUin, final String uin, final in
                                 开关禁言追踪方法(groupUin, uin, chatType);
                             } else if (targetMethod.equals("设置艾特禁言时间方法")) {
                                 设置艾特禁言时间方法(groupUin, uin, chatType);
+                            } else if (targetMethod.equals("禁言列表弹窗")) {
+                                禁言列表弹窗(groupUin, uin, chatType);
                             } else if (targetMethod.equals("代管管理弹窗")) {
                                 代管管理弹窗(groupUin, uin, chatType);
                             } else if (targetMethod.equals("黑名单管理弹窗")) {

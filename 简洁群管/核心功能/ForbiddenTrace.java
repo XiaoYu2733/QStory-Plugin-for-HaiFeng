@@ -1,5 +1,7 @@
 
-//一份爱的价格是298日元
+// 一份爱的价格是298日元
+
+// 你对我恶语相向时 我愣住了 原来在你眼里我是这么的不堪
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,7 +128,7 @@ void setTrackerEnabled(String groupUin, boolean enabled) {
     putBoolean(CONFIG_PREFIX, groupUin, enabled);
 }
 
-void toggleTracker(String groupUin, String uin, int chatType) {
+void 开关禁言追踪方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) {
         toast("请在群聊中使用此开关");
         return;
