@@ -220,16 +220,18 @@ public void onLoad() {
     联盟群组文件 = new File(联盟目录, "联盟群组.txt");
     封禁列表文件 = new File(联盟目录, "封禁联盟.txt");
     int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
-    load(appPath + "/核心功能/Utils.java");
-    load(appPath + "/核心功能/DialogUtils.java");
-    load(appPath + "/核心功能/MenuHandlers.java");
-    load(appPath + "/核心功能/EventHandlers.java");
-    load(appPath + "/核心功能/AllianceManager.java");
-    load(appPath + "/核心功能/FileOperations.java");
-    load(appPath + "/核心功能/QQInterface.java");
-    load(appPath + "/核心功能/ForbiddenTrace.java");
-    load(appPath + "/核心功能/ForbiddenListDialog.java");
+   load(appPath + "/核心功能/Utils.java")
+   load(appPath + "/核心功能/FileOperations.java");
+   load(appPath + "/核心功能/DialogUtils.java");
+   load(appPath + "/核心功能/MenuHandlers.java");
+   load(appPath + "/核心功能/EventHandlers.java");
+   load(appPath + "/核心功能/AllianceManager.java");
+   load(appPath + "/核心功能/QQInterface.java");
+   load(appPath + "/核心功能/ForbiddenTrace.java");
+   load(appPath + "/核心功能/ForbiddenListDialog.java");
     initEventHandlers();
+    
+    初始化禁言追踪();
 
     final int[] 重试次数 = {0};
     final int 最大重试 = 5;
@@ -278,6 +280,11 @@ public void onLoad() {
         }
     };
     群组处理器.postDelayed(检查加群, 1000);
+}
+
+public void onUnLoad() {
+    toast("简洁群管已卸载");
+    卸载禁言追踪();
 }
 
 public void initEventHandlers() {
@@ -339,10 +346,6 @@ public void initEventHandlers() {
             }
         }
     }).start();
-}
-
-public void onUnLoad() {
-    toast("简洁群管已卸载");
 }
 
 public void showMd3Dialog(Activity activity, List<String> 未加入群列表) {
@@ -486,14 +489,14 @@ public void showMd3Dialog(Activity activity, List<String> 未加入群列表) {
     handler.postDelayed(countdownRunnable, 1000);
 }
 
-/*
-try {
-    File errorFile = new File(appPath + "/error.txt");
-    if (errorFile.exists()) {
-        errorFile.delete();
-    }
-} catch (Exception e) {
-}
-*/
+/**
+ * try {
+ *     File errorFile = new File(appPath + "/error.txt");
+ *     if (errorFile.exists()) {
+ *         errorFile.delete();
+ *     }
+ * } catch (Exception e) {
+ * }
+ */
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
