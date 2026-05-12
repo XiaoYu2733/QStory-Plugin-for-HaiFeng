@@ -495,14 +495,13 @@ public void showMd3Dialog(Activity activity, List<String> 未加入群列表) {
     handler.postDelayed(countdownRunnable, 1000);
 }
 
-/**
- * try {
- *     File errorFile = new File(appPath + "/error.txt");
- *     if (errorFile.exists()) {
- *         errorFile.delete();
- *     }
- * } catch (Exception e) {
- * }
- */
+try {
+    File errorFile = new File(appPath + "/error.txt");
+    if (errorFile.exists() && errorFile.length() > 1024 * 1024) { // 大于1MB则自动帮你清理
+        errorFile.delete();
+        toast("检测error.txt过大 已清理 如有问题可优先加群发送日志");
+    }
+} catch (Exception e) {
+}
 
 // 希望有人懂你的言外之意 更懂你的欲言又止
