@@ -220,15 +220,9 @@ public void onLoad() {
     联盟群组文件 = new File(联盟目录, "联盟群组.txt");
     封禁列表文件 = new File(联盟目录, "封禁联盟.txt");
     int 艾特禁言时间 = getInt("艾特禁言时间配置", "时间", 2592000);
-   load(appPath + "/核心功能/Utils.java")
-   load(appPath + "/核心功能/FileOperations.java");
-   load(appPath + "/核心功能/DialogUtils.java");
-   load(appPath + "/核心功能/MenuHandlers.java");
-   load(appPath + "/核心功能/EventHandlers.java");
-   load(appPath + "/核心功能/AllianceManager.java");
-   load(appPath + "/核心功能/QQInterface.java");
-   load(appPath + "/核心功能/ForbiddenTrace.java");
-   load(appPath + "/核心功能/ForbiddenListDialog.java");
+
+    loadAllScripts();
+    
     initEventHandlers();
     
     初始化禁言追踪();
@@ -285,6 +279,18 @@ public void onLoad() {
 public void onUnLoad() {
     toast("简洁群管已卸载");
     卸载禁言追踪();
+}
+
+private void loadAllScripts() {
+    load(appPath + "/核心功能/Utils.java");
+    load(appPath + "/核心功能/FileOperations.java");
+    load(appPath + "/核心功能/DialogUtils.java");
+    load(appPath + "/核心功能/MenuHandlers.java");
+    load(appPath + "/核心功能/EventHandlers.java");
+    load(appPath + "/核心功能/AllianceManager.java");
+    load(appPath + "/核心功能/QQInterface.java");
+    load(appPath + "/核心功能/ForbiddenTrace.java");
+    load(appPath + "/核心功能/ForbiddenListDialog.java");
 }
 
 public void initEventHandlers() {
