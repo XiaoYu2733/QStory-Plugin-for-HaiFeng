@@ -3,6 +3,10 @@
 
 // 你对我恶语相向时 我愣住了 原来在你眼里我是这么的不堪
 
+// 一份爱的价格是298日元
+
+// 你对我恶语相向时 我愣住了 原来在你眼里我是这么的不堪
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +17,12 @@ import java.util.Date;
 String CONFIG_PREFIX = "ForbiddenTracker_";
 String STORAGE_FOLDER = "禁言追踪";
 
-void onLoad() {
+void 初始化禁言追踪() {
     createTrackerFolder();
     cleanExpiredRecords();
-    toast("禁言追踪已加载");
 }
 
-void onUnLoad() {
+void 卸载禁言追踪() {
     toast("禁言追踪已卸载");
 }
 
