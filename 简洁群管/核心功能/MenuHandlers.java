@@ -52,9 +52,10 @@ void onCreateMenu(Object msg) {
     }
 }
 
+// 此脚本仅对群聊进行工作 所以开关在私聊不显示
 void onClickFloatingWindow(int type, String uin) {
     try {
-        if (type == 2) {
+        if (type == 2) { // type == 2群聊
             addTemporaryItem("开启/关闭艾特禁言", "开关艾特禁言方法");
             addTemporaryItem("开启/关闭退群拉黑", "退群拉黑开关方法");
             addTemporaryItem("开启/关闭自助头衔", "开关自助头衔方法");
@@ -1383,27 +1384,46 @@ public void setTitleMenuItem(Object msg) {
 
 public void 其他设置方法(final String groupUin, final String uin, final int chatType) {
     Activity activity = getActivity();
-    if (activity == null) return;
-    activity.runOnUiThread(new Runnable() {
+    if (activity == null) {
+        try {
+            Class<?> baseActivity = Class.forName("com.tencent.mobileqq.app.BaseActivity");
+            java.lang.reflect.Field field = baseActivity.getDeclaredField("sTopActivity");
+            field.setAccessible(true);
+            activity = (Activity) field.get(null);
+        } catch (Throwable e) {
+            error(e);
+        }
+    }
+    if (activity == null) {
+        toast("无法获取当前窗口，请稍后重试");
+        return;
+    }
+
+    final Activity finalActivity = activity;
+    finalActivity.runOnUiThread(new Runnable() {
         public void run() {
             try {
                 int theme = getCurrentTheme();
-                boolean isDark = theme == AlertDialog.THEME_DEVICE_DEFAULT_DARK;
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), theme);
+                AlertDialog.Builder builder = new AlertDialog.Builder(finalActivity, theme);
                 builder.setTitle("其他设置");
 
-                LinearLayout layout = new LinearLayout(getActivity());
+                LinearLayout layout = new LinearLayout(finalActivity);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.setPadding(dp2px(24), dp2px(20), dp2px(24), dp2px(20));
 
                 String cardColor = getCardColor();
                 String textColor = getTextColor();
                 String surfaceColor = getSurfaceColor();
+                String borderColor = getBorderColor();
 
                 GradientDrawable bg = new GradientDrawable();
-                bg.setColor(Color.parseColor(cardColor));
+                try {
+                    bg.setColor(Color.parseColor(cardColor));
+                } catch (Exception e) {
+                    bg.setColor(Color.parseColor("#FFFFFF"));
+                }
                 bg.setCornerRadius(dp2px(16));
-                bg.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+                bg.setStroke(dp2px(1), Color.parseColor(borderColor != null ? borderColor : "#E5E5EA"));
                 layout.setBackground(bg);
 
                 String[][] items = {
@@ -1417,38 +1437,35 @@ public void 其他设置方法(final String groupUin, final String uin, final in
                     {"查看群管功能", "群管功能弹窗"}
                 };
 
-                for (int i = 0; i < items.length; i++) {
-                    String[] item = items[i];
+                for (String[] item : items) {
                     String title = item[0];
                     String method = item[1];
 
-                    TextView btn = new TextView(getActivity());
+                    TextView btn = new TextView(finalActivity);
                     btn.setText(title);
-                    btn.setTextColor(Color.parseColor(textColor));
+                    btn.setTextColor(Color.parseColor(textColor != null ? textColor : "#1A1A1A"));
                     btn.setTextSize(16);
                     btn.setPadding(dp2px(16), dp2px(16), dp2px(16), dp2px(16));
                     btn.setGravity(Gravity.CENTER);
                     btn.setMinHeight(dp2px(48));
-                    
+
                     GradientDrawable btnBg = new GradientDrawable();
-                    btnBg.setColor(Color.parseColor(surfaceColor));
+                    btnBg.setColor(Color.parseColor(surfaceColor != null ? surfaceColor : "#F2F2F7"));
                     btnBg.setCornerRadius(dp2px(12));
-                    btnBg.setStroke(dp2px(1), Color.parseColor(getBorderColor()));
+                    btnBg.setStroke(dp2px(1), Color.parseColor(borderColor != null ? borderColor : "#E5E5EA"));
                     btn.setBackground(btnBg);
-                    
+
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     );
                     params.setMargins(0, 0, 0, dp2px(10));
                     btn.setLayoutParams(params);
-                    
+
                     btn.setTag(method);
-                    
                     btn.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View v) {
                             String targetMethod = (String) v.getTag();
-                            
                             if (targetMethod.equals("自动解禁代管方法")) {
                                 自动解禁代管方法(groupUin, uin, chatType);
                             } else if (targetMethod.equals("开关禁言追踪方法")) {
@@ -1468,7 +1485,7 @@ public void 其他设置方法(final String groupUin, final String uin, final in
                             }
                         }
                     });
-                    
+
                     layout.addView(btn);
                 }
 
@@ -1476,17 +1493,18 @@ public void 其他设置方法(final String groupUin, final String uin, final in
                 builder.setNegativeButton("取消", null);
 
                 AlertDialog dialog = builder.create();
-                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                Window window = dialog.getWindow();
-                if (window != null) {
+                if (dialog.getWindow() != null) {
+                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                     GradientDrawable windowBg = new GradientDrawable();
-                    windowBg.setColor(Color.parseColor(cardColor));
+                    windowBg.setColor(Color.parseColor(cardColor != null ? cardColor : "#FFFFFF"));
                     windowBg.setCornerRadius(dp2px(20));
-                    window.setBackgroundDrawable(windowBg);
+                    dialog.getWindow().setBackgroundDrawable(windowBg);
                 }
                 dialog.show();
+
             } catch (Exception e) {
-                toast("打开其他设置失败");
+                error(e);
+                toast("打开其他设置失败: " + e.getMessage());
             }
         }
     });
