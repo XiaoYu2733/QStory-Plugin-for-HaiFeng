@@ -8,14 +8,22 @@ import java.net.*;
 import java.io.*;
 import android.content.Intent;
 import android.os.Bundle;
+
 import com.tencent.mobileqq.troop.api.ITroopInfoService;
 import com.tencent.common.app.BaseApplicationImpl;
 import com.tencent.mobileqq.profilecard.api.IProfileDataService;
 import com.tencent.mobileqq.profilecard.api.IProfileProtocolService;
 import com.tencent.mobileqq.app.TroopServlet;
-import top.sacz.xphelper.dexkit.ClassFinder
-import top.sacz.xphelper.dexkit.FieldFinder
-import top.sacz.xphelper.dexkit.MethodFinder
+
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.io.RandomAccessFile;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.File;
+import java.lang.Exception;
 
 /*
 该接口由卑微萌新(QQ779412117)开发，使用请保留版权。接口内容全部来自QQ内部，部分参数不准确与本人无关
@@ -97,6 +105,53 @@ public String SetTroopShowHonour(String qun,String myQQ,String skey,String pskey
         return "设置失败，原因:"+e;
     } 
 }
+
+/**
+ * 
+ * import android.app.Activity;
+ * import android.content.ComponentName;
+ * import android.content.Intent;
+ * 
+ * private Activity currentActivityForSettings;
+ * 
+ * public Activity getCurrentActivity() {
+ *     try {
+ *         if (context instanceof Activity) {
+ *             return (Activity) context;
+ *         }
+ *         return getActivity();
+ *     } catch (Exception e) {
+ *         return null;
+ *     }
+ * }
+ * 
+ * public void startComponentName(String packageName, String className) {
+ *     try {
+ *         currentActivityForSettings = getCurrentActivity();
+ *         if (currentActivityForSettings == null) {
+ *             toast("无法获取当前Activity");
+ *             return;
+ *         }
+ *         Intent intent = new Intent();
+ *         intent.setAction(Intent.ACTION_MAIN);
+ *         ComponentName componentName = new ComponentName(packageName, className);
+ *         intent.setComponent(componentName);
+ *         currentActivityForSettings.startActivity(intent);
+ *     } catch (Exception e) {
+ *         toast("打开失败: " + e.getMessage());
+ *     }
+ * }
+ * 
+ * public void openSettings(String group) {
+ *     startComponentName("com.tencent.mobileqq", "不告诉你");
+ * }
+ * 
+ * public void openQStorySettings() {
+ *     openSettings(null);
+ * }
+ * 
+ * addItem("打开QStory设置", "openSettings");
+ */
 
 public String SetTroopShowLevel(String qun,String myQQ,String skey,String pskey,int type){
     return SetTroopShowInfo(qun,myQQ,skey,pskey,"levelnewflag",type);

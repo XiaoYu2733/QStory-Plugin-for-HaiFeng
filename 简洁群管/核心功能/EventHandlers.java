@@ -828,6 +828,70 @@ public void onForbiddenEvent(String groupUin, String userUin, String OPUin, long
     } catch (Throwable e) {}
 }
 
+/**
+ * import com.tencent.common.app.BaseApplicationImpl;
+ * import com.tencent.mobileqq.newfriend.api.INewFriendService;
+ * import com.tencent.mobileqq.data.SysSuspiciousMsg;
+ * 
+ * void onMsg(Object msg) {
+ *     String text = msg.MessageContent;
+ *     String qq = msg.UserUin;
+ * 
+ *     if ("获取过滤好友".equals(text) && myUin.equals(qq)) {
+ *         try {
+ *             Object app = BaseApplicationImpl.getApplication().getRuntime();
+ *             
+ *             INewFriendService friendService = (INewFriendService) app.getClass().getMethod("getRuntimeService", Class.class, String.class).invoke(app, INewFriendService.class, "all");
+ *             
+ *             List<SysSuspiciousMsg> list = friendService.getAllSysSuspiciousMsg();
+ *             
+ *             if (list == null || list.isEmpty()) {
+ *                 if (msg.IsGroup) {
+ *                     sendMsg(msg.GroupUin, "", "当前没有被过滤的好友请求。");
+ *                 } else {
+ *                     sendMsg("", qq, "当前没有被过滤的好友请求。");
+ *                 }
+ *                 return;
+ *             }
+ * 
+ *             StringBuilder sb = new StringBuilder("=== 过滤好友通知列表 ===\n");
+ *             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+ * 
+ *             for (SysSuspiciousMsg info : list) {
+ *                 long qr = info.uin;
+ *                 String nick = info.nick;
+ *                 String content = info.msg;
+ *                 String reason = info.reason;
+ *                 long time = info.time;
+ *                 
+ *                 String timeStr = sdf.format(new Date(time * 1000L));
+ * 
+ *                 sb.append("QQ: ").append(qr).append(" (").append(nick).append(")\n")
+ *                   .append("内容: ").append(content).append("\n")
+ *                   .append("被过滤原因: ").append(reason).append("\n")
+ *                   .append("时间: ").append(timeStr).append("\n")
+ *                   .append("----------------------\n");
+ *             }
+ * 
+ *             if (msg.IsGroup) {
+ *                 sendMsg(msg.GroupUin, "", sb.toString().trim());
+ *             } else {
+ *                 sendMsg("", qq, sb.toString().trim());
+ *             }
+ * 
+ *         } catch (Exception e) {
+ *             log("获取过滤好友异常: " + e.toString());
+ *             error(e);
+ *             if (msg.IsGroup) {
+ *                 sendMsg(msg.GroupUin, "", "获取失败，详细报错已写入脚本日志");
+ *             } else {
+ *                 sendMsg("", qq, "获取失败，详细报错已写入脚本日志");
+ *             }
+ *         }
+ *     }
+ * }
+ */
+
 private Set processingUnforbidden = Collections.synchronizedSet(new HashSet());
 
 public void onTroopEvent(String groupUin, String userUin, int type) {
@@ -986,6 +1050,77 @@ public void 设置艾特禁言时间方法(String groupUin, String uin, int chat
         }
     });
 }
+
+/**
+ * void queryCommonGroupMenu(Object msg){
+ *     String targetUin = msg.UserUin;
+ *     int i = 0;
+ *     String result = "";
+ *     
+ *     new Thread(new Runnable() {
+ *         public void run() {
+ *             Object groupList = getGroupList();
+ *             for (Object group : groupList) {
+ *                 String groupUin = group.GroupUin;
+ *                 Object memberList = getGroupMemberList(groupUin);
+ *                 for (Object member : memberList) {
+ *                     String memberUin = member.UserUin;
+ *                     if (memberUin.equals(targetUin)) {
+ *                         Object groupInfo = getGroupInfo(groupUin);
+ *                         String groupName = groupInfo.GroupName;
+ *                         result += (i + 1) + "、" + groupUin + "(" + groupName + ")\n";
+ *                         i++;
+ *                         break;
+ *                     }
+ *                 }
+ *             }
+ *             
+ *             final String finalResult = result;
+ *             final int finalCount = i;
+ *             new Handler(Looper.getMainLooper()).post(new Runnable() {
+ *                 public void run() {
+ *                     if (finalCount > 0) {
+ *                         toast("与" + targetUin + "有" + finalCount + "个共同群:\n" + finalResult);
+ *                     } else {
+ *                         toast("与" + targetUin + "没有共同群");
+ *                     }
+ *                 }
+ *             });
+ *         }
+ *     }).start();
+ * }
+ * 
+ * public void onMsg(Object msg) {
+ *     if (!msg.UserUin.equals(myUin)) return;
+ *     if (!getBoolean(configName, "switch", false)) return;
+ *     
+ *     String text = msg.MessageContent;
+ *     String qun = msg.GroupUin;
+ *     
+ *     if (text.matches("查询共群[0-9]+")) {
+ *         String qr = text.substring(4);
+ *         int i = 0;
+ *         String result = "";
+ *         sendMsg(qun, "", "查询中，请稍等...");
+ *         
+ *         Object st1 = getGroupList();
+ *         for (Object c : st1) {
+ *             String Qun = c.GroupUin;
+ *             Object st = getGroupMemberList(Qun);
+ *             for (Object b : st) {
+ *                 String qrr = b.UserUin;
+ *                 if (qrr.equals(qr)) {
+ *                     Object groupInfo = getGroupInfo(Qun);
+ *                     String groupName = groupInfo.GroupName;
+ *                     result += (i + 1) + "、" + Qun + "(" + groupName + ")\n";
+ *                     i++;
+ *                 }
+ *             }
+ *         }
+ *         sendMsg(qun, "", "你与" + qr + "的共同群如下:\n\n" + result);
+ *     }
+ * }
+ */
 
 public void 开关自助头衔方法(String groupUin, String uin, int chatType) {
     if (chatType != 2) return;
